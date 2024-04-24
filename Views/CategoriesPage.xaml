@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="MediaMaster.Views.CategoriesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:MediaMaster.DataBase"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:MediaMaster.Views"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <!--<DataTemplate x:Key="CategoryTemplate" x:DataType="local:Category">
+            <TreeViewItem
+                AllowDrop="False"
+                AutomationProperties.Name="{x:Bind Name}"
+                CanDrag="False"
+                ItemsSource="{x:Bind Extensions}">
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" />
+                    <TextBlock Text="{x:Bind Name}" />
+                </StackPanel>
+            </TreeViewItem>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ExtensionTemplate" x:DataType="local:Extension">
+            <TreeViewItem
+                AllowDrop="False"
+                AutomationProperties.Name="{x:Bind Name}"
+                CanDrag="False">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" />
+                    <TextBlock Text="{x:Bind Name}" />
+                </StackPanel>
+            </TreeViewItem>
+        </DataTemplate>
+
+        <views:CategoriesTemplateSelector
+            x:Key="CategoriesTemplateSelector"
+            CategoryTemplate="{StaticResource CategoryTemplate}"
+            ExtensionTemplate="{StaticResource ExtensionTemplate}" />-->
+    </Page.Resources>
+
+    <ScrollViewer Padding="{StaticResource NavigationViewPageContentMargin}" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!--<TreeView
+                AllowDrop="False"
+                CanDragItems="False"
+                ItemTemplateSelector="{StaticResource CategoriesTemplateSelector}"
+                ItemsSource="{x:Bind ViewModel.dataBaseService.Categories}" />-->
+
+        </Grid>
+    </ScrollViewer>
+</Page>

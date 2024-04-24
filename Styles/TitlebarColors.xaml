@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:Windows.UI">
+
+    <ResourceDictionary.ThemeDictionaries>
+        <!--  https://github.com/beeradmoore/dlss-swapper/blob/main/src/App.xaml  -->
+        <ResourceDictionary x:Key="Dark">
+            <ui:Color x:Key="ButtonBackgroundColor">Transparent</ui:Color>
+            <ui:Color x:Key="ButtonForegroundColor">#FFFFFF</ui:Color>
+            <ui:Color x:Key="ButtonHoverBackgroundColor">#0FFFFFFF</ui:Color>
+            <ui:Color x:Key="ButtonHoverForegroundColor">#FFFFFF</ui:Color>
+            <ui:Color x:Key="ButtonPressedBackgroundColor">#0AFFFFFF</ui:Color>
+            <ui:Color x:Key="ButtonPressedForegroundColor">#A7A7A7</ui:Color>
+            <ui:Color x:Key="ButtonInactiveBackgroundColor">Transparent</ui:Color>
+            <ui:Color x:Key="ButtonInactiveForegroundColor">#737373</ui:Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+            <ui:Color x:Key="ButtonBackgroundColor">Transparent</ui:Color>
+            <ui:Color x:Key="ButtonForegroundColor">#000000</ui:Color>
+            <ui:Color x:Key="ButtonHoverBackgroundColor">#09000000</ui:Color>
+            <ui:Color x:Key="ButtonHoverForegroundColor">#000000</ui:Color>
+            <ui:Color x:Key="ButtonPressedBackgroundColor">#06000000</ui:Color>
+            <ui:Color x:Key="ButtonPressedForegroundColor">#5F5F5F</ui:Color>
+            <ui:Color x:Key="ButtonInactiveBackgroundColor">Transparent</ui:Color>
+            <ui:Color x:Key="ButtonInactiveForegroundColor">#9B9B9B</ui:Color>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+</ResourceDictionary>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MediaMaster (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MediaMaster (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

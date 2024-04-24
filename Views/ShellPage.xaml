@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Page
+    x:Class="MediaMaster.Views.ShellPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:MediaMaster.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:MediaMaster.Helpers"
+    xmlns:l="using:WinUI3Localizer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <controls:TitleBarControl x:Name="AppTitleBar" l:Uids.Uid="AppTitleBar">
+            <controls:TitleBarControl.Icon>
+                <BitmapIcon ShowAsMonochrome="False" UriSource="/Assets/WindowIcon.ico" />
+            </controls:TitleBarControl.Icon>
+        </controls:TitleBarControl>
+
+        <NavigationView
+            x:Name="NavView"
+            Canvas.ZIndex="0"
+            DisplayModeChanged="OnDisplayModeChanged"
+            Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay, FallbackValue='Default Title'}"
+            IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
+            SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
+
+            <NavigationView.AutoSuggestBox>
+                <AutoSuggestBox x:Name="search" QueryIcon="Find" />
+            </NavigationView.AutoSuggestBox>
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.HomePage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Home" />
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem
+                            Content="Create new"
+                            Icon="NewFolder"
+                            Tag="SamplePage5"
+                            ToolTipService.ToolTip="Create new" />
+                        <NavigationViewItem
+                            Content="Upload file"
+                            Icon="OpenLocal"
+                            Tag="SamplePage6"
+                            ToolTipService.ToolTip="Upload file" />
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.CategoriesPage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Bullets" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <Frame x:Name="ContentFrame" IsTabStop="False" />
+
+        </NavigationView>
+    </Grid>
+</Page>

@@ -1,0 +1,66 @@
+{
+  "archive": [
+    ".zip",
+    ".rar",
+    ".7z",
+    ".tar"
+  ],
+  "audio": [
+    ".mp3",
+    ".wav",
+    ".ogg"
+  ],
+  "code": [
+    ".html",
+    ".xml",
+    ".js",
+    ".css",
+    ".php",
+    ".java",
+    ".py",
+    ".c",
+    ".cpp",
+    ".cs",
+    ".json"
+  ],
+  "document": [
+    ".doc",
+    ".docx"
+  ],
+  "executable": [
+    ".exe",
+    ".msi",
+    ".apk",
+    ".bat",
+    ".jar"
+  ],
+  "image": [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".svg",
+    ".webp"
+  ],
+  "pdf": [
+    ".pdf"
+  ],
+  "presentation": [
+    ".ppt",
+    ".pptx"
+  ],
+  "spreadsheet": [
+    ".xls",
+    ".xlsx"
+  ],
+  "text": [
+    ".txt",
+    ".md"
+  ],
+  "video": [
+    ".mkv",
+    ".mp4",
+    ".gif",
+    ".avi",
+    ".mov"
+  ]
+}

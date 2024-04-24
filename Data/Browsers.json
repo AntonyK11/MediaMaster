@@ -1,0 +1,79 @@
+[
+  {
+    "Name": "Firefox",
+    "Icon": "\\Assets\\firefox.svg",
+    "ProfilesDirectory": "Mozilla\\Firefox\\Profiles",
+    "ProcessName": "firefox",
+    "PackageId": "Mozilla.Firefox",
+    "IsOnlyPackaged": false,
+    "BookmarkFormat": "firefox",
+    "IsInLocalAppData": false,
+    "HasProfiles": true
+  },
+  {
+    "Name": "Google Chrome",
+    "Icon": "\\Assets\\chrome.svg",
+    "ProfilesDirectory": "Google\\Chrome\\User Data",
+    "ProcessName": "chrome",
+    "PackageId": null,
+    "IsOnlyPackaged": false,
+    "BookmarkFormat": "chromium",
+    "IsInLocalAppData": true,
+    "HasProfiles": true
+  },
+  {
+    "Name": "Microsoft Edge",
+    "Icon": "\\Assets\\edge.svg",
+    "ProfilesDirectory": "Microsoft\\Edge\\User Data",
+    "ProcessName": "msedge",
+    "PackageId": null,
+    "IsOnlyPackaged": false,
+    "BookmarkFormat": "chromium",
+    "IsInLocalAppData": true,
+    "HasProfiles": true
+  },
+  {
+    "Name": "Opera",
+    "Icon": "\\Assets\\opera.svg",
+    "ProfilesDirectory": "Opera Software\\Opera Stable",
+    "ProcessName": "opera",
+    "PackageId": null,
+    "IsOnlyPackaged": false,
+    "BookmarkFormat": "chromium",
+    "IsInLocalAppData": false,
+    "HasProfiles": true
+  },
+  {
+    "Name": "Opera GX",
+    "Icon": "\\Assets\\opera-gx.svg",
+    "ProfilesDirectory": "Opera Software\\Opera GX Stable",
+    "ProcessName": "opera",
+    "PackageId": null,
+    "IsOnlyPackaged": false,
+    "BookmarkFormat": "opera-gx",
+    "IsInLocalAppData": false,
+    "HasProfiles": true
+  },
+  {
+    "Name": "Vivaldi",
+    "Icon": "\\Assets\\vivaldi.svg",
+    "ProfilesDirectory": "Vivaldi\\User Data",
+    "ProcessName": "vivaldi",
+    "PackageId": null,
+    "IsOnlyPackaged": false,
+    "BookmarkFormat": "chromium",
+    "IsInLocalAppData": true,
+    "HasProfiles": true
+  },
+  {
+    "Name": "Brave",
+    "Icon": "\\Assets\\brave.png",
+    "ProfilesDirectory": "BraveSoftware\\Brave-Browser\\User Data",
+    "ProcessName": "brave",
+    "PackageId": null,
+    "IsOnlyPackaged": false,
+    "BookmarkFormat": "chromium",
+    "IsInLocalAppData": true,
+    "HasProfiles": true
+  }
+]

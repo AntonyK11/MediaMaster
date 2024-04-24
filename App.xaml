@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Application
+    x:Class="MediaMaster.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="using:MediaMaster.Helpers"
+    xmlns:ui="using:Windows.UI">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!--  Other merged dictionaries here  -->
+                <ResourceDictionary Source="/Styles/TitlebarColors.xaml" />
+                <ResourceDictionary Source="/Styles/FontSizes.xaml" />
+                <ResourceDictionary Source="/Styles/Thickness.xaml" />
+                <ResourceDictionary Source="/Styles/TextBlock.xaml" />
+                <ResourceDictionary Source="/Styles/Spacing.xaml" />
+                <ResourceDictionary Source="/Views/TrayIconResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <!--  https://github.com/beeradmoore/dlss-swapper/blob/main/src/App.xaml  -->
+                <ResourceDictionary x:Key="Dark">
+                    <ui:Color x:Key="ButtonBackgroundColor">Transparent</ui:Color>
+                    <ui:Color x:Key="ButtonForegroundColor">#FFFFFF</ui:Color>
+                    <ui:Color x:Key="ButtonHoverBackgroundColor">#0FFFFFFF</ui:Color>
+                    <ui:Color x:Key="ButtonHoverForegroundColor">#FFFFFF</ui:Color>
+                    <ui:Color x:Key="ButtonPressedBackgroundColor">#0AFFFFFF</ui:Color>
+                    <ui:Color x:Key="ButtonPressedForegroundColor">#A7A7A7</ui:Color>
+                    <ui:Color x:Key="ButtonInactiveBackgroundColor">Transparent</ui:Color>
+                    <ui:Color x:Key="ButtonInactiveForegroundColor">#737373</ui:Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <ui:Color x:Key="ButtonBackgroundColor">Transparent</ui:Color>
+                    <ui:Color x:Key="ButtonForegroundColor">#000000</ui:Color>
+                    <ui:Color x:Key="ButtonHoverBackgroundColor">#09000000</ui:Color>
+                    <ui:Color x:Key="ButtonHoverForegroundColor">#000000</ui:Color>
+                    <ui:Color x:Key="ButtonPressedBackgroundColor">#06000000</ui:Color>
+                    <ui:Color x:Key="ButtonPressedForegroundColor">#5F5F5F</ui:Color>
+                    <ui:Color x:Key="ButtonInactiveBackgroundColor">Transparent</ui:Color>
+                    <ui:Color x:Key="ButtonInactiveForegroundColor">#9B9B9B</ui:Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+            <helpers:NullToBooleanConverter x:Key="NullToTrueConverter" />
+            <helpers:NullToBooleanConverter x:Key="NullToFalseConverter" IsInverted="True" />
+            <helpers:NullToBooleanConverter
+                x:Key="StringNullOrWhiteSpaceToFalseConverter"
+                EnforceNonWhiteSpaceString="True"
+                IsInverted="True" />
+            <helpers:EnumerableToStringConverter x:Key="EnumerableToStringConverter" />
+            <!--<helpers:ExtensionToStringConverter x:Key="ExtensionToStringConverter" />-->
+
+            <helpers:EnumToStringConverter x:Key="EnumToStringConverter" />
+
+            <!--  Other app resources here  -->
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

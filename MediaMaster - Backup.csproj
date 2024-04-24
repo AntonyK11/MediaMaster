@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.22621</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>MediaMaster</RootNamespace>
+		<ApplicationIcon>Assets/WindowIcon.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+
+		<Platforms>x86;x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<PublishProfile>Properties\PublishProfiles\win-$(Platform).pubxml</PublishProfile>
+
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWinUI>true</UseWinUI>
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+		<StartupObject>MediaMaster.Program</StartupObject>
+
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+
+		<DisableXbfLineInfo>False</DisableXbfLineInfo>
+
+		<UseRidGraph>True</UseRidGraph>
+		
+		<!--<SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>-->
+		<!--<UserSecretsId>da2555a1-d2f2-4507-9f2a-40c3553fafa3</UserSecretsId>-->
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<AppxBundle>Never</AppxBundle>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxBundlePlatforms>AnyCPU</AppxBundlePlatforms>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<AppxPackageDir>C:\Users\Antony\Downloads\</AppxPackageDir>
+		<PackageCertificateKeyFile>MediaMaster_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<UserSecretsId>32a47c34-9fca-45ca-b9b8-de9ad6de0289</UserSecretsId>
+
+		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\WinUI.TableView\WinUI.TableView.csproj" />
+	</ItemGroup>
+
+	<PropertyGroup Label="MultilingualAppToolkit">
+		<MultilingualAppToolkitVersion>4.0</MultilingualAppToolkitVersion>
+		<MultilingualFallbackLanguage>en-US</MultilingualFallbackLanguage>
+		<TranslationReport Condition="'$(Configuration)' == 'Release'">true</TranslationReport>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BookmarksManager" Version="2.0.0" />
+		<PackageReference Include="BookmarksManager.Chrome" Version="2.0.0" />
+		<PackageReference Include="BookmarksManager.Firefox" Version="2.0.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.0.240109" />
+		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.0.240109" />
+		<PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.0.240109" />
+		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
+		<PackageReference Include="EFCore.BulkExtensions" Version="8.0.2" />
+		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.124" />
+		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+		<PackageReference Include="System.Text.Json" Version="8.0.3" />
+		<PackageReference Include="WinUI3Localizer" Version="2.1.0" />
+		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.6.0" />
+		<PackageReference Include="WinUIEx" Version="2.3.4" />
+	</ItemGroup>
+
+  <ItemGroup>
+	  <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <XliffResource Include="MultilingualResources\MediaMaster.fr-FR.xlf" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.PriResources.targets" Label="MultilingualAppToolkit" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\v$(MultilingualAppToolkitVersion)\Microsoft.Multilingual.PriResources.targets')" />
+  
+  <Target Name="MATPrerequisite" BeforeTargets="PrepareForBuild" Condition="!Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.PriResources.targets')" Label="MultilingualAppToolkit">
+    <Warning Text="$(MSBuildProjectFile) is Multilingual build enabled, but the Multilingual App Toolkit is unavailable during the build. If building with Visual Studio, please check to ensure that toolkit is properly installed." />
+  </Target>
+
+  <ItemGroup>
+	  <Content Include="Strings\**\*.resw">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+	  <ProjectCapability Include="Msix" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+	  <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Controls\SearchBox.xaml" />
+    <None Remove="Controls\TagView.xaml" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Data\Browsers.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Data\MediaCategories.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+</Project>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="MediaMaster.Views.Flyout.ShellPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animatedVisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:l="using:WinUI3Localizer"
+    xmlns:local="using:MediaMaster.Views.Flyout"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style x:Key="CloseButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter
+                            x:Name="ContentPresenter"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Background="{TemplateBinding Background}"
+                            BackgroundSizing="{TemplateBinding BackgroundSizing}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Foreground="{TemplateBinding Foreground}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="#E81123" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="#FFFFFF" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="#F1707A" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="#000000" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </ContentPresenter>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="NavigationBackButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource NavigationViewBackButtonBackground}" />
+            <Setter Property="Foreground" Value="{ThemeResource NavigationViewItemForeground}" />
+            <Setter Property="FontFamily" Value="{ThemeResource SymbolThemeFontFamily}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Height" Value="{ThemeResource NavigationBackButtonHeight}" />
+            <Setter Property="Width" Value="{ThemeResource NavigationBackButtonWidth}" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
+            <Setter Property="Content" Value="&#xE72B;" />
+            <Setter Property="Margin" Value="4,6,0,0" />
+            <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid
+                            x:Name="RootGrid"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding CornerRadius}">
+                            <local:AnimatedIcon
+                                xmlns:local="using:Microsoft.UI.Xaml.Controls"
+                                x:Name="Content"
+                                Width="16"
+                                Height="16"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                local:AnimatedIcon.State="Normal"
+                                AutomationProperties.AccessibilityView="Raw"
+                                MirroredWhenRightToLeft="True">
+                                <animatedVisuals:AnimatedBackVisualSource />
+                            </local:AnimatedIcon>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource NavigationViewButtonBackgroundPointerOver}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Content" Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource NavigationViewButtonForegroundPointerOver}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                        <VisualState.Setters>
+                                            <Setter Target="Content.(controls:AnimatedIcon.State)" Value="PointerOver" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource NavigationViewButtonBackgroundPressed}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Content" Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource NavigationViewButtonForegroundPressed}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                        <VisualState.Setters>
+                                            <Setter Target="Content.(controls:AnimatedIcon.State)" Value="Pressed" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Content" Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource NavigationViewButtonForegroundDisabled}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Button
+            x:Name="TitleBarCloseButton"
+            Width="47"
+            Height="32"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            l:Uids.Uid="TitleBarCloseButton"
+            Background="Transparent"
+            BorderBrush="Transparent"
+            Canvas.ZIndex="1"
+            Click="Hide_Flyout"
+            Style="{StaticResource CloseButtonStyle}">
+            <Viewbox
+                Width="10"
+                Height="10"
+                Margin="0,0,1,0">
+                <FontIcon Glyph="&#xE8BB;" />
+            </Viewbox>
+            <interactivity:Interaction.Behaviors>
+                <core:DataTriggerBehavior
+                    Binding="{x:Bind ViewModel.IsFocused, Mode=OneWay}"
+                    ComparisonCondition="Equal"
+                    Value="True">
+                    <core:ChangePropertyAction PropertyName="Foreground" Value="{ThemeResource WindowCaptionForeground}" />
+                </core:DataTriggerBehavior>
+                <core:DataTriggerBehavior
+                    Binding="{x:Bind ViewModel.IsFocused, Mode=OneWay}"
+                    ComparisonCondition="Equal"
+                    Value="False">
+                    <core:ChangePropertyAction PropertyName="Foreground" Value="{ThemeResource WindowCaptionForegroundDisabled}" />
+                </core:DataTriggerBehavior>
+            </interactivity:Interaction.Behaviors>
+        </Button>
+        <Button
+            x:Name="NavigationBackButton"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            l:Uids.Uid="NavigationBackButton"
+            Canvas.ZIndex="1"
+            IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
+            Style="{StaticResource NavigationBackButtonStyle}" />
+        <!--<Grid
+            AllowDrop="True"
+            Background="Transparent"
+            DragOver="OnDragOver"
+            Drop="OnDrop">
+            <TextBlock
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="file drop here!" />
+        </Grid>-->
+        <Frame x:Name="ContentFrame" />
+    </Grid>
+
+    <!--<Grid>
+        <Button
+            Width="42"
+            Height="32"
+            Margin="4"
+            Padding="0"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Background="Transparent"
+            BorderThickness="0"
+            Canvas.ZIndex="1"
+            Click="Hide_Flyout">
+            <Viewbox
+                Width="15"
+                Height="15"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <SymbolIcon Symbol="Clear" />
+            </Viewbox>
+        </Button>
+        <Grid
+            AllowDrop="True"
+            Background="Transparent"
+            DragOver="OnDragOver"
+            Drop="OnDrop">
+            <TextBlock
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="file drop here!" />
+        </Grid>
+    </Grid>-->
+</Page>
