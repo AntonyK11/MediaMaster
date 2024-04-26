@@ -37,7 +37,6 @@ public sealed partial class FlyoutWindow
 
     public FlyoutWindow()
     {
-
         InitializeComponent();
         ViewModel = App.GetService<FlyoutViewModel>();
 
