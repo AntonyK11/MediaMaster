@@ -4,7 +4,6 @@ using BookmarksManager;
 using BookmarksManager.Chrome;
 using BookmarksManager.Firefox;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.WinUI;
 using Interop.UIAutomationClient;
 using MediaMaster.Helpers;
 using TreeScope = Interop.UIAutomationClient.TreeScope;
