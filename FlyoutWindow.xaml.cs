@@ -1,6 +1,5 @@
 ﻿using Windows.Graphics;
 using MediaMaster.Interfaces.Services;
-using MediaMaster.ViewModels.Flyout;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using WinUIEx;
@@ -23,6 +22,8 @@ public sealed partial class FlyoutWindow
     private const int Steps = 26;
     private int _currentStep;
 
+    private readonly bool _windows10 = Environment.OSVersion.Version.Build < 22000;
+
     private readonly DispatcherTimer _hideTimer = new() { Interval = TimeSpan.FromMilliseconds(1) };
     private readonly DispatcherTimer _showTimer = new() {Interval = TimeSpan.FromMilliseconds(1) };
 
@@ -38,7 +39,6 @@ public sealed partial class FlyoutWindow
     public FlyoutWindow()
     {
         InitializeComponent();
-        ViewModel = App.GetService<FlyoutViewModel>();
 
         App.GetService<IThemeSelectorService>().ThemeChanged += Flyout_ThemeChanged;
         Flyout_ThemeChanged(null, App.GetService<IThemeSelectorService>().ActualTheme);
@@ -57,6 +57,7 @@ public sealed partial class FlyoutWindow
                 IsAlwaysOnTop = true;
                 _currentStep = 0;
                 _showTimer.Stop();
+                return;
             }
 
             _currentStep++;
@@ -76,6 +77,7 @@ public sealed partial class FlyoutWindow
                 _currentStep = 0;
                 _hideTimer.Stop();
                 App.DispatcherQueue.EnqueueAsync(() => VisibilityChanged?.Invoke(this, false));
+                return;
             }
 
             _currentStep++;
@@ -87,8 +89,6 @@ public sealed partial class FlyoutWindow
             e.Handled = true;
         };
     }
-
-    public FlyoutViewModel ViewModel { get; set; }
 
     private void Flyout_ThemeChanged(object? sender, ElementTheme theme)
     {

@@ -17,7 +17,8 @@ public class DataBaseService : DbContext
     //public DbSet<Extension> Extensions { get; init; }
 
 #if !RELEASE
-    private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
+    //private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
+    private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
     //private string DbPath = @"Server=(localdb)\v11.0;Integrated Security = true";
 #else
     private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");

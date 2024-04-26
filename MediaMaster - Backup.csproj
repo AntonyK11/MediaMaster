@@ -45,10 +45,6 @@
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\WinUI.TableView\WinUI.TableView.csproj" />
-	</ItemGroup>
-
 	<PropertyGroup Label="MultilingualAppToolkit">
 		<MultilingualAppToolkitVersion>4.0</MultilingualAppToolkitVersion>
 		<MultilingualFallbackLanguage>en-US</MultilingualFallbackLanguage>

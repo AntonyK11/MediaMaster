@@ -77,7 +77,6 @@ public partial class App : Application
                 services.AddTransient<SettingsPage>();
 
                 services.AddSingleton<FlyoutWindow>();
-                services.AddSingleton<ViewModels.Flyout.FlyoutViewModel>();
                 services.AddSingleton<Views.Flyout.ShellPage>();
                 services.AddSingleton<ViewModels.Flyout.ShellViewModel>();
                 services.AddSingleton<Views.Flyout.HomePage>();

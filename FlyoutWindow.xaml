@@ -22,7 +22,7 @@
         <!--  W11 grey border, W10: no border  -->
         <i:Interaction.Behaviors>
             <ic:DataTriggerBehavior
-                Binding="{x:Bind ViewModel.Windows10}"
+                Binding="{x:Bind _windows10}"
                 ComparisonCondition="Equal"
                 Value="True">
                 <ic:ChangePropertyAction PropertyName="BorderThickness" Value="1" />
