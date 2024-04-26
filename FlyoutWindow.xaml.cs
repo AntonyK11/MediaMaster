@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Numerics;
-using Windows.Graphics;
+﻿using Windows.Graphics;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.ViewModels.Flyout;
 using Microsoft.UI.Windowing;
@@ -10,7 +8,6 @@ using MediaMaster.Services.Navigation;
 using MediaMaster.Views.Flyout;
 using Windows.Foundation;
 using CommunityToolkit.WinUI;
-using Microsoft.UI.Xaml.Media.Animation;
 
 namespace MediaMaster;
 
