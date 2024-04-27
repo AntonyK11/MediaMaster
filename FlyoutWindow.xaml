@@ -16,45 +16,21 @@
     IsTitleBarVisible="False"
     mc:Ignorable="d">
     <Window.SystemBackdrop>
-        <winuiex:TransparentTintBackdrop />
+        <DesktopAcrylicBackdrop />
     </Window.SystemBackdrop>
-    <mediaMaster:ContentFrame
-        x:Name="ContentGrid"
-        Height="486"
-        VerticalAlignment="Top"
-        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
-        BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
-        BorderThickness="1">
+    <mediaMaster:ContentFrame x:Name="ContentGrid">
         <!--  HACK: https://github.com/microsoft/microsoft-ui-xaml/issues/7629  -->
         <!--  W11 grey border, W10: no border  -->
         <i:Interaction.Behaviors>
             <ic:DataTriggerBehavior
                 Binding="{x:Bind _windows10}"
                 ComparisonCondition="Equal"
-                Value="False">
-                <ic:ChangePropertyAction PropertyName="CornerRadius" Value="8" />
+                Value="True">
+                <ic:ChangePropertyAction PropertyName="BorderThickness" Value="1" />
+                <ic:ChangePropertyAction PropertyName="BorderBrush" Value="{ThemeResource SurfaceStrokeColorDefaultBrush}" />
             </ic:DataTriggerBehavior>
         </i:Interaction.Behaviors>
 
         <flyout:ShellPage x:Name="FlyoutShellPage" />
-        <Frame.ContextFlyout>
-            <MenuFlyout x:Name="Flyout" ShouldConstrainToRootBounds="False">
-                <MenuFlyout.SystemBackdrop>
-                    <DesktopAcrylicBackdrop />
-                </MenuFlyout.SystemBackdrop>
-                <MenuFlyoutItem Text="Share">
-                    <MenuFlyoutItem.Icon>
-                        <FontIcon Glyph="&#xE72D;" />
-                    </MenuFlyoutItem.Icon>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Icon="Copy" Text="Copy" />
-                <MenuFlyoutItem Icon="Delete" Text="Delete" />
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Rename" />
-                <MenuFlyoutItem Text="Select" />
-            </MenuFlyout>
-
-        </Frame.ContextFlyout>
-
     </mediaMaster:ContentFrame>
 </winuiex:WindowEx>
