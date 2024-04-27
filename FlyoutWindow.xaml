@@ -15,20 +15,46 @@
     IsTitleBarVisible="False"
     mc:Ignorable="d">
     <Window.SystemBackdrop>
-        <DesktopAcrylicBackdrop />
+        <winuiex:TransparentTintBackdrop />
     </Window.SystemBackdrop>
-    <Grid>
+    <Frame
+        x:Name="ContentGrid"
+        Height="486"
+        VerticalAlignment="Top"
+        Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+        BorderThickness="1">
         <!--  HACK: https://github.com/microsoft/microsoft-ui-xaml/issues/7629  -->
         <!--  W11 grey border, W10: no border  -->
         <i:Interaction.Behaviors>
             <ic:DataTriggerBehavior
                 Binding="{x:Bind _windows10}"
                 ComparisonCondition="Equal"
-                Value="True">
-                <ic:ChangePropertyAction PropertyName="BorderThickness" Value="1" />
-                <ic:ChangePropertyAction PropertyName="BorderBrush" Value="{ThemeResource SurfaceStrokeColorDefaultBrush}" />
+                Value="False">
+                <ic:ChangePropertyAction PropertyName="CornerRadius" Value="8" />
             </ic:DataTriggerBehavior>
         </i:Interaction.Behaviors>
+
         <flyout:ShellPage x:Name="FlyoutShellPage" />
-    </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="OpenStates">
+                <VisualState x:Name="Closed1">
+                    <Storyboard>
+                        <!--  Run a PopOutThemeAnimation when ToolTip is closed.  -->
+                        <PopOutThemeAnimation TargetName="LayoutRoot" />
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Opened1">
+                    <Storyboard>
+                        <!--  Run a PopInThemeAnimation when ToolTip is opened.  -->
+                        <PopInThemeAnimation
+                            FromHorizontalOffset="{x:Bind PosX}"
+                            FromVerticalOffset="500"
+                            TargetName="LayoutRoot" />
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </Frame>
 </winuiex:WindowEx>

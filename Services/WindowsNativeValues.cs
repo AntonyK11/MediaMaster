@@ -70,6 +70,14 @@ public static class WindowsNativeValues
         WCA_USEDARKMODECOLORS = 26
     }
 
+    public enum DWM_WINDOW_CORNER_PREFERENCE
+    {
+        DWMWCP_DEFAULT = 0,
+        DWMWCP_DONOTROUND = 1,
+        DWMWCP_ROUND = 2,
+        DWMWCP_ROUNDSMALL = 3
+    }
+
     public const int
         WM_INITMENU = 0x0116,
         WM_SYSCOMMAND = 0x0112,
