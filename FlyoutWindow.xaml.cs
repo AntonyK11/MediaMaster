@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Windows.Graphics;
 using MediaMaster.Interfaces.Services;
 using Microsoft.UI.Windowing;
@@ -16,6 +17,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Hosting;
+using System.Windows.Forms;
 
 namespace MediaMaster;
 
@@ -162,20 +164,20 @@ public sealed partial class FlyoutWindow
             //var y = PosY;
             //AppWindow.Move(new PointInt32((int)PosX, (int)y));
 
-            var compositor = Compositor;
-            var animation = compositor.CreateScalarKeyFrameAnimation();
+            //var compositor = Compositor;
+            //var animation = compositor.CreateScalarKeyFrameAnimation();
 
-            //animation.InsertKeyFrame(0.0f, 486.0f);
+            ////animation.InsertKeyFrame(0.0f, 486.0f);
 
-            var easing = Compositor.CreateCubicBezierEasingFunction(new Vector2(1f, 0), new Vector2(1f, 1f));
-            //animation.SetScalarParameter("ease", 0.5f);
-            //animation.SetScalarParameter("damp", 0.5f);
+            //var easing = Compositor.CreateCubicBezierEasingFunction(new Vector2(1f, 0), new Vector2(1f, 1f));
+            ////animation.SetScalarParameter("ease", 0.5f);
+            ////animation.SetScalarParameter("damp", 0.5f);
 
-            animation.InsertKeyFrame(1.0f, (float)WindowFrameHeight, easing);
-            animation.Duration = TimeSpan.FromMilliseconds(167);
-            animation.Target = "Translation.Y";
+            //animation.InsertKeyFrame(1.0f, (float)WindowFrameHeight, easing);
+            //animation.Duration = TimeSpan.FromMilliseconds(167);
+            //animation.Target = "Translation.Y";
 
-            ContentGrid.StartAnimation(animation);
+            //ContentGrid.StartAnimation(animation);
 
             //this.Hide();
             //Hide_Flyout();
@@ -187,9 +189,11 @@ public sealed partial class FlyoutWindow
             //animation.Duration = TimeSpan.FromSeconds(0.5);
             //storyBoard.Children.Add(animation);
             //storyBoard.Begin();
+            App.DispatcherQueue.EnqueueAsync(() => VisibilityChanged?.Invoke(this, false));
         }
         else
         {
+            Flyout.ShowAt(ContentGrid);
             Activate();
             this.SetForegroundWindow();
             IsAlwaysOnTop = false;
@@ -228,22 +232,45 @@ public sealed partial class FlyoutWindow
 
             //_rootVisual.StartAnimation("Offset.Y", animation);
 
-            var animation = Compositor.CreateScalarKeyFrameAnimation();
 
-            var easing = Compositor.CreateCubicBezierEasingFunction(new Vector2(0, 0), new Vector2(0, 1f));
-            //animation.SetScalarParameter("ease", 0.5f);
-            //animation.SetScalarParameter("damp", 0.5f);
 
-            if (IsVisible is null)
+            //var animation = Compositor.CreateScalarKeyFrameAnimation();
+
+            //var easing = Compositor.CreateCubicBezierEasingFunction(new Vector2(0, 0), new Vector2(0, 1f));
+            ////animation.SetScalarParameter("ease", 0.5f);
+            ////animation.SetScalarParameter("damp", 0.5f);
+
+            //if (IsVisible is null)
+            //{
+            //    animation.InsertKeyFrame(0.0f, (float)WindowFrameHeight, easing);
+            //}
+            //animation.InsertKeyFrame(1.0f, 0, easing);
+            //animation.Duration = TimeSpan.FromMilliseconds(167);
+            //animation.Target = "TopProperty";
+
+
+            //ContentGrid.StartAnimation(animation);
+
+
+
+            var duration = new Duration(TimeSpan.FromSeconds(1));
+            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            var animation = new DoubleAnimation
             {
-                animation.InsertKeyFrame(0.0f, (float)WindowFrameHeight, easing);
-            }
-            animation.InsertKeyFrame(1.0f, 0, easing);
-            animation.Duration = TimeSpan.FromMilliseconds(167);
-            animation.Target = "Translation.Y";
-            
+                EasingFunction = ease,
+                Duration = duration
+            };
 
-            ContentGrid.StartAnimation(animation);
+            var conStoryboard = new Storyboard();
+            conStoryboard.Children.Add(animation);
+            animation.From = PosY + WindowFrameHeight;
+            animation.To = PosY;
+            animation.EnableDependentAnimation = true;
+            Storyboard.SetTarget(animation, ContentGrid);
+            Storyboard.SetTargetProperty(animation, "PosY");
+            conStoryboard.Begin();
+
+
 
             //Show_Flyout();
             //VisualStateManager.GoToState(ContentGrid, "Opened1", true);
@@ -270,5 +297,39 @@ public sealed partial class FlyoutWindow
     private static double EaseInQuad(double t)
     {
         return Math.Pow(t, 4);
+    }
+}
+
+class ContentFrame : Frame
+{
+
+    private DisplayArea DisplayArea => DisplayArea.GetFromWindowId(App.Flyout!.AppWindow.Id, DisplayAreaFallback.Nearest);
+    private double DpiScale => (float)App.Flyout!.GetDpiForWindow() / 96;
+
+    private const int WindowMargin = 12;
+    private const int WindowWidth = 386;
+    private double PosX => DisplayArea.WorkArea.Width - DpiScale * (WindowWidth + WindowMargin);
+
+    public ContentFrame()
+    {
+        RegisterPropertyChangedCallback(PosYProperty, OnPropertyChanged);
+    }
+
+    private void OnPropertyChanged(DependencyObject sender, DependencyProperty dp)
+    {
+        App.Flyout?.Move((int)PosX, (int)PosY);
+    }
+
+    public static readonly DependencyProperty PosYProperty
+        = DependencyProperty.Register(
+            nameof(PosY),
+            typeof(double),
+            typeof(ContentFrame),
+            new PropertyMetadata(0));
+
+    public double PosY
+    {
+        get => (double)GetValue(PosYProperty);
+        set => SetValue(PosYProperty, value);
     }
 }
