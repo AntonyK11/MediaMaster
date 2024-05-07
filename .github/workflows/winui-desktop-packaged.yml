@@ -22,7 +22,7 @@ jobs:
     env:
       Project_Name: MediaMaster
       Solution_Name: MediaMaster.sln                         # Replace with your solution name, i.e. App1.sln.
-      PUBLISH_OUTPUT_FOLDER: Packages
+      PUBLISH_OUTPUT_FOLDER: Packages/
 
     steps:
     - name: Checkout
