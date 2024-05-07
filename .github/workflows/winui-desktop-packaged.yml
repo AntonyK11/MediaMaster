@@ -52,7 +52,7 @@ jobs:
         Appx_Bundle: Never
         Appx_Bundle_Platforms: x64
         Appx_Package_Build_Mode: SideloadOnly
-        Appx_Package_Dir: Packages\
+        Appx_Package_Dir: ${{ env.PUBLISH_OUTPUT_FOLDER }}
         Configuration: ${{ matrix.configuration }}
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
@@ -60,5 +60,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MSIX Package
-        path: MediaMaster/MediaMaster/Packages
+        path: ${{ env.PUBLISH_OUTPUT_FOLDER }}
         if-no-files-found: error
