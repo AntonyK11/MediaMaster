@@ -47,7 +47,7 @@ jobs:
 
     # Create the app package by building and packaging the project
     - name: Create the app package
-      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=MediaMaster_TemporaryKey.pfx
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=MediaMaster_TemporaryKey.pfx /p:GenerateAppxPackageOnBuild=true
       env:
         Appx_Bundle: Never
         Appx_Bundle_Platforms: x64
