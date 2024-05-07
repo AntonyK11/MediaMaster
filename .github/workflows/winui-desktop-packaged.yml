@@ -15,12 +15,12 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
-        platform: [x64]
 
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 
     env:
+      Project_Name: MediaMaster
       Solution_Name: MediaMaster.sln                         # Replace with your solution name, i.e. App1.sln.
 
     steps:
@@ -47,17 +47,16 @@ jobs:
 
     # Create the app package by building and packaging the project
     - name: Create the app package
-      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /p:Platform=$env:Platform /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=MediaMaster_TemporaryKey.pfx /p:AppxPackageDir="$env:Appx_Package_Dir" /p:GenerateAppxPackageOnBuild=true
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=MediaMaster_TemporaryKey.pfx
       env:
         Appx_Bundle: Never
+        Appx_Bundle_Platforms: x64
         Appx_Package_Build_Mode: SideloadOnly
-        Appx_Package_Dir: Packages\
         Configuration: ${{ matrix.configuration }}
-        Platform: ${{ matrix.platform }}
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload MSIX package
       uses: actions/upload-artifact@v4
       with:
         name: MSIX Package
-        path: ${{ env.Solution_Name }}\\Packages
+        path: MediaMaster\AppPackages
