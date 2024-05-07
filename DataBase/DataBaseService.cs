@@ -1,11 +1,8 @@
 ﻿using Windows.Storage;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using Windows.Foundation.Collections;
-using System.Text.Json.Nodes;
-using static MediaMaster.DataBase.DbEntities;
+using MediaMaster.DataBase.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Hosting;
 
 namespace MediaMaster.DataBase;
 
@@ -61,10 +58,10 @@ public class DataBaseService : DbContext
 
         //await SetupMediaCategories();
 
-        ChangeTracker.StateChanged += UpdateTimestamps;
-        ChangeTracker.Tracked += UpdateTimestamps;
+        ChangeTracker.StateChanged += Timestamps.UpdateTimestamps;
+        ChangeTracker.Tracked += Timestamps.UpdateTimestamps;
 
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             Tag media = this.CreateProxy<Tag>(t =>
             {

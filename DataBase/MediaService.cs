@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediaMaster.DataBase.Models;
+using Microsoft.EntityFrameworkCore;
 namespace MediaMaster.DataBase;
 using Microsoft.UI.Dispatching;
 using System.Collections.Generic;
