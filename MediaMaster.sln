@@ -5,10 +5,6 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaMaster", "MediaMaster.csproj", "{06FCBD9C-199E-40A3-905B-58223664C797}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MediaMaster_Installation", "..\MediaMaster_Installation\MediaMaster_Installation.vcxproj", "{19183A23-2559-4008-A695-5BE807BE80AA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaMaster.Tests.MSTest", "..\MediaMaster.Tests.MSTest\MediaMaster.Tests.MSTest.csproj", "{25862C8E-8489-447D-84FD-92783237A7BF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,38 +41,6 @@ Global
 		{06FCBD9C-199E-40A3-905B-58223664C797}.Release|x86.ActiveCfg = Release|x86
 		{06FCBD9C-199E-40A3-905B-58223664C797}.Release|x86.Build.0 = Release|x86
 		{06FCBD9C-199E-40A3-905B-58223664C797}.Release|x86.Deploy.0 = Release|x86
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|Any CPU.Build.0 = Debug|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|ARM64.ActiveCfg = Debug|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|ARM64.Build.0 = Debug|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|x64.ActiveCfg = Debug|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|x64.Build.0 = Debug|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|x86.ActiveCfg = Debug|Win32
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Debug|x86.Build.0 = Debug|Win32
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|Any CPU.ActiveCfg = Release|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|Any CPU.Build.0 = Release|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|ARM64.ActiveCfg = Release|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|ARM64.Build.0 = Release|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|x64.ActiveCfg = Release|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|x64.Build.0 = Release|x64
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|x86.ActiveCfg = Release|Win32
-		{19183A23-2559-4008-A695-5BE807BE80AA}.Release|x86.Build.0 = Release|Win32
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|Any CPU.Build.0 = Debug|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|ARM64.ActiveCfg = Debug|arm64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|ARM64.Build.0 = Debug|arm64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|x64.ActiveCfg = Debug|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|x64.Build.0 = Debug|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|x86.ActiveCfg = Debug|x86
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Debug|x86.Build.0 = Debug|x86
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|Any CPU.ActiveCfg = Release|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|Any CPU.Build.0 = Release|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|ARM64.ActiveCfg = Release|arm64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|ARM64.Build.0 = Release|arm64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|x64.ActiveCfg = Release|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|x64.Build.0 = Release|x64
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|x86.ActiveCfg = Release|x86
-		{25862C8E-8489-447D-84FD-92783237A7BF}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

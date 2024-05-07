@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Xaml.Data;
 using System.Collections;
 using MediaMaster.DataBase;
+using MediaMaster.DataBase.Models;
 
 namespace MediaMaster.Helpers;
 

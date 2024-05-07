@@ -28,7 +28,7 @@
 		<!--<UserSecretsId>da2555a1-d2f2-4507-9f2a-40c3553fafa3</UserSecretsId>-->
 		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
 		<AppxBundle>Never</AppxBundle>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -61,9 +61,10 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.0.240109" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
-		<PackageReference Include="EFCore.BulkExtensions" Version="8.0.2" />
-		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.129" />
+		<PackageReference Include="EFCore.BulkExtensions" Version="8.0.3" />
+		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.131" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
@@ -72,12 +73,12 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240404000" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
 		<PackageReference Include="System.Text.Json" Version="8.0.3" />
 		<PackageReference Include="WinUI3Localizer" Version="2.2.0" />
 		<PackageReference Include="WinUI3XamlPreview" Version="0.8.2" />
-		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.7.0" />
+		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.8.0" />
 		<PackageReference Include="WinUIEx" Version="2.3.4" />
 	</ItemGroup>
 
