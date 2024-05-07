@@ -60,4 +60,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MSIX Package
-        path: MediaMaster\AppPackages
+        path: MediaMaster\Packages
