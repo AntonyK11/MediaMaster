@@ -5,5 +5,5 @@ namespace MediaMaster.ViewModels;
 
 public partial class CategoriesViewModel : ObservableObject
 {
-    public DataBaseService dataBaseService = App.GetService<DataBaseService>();
+    //public DataBaseService dataBaseService = App.GetService<DataBaseService>();
 }

@@ -16,10 +16,6 @@ namespace MediaMaster.Views;
 /// </summary>
 public sealed partial class HomePage
 {
-    private DataBaseService DataBase { get; }
-
-    private MediaService Media { get; }
-
     private ITeachingService TeachingService { get; }
 
     private BrowserService BrowserService { get; }
@@ -28,8 +24,6 @@ public sealed partial class HomePage
 
     public HomePage()
     {
-        DataBase = App.GetService<DataBaseService>();
-        Media = App.GetService<MediaService>();
         TeachingService = App.GetService<ITeachingService>();
         BrowserService = App.GetService<BrowserService>();
 
@@ -104,9 +98,11 @@ public sealed partial class HomePage
         //{
         //    return;
         //}
-
-        DataBase.Medias.RemoveRange(DataBase.Medias);
-        await DataBase.SaveChangesAsync();
+        await using (MediaDbContext dataBase = new())
+        {
+            dataBase.Medias.RemoveRange(dataBase.Medias);
+            await dataBase.SaveChangesAsync();
+        }
     }
 
     private async void Button_Click(object sender, RoutedEventArgs e)

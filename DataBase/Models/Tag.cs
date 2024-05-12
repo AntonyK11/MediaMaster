@@ -5,7 +5,7 @@ namespace MediaMaster.DataBase.Models;
 public class Tag
 {
     [Key]
-    public virtual int TagId { get; init; }
+    public virtual int TagId { get; set; }
 
     public virtual required string Name { get; set; }
 

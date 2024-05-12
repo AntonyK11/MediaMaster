@@ -1,36 +1,41 @@
-﻿using MediaMaster.DataBase.Models;
+﻿using System.Diagnostics;
+using EFCore.BulkExtensions;
+using MediaMaster.DataBase.Models;
 using Microsoft.EntityFrameworkCore;
+
 namespace MediaMaster.DataBase;
-using Microsoft.UI.Dispatching;
 using System.Collections.Generic;
 
 public class MediaService
 {
-    private readonly DataBaseService _dataBase;
-
-    public MediaService(DataBaseService dataBase)
+    public static async Task AddMediaAsync(string path)
     {
-        _dataBase = dataBase;
-    }
+        IEnumerable<string> mediaPaths = GetFiles(path.Trim());
 
-    public async Task AddMediaAsync(string path)
-    {
-        //DateTime time = DateTime.Now;
-        //DispatcherQueue? dispatcherQueueCurrent = DispatcherQueue.GetForCurrentThread();
-        //if (_dispatcherQueue != dispatcherQueueCurrent)
-        //{
-        //    await _dispatcherQueue.EnqueueAsync(() => AddMediaAsync(path));
-        //    return;
-        //}
+        await using (MediaDbContext dataBase = new())
+        {
+            ICollection<Tag> tags = dataBase.Tags.ToList();
+            ICollection<Tag> newTags = [];
+            ICollection<Media> medias = mediaPaths.Select(path => GetMedia(path, ref tags, ref newTags)).ToList();
 
-        IEnumerable<string> mediaPaths = GetFiles(path);
-        IList<Media> medias = mediaPaths.Select(GetMedia).ToList();
+            await dataBase.BulkInsertAsync(medias, new BulkConfig { SetOutputIdentity = true });
+            await dataBase.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
 
-        //await _dispatcherQueue.EnqueueAsync(() => _dataBase.Medias.AddRangeAsync(medias));
-        await _dataBase.Medias.AddRangeAsync(medias);
-        //await _dataBase.BulkSaveChangesAsync();
-        //await _dataBase.BulkInsertAsync(medias);
-        await _dataBase.SaveChangesAsync();
+            ICollection<MediaTag> mediaTags = [];
+            foreach (var media in medias)
+            {
+                foreach (var tag in media.Tags)
+                {
+                    mediaTags.Add(new MediaTag
+                    {
+                        MediaId = media.MediaId,
+                        TagId = tag.TagId
+                    });
+                }
+            }
+
+            await dataBase.BulkInsertAsync(mediaTags);
+        }
     }
 
     private static IEnumerable<string> GetFiles(string path)
@@ -53,16 +58,28 @@ public class MediaService
         // Path does not exist
         return [];
     }
-
-    private Media GetMedia(string path)
+    
+    private static Media GetMedia(string path, ref ICollection<Tag> tags, ref ICollection<Tag> newTags)
     {
-        Media media = _dataBase.CreateProxy<Media>(async m =>
+        var extension = Path.GetExtension(path);
+        Media media = new()
         {
-            m.Name = Path.GetFileNameWithoutExtension(path);
-            m.FilePath = path;
-            string extension = Path.GetExtension(path);
-            //m.Extension = await _dataBase.Extensions.FirstOrDefaultAsync(f => f.Name == extension) ?? _dataBase.CreateProxy<Extension>(e => e.Name = extension);
-        });
+            Name = Path.GetFileNameWithoutExtension(path),
+            FilePath = path,
+        };
+
+        Tag? tag = tags.FirstOrDefault(t => t.Name == extension);
+        if (tag is null)
+        {
+            tag = new Tag
+            {
+                Name = extension
+            };
+            tags.Add(tag);
+            newTags.Add(tag);
+        }
+        media.Tags.Add(tag);
+
         return media;
     }
 }

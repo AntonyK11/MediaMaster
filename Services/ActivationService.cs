@@ -97,10 +97,13 @@ public class ActivationService : IActivationService
     private async Task LoadServices()
     {
         //await Task.Delay(10);
+        await using (MediaDbContext dataBase = new())
+        {
+            await dataBase.InitializeAsync();
+        }
         await Task.WhenAll(
             App.GetService<ITranslationService>().InitializeAsync(),
             App.GetService<SettingsService>().InitializeAsync(),
-            App.GetService<DataBaseService>().InitializeAsync(),
             ResetContextMenu()
         );
     }
@@ -153,22 +156,29 @@ public class ActivationService : IActivationService
                 await LaunchWindow(true);
                 AddFiles();
 
-                //var files = filesValue.Split(", ");
-                //foreach (var file in files)
-                //{
-                //    await App.GetService<MediaService>().AddMediaAsync(file.Replace("\"", ""));
-                //    Debug.WriteLine(file.Replace("\"", ""));
-                //}
-                //await App.GetService<DataBaseService>().SaveChangesAsync();
+                _ = Task.Run(async () => {
+                    DateTime time = DateTime.Now;
+                    Debug.WriteLine("Adding files");
+                    var files = filesValue.Split(", ");
+                    foreach (var file in files)
+                    {
+                        await MediaService.AddMediaAsync(file.Replace("\"", ""));
+                        Debug.WriteLine(file.Replace("\"", ""));
+                    }
+                    Debug.WriteLine(DateTime.Now - time);
+                });
             }
             else
             {
                 if (App.MainWindow is null)
                 {
+                    await using (MediaDbContext dataBase = new())
+                    {
+                        await dataBase.InitializeAsync();
+                    }
                     await Task.WhenAll(
                         App.GetService<ITranslationService>().InitializeAsync(),
-                        App.GetService<SettingsService>().InitializeAsync(),
-                        App.GetService<DataBaseService>().InitializeAsync()
+                        App.GetService<SettingsService>().InitializeAsync()
                     );
                 }
 

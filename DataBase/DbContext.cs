@@ -20,9 +20,17 @@ public class MediaDbContext : DbContext
         optionsBuilder.UseSqlite($"Data Source={DbPath}");
         //optionsBuilder.UseChangeTrackingProxies();
         optionsBuilder.EnableDetailedErrors();
-        optionsBuilder.UseLazyLoadingProxies();
+        //optionsBuilder.UseLazyLoadingProxies();
 
         optionsBuilder.UseLoggerFactory(MyLoggerFactory);
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Media>()
+            .HasMany(e => e.Tags)
+            .WithMany(e => e.Medias)
+            .UsingEntity<MediaTag>();
     }
 
     public async Task InitializeAsync()
@@ -33,8 +41,22 @@ public class MediaDbContext : DbContext
         //await Medias.LoadAsync();
         //await Tags.LoadAsync();
 
-        ChangeTracker.StateChanged += Timestamps.UpdateTimestamps;
-        ChangeTracker.Tracked += Timestamps.UpdateTimestamps;
+        //ChangeTracker.StateChanged += Timestamps.UpdateTimestamps;
+        //ChangeTracker.Tracked += Timestamps.UpdateTimestamps;
+
+        //for (var i = 0; i < 10; i++)
+        //{
+        //    Tag media = this.CreateProxy<Tag>(t =>
+        //    {
+        //        t.Name = "Media";
+        //        foreach (Tag tag in Tags)
+        //        {
+        //            t.Children.Add(tag);
+        //        }
+        //    });
+        //    Tags.Add(media);
+        //    await SaveChangesAsync();
+        //}
     }
 
     public void AddTag(string name, IEnumerable<Tag> parents)

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MediaMaster.DataBase;
 using MediaMaster.Interfaces.Services;
+using System.Diagnostics;
 
 namespace MediaMaster;
 
@@ -26,13 +27,13 @@ internal static partial class Program
     {
         ComWrappersSupport.InitializeComWrappers();
 
-        Host.CreateDefaultBuilder(args)
-            .ConfigureServices(
-                services =>
-                {
-                    // EF Core uses this method at design time to access the DbContext
-                    services.AddDbContext<DataBaseService>();
-                }).Build();
+        //Host.CreateDefaultBuilder(args)
+        //    .ConfigureServices(
+        //        services =>
+        //        {
+        //            // EF Core uses this method at design time to access the DbContext
+        //            services.AddDbContext<DataBaseService>();
+        //        }).Build();
 
         XamlCheckProcessRequirements();
 

@@ -81,11 +81,6 @@ public partial class App : Application
                 services.AddSingleton<ViewModels.Flyout.ShellViewModel>();
                 services.AddSingleton<Views.Flyout.HomePage>();
                 services.AddSingleton<ViewModels.Flyout.HomeViewModel>();
-
-
-                // Database
-                services.AddSingleton<DataBaseService>();
-                services.AddSingleton<MediaService>();
             }).Build();
 
         GetService<IAppNotificationService>().Initialize();

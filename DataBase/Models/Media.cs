@@ -5,7 +5,7 @@ namespace MediaMaster.DataBase.Models;
 public class Media : IHasTimestamps
 {
     [Key]
-    public virtual int MediaId { get; init; }
+    public virtual int MediaId { get; set; }
 
     public virtual required string Name { get; set; }
 

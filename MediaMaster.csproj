@@ -12,6 +12,8 @@
 		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
 		<PublishProfile>Properties\PublishProfiles\win-$(Platform).pubxml</PublishProfile>
 
+		<UseRidGraph>true</UseRidGraph>
+
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<UseWinUI>true</UseWinUI>
@@ -33,9 +35,8 @@
 		<AppxBundle>Never</AppxBundle>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-		<AppxBundlePlatforms>AnyCPU</AppxBundlePlatforms>
+		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-		<AppxPackageDir>C:\Users\Antony\Downloads\</AppxPackageDir>
 		<PackageCertificateKeyFile>MediaMaster_TemporaryKey.pfx</PackageCertificateKeyFile>
 		<UserSecretsId>32a47c34-9fca-45ca-b9b8-de9ad6de0289</UserSecretsId>
 
@@ -66,15 +67,18 @@
 		<PackageReference Include="EFCore.BulkExtensions" Version="8.0.3" />
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.131" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
 		<PackageReference Include="System.Text.Json" Version="8.0.3" />
 		<PackageReference Include="WinUI3Localizer" Version="2.2.0" />
 		<PackageReference Include="WinUI3XamlPreview" Version="0.8.2" />
