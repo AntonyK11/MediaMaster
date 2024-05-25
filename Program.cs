@@ -65,7 +65,6 @@ internal static partial class Program
         {
             isRedirect = true;
             AppActivationArguments? args = AppInstance.GetCurrent().GetActivatedEventArgs();
-            // TODO: Crash if WindowsAppSDKSelfContained is set to true
             keyInstance.RedirectActivationToAsync(args).GetAwaiter().GetResult();
         }
 
