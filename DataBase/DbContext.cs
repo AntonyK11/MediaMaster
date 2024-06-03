@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase.Models;
-using Microsoft.Extensions.Logging;
 using Windows.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace MediaMaster.DataBase;
 
@@ -10,19 +11,18 @@ public class MediaDbContext : DbContext
     public DbSet<Media> Medias { get; init; }
     public DbSet<Tag> Tags { get; init; }
 
-    private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
-    //private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
-
-    private static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder => { builder.AddDebug(); });
+    //private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
+    private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite($"Data Source={DbPath}");
         //optionsBuilder.UseChangeTrackingProxies();
         optionsBuilder.EnableDetailedErrors();
+        optionsBuilder.EnableSensitiveDataLogging();
         //optionsBuilder.UseLazyLoadingProxies();
 
-        optionsBuilder.UseLoggerFactory(MyLoggerFactory);
+        optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

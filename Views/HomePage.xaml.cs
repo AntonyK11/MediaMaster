@@ -3,7 +3,13 @@ using MediaMaster.DataBase;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using BookmarksManager;
+using MediaMaster.DataBase.Models;
+using MediaMaster.Controls;
 using Microsoft.UI.Xaml.Controls;
+using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.UI.Xaml.Input;
+using System.Diagnostics;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -33,6 +39,12 @@ public sealed partial class HomePage
         TeachingService.Configure(2, TeachingTip2);
         TeachingService.Configure(3, TeachingTip3);
 
+        MediaViewer.Media = new Media
+        {
+            Name = "Raptor_Dimorphism",
+            FilePath = @"C:\Users\Antony\Downloads\ovisetup.exe"
+        };
+
         //_collection = new(DataBase.Medias.Local);
         //DataBase.Medias.Local.CollectionChanged += (_, args) =>
         //{
@@ -49,16 +61,57 @@ public sealed partial class HomePage
         //MediasDataGrid.ItemsSource = DataBase.Medias.Local.ToObservableCollection();
         //CategoriesDataGrid.ItemsSource = DataBase.Categories.Local.ToObservableCollection();
         //ExtensionsDataGrid.ItemsSource = DataBase.Extensions.Local.ToObservableCollection();
+
+        ContentSizer.ManipulationStarted += ContentSizer_ManipulationStarted;
+        ContentSizer.ManipulationCompleted += ContentSizer_ManipulationCompleted;
+        ContentSizer.PointerEntered += ContentSizer_PointerEntered;
+        ContentSizer.PointerExited += ContentSizer_PointerExited;
+    }
+
+    private bool _isDragging = false;
+    private bool _isHover = false;
+
+    private void ContentSizer_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        _isHover = false;
+        if (!_isDragging)
+        {
+            MediaViewer.CornerRadius = new CornerRadius(8, 8, 0, 0);
+        }
+    }
+
+    private void ContentSizer_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        _isHover = true;
+        MediaViewer.CornerRadius = new CornerRadius(0, 8, 0, 0);
+    }
+
+    private void ContentSizer_ManipulationCompleted(object sender, Microsoft.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs e)
+    {
+        _isDragging = false;
+        if (!_isHover)
+        {
+            MediaViewer.CornerRadius = new CornerRadius(8, 8, 0, 0);
+        }
+    }
+
+    private void ContentSizer_ManipulationStarted(object sender, Microsoft.UI.Xaml.Input.ManipulationStartedRoutedEventArgs e)
+    {
+        _isDragging = true;
     }
 
     private async void GetActiveTabs(object sender, RoutedEventArgs e)
     {
-        await BrowserService.FindActiveTabs();
+        //await BrowserService.FindActiveTabs();
+        await using (MediaDbContext dataBase = new())
+        {
+            MediaItemsView.ItemsSource = await dataBase.Medias.ToListAsync();
+        }
     }
 
     private async void GetBookmarks(object sender, RoutedEventArgs e)
     {
-        BookmarksTree.ItemsSource = await BrowserService.GetBookmarks();
+        //BookmarksTree.ItemsSource = await BrowserService.GetBookmarks();
     }
 
     private async void AddData(object sender, RoutedEventArgs e)
@@ -108,6 +161,11 @@ public sealed partial class HomePage
     private async void Button_Click(object sender, RoutedEventArgs e)
     {
          //await DataBase.SetupMediaCategories();
+    }
+
+    private void ItemContainer_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        MediaViewer.Media = ((Media)((FrameworkElement)sender).DataContext);
     }
 }
 

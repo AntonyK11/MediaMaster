@@ -37,12 +37,11 @@ public class TeachingService : ITeachingService
     /// </summary>
     /// <param name="step"> The step to configure. </param>
     /// <param name="teachingTip"> The teaching tip to configure. </param>
-    /// <exception cref="ArgumentException"> Thrown when the step is already configured by another teaching tip. </exception>
     public void Configure(int step, TeachingTip teachingTip)
     {
         if (!_teachingTips.TryAdd(step, teachingTip))
         {
-            throw new ArgumentException($"The step {step} is already configured in TeachingService");
+            _teachingTips[step] = teachingTip;
         }
     }
 

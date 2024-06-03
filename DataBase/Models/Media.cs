@@ -1,17 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.DataBase.Models;
 
+[Index(nameof(FilePath), IsUnique = true)]
 public class Media : IHasTimestamps
 {
     [Key]
     public virtual int MediaId { get; set; }
 
-    public virtual required string Name { get; set; }
+    public virtual string Name { get; set; }
 
     public virtual string? Description { get; set; } = null;
 
-    public virtual required string FilePath { get; set; }
+    public virtual string FilePath { get; set; }
 
     public virtual DateTime Modified { get; set; } = DateTime.UtcNow;
 

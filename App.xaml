@@ -50,6 +50,8 @@
                 x:Key="StringNullOrWhiteSpaceToFalseConverter"
                 EnforceNonWhiteSpaceString="True"
                 IsInverted="True" />
+            <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverterInverted" IsInverted="True" />
             <helpers:EnumerableToStringConverter x:Key="EnumerableToStringConverter" />
             <!--<helpers:ExtensionToStringConverter x:Key="ExtensionToStringConverter" />-->
 

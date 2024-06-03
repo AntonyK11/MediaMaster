@@ -66,9 +66,9 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.131" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.5">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -143,5 +143,17 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\EFCore.BulkExtensions\EFCore.BulkExtensions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <CustomAdditionalCompileInputs Remove="Controls\MediaIcon.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Controls\MediaIcon.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Remove="Controls\MediaIcon.xaml" />
 	</ItemGroup>
 </Project>

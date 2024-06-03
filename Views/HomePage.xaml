@@ -5,14 +5,15 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:customControls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpers="using:MediaMaster.Helpers"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
     xmlns:local="using:BookmarksManager"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:table="using:WinUI.TableView"
+    xmlns:models="using:MediaMaster.DataBase.Models"
     xmlns:views="using:MediaMaster.Views"
-    Background="Transparent"
-    NavigationCacheMode="Enabled"
+    NavigationCacheMode="Disabled"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -45,6 +46,19 @@
             x:Key="BookmarksTemplateSelector"
             BookmarkFolder="{StaticResource BookmarkFolder}"
             BookmarkLink="{StaticResource BookmarkLink}" />
+
+        <DataTemplate x:Key="MediaTemplate" x:DataType="models:Media">
+            <ItemContainer
+                Width="60"
+                Height="60"
+                DataContext="{x:Bind}"
+                Tapped="ItemContainer_Tapped">
+                <customControls:MediaIcon
+                    MaxHeight="60"
+                    LoadIcon="False"
+                    MediaPath="{x:Bind FilePath}" />
+            </ItemContainer>
+        </DataTemplate>
     </Page.Resources>
 
     <Grid Padding="{StaticResource NavigationViewPageContentMargin}">
@@ -54,27 +68,22 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <Border
-            x:Name="SideContent"
+        <customControls:MediaViewer
+            x:Name="MediaViewer"
             Grid.Column="2"
             MinWidth="200"
             MaxWidth="600"
-            Background="{ThemeResource AccentFillColorDefaultBrush}"
-            Visibility="Visible">
-            <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                Style="{ThemeResource BodyStrongTextBlockStyle}"
-                Text="Side Content" />
-        </Border>
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            CornerRadius="0, 8, 0, 0" />
 
 
         <controls:ContentSizer
+            x:Name="ContentSizer"
             Grid.Column="1"
+            CornerRadius="8, 0, 0, 0"
             IsDragInverted="True"
-            TargetControl="{x:Bind SideContent}"
-            Visibility="{x:Bind SideContent.Visibility, Mode=OneWay}" />
+            TargetControl="{x:Bind MediaViewer}"
+            Visibility="{x:Bind MediaViewer.Visibility, Mode=OneWay}" />
 
 
         <ScrollViewer
@@ -209,12 +218,24 @@
                     IncrementalLoadingThreshold="1"
                     IncrementalLoadingTrigger="Edge" />
 
-                <TextBlock Grid.Row="3">Browsers Bookmarks</TextBlock>
+
+                <ItemsView
+                    x:Name="MediaItemsView"
+                    Grid.Row="5"
+                    Width="600"
+                    Height="600"
+                    ItemTemplate="{StaticResource MediaTemplate}">
+                    <ItemsView.Layout>
+                        <UniformGridLayout />
+                    </ItemsView.Layout>
+                </ItemsView>
+
+                <!--<TextBlock Grid.Row="3">Browsers Bookmarks</TextBlock>
 
                 <TreeView
                     x:Name="BookmarksTree"
                     Grid.Row="4"
-                    ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />
+                    ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />-->
 
                 <!--<table:TableView
             x:Name="MediasDataGrid"

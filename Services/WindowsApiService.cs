@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Drawing;
+using System.Runtime.InteropServices;
 using static MediaMaster.Services.WindowsNativeValues;
 
 namespace MediaMaster.Services;
@@ -133,4 +134,48 @@ public static partial class WindowsApiService
 
     [LibraryImport("user32.dll")]
     internal static partial IntPtr GetForegroundWindow();
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool DestroyIcon(IntPtr handle);
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    internal static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
+
+    [LibraryImport("shell32.dll", EntryPoint = "#727")]
+    internal static partial int SHGetImageList(int iImageList, ref Guid riid, out IImageList ppv);
+
+    [LibraryImport("shell32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial int SHCreateItemFromParsingName(string pszPath, IntPtr pbc, ref Guid riid,out IShellItemImageFactory ppv);
+
+    [LibraryImport("gdi32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool DeleteObject(IntPtr hObject);
+
+    [LibraryImport("shell32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial int SHCreateItemFromParsingName(
+    string path,
+    // The following parameter is not used - binding context.
+    IntPtr pbc,
+    ref Guid riid,
+    out IShellItem shellItem);
+
+    [LibraryImport("msvcrt.dll")]
+    [UnmanagedCallConv(CallConvs = [ typeof(System.Runtime.CompilerServices.CallConvCdecl) ])]
+    internal static unsafe partial IntPtr memcpy(void* dst, void* src, UIntPtr count);
+
+    [DllImport("gdi32.dll")]
+    public static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out BITMAP lpvObject);
+
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
+
+    [DllImport("gdi32.dll")]
+    public static extern bool DeleteDC(IntPtr hdc);
+
+    [DllImport("gdi32.dll")]
+    public static extern int GetDIBits(IntPtr hdc, IntPtr hbm, uint start, uint cLines, byte[] lpvBits, ref BITMAPV5HEADER lpbmi, uint usage);
 }

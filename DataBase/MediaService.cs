@@ -1,41 +1,69 @@
 ﻿using System.Diagnostics;
 using EFCore.BulkExtensions;
 using MediaMaster.DataBase.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.DataBase;
+
 using System.Collections.Generic;
+
 
 public class MediaService
 {
-    public static async Task AddMediaAsync(string path)
+    private static bool _isRunning;
+    public static async Task<bool> AddMediaAsync(string path)
     {
-        IEnumerable<string> mediaPaths = GetFiles(path.Trim());
-
-        await using (MediaDbContext dataBase = new())
+        if (_isRunning)
         {
-            ICollection<Tag> tags = dataBase.Tags.ToList();
-            ICollection<Tag> newTags = [];
-            ICollection<Media> medias = mediaPaths.Select(path => GetMedia(path, ref tags, ref newTags)).ToList();
-
-            await dataBase.BulkInsertAsync(medias, new BulkConfig { SetOutputIdentity = true });
-            await dataBase.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
-
-            ICollection<MediaTag> mediaTags = [];
-            foreach (var media in medias)
-            {
-                foreach (var tag in media.Tags)
-                {
-                    mediaTags.Add(new MediaTag
-                    {
-                        MediaId = media.MediaId,
-                        TagId = tag.TagId
-                    });
-                }
-            }
-
-            await dataBase.BulkInsertAsync(mediaTags);
+            return false;
         }
+
+        _isRunning = true;
+        try
+        {
+            IEnumerable<string> mediaPaths = GetFiles(path.Trim());
+
+            await using (MediaDbContext dataBase = new())
+            {
+                IDictionary<string, Tag> tags = dataBase.Tags.ToDictionary(t => t.Name);
+                ICollection<Tag> newTags = [];
+                ICollection<Media> medias = mediaPaths.Select(mediaPath => GetMedia(mediaPath, ref tags, ref newTags)).ToList();
+
+                await dataBase.BulkInsertAsync(medias, new BulkConfig
+                {
+                    SetOutputIdentity = true,
+                    PropertiesToIncludeOnUpdate = [string.Empty], // do nothing if exists
+                    UpdateByProperties = [nameof(Media.FilePath)], // conflict target
+                });
+                await dataBase.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
+
+                Debug.WriteLine($"Media: {medias.Count}");
+                Debug.WriteLine($"Tags: {newTags.Count}");
+
+                ICollection<MediaTag> mediaTags = [];
+                foreach (var media in medias)
+                {
+                    foreach (var tag in media.Tags)
+                    {
+                        mediaTags.Add(new MediaTag
+                        {
+                            MediaId = media.MediaId,
+                            TagId = tag.TagId
+                        });
+                    }
+                }
+
+                await dataBase.BulkInsertAsync(mediaTags);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            _isRunning = false;
+            return false;
+        }
+
+        _isRunning = false;
+        return true;
     }
 
     private static IEnumerable<string> GetFiles(string path)
@@ -45,9 +73,10 @@ public class MediaService
             EnumerationOptions opt = new()
             {
                 RecurseSubdirectories = true,
-                IgnoreInaccessible = true
+                IgnoreInaccessible = true,
+                ReturnSpecialDirectories = true
             };
-            return Directory.EnumerateFileSystemEntries(path, "*.*", opt);
+            return Directory.EnumerateFiles(path, "*", opt);
         }
 
         if (File.Exists(path))
@@ -58,8 +87,8 @@ public class MediaService
         // Path does not exist
         return [];
     }
-    
-    private static Media GetMedia(string path, ref ICollection<Tag> tags, ref ICollection<Tag> newTags)
+
+    private static Media GetMedia(string path,  ref IDictionary<string, Tag> tags, ref ICollection<Tag> newTags)
     {
         var extension = Path.GetExtension(path);
         Media media = new()
@@ -68,14 +97,13 @@ public class MediaService
             FilePath = path,
         };
 
-        Tag? tag = tags.FirstOrDefault(t => t.Name == extension);
-        if (tag is null)
+        if (!tags.TryGetValue(extension, out Tag? tag))
         {
             tag = new Tag
             {
                 Name = extension
             };
-            tags.Add(tag);
+            tags.Add(extension, tag);
             newTags.Add(tag);
         }
         media.Tags.Add(tag);
