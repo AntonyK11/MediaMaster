@@ -1,0 +1,2257 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EFCore.BulkExtensions</name>
+    </assembly>
+    <members>
+        <member name="T:EFCore.BulkExtensions.BatchUpdateCreateBodyData">
+            <summary>
+            Provides config for batch update/create
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUpdateCreateBodyData.#ctor(System.String,Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{System.Object},System.Linq.IQueryable,System.Type,System.String,System.Linq.Expressions.LambdaExpression)">
+            <summary>
+            Creates an instance of BatchUpdateCreateBodyData used to provide a config for batch updates and creations
+            </summary>
+            <param name="baseSql"></param>
+            <param name="dbContext"></param>
+            <param name="innerParameters"></param>
+            <param name="query"></param>
+            <param name="rootType"></param>
+            <param name="tableAlias"></param>
+            <param name="updateExpression"></param>
+        </member>
+        <member name="T:EFCore.BulkExtensions.BatchUtil">
+            <summary>
+            Class responsible for all batch utilities related to EFCore.BulkExtensions
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.GetSqlDelete(System.Linq.IQueryable,Microsoft.EntityFrameworkCore.DbContext)">
+            <summary>
+            Generates delete sql query
+            </summary>
+            <param name="query"></param>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.GetSqlUpdate(System.Linq.IQueryable,Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Object,System.Collections.Generic.List{System.String})">
+            <summary>
+            Generates sql query to update data
+            </summary>
+            <param name="query"></param>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="updateValues"></param>
+            <param name="updateColumns"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.GetSqlUpdate``1(System.Linq.IQueryable{``0},Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            get Update Sql
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="expression"></param>
+            <param name="context"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.PrepareSqlUpdate(System.Type,System.Collections.Generic.List{System.Object},System.String,System.String,System.String,System.String,System.String,System.String,System.Text.StringBuilder)">
+            <summary>
+            PrepareSqlUpdate
+            </summary>
+            <param name="type"></param>
+            <param name="sqlParameters"></param>
+            <param name="sql"></param>
+            <param name="sqlSET"></param>
+            <param name="tableAlias"></param>
+            <param name="tableAliasSufixAs"></param>
+            <param name="topStatement"></param>
+            <param name="leadingComments"></param>
+            <param name="sqlColumns"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.ReloadSqlParameters(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.List{System.Object})">
+            <summary>
+            Reloads SQL paramaters
+            </summary>
+            <param name="context"></param>
+            <param name="sqlParameters"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.GetBatchSql(System.Linq.IQueryable,Microsoft.EntityFrameworkCore.DbContext,System.Boolean)">
+            <summary>
+            Generates SQL queries for batch operations
+            </summary>
+            <param name="query"></param>
+            <param name="context"></param>
+            <param name="isUpdate"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.GetSqlSetSegment(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Object,System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.Object})">
+            <summary>
+            Returns a sql set seqment query
+            </summary>
+            <param name="context"></param>
+            <param name="updateValuesType"></param>
+            <param name="updateValues"></param>
+            <param name="updateColumns"></param>
+            <param name="parameters"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.CreateUpdateBody(EFCore.BulkExtensions.BatchUpdateCreateBodyData,System.Linq.Expressions.Expression,System.String)">
+            <summary>
+            Recursive analytic expression 
+            </summary>
+            <param name="createBodyData"></param>
+            <param name="expression"></param>
+            <param name="columnName"></param>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.GetDbContext(System.Linq.IQueryable)">
+            <summary>
+            Returns the DbContext
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.SplitLeadingCommentsAndMainSqlQuery(System.String)">
+            <summary>
+            Splits the leading comments from the main sql query
+            </summary>
+            <param name="sqlQuery"></param>
+            <returns></returns>
+        </member>
+        <member name="F:EFCore.BulkExtensions.BatchUtil.TableAliasPattern">
+            <summary>
+            Regex pattern to get table alias
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.TryCreateRelationalMappingParameter(EFCore.BulkExtensions.TableInfo,System.String,System.String,System.Object,System.Object)">
+            <summary>
+            Attempt to create a DbParameter using the 'RelationalTypeMapping.CreateParameter(DbCommand, string, object, bool?)'
+            call for the specified column name.
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BatchUtil.TryCreateUpdateBodyNestedQuery(EFCore.BulkExtensions.BatchUpdateCreateBodyData,System.Linq.Expressions.Expression,System.Linq.Expressions.MemberAssignment)">
+            <summary>
+            Tries to create nested body query
+            </summary>
+            <param name="createBodyData"></param>
+            <param name="expression"></param>
+            <param name="memberAssignment"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.BatchUtil.ExpressionNode">
+            <summary>
+            ExpressionNode
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.IQueryableBatchExtensions">
+            <summary>
+            Contains a list of Batch IQuerable extensions
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.IQueryableBatchExtensions.BatchDelete(System.Linq.IQueryable)">
+            <summary>
+            Extension method to batch delete data
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.IQueryableBatchExtensions.BatchDeleteAsync(System.Linq.IQueryable,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to batch delete data
+            </summary>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.IQueryableBatchExtensions.BatchUpdate``1(System.Linq.IQueryable{``0},System.Object,System.Collections.Generic.List{System.String})">
+            <summary>
+            Extension method to batch update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updateValues"></param>
+            <param name="updateColumns"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.IQueryableBatchExtensions.BatchUpdateAsync(System.Linq.IQueryable,System.Object,System.Collections.Generic.List{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Extension method to batch update data
+            </summary>
+            <param name="query"></param>
+            <param name="updateValues"></param>
+            <param name="updateColumns"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.IQueryableBatchExtensions.BatchUpdate``1(System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Type)">
+            <summary>
+            Extension method to batch update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updateExpression"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.IQueryableBatchExtensions.BatchUpdateAsync``1(System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to batch update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updateExpression"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.IQueryableExtensions">
+            <summary>
+            Contains a list of IQuerable extensions
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.IQueryableExtensions.ToParametrizedSql(System.Linq.IQueryable)">
+            <summary>
+            Extension method to paramatize sql query
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="T:EFCore.BulkExtensions.BulkConfig">
+            <summary>
+            Provides configration for EFCore BulkExtensions
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.PreserveInsertOrder">
+            <summary>
+                Makes sure that entites are inserted to Db as ordered in entitiesList.
+            </summary>
+            <value>
+                Default value is <c>true</c>, if table has Identity column (autoincrement) and IDs being 0 in list they will temporarily be changed automatically from 0s into range -N:-1.
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.SetOutputIdentity">
+            <summary>
+                When set IDs zero values will be updated to new ones from database (Have function only when PK has Identity)
+            </summary>
+            <remarks>
+                Useful when BulkInsert is done to multiple related tables, to get PK of table and to set it as FK for second one.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.SetOutputNonIdentityColumns">
+            <summary>
+               Used only when SetOutputIdentity is set to true, and if this remains True (which is default) all columns are reloaded from Db.
+               When changed to false only Identity column is loaded.
+            </summary>
+            <remarks>
+                Used for efficiency to reduce load back from DB.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.LoadOnlyIncludedColumns">
+            <summary>
+               Used only when SetOutputIdentity is set to true, and when changed to True then columns that were no included in Upsert are not loaded.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.BatchSize">
+            <summary>
+                Propagated to SqlBulkCopy util object.
+            </summary>
+            <value>
+                Defalut value is 2000.
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.NotifyAfter">
+            <summary>
+                Propagated to SqlBulkCopy util object. When not set will have same value of BatchSize, each batch one notification.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.BulkCopyTimeout">
+            <summary>
+                Propagated to SqlBulkCopy util object. When not set has SqlBulkCopy default which is 30 seconds and if set to 0 it indicates no limit.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.UseTempDB">
+            <summary>
+                When set to <c>true</c> Temp tables are created as #Temporary. More info: <c>https://www.sqlservertutorial.net/sql-server-basics/sql-server-temporary-tables/</c>
+            </summary>
+            <remarks>
+                If used then BulkOperation has to be inside Transaction, otherwise destination table gets dropped too early because transaction ends before operation is finished.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.UniqueTableNameTempDb">
+            <summary>
+                When set to false temp table name will be only 'Temp' without random numbers.
+            </summary>
+            <value>
+                Default value is <c>true</c>.
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.UseOptionLoopJoin">
+            <summary>
+                When set it appends 'OPTION (LOOP JOIN)' for SqlServer, to reduce potential deadlocks on tables that have FKs.
+            </summary>
+            <remarks>
+                Use this hint as a last resort for experienced devs and db admins.
+            </remarks>
+            <value>
+                Default value is <c>false</c>.
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.CustomDestinationTableName">
+            <summary>
+                Enables specifying custom name of table in Db that does not have to be mapped to Entity.
+            </summary>
+            <value>
+                Can be set with 'TableName' only or with 'Schema.TableName'.
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.CustomSourceTableName">
+            <summary>
+                Source data from specified table already in Db, so input list not used and can be empty.
+            </summary>
+            <value>
+                Can be set with 'TableName' only or with 'Schema.TableName' (Not supported for Sqlite).
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.CustomSourceDestinationMappingColumns">
+            <summary>
+                Only if CustomSourceTableName is set and used for specifying Source - Destination column names when they are not the same.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.DataReader">
+            <summary>
+                When configured data is loaded from this object instead of entity list which should be empty
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.EnableStreaming">
+            <summary>
+                Can be used when DataReader is also configured and when set it is propagated to SqlBulkCopy util object, useful for big field like blob, binary column.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.TrackingEntities">
+            <summary>
+                Can be set to True if want to have tracking of entities from BulkRead or when SetOutputIdentity is set.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.WithHoldlock">
+            <summary>
+                Sql MERGE Statement contains 'WITH (HOLDLOCK)', otherwise if set to <c>false</c> it is removed.
+            </summary>
+            <value>
+                Default value is <c>true</c>.
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.CalculateStats">
+            <summary>
+                When set to <c>true</c> the result is return in <c>BulkConfig.StatsInfo { StatsNumberInserted, StatsNumberUpdated}</c>.
+            </summary>
+            <remarks>
+                If used for pure Insert (with Batching) then SetOutputIdentity should also be configured because Merge have to be used.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.IgnoreRowVersion">
+            <summary>
+                Ignore handling RowVersion column.
+            </summary>
+            <value>
+                Default value is <c>false</c>, if table have any RowVersion column, it will have special handling and needs to be binary.
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.StatsInfo">
+            <summary>
+                Used as object for returning Stats Info when <c>BulkConfig.CalculateStats = true</c>.
+            </summary>
+            <value>
+                Contains info in Properties: <c>StatsNumberInserted, StatsNumberUpdated, StatsNumberDeleted</c>
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.TimeStampInfo">
+            <summary>
+                Used as object for returning TimeStamp Info when <c>BulkConfig.DoNotUpdateIfTimeStampChanged = true</c>.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.PropertiesToInclude">
+            <summary>
+                When doing Insert/Update properties to affect can be explicitly selected by adding their names into PropertiesToInclude.
+            </summary>
+            <remarks>
+                If need to change more then half columns then PropertiesToExclude can be used. Setting both Lists are not allowed.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.PropertiesToIncludeOnCompare">
+            <summary>
+                By adding a column name to this list, will allow it to be inserted and updated but will not update the row if any of the these columns in that row did not change.
+            </summary>
+            <remarks>
+                For example, if importing data and want to keep an internal UpdateDate, add all columns except that one, or use PropertiesToExcludeOnCompare.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.PropertiesToIncludeOnUpdate">
+            <summary>
+                Ensures that only certain columns with selected properties are Updated. Can differ from PropertiesToInclude that can that be used for Insert config only.
+            </summary>
+            <remarks>
+                When need to Insert only new and skip existing ones in Db (Insert_if_not_Exist) then use BulkInsertOrUpdate with this list set to empty: <c>new List<string> { "" }</string></c>
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.PropertiesToExclude">
+            <summary>
+                When doing Insert/Update one or more properties can be exclude by adding their names into PropertiesToExclude.
+            </summary>
+            <remarks>
+                If need to change less then half column then PropertiesToInclude can be used. Setting both Lists are not allowed.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.PropertiesToExcludeOnCompare">
+            <summary>
+                By adding a column name to this list, will allow it to be inserted and updated but will not update the row if any of the others columns in that row did not change.
+            </summary>
+            <remarks>
+                For example, if importing data and want to keep an internal UpdateDate, add that columns to the UpdateDate.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.PropertiesToExcludeOnUpdate">
+            <summary>
+                Selected properties are excluded from being updated, can differ from PropertiesToExclude that can be used for Insert config only.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.UpdateByProperties">
+            <summary>
+                Used for specifying custom properties, by which we want update to be done.
+            </summary>
+            <remarks>
+                If Identity column exists and is not added in UpdateByProp it will be excluded automatically.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.OnConflictUpdateWhereSql">
+            <summary>
+                Used for specifying a function that returns custom SQL to use for conditional updates on merges.
+            </summary>
+            <remarks>
+                Function receives (existingTablePrefix, insertedTablePrefix) and should return the SQL of the WHERE clause.
+                The SQLite implementation uses UPSERT functionality added in SQLite 3.24.0 (https://www.sqlite.org/lang_UPSERT.html).
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.EnableShadowProperties">
+            <summary>
+                When set to <c>true</c> it will adding (normal) Shadow Property and persist value. It Disables automatic discrimator, so it shoud be set manually.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.ShadowPropertyValue">
+            <summary>
+                Returns value for shadow properties, EnableShadowProperties = true
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.TemporalColumns">
+            <summary>
+               Shadow columns used for Temporal table. Has defaults elements: 'PeriodStart' and 'PeriodEnd'. Can be changed if temporal columns have custom names.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.IncludeGraph">
+            <summary>
+                When set all entites that have relations with main ones from the list are also merged into theirs tables.
+            </summary>
+            <remarks>
+                Essentially enables with one call bulk ops on multiple tables that are connected, like parent-child relationship with FK
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.OmitClauseExistsExcept">
+            <summary>
+                Removes the clause 'EXISTS ... EXCEPT' from Merge statement which then updates even same data, useful when need to always active triggers.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.DoNotUpdateIfTimeStampChanged">
+            <summary>
+                When set to <c>true</c> rows with concurrency conflict, meaning TimeStamp column is changed since read, will not be updated their entities will be loaded into <c>BulkConfig.TimeStampInfo { NumberOfSkippedForUpdate, EntitiesOutput }</c>.
+            </summary>
+            <remarks>
+                After reading skipped from EntitiesOutput, they can either be left skipped, or updated again, or thrown exception or rollback entire Update. (example Tests.EFCoreBulkTestAtypical.TimeStampTest)
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.ApplySubqueryLimit">
+            <summary>
+                Default is zero '0'. When set to larger value it appends: LIMIT 'N', to generated query
+            </summary>
+            <remarks>
+                Used only with PostgreSql.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.SRID">
+            <summary>
+                Spatial Reference Identifier - for SQL Server with NetTopologySuite. Default value is <c>4326</c>.
+            </summary>
+            <remarks>
+                More info: <c>https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-reference-identifiers-srids</c>
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.DateTime2PrecisionForceRound">
+            <summary>
+                When type dbtype datetime2 has precision less then default 7, for example 'datetime2(3)' SqlBulkCopy does Floor instead of Round so Rounding done in memory to make sure inserted values are same as with regular SaveChanges.
+            </summary>
+            <remarks>
+                Only for SqlServer.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.OnSaveChangesSetFK">
+            <summary>
+                When using BulkSaveChanges with multiply entries that have FK relationship which is Db generated, this set proper value after reading parent PK from Db.
+                IF PK are generated in memory like are some Guid then this can be set to false for better efficiency.
+            </summary>
+            <remarks>
+                Only used with BulkSaveChanges.
+            </remarks>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.IgnoreGlobalQueryFilters">
+            <summary>
+                When set to True it ignores GlobalQueryFilters if they exist on the DbSet.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.ReplaceReadEntities">
+            <summary>
+                When set to <c>true</c> result of BulkRead operation will be provided using replace instead of update. Entities list parameter of BulkRead method will be repopulated with obtained data.
+                Enables functionality of Contains/IN which will return all entities matching the criteria and only return the first (does not have to be by unique columns).
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.SqlBulkCopyOptions">
+            <summary>
+                Enum with [Flags] attribute which enables specifying one or more options.
+            </summary>
+            <value>
+                <c>Default, KeepIdentity, CheckConstraints, TableLock, KeepNulls, FireTriggers, UseInternalTransaction</c>
+            </value>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.SqlBulkCopyColumnOrderHints">
+            <summary>
+                List of column order hints for improving performance.
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BulkConfig.SetSynchronizeFilter``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+                A filter on entities to delete when using BulkInsertOrUpdateOrDelete.
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BulkConfig.ClearSynchronizeFilter">
+            <summary>
+                Clears SynchronizeFilter
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BulkConfig.SetSynchronizeSoftDelete``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+                A filter on entities to delete when using BulkInsertOrUpdateOrDelete.
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.BulkConfig.ClearSoftDelete">
+            <summary>
+                Clear SoftDelete
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.UnderlyingConnection">
+            <summary>
+            A func to set the underlying DB connection.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkConfig.UnderlyingTransaction">
+            <summary>
+            A func to set the underlying DB transaction.
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.StatsInfo">
+            <summary>
+            Class to provide information about how many records have been updated, deleted and inserted.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.StatsInfo.StatsNumberInserted">
+            <summary>
+            Indicates the number of inserted records.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.StatsInfo.StatsNumberUpdated">
+            <summary>
+            Indicates the number of updated records.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.StatsInfo.StatsNumberDeleted">
+            <summary>
+            Indicates the number of deleted records.
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.TimeStampInfo">
+            <summary>
+            Provides information about entities.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.TimeStampInfo.NumberOfSkippedForUpdate">
+            <summary>
+            Indicates the number of entities skipped for an update.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.TimeStampInfo.EntitiesOutput">
+            <summary>
+            Output the entities.
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.BulkExceptionMessage">
+            <summary>
+            Provides a list of static exception messages
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkExceptionMessage.ColumnMappingNotMatch">
+            <summary>
+            Exception message to define column mapping does not match
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.BulkExceptionMessage.SpecifiedDoubleConfigLists">
+            <summary>
+            Exception message to define specified double config list is not valid
+            </summary> 
+        </member>
+        <member name="T:EFCore.BulkExtensions.InvalidBulkConfigException">
+            <summary>
+            Custom exception class
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.InvalidBulkConfigException.#ctor">
+            <summary>
+            Custom exception class to indicate a custom exception was triggered for BulkConfig
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.InvalidBulkConfigException.#ctor(System.String)">
+            <summary>
+            Custom exception class to indicate a custom exception was triggered for BulkConfig
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.InvalidBulkConfigException.#ctor(System.String,System.Exception)">
+            <summary>
+            Custom exception class to indicate a custom exception was triggered for BulkConfig
+            </summary>
+            <param name="message"></param>
+            <param name="innerException"></param>
+        </member>
+        <member name="T:EFCore.BulkExtensions.DbContextBulkExtensions">
+            <summary>
+            Provides a list of bulk extension methods
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsert``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk insert data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk insert data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsert``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk insert data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk insert data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdate``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk insert or update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdateAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk insert or update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdate``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk insert or update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdateAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk insert or update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdateOrDelete``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk insert, update and delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdateOrDeleteAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk insert, update and delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdateOrDelete``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk insert, update and delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdateOrDeleteAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk insert, update and delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkUpdate``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkUpdateAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkUpdate``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkUpdateAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk update data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkDelete``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkDeleteAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkDelete``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkDeleteAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk delete data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkRead``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk read data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk read data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkRead``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type)">
+            <summary>
+            Extension method to bulk read data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},System.Action{EFCore.BulkExtensions.BulkConfig},System.Action{System.Decimal},System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to bulk read data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="entities"></param>
+            <param name="bulkAction"></param>
+            <param name="progress"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.Truncate``1(Microsoft.EntityFrameworkCore.DbContext,System.Type)">
+            <summary>
+            Extension method to truncate table
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.TruncateAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Threading.CancellationToken)">
+            <summary>
+            Extension method to truncate table
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkSaveChanges(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal})">
+            <summary>
+            Extension method for EFCore SaveChanges
+            </summary>
+            <param name="context"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.DbContextBulkExtensions.BulkSaveChangesAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.BulkConfig,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <summary>
+            Extension method for EFCore SaveChanges
+            </summary>
+            <param name="context"></param>
+            <param name="bulkConfig"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.IDbServer">
+            <summary>
+            Contains a list of methods to generate Adpaters and helpers instances
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.IDbServer.Type">
+            <summary>
+            Returns the Database type
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.IDbServer.Adapter">
+            <summary>
+            Returns a Operation Server Adapter for DbServer
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.IDbServer.Dialect">
+            <summary>
+            Contains a list of methods for query operations
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.IDbServer.QueryBuilder">
+            <summary>
+            Contains a compilation of SQL queries used in EFCore.
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.IDbServer.DbConnection">
+            <summary>
+            Gets or Sets a DbConnection for the provider
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.IDbServer.DbTransaction">
+            <summary>
+            Gets or Sets a DbTransaction for the provider
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.IDbServer.ValueGenerationStrategy">
+            <summary>
+            Returns the current Provider's Value Generating Strategy
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.IDbServer.PropertyHasIdentity(Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation)">
+            <summary>
+            Returns if <paramref name="annotation"/> has Identity Generation Strategy Annotation
+            </summary>
+            <param name="annotation"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.ExtractedTableAlias">
+            <summary>
+            Contains the table alias and SQL query
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.IQueryBuilderSpecialization">
+            <summary>
+            Contains a list of methods for query operations
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.IQueryBuilderSpecialization.ReloadSqlParameters(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.List{System.Object})">
+            <summary>
+            Reloads the SQL paramaters
+            </summary>
+            <param name="context"></param>
+            <param name="sqlParameters"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.IQueryBuilderSpecialization.GetBinaryExpressionAddOperation(System.Linq.Expressions.BinaryExpression)">
+            <summary>
+            Returns the binary expression add operation
+            </summary>
+            <param name="binaryExpression"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.IQueryBuilderSpecialization.GetBatchSqlReformatTableAliasAndTopStatement(System.String,EFCore.BulkExtensions.SqlAdapters.SqlType)">
+            <summary>
+            Returns a tuple containing the batch sql reformat table alias
+            </summary>
+            <param name="sqlQuery"></param>
+            <param name="databaseType"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.IQueryBuilderSpecialization.GetBatchSqlExtractTableAliasFromQuery(System.String,System.String,System.String)">
+            <summary>
+            Returns the SQL extract table alias data
+            </summary>
+            <param name="fullQuery"></param>
+            <param name="tableAlias"></param>
+            <param name="tableAliasSuffixAs"></param>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter">
+            <summary>
+            Contains a list of SQL operations
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.Insert``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <summary>
+            Inserts a list of entities
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <param name="progress"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <summary>
+            Inserts a list of entities
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.Merge``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal})">
+            <summary>
+            Merges a list of entities with a table source
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+            <param name="progress"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <summary>
+            Merges a list of entities with a table source
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.Read``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <summary>
+            Reads a list of entities from database
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <param name="progress"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <summary>
+            Reads a list of entities from database
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.Truncate(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Truncates a table
+            </summary>
+            <param name="context"></param>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.TruncateAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,System.Threading.CancellationToken)">
+            <summary>
+            Truncates a table
+            </summary>
+            <param name="context"></param>
+            <param name="tableInfo"></param>
+            <param name="cancellationToken"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.ISqlOperationsAdapter.ReconfigureTableInfo(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Sets provider specific config in TableInfo
+            </summary>
+            <param name="context"></param>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.Insert``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.Merge``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.Read``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.Truncate(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.TruncateAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.SetMySqlBulkCopyConfig(MySqlConnector.MySqlBulkCopy,EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Supports <see cref="T:MySqlConnector.MySqlBulkCopy"/>
+            </summary>
+            <param name="mySqlBulkCopy"></param>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.GetDataTable``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},MySqlConnector.MySqlBulkCopy,EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Supports <see cref="T:MySqlConnector.MySqlBulkCopy"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="mySqlBulkCopy"></param>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlAdapter.InnerGetDataTable``1(Microsoft.EntityFrameworkCore.DbContext,System.Type@,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Common logic for two versions of GetDataTable
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlDbServer">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlDbServer.QueryBuilder">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlDbServer.DbConnection">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlDbServer.DbTransaction">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlDialect">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder">
+            <summary>
+             Contains a list of methods to generate SQL queries required by EFCore
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.CreateTableCopy(System.String,System.String,System.Boolean)">
+            <summary>
+            Generates SQL query to create table copy
+            </summary>
+            <param name="existingTableName"></param>
+            <param name="newTableName"></param>
+            <param name="useTempDb"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.DropTable(System.String,System.Boolean)">
+            <summary>
+            Generates SQL query to drop table
+            </summary>
+            <param name="tableName"></param>
+            <param name="isTempTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.GetColumnList(EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType)">
+            <summary>
+            Returns a list of columns for the given table
+            </summary>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.MergeTable``1(EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType)">
+            <summary>
+            Generates SQL merge statement
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.SelectFromOutputTable(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to select output from a table
+            </summary>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.CreateUniqueConstrain(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to create a unique constraint
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.DropUniqueConstrain(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to drop a unique contstraint
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.HasUniqueConstrain(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to chaeck if a unique constrain exist
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.GetUniqueConstrainName(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Creates UniqueConstrainName
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.RestructureForBatch(System.String,System.Boolean)">
+            <summary>
+            Restructures a sql query for batch commands
+            </summary>
+            <param name="sql"></param>
+            <param name="isDelete"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.TruncateTable(System.String)">
+            <summary>
+            Generates SQL query to truncate table
+            </summary>
+            <param name="tableName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.CreateParameter(Microsoft.Data.SqlClient.SqlParameter)">
+            <summary>
+            Returns a DbParameters intanced per provider
+            </summary>
+            <param name="sqlParameter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.Dbtype">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.MySql.MySqlQueryBuilder.SetDbTypeParam(System.Object,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.Insert``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.Merge``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.Read``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.Truncate(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.TruncateAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.GetStatsNumbersPGAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Gets the Stats numbers of entities
+            </summary>
+            <param name="context"></param>
+            <param name="tableInfo"></param>
+            <param name="cancellationToken"></param>
+            <param name="isAsync"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlAdapter.ReconfigureTableInfo(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Sets provider specific config in TableInfo
+            </summary>
+            <param name="context"></param>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlDbServer">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlDbServer.DbConnection">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlDbServer.DbTransaction">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlDbServer.QueryBuilder">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlDialect">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder">
+            <summary>
+            Contains a list of methods to generate SQL queries required by EFCore
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.CreateOutputStatsTable(System.String,System.Boolean)">
+            <summary>
+            Generates SQL query to create Output table for Stats
+            </summary>
+            <param name="newTableName"></param>
+            <param name="useTempDb"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.CreateTableCopy(System.String,System.String,System.Boolean)">
+            <summary>
+            Generates SQL query to create table copy
+            </summary>
+            <param name="existingTableName"></param>
+            <param name="newTableName"></param>
+            <param name="useTempDb"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.InsertIntoTable(EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.String)">
+            <summary>
+            Generates SQL to copy table columns from STDIN 
+            </summary>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+            <param name="tableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.MergeTable``1(EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType)">
+            <summary>
+            Generates SQL merge statement
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.GetColumnList(EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType)">
+            <summary>
+            Returns a list of columns for the given table
+            </summary>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.TruncateTable(System.String)">
+            <summary>
+            Generates SQL query to truncate a table
+            </summary>
+            <param name="tableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.DropTable(System.String)">
+            <summary>
+            Generates SQL query to drop a table
+            </summary>
+            <param name="tableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.CountUniqueConstrain(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to count the unique constranints
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.CreateUniqueIndex(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generate SQL query to create a unique index
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.CreateUniqueConstrain(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to create a unique constraint
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.DropUniqueConstrain(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to drop a unique contstraint
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.GetUniqueConstrainName(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Creates UniqueConstrainName
+            </summary>
+            <param name="tableInfo"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.RestructureForBatch(System.String,System.Boolean)">
+            <summary>
+            Restructures a sql query for batch commands
+            </summary>
+            <param name="sql"></param>
+            <param name="isDelete"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.CreateParameter(Microsoft.Data.SqlClient.SqlParameter)">
+            <summary>
+            Returns a DbParameters intanced per provider
+            </summary>
+            <param name="sqlParameter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.SelectFromOutputTable(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to select output from a table
+            </summary>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.Dbtype">
+            <summary>
+            Returns NpgsqlDbType for PostgreSql parameters. Throws <see cref="T:System.NotImplementedException"/> for anothers providers
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.PostgreSql.PostgreSqlQueryBuilder.SetDbTypeParam(System.Object,System.Object)">
+            <summary>
+            Returns void. Throws <see cref="T:System.NotImplementedException"/> for anothers providers
+            </summary>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.SqlType">
+            <summary>
+            A list of database servers supported by EFCore.BulkExtensions
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.SqlAdapters.SqlType.SqlServer">
+            <summary>
+            Indicates database is Microsoft's SQL Server
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.SqlAdapters.SqlType.Sqlite">
+            <summary>
+            Indicates database is SQLite
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.SqlAdapters.SqlType.PostgreSql">
+            <summary>
+            Indicates database is PostgreSQL
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.SqlAdapters.SqlType.MySql">
+            <summary>
+             Indicates database is MySQL
+            </summary>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.SqlAdaptersMapping.DbServer">
+            <summary>
+            Contains a list of methods to generate Adapters and helpers instances
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlAdaptersMapping.CreateBulkOperationsAdapter">
+            <summary>
+            Creates the bulk operations adapter
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlAdaptersMapping.GetAdapterDialect">
+            <summary>
+            Returns the Adapter dialect to be used
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlAdaptersMapping.GetDatabaseType">
+            <summary>
+            Returns the Database type
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlAdaptersMapping.GetQueryBuilder">
+            <summary>
+            Returns per provider QueryBuilder instance, containing a compilation of SQL queries used in EFCore.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.SqlDefaultDialect">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlDefaultDialect.ReloadSqlParameters(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.List{System.Object})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlDefaultDialect.GetBinaryExpressionAddOperation(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlDefaultDialect.GetBatchSqlReformatTableAliasAndTopStatement(System.String,EFCore.BulkExtensions.SqlAdapters.SqlType)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlDefaultDialect.GetBatchSqlExtractTableAliasFromQuery(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.Insert``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.Merge``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.Read``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.Truncate(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.TruncateAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteAdapter.SetIdentityForOutput``1(System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDbServer">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDbServer.DbConnection">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDbServer.DbTransaction">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDbServer.QueryBuilder">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDialect">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDialect.ReloadSqlParameters(Microsoft.EntityFrameworkCore.DbContext,System.Collections.Generic.List{System.Object})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDialect.GetBinaryExpressionAddOperation(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDialect.GetBatchSqlReformatTableAliasAndTopStatement(System.String,EFCore.BulkExtensions.SqlAdapters.SqlType)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteDialect.GetBatchSqlExtractTableAliasFromQuery(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder">
+            <summary>
+            Contains a compilation of SQL queries used in EFCore.
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.SelectLastInsertRowId">
+            <summary>
+            Generates SQL query to retrieve the last inserted row id
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.InsertIntoTable(EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.String)">
+            <summary>
+            Generates SQL query to insert data into table
+            </summary>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+            <param name="tableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.UpdateSetTable(EFCore.BulkExtensions.TableInfo,System.String)">
+            <summary>
+            Generates SQL query to update table record data
+            </summary>
+            <param name="tableInfo"></param>
+            <param name="tableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.DeleteFromTable(EFCore.BulkExtensions.TableInfo,System.String)">
+            <summary>
+            Generates SQL query to delete from table
+            </summary>
+            <param name="tableInfo"></param>
+            <param name="tableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.CreateTableCopy(System.String,System.String)">
+            <summary>
+            Generates SQL query to create table copy
+            </summary>
+            <param name="existingTableName"></param>
+            <param name="newTableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.DropTable(System.String)">
+            <summary>
+            Generates SQL query to drop table
+            </summary>
+            <param name="tableName"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.CreateParameter(Microsoft.Data.SqlClient.SqlParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.Dbtype">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.RestructureForBatch(System.String,System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.Sqlite.SqliteQueryBuilder.SetDbTypeParam(System.Object,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder">
+            <summary>
+            Contains a list of methods to generate Adpaters and helpers instances
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.RestructureForBatch(System.String,System.Boolean)">
+            <summary>
+            Restructures a sql query for batch commands
+            </summary>
+            <param name="sql"></param>
+            <param name="isDelete"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.CreateParameter(Microsoft.Data.SqlClient.SqlParameter)">
+            <summary>
+            Returns a DbParameters intanced per provider
+            </summary>
+            <param name="sqlParameter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.Dbtype">
+            <summary>
+            Returns NpgsqlDbType for PostgreSql parameters. Throws <see cref="T:System.NotImplementedException"/> for anothers providers
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SetDbTypeParam(System.Object,System.Object)">
+            <summary>
+            Returns void. Throws <see cref="T:System.NotImplementedException"/> for anothers providers
+            </summary>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SelectFromOutputTable(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to select output from a table
+            </summary>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.CreateTableCopy(System.String,System.String,EFCore.BulkExtensions.TableInfo,System.Boolean)">
+            <summary>
+            Generates SQL query to create a table copy
+            </summary>
+            <param name="existingTableName"></param>
+            <param name="newTableName"></param>
+            <param name="tableInfo"></param>
+            <param name="isOutputTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.AlterTableColumnsToNullable(System.String,EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to alter table columns to nullables
+            </summary>
+            <param name="tableName"></param>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.CreateTable(System.String,EFCore.BulkExtensions.TableInfo,System.Boolean)">
+            <summary>
+            Generates SQL query to create table
+            </summary>
+            <param name="newTableName"></param>
+            <param name="tableInfo"></param>
+            <param name="isOutputTable"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.AddColumn(System.String,System.String,System.String)">
+            <summary>
+            Generates SQL query to add a column
+            </summary>
+            <param name="fullTableName"></param>
+            <param name="columnName"></param>
+            <param name="columnType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SelectCountIsUpdateFromOutputTable(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to select count updated from output table
+            </summary>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SelectCountIsDeleteFromOutputTable(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to select count deleted from output table
+            </summary>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SelectCountColumnFromOutputTable(EFCore.BulkExtensions.TableInfo,System.String,System.String)">
+            <summary>
+            Generates SQL query to select column count from output table
+            </summary>
+            <param name="tableInfo"></param>
+            <param name="columnName"></param>
+            <param name="columnValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.DropTable(System.String,System.Boolean)">
+            <summary>
+            Generates SQL query to drop table
+            </summary>
+            <param name="tableName"></param>
+            <param name="isTempTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SelectIdentityColumnName(System.String,System.String)">
+            <summary>
+            Generates SQL query to to select identity column
+            </summary>
+            <param name="tableName"></param>
+            <param name="schemaName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.CheckTableExist(System.String,System.Boolean)">
+            <summary>
+            Generates SQL query to check whether a table exists
+            </summary>
+            <param name="fullTableName"></param>
+            <param name="isTempTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SelectJoinTable(EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Generates SQL query to join table
+            </summary>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.SetIdentityInsert(System.String,System.Boolean)">
+            <summary>
+            Generates SQL query to set identity insert
+            </summary>
+            <param name="tableName"></param>
+            <param name="identityInsert"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.MergeTable``1(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Generates SQL query to merge table
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="tableInfo"></param>
+            <param name="operationType"></param>
+            <param name="entityPropertyWithDefaultValue"></param>
+            <returns></returns>
+            <exception cref="T:EFCore.BulkExtensions.InvalidBulkConfigException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.TruncateTable(System.String)">
+            <summary>
+            Generates SQL query to truncate table
+            </summary>
+            <param name="tableName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.DeleteTable(System.String)">
+            <summary>
+            Used for Sqlite, Truncate table 
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.GetCommaSeparatedColumns(System.Collections.Generic.List{System.String},System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Generates SQL query to get comma seperated column
+            </summary>
+            <param name="columnsNames"></param>
+            <param name="prefixTable"></param>
+            <param name="equalsTable"></param>
+            <param name="propertColumnsNamesDict"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.GetCommaSeparatedColumnsAndTypes(System.Collections.Generic.List{System.Tuple{System.String,System.String}})">
+            <summary>
+            Generates a comma seperated column list with its SQL data type
+            </summary>
+            <param name="columnsNamesAndTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlQueryBuilder.GetANDSeparatedColumns(System.Collections.Generic.List{System.String},System.String,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Generates SQL query to seperate columns
+            </summary>
+            <param name="columnsNames"></param>
+            <param name="prefixTable"></param>
+            <param name="equalsTable"></param>
+            <param name="updateByPropertiesAreNullable"></param>
+            <param name="propertColumnsNamesDict"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.Insert``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.InsertAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.Merge``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.MergeAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,EFCore.BulkExtensions.OperationType,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.Read``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.ReadAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Action{System.Decimal},System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.Truncate(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.TruncateAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.SetSqlBulkCopyConfig``1(Microsoft.Data.SqlClient.SqlBulkCopy,EFCore.BulkExtensions.TableInfo,System.Collections.Generic.IEnumerable{``0},System.Boolean,System.Action{System.Decimal})">
+            <summary>
+            Supports <see cref="T:Microsoft.Data.SqlClient.SqlBulkCopy"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlBulkCopy"></param>
+            <param name="tableInfo"></param>
+            <param name="entities"></param>
+            <param name="setColumnMapping"></param>
+            <param name="progress"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.GetDataTable``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},Microsoft.Data.SqlClient.SqlBulkCopy,EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Supports <see cref="T:Microsoft.Data.SqlClient.SqlBulkCopy"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="sqlBulkCopy"></param>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.InnerGetDataTable``1(Microsoft.EntityFrameworkCore.DbContext,System.Type@,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo)">
+            <summary>
+            Common logic for two versions of GetDataTable
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerDbServer">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerDbServer.DbConnection">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerDbServer.DbTransaction">
+            <inheritdoc/>
+        </member>
+        <member name="P:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerDbServer.QueryBuilder">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerDialect">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerQueryBuilder">
+            <summary>
+            Contains a compilation of SQL queries used in EFCore.
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerQueryBuilder.CreateParameter(Microsoft.Data.SqlClient.SqlParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerQueryBuilder.Dbtype">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerQueryBuilder.RestructureForBatch(System.String,System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerQueryBuilder.SetDbTypeParam(System.Object,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:EFCore.BulkExtensions.OperationType">
+            <summary>
+            Describes the operation type
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.Insert">
+            <summary>
+            Operation to insert a list of entities
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.InsertOrUpdate">
+            <summary>
+            Operation to insert or update a list of entities
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.InsertOrUpdateOrDelete">
+            <summary>
+            Operation to sync source table with a list of entities by inserting (or updating) and deleting records
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.Update">
+            <summary>
+            Operation to update a list of entities
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.Delete">
+            <summary>
+            Operation to delete a list of entities
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.Read">
+            <summary>
+            Operation to read a list of entities
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.Truncate">
+            <summary>
+            Operation to truncate source table
+            </summary>
+        </member>
+        <member name="F:EFCore.BulkExtensions.OperationType.SaveChanges">
+            <summary>
+            Operation to use Entity Change Tracker to update/insert/delete entities
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.TableInfo">
+            <summary>
+            Provides a list of information for EFCore.BulkExtensions that is used internally to know what to do with the data source received
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.CreateInstance``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.OperationType,EFCore.BulkExtensions.BulkConfig)">
+            <summary>
+            Creates an instance of TableInfo
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="operationType"></param>
+            <param name="bulkConfig"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.LoadData``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},System.Boolean)">
+            <summary>
+            Configures the table info based on entity data 
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="loadOnlyPKColumn"></param>
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:EFCore.BulkExtensions.MultiplePropertyListSetException"></exception>
+            <exception cref="T:EFCore.BulkExtensions.InvalidBulkConfigException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.ValidateSpecifiedPropertiesList(System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            Validates the specified property list
+            </summary>
+            <param name="specifiedPropertiesList"></param>
+            <param name="specifiedPropertiesListName"></param>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.CheckTableExistAsync(Microsoft.EntityFrameworkCore.DbContext,EFCore.BulkExtensions.TableInfo,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Checks if the table exists
+            </summary>
+            <param name="context"></param>
+            <param name="tableInfo"></param>
+            <param name="cancellationToken"></param>
+            <param name="isAsync"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.GetStatsNumbersAsync(Microsoft.EntityFrameworkCore.DbContext,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Checks the IUD Stats numbers of entities
+            </summary>
+            <param name="context"></param>
+            <param name="cancellationToken"></param>
+            <param name="isAsync"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.GetUniquePropertyValues(System.Object,System.Collections.Generic.List{System.String},System.Collections.Generic.Dictionary{System.String,EFCore.BulkExtensions.FastProperty})">
+            <summary>
+            Returns the unique property values
+            </summary>
+            <param name="entity"></param>
+            <param name="propertiesNames"></param>
+            <param name="fastPropertyDict"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.ConfigureBulkReadTableInfo">
+            <summary>
+            Configures the bulk read column names for the table info
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.CheckToSetIdentityForPreserveOrder``1(EFCore.BulkExtensions.TableInfo,System.Collections.Generic.IEnumerable{``0},System.Boolean)">
+            <summary>
+            Sets the identity preserve order
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tableInfo"></param>
+            <param name="entities"></param>
+            <param name="reset"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.LoadOutputEntities``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.String)">
+            <summary>
+            Loads the ouput entities
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="sqlSelect"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.UpdateEntitiesIdentity``1(EFCore.BulkExtensions.TableInfo,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{System.Object})">
+            <summary>
+            Updates the entities' identity field
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tableInfo"></param>
+            <param name="entities"></param>
+            <param name="entitiesWithOutputIdentity"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.LoadOutputDataAsync``1(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.Collections.Generic.IEnumerable{``0},EFCore.BulkExtensions.TableInfo,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Loads the output data
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="entities"></param>
+            <param name="tableInfo"></param>
+            <param name="cancellationToken"></param>
+            <param name="isAsync"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.QueryOutputTable(Microsoft.EntityFrameworkCore.DbContext,System.Type,System.String)">
+            <summary>
+            Queries the output table data
+            </summary>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="sqlQuery"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.GetQueryExpression``1(System.String,System.Boolean)">
+            <summary>
+            Returns an expression for the SQL query
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlQuery"></param>
+            <param name="ordered"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.TableInfo.GetQueryExpression(System.Type,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Returns an expression for the SQL query
+            </summary>
+            <param name="entityType"></param>
+            <param name="sqlQuery"></param>
+            <param name="doOrder"></param>
+            <param name="doSelect"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.PropertyColumnInfo">
+            <summary>
+            Provides a list of information for EFCore.BulkExtensions that is used internally to know what to do with the data source received
+            Currently not yet used
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.ActivitySources">
+            <summary>
+            Contains activity sources
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.ActivitySources.StartExecuteActivity(EFCore.BulkExtensions.OperationType,System.Int32)">
+            <summary>
+            Starts the activity
+            </summary>
+            <param name="operationType"></param>
+            <param name="entitiesCount"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EFCore.BulkExtensions.FastProperty">
+            <summary>
+            Class to initialize types using reflection
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.FastProperty.GetOrCreate(System.Reflection.PropertyInfo)">
+            <summary>
+            Get or create a <see cref="T:EFCore.BulkExtensions.FastProperty"/> instance for getting/setting the given property.
+            </summary>
+            <param name="property">The property to obtain a <see cref="T:EFCore.BulkExtensions.FastProperty"/> instance for.</param>
+            <returns>
+            A new or already existing and cached <see cref="T:EFCore.BulkExtensions.FastProperty"/> instance.
+            </returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.FastProperty.#ctor(System.Reflection.PropertyInfo)">
+            <summary>
+            Constructor for FastPropery
+            </summary>
+            <param name="property"></param>
+        </member>
+        <member name="M:EFCore.BulkExtensions.FastProperty.Get(System.Object)">
+            <summary>
+            Returns the object
+            </summary>
+            <param name="instance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.FastProperty.Set(System.Object,System.Object)">
+            <summary>
+            Sets the delegate
+            </summary>
+            <param name="instance"></param>
+            <param name="value"></param>
+        </member>
+        <member name="T:EFCore.BulkExtensions.GenericsHelpers">
+            <summary>
+            This class helps to extract properties of the incoming type which have default sql values
+            </summary>
+        </member>
+        <member name="T:EFCore.BulkExtensions.OwnedTypeUtil">
+            <summary>
+            Owned entity utilities
+            </summary>
+        </member>
+        <member name="M:EFCore.BulkExtensions.OwnedTypeUtil.IsOwnedInSameTableAsOwner(Microsoft.EntityFrameworkCore.Metadata.IEntityType)">
+            <summary>
+            Determines if entity is owned entity
+            </summary>
+            <param name="owned"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EFCore.BulkExtensions.OwnedTypeUtil.IsOwnedInSameTableAsOwner(Microsoft.EntityFrameworkCore.Metadata.INavigation)">
+            <summary>
+            Determines if entity is owned entity
+            </summary>
+            <param name="navigation"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

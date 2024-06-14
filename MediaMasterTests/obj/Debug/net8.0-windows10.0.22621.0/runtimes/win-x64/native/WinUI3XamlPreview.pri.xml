@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PriInfo>
+	<ResourceMap name="WinUI3XamlPreview" version="1.0" primary="true">
+		<Qualifiers>
+			<AlternateForm>UNPLATED</AlternateForm>
+			<Language>EN-US,ZH-HK</Language>
+			<Scale>200</Scale>
+			<TargetSize>24</TargetSize>
+		</Qualifiers>
+		<ResourceMapSubtree name="Files">
+			<ResourceMapSubtree name="WinUI3XamlPreview">
+				<NamedResource name="MainPage.xbf" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/MainPage.xbf">
+					<Candidate type="EmbeddedData">
+						<Base64Value>[Embedded Binary Data]</Base64Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="MainWindow.xbf" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/MainWindow.xbf">
+					<Candidate type="EmbeddedData">
+						<Base64Value>[Embedded Binary Data]</Base64Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="Toast.xbf" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/Toast.xbf">
+					<Candidate type="EmbeddedData">
+						<Base64Value>[Embedded Binary Data]</Base64Value>
+					</Candidate>
+				</NamedResource>
+				<ResourceMapSubtree name="Assets">
+					<NamedResource name="LockScreenLogo.png" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/Assets/LockScreenLogo.png">
+						<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+							<Value>WinUI3XamlPreview\Assets\LockScreenLogo.scale-200.png</Value>
+						</Candidate>
+					</NamedResource>
+					<NamedResource name="SplashScreen.png" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/Assets/SplashScreen.png">
+						<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+							<Value>WinUI3XamlPreview\Assets\SplashScreen.scale-200.png</Value>
+						</Candidate>
+					</NamedResource>
+					<NamedResource name="Square150x150Logo.png" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/Assets/Square150x150Logo.png">
+						<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+							<Value>WinUI3XamlPreview\Assets\Square150x150Logo.scale-200.png</Value>
+						</Candidate>
+					</NamedResource>
+					<NamedResource name="Square44x44Logo.png" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/Assets/Square44x44Logo.png">
+						<Candidate qualifiers="TargetSize-24, AlternateForm-UNPLATED" type="Path">
+							<Value>WinUI3XamlPreview\Assets\Square44x44Logo.targetsize-24_altform-unplated.png</Value>
+						</Candidate>
+						<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+							<Value>WinUI3XamlPreview\Assets\Square44x44Logo.scale-200.png</Value>
+						</Candidate>
+					</NamedResource>
+					<NamedResource name="StoreLogo.png" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/Assets/StoreLogo.png">
+						<Candidate type="Path">
+							<Value>WinUI3XamlPreview\Assets\StoreLogo.png</Value>
+						</Candidate>
+					</NamedResource>
+					<NamedResource name="Wide310x150Logo.png" uri="ms-resource://WinUI3XamlPreview/Files/WinUI3XamlPreview/Assets/Wide310x150Logo.png">
+						<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+							<Value>WinUI3XamlPreview\Assets\Wide310x150Logo.scale-200.png</Value>
+						</Candidate>
+					</NamedResource>
+				</ResourceMapSubtree>
+			</ResourceMapSubtree>
+		</ResourceMapSubtree>
+		<ResourceMapSubtree name="WinUI3XamlPreview">
+			<ResourceMapSubtree name="Resources">
+				<NamedResource name="FileNotFoundMessage" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/FileNotFoundMessage">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>找不到路徑 "{}"</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>Cannot find path "{}"</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="FileNotFoundTitle" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/FileNotFoundTitle">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>找不到檔案</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>File Not Found</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="ResourceDictionaryNoControlTemplates" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/ResourceDictionaryNoControlTemplates">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>ResourceDictionary 沒有任何 control template</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>ResourceDictionary doesn't contain any control template</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="ThemeDisplay_Dark" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/ThemeDisplay_Dark">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>深色</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>Dark</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="ThemeDisplay_Light" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/ThemeDisplay_Light">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>淺色</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>Light</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="ThemeDisplay_System" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/ThemeDisplay_System">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>系統主題</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>System Theme</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="XamlLoadedNothingError" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/XamlLoadedNothingError">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>已讀取但沒有東西可顯示</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>Loaded But Nothing to Show</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="XamlLoadErrorMessage" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/XamlLoadErrorMessage">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>無法讀取 XAML。如果你新增了 User/Custom Control，請先構建專案。如果你的應用是已包裝的，請先安裝。</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>Cannot load XAML. If you added new user/custom control, build the project first. If your app is packaged, deploy it first.</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="XamlLoadErrorTitle" uri="ms-resource://WinUI3XamlPreview/WinUI3XamlPreview/Resources/XamlLoadErrorTitle">
+					<Candidate qualifiers="Language-ZH-HK" type="String">
+						<Value>無法讀取 XAML</Value>
+					</Candidate>
+					<Candidate qualifiers="Language-EN-US" isDefault="true" type="String">
+						<Value>Cannot Load XAML</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+		</ResourceMapSubtree>
+	</ResourceMap>
+</PriInfo>

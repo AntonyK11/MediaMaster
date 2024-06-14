@@ -1,0 +1,16 @@
+E:\source\EFCore.BulkExtensions\bin\Release\net8.0\EFCore.BulkExtensions.deps.json
+E:\source\EFCore.BulkExtensions\bin\Release\net8.0\EFCore.BulkExtensions.dll
+E:\source\EFCore.BulkExtensions\bin\Release\net8.0\EFCore.BulkExtensions.pdb
+E:\source\EFCore.BulkExtensions\bin\Release\net8.0\EFCore.BulkExtensions.xml
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.csproj.AssemblyReference.cache
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.GeneratedMSBuildEditorConfig.editorconfig
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.AssemblyInfoInputs.cache
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.AssemblyInfo.cs
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.csproj.CoreCompileInputs.cache
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCoreSqlServerNetTopologySuite.cs
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCoreSqlServerHierarchyId.cs
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.dll
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\refint\EFCore.BulkExtensions.dll
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.xml
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\EFCore.BulkExtensions.pdb
+E:\source\EFCore.BulkExtensions\obj\Release\net8.0\ref\EFCore.BulkExtensions.dll
