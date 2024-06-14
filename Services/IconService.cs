@@ -30,26 +30,6 @@ public class MyCancellationTokenSource : CancellationTokenSource
     }
 }
 
-public static class TaskDelaySafe
-{
-    public static async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
-    {
-        await TaskDelaySafe.Delay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
-    }
-
-    public static async Task Delay(TimeSpan delay, CancellationToken cancellationToken)
-    {
-        var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var task = new TaskCompletionSource<int>();
-
-        tokenSource.Token.Register(() => task.SetResult(0));
-
-        await Task.WhenAny(
-            Task.Delay(delay, CancellationToken.None),
-            task.Task);
-    }
-}
-
 public static class IconService
 {
     public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
@@ -61,8 +41,8 @@ public static class IconService
         {
             BITMAP bm;
             GetObject(m_hBitmapCapture, Marshal.SizeOf(typeof(BITMAP)), out bm);
-            int nWidth = bm.bmWidth;
-            int nHeight = bm.bmHeight;
+            var nWidth = bm.bmWidth;
+            var nHeight = bm.bmHeight;
             BITMAPV5HEADER bi = new BITMAPV5HEADER();
             bi.bV5Size = Marshal.SizeOf(typeof(BITMAPV5HEADER));
             bi.bV5Width = nWidth;
@@ -75,15 +55,15 @@ public static class IconService
             bi.bV5GreenMask = 0x0000FF00;
             bi.bV5BlueMask = 0x000000FF;
 
-            IntPtr hDC = CreateCompatibleDC(IntPtr.Zero);
-            IntPtr hBitmapOld = SelectObject(hDC, m_hBitmapCapture);
-            int nNumBytes = (int)(nWidth * 4 * nHeight);
-            byte[] pPixels = new byte[nNumBytes];
-            int nScanLines = GetDIBits(hDC, m_hBitmapCapture, 0, (uint)nHeight, pPixels, ref bi, DIB_RGB_COLORS);
+            var hDC = CreateCompatibleDC(IntPtr.Zero);
+            var hBitmapOld = SelectObject(hDC, m_hBitmapCapture);
+            var nNumBytes = (int)(nWidth * 4 * nHeight);
+            var pPixels = new byte[nNumBytes];
+            _ = GetDIBits(hDC, m_hBitmapCapture, 0, (uint)nHeight, pPixels, ref bi, DIB_RGB_COLORS);
 
-            for (int i = 0; i < nNumBytes; i += 4)
+            for (var i = 0; i < nNumBytes; i += 4)
             {
-                byte alpha = pPixels[i + 3];
+                var alpha = pPixels[i + 3];
                 pPixels[i + 0] = (byte)((pPixels[i + 0] * alpha) / 255); // Blue
                 pPixels[i + 1] = (byte)((pPixels[i + 1] * alpha) / 255); // Green
                 pPixels[i + 2] = (byte)((pPixels[i + 2] * alpha) / 255); // Red
@@ -120,10 +100,6 @@ public static class IconService
         using (cts)
         {
             if (cts.Token.IsCancellationRequested) return;
-
-            //await TaskDelaySafe.Delay(1000, cts.Token);
-
-            //if (cts.Token.IsCancellationRequested) return;
 
             if (File.Exists(path))
             {
