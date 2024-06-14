@@ -14,13 +14,6 @@ public sealed partial class ShellPage
         Loaded += OnLoaded;
         App.GetService<FlyoutNavigationService>().Frame = ContentFrame;
         ViewModel = App.GetService<ShellViewModel>();
-
-        App.GetService<IThemeSelectorService>().ThemeChanged += async (_, _) =>
-        {
-            await Task.Delay(1); // To account for the delay in the theme change
-            ViewModel.IsFocused = !ViewModel.IsFocused;
-            ViewModel.IsFocused = !ViewModel.IsFocused;
-        };
     }
 
     public void OnLoaded(object sender, RoutedEventArgs e)
@@ -35,6 +28,9 @@ public sealed partial class ShellPage
 
     public void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
-        ViewModel.IsFocused = args.WindowActivationState != WindowActivationState.Deactivated;
+        VisualStateManager.GoToState(TitleBarCloseButton,
+            args.WindowActivationState != WindowActivationState.Deactivated
+                ? "WindowActivated"
+                : "WindowDeactivated", false);
     }
 }

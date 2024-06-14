@@ -1,6 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 
-namespace MediaMaster.Helpers;
+namespace MediaMaster.Extensions;
 
 public static class FrameExtensions
 {

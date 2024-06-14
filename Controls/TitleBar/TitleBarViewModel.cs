@@ -12,7 +12,7 @@ using WinUIEx;
 using Microsoft.UI.Xaml.Controls;
 using MediaMaster.Services;
 
-namespace MediaMaster.Controls.VIewModels;
+namespace MediaMaster.Controls;
 
 // https://github.com/microsoft/WindowsAppSDK/issues/2943
 // https://github.com/ysc3839/win32-darkmode/blob/master/win32-darkmode/DarkMode.h
@@ -26,37 +26,48 @@ public partial class TitleBarViewModel : ObservableObject
 {
     [ObservableProperty] public Thickness _margin = new();
 
-    private static readonly AppWindow AppWindow = App.MainWindow!.AppWindow;
+    [ObservableProperty] public bool _isFocused;
 
-    private static readonly AppWindowTitleBar TitleBar = AppWindow.TitleBar;
+    private static readonly AppWindow? AppWindow = App.MainWindow?.AppWindow;
 
-    public TitleBarViewModel()
+    private static readonly AppWindowTitleBar? TitleBar = AppWindow?.TitleBar;
+
+    private readonly TitleBarControl _titleBar;
+
+    public TitleBarViewModel(TitleBarControl titleBar)
     {
         if (App.MainWindow != null)
         {
             App.MainWindow.ExtendsContentIntoTitleBar = true;
+            App.MainWindow.Activated += MainWindow_Activated;
         }
+
+        _titleBar = titleBar;
+    }
+    public void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+    {
+        IsFocused = args.WindowActivationState != WindowActivationState.Deactivated;
     }
 
-    public static void UpdateTitleBar(ElementTheme actualTheme)
+    public void UpdateTitleBar(ElementTheme actualTheme)
     {
         _ = WindowsApiService.FlushMenuThemes();
         _ = WindowsApiService.SetPreferredAppMode(actualTheme == ElementTheme.Dark
             ? WindowsNativeValues.PreferredAppMode.ForceDark
             : WindowsNativeValues.PreferredAppMode.ForceLight);
 
-        ResourceDictionary? themeColor =
-            Application.Current.Resources.ThemeDictionaries[actualTheme.ToString()] as ResourceDictionary;
+        ResourceDictionary? themeColor = _titleBar.Resources.ThemeDictionaries[actualTheme.ToString()] as ResourceDictionary;
 
-        if (themeColor == null) return;
+        if (themeColor == null || TitleBar == null) return;
 
-        TitleBar.ButtonForegroundColor = (Color)themeColor["ButtonForegroundColor"];
-        TitleBar.ButtonHoverBackgroundColor = (Color)themeColor["ButtonHoverBackgroundColor"];
-        TitleBar.ButtonHoverForegroundColor = (Color)themeColor["ButtonHoverForegroundColor"];
-        TitleBar.ButtonInactiveBackgroundColor = (Color)themeColor["ButtonInactiveBackgroundColor"];
-        TitleBar.ButtonInactiveForegroundColor = (Color)themeColor["ButtonInactiveForegroundColor"];
-        TitleBar.ButtonPressedBackgroundColor = (Color)themeColor["ButtonPressedBackgroundColor"];
-        TitleBar.ButtonPressedForegroundColor = (Color)themeColor["ButtonPressedForegroundColor"];
+        TitleBar.ButtonBackgroundColor = (Color)themeColor["TitleBarButtonBackgroundColor"];
+        TitleBar.ButtonForegroundColor = (Color)themeColor["TitleBarButtonForegroundColor"];
+        TitleBar.ButtonHoverBackgroundColor = (Color)themeColor["TitleBarButtonHoverBackgroundColor"];
+        TitleBar.ButtonHoverForegroundColor = (Color)themeColor["TitleBarButtonHoverForegroundColor"];
+        TitleBar.ButtonInactiveBackgroundColor = (Color)themeColor["TitleBarButtonInactiveBackgroundColor"];
+        TitleBar.ButtonInactiveForegroundColor = (Color)themeColor["TitleBarButtonInactiveForegroundColor"];
+        TitleBar.ButtonPressedBackgroundColor = (Color)themeColor["TitleBarButtonPressedBackgroundColor"];
+        TitleBar.ButtonPressedForegroundColor = (Color)themeColor["TitleBarButtonPressedForegroundColor"];
     }
 
     public void SetLeftMargin(double margin)
@@ -84,21 +95,13 @@ public partial class TitleBarViewModel : ObservableObject
     ///     Sets the drag region for a custom title bar.
     /// </summary>
     /// <param name="appTitleBar"> The <see cref="TitleBarControl" /> that contains the application icon. </param>
-    public static void SetDragRegionTitleBar(TitleBarControl appTitleBar)
+    public void SetDragRegionTitleBar()
     {
-        var nonClientInputSrc = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
+        if (AppWindow == null || TitleBar == null) return;
+
         List<RectInt32> rects = [];
-        var scale = appTitleBar.XamlRoot.RasterizationScale;
+        var scale = _titleBar.XamlRoot.RasterizationScale;
 
-        RectInt32 titleBarRect = new()
-        {
-            X = 0,
-            Y = 0,
-            Width = (int)(appTitleBar.ActualWidth * scale),
-            Height = (int)(appTitleBar.ActualHeight * scale)
-        };
-
-        TitleBar.SetDragRectangles([titleBarRect]);
         var navigationViewBackButton = App.MainWindow?.Content.FindDescendants().OfType<Button>().FirstOrDefault(x => x.Name is "NavigationViewBackButton");
         if (navigationViewBackButton != null)
         {
@@ -112,13 +115,13 @@ public partial class TitleBarViewModel : ObservableObject
             rects.Add(GetRect(togglePaneButtonGrid, scale));
         }
 
-        if (appTitleBar.Icon != null)
+        var titleBarIcon = _titleBar.FindDescendants().OfType<Viewbox>().FirstOrDefault(x => x.Name is "AppIconElement");
+        if (titleBarIcon != null)
         {
-            rects.Add(GetRect(appTitleBar.Icon, scale));
+            rects.Add(GetRect(titleBarIcon, scale));
         }
 
-        rects.Add(GetRect(appTitleBar.SearchBox, scale));
-
+        var nonClientInputSrc = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
         nonClientInputSrc.SetRegionRects(NonClientRegionKind.Passthrough, [.. rects]);
     }
 
@@ -141,29 +144,29 @@ public partial class TitleBarViewModel : ObservableObject
         );
     }
 
-    public static void AppIcon_LeftClick(PointerRoutedEventArgs args, TitleBarControl appTitleBar)
+    public async void AppIcon_LeftClick(object sender, PointerRoutedEventArgs args)
     {
-        if (appTitleBar.Icon == null) return;
+        if (AppWindow == null) return;
 
         if (args.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
         {
-            PointerPointProperties? properties = args.GetCurrentPoint(appTitleBar.Icon).Properties;
+            PointerPointProperties? properties = args.GetCurrentPoint((UIElement)sender).Properties;
             if (properties.IsRightButtonPressed) return;
         }
 
-        var scaleAdjustment = appTitleBar.XamlRoot.RasterizationScale;
+        var scaleAdjustment = _titleBar.XamlRoot.RasterizationScale;
 
-        GeneralTransform ttv = appTitleBar.Icon.TransformToVisual(App.MainWindow!.Content);
+        GeneralTransform ttv = ((UIElement) sender).TransformToVisual(App.MainWindow!.Content);
         Point screenCords = ttv.TransformPoint(new Point(0, 0));
         Point menuPos = new(AppWindow.Position.X + screenCords.X * scaleAdjustment,
-            AppWindow.Position.Y + appTitleBar.ActualHeight * scaleAdjustment);
-        AppIcon_Click(menuPos);
+            AppWindow.Position.Y + _titleBar.ActualHeight * scaleAdjustment);
+        ShowMenu(menuPos);
     }
 
-    public static void AppIcon_RightClick()
+    public static void AppIcon_RightClick(object sender, RightTappedRoutedEventArgs args)
     {
-        _ = WindowsApiService.GetCursorPos(out WindowsNativeValues.POINT pt);
-        AppIcon_Click(new Point(pt.x, pt.y));
+        var pos = args.GetPosition((UIElement)sender);
+        ShowMenu(new Point(pos.X, pos.X));
     }
 
     /// <summary>
@@ -172,12 +175,14 @@ public partial class TitleBarViewModel : ObservableObject
     ///     enabled/disabled.
     /// </summary>
     /// <param name="pos"> The position of the mouse cursor. </param>
-    private static void AppIcon_Click(Point pos)
+    private static void ShowMenu(Point pos)
     {
-        var hWnd = App.MainWindow!.GetWindowHandle();
+        if (App.MainWindow == null) return;
+
+        var hWnd = App.MainWindow.GetWindowHandle();
         var hMenu = WindowsApiService.GetSystemMenu(hWnd, false);
 
-        if (App.MainWindow!.WindowState == WindowState.Normal)
+        if (App.MainWindow.WindowState == WindowState.Normal)
         {
             _ = WindowsApiService.EnableMenuItem(hMenu, 0xF120, 0x0001); // Restore Disabled
             _ = WindowsApiService.EnableMenuItem(hMenu, 0xF010, 0x0000); // Move Enabled
@@ -202,10 +207,5 @@ public partial class TitleBarViewModel : ObservableObject
         {
             _ = WindowsApiService.SendMessage(hWnd, WindowsNativeValues.WM_SYSCOMMAND, cmd, IntPtr.Zero);
         }
-    }
-
-    public static void AppIcon_DoubleClick()
-    {
-        App.Shutdown();
     }
 }

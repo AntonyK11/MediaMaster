@@ -55,6 +55,14 @@
                                         </Storyboard>
                                     </VisualState>
                                 </VisualStateGroup>
+                                <VisualStateGroup x:Name="WindowActivationGroup">
+                                    <VisualState x:Name="WindowActivated" />
+                                    <VisualState x:Name="WindowDeactivated">
+                                        <VisualState.Setters>
+                                            <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource WindowCaptionForegroundDisabled}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
                         </ContentPresenter>
                     </ControlTemplate>
@@ -151,6 +159,7 @@
             BorderBrush="Transparent"
             Canvas.ZIndex="1"
             Click="Hide_Flyout"
+            Foreground="{ThemeResource WindowCaptionForeground}"
             Style="{StaticResource CloseButtonStyle}">
             <Viewbox
                 Width="10"
@@ -158,20 +167,6 @@
                 Margin="0,0,1,0">
                 <FontIcon Glyph="&#xE8BB;" />
             </Viewbox>
-            <interactivity:Interaction.Behaviors>
-                <core:DataTriggerBehavior
-                    Binding="{x:Bind ViewModel.IsFocused, Mode=OneWay}"
-                    ComparisonCondition="Equal"
-                    Value="True">
-                    <core:ChangePropertyAction PropertyName="Foreground" Value="{ThemeResource WindowCaptionForeground}" />
-                </core:DataTriggerBehavior>
-                <core:DataTriggerBehavior
-                    Binding="{x:Bind ViewModel.IsFocused, Mode=OneWay}"
-                    ComparisonCondition="Equal"
-                    Value="False">
-                    <core:ChangePropertyAction PropertyName="Foreground" Value="{ThemeResource WindowCaptionForegroundDisabled}" />
-                </core:DataTriggerBehavior>
-            </interactivity:Interaction.Behaviors>
         </Button>
         <Button
             x:Name="NavigationBackButton"

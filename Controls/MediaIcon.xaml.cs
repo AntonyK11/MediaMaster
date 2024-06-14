@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Windows.System;
 using System.Diagnostics;
 using MediaMaster.Services;
+using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Controls;
 
@@ -16,6 +17,7 @@ public sealed partial class MediaIcon
             new PropertyMetadata(null));
 
     private MyCancellationTokenSource? _tokenSource;
+    private TaskCompletionSource<int> _task = new TaskCompletionSource<int>();
 
     public string? MediaPath
     {
@@ -23,12 +25,9 @@ public sealed partial class MediaIcon
         set
         {
             SetValue(MediaPathProperty, value);
-            if (_tokenSource is { IsDisposed: false })
-            {
-                _tokenSource?.Cancel();
-            }
-
-            _tokenSource = IconService.AddImage1(MediaPath, ImageMode, (int)MaxHeight, (int)MaxHeight, Image);
+            _task.SetResult(0);
+            _task = new TaskCompletionSource<int>();
+            SetIconAsync();
         }
     }
 
@@ -45,12 +44,9 @@ public sealed partial class MediaIcon
         set
         {
             SetValue(ImageModeProperty, value);
-            if (_tokenSource is { IsDisposed: false })
-            {
-                _tokenSource?.Cancel();
-            }
-
-            _tokenSource = IconService.AddImage1(MediaPath, ImageMode, (int)MaxHeight, (int)MaxHeight, Image);
+            _task.SetResult(0);
+            _task = new TaskCompletionSource<int>();
+            SetIconAsync();
         }
     }
 
@@ -96,5 +92,33 @@ public sealed partial class MediaIcon
 
             Process.Start(startInfo);
         }
+    }
+
+    private async void SetIconAsync()
+    {
+        var path = MediaPath;
+        if (Image.Source != null)
+        {
+            Image.Source = null;
+        }
+
+        await Task.WhenAny(
+            Task.Delay(500),
+            _task.Task);
+
+        if (path == MediaPath)
+        {
+            SetIcon();
+        }
+    }
+
+    private void SetIcon()
+    {
+        if (_tokenSource is { IsDisposed: false })
+        {
+            _tokenSource?.Cancel();
+        }
+
+        _tokenSource = IconService.AddImage1(MediaPath, ImageMode, (int)ActualHeight, (int)ActualHeight, Image);
     }
 }

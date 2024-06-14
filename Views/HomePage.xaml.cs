@@ -4,12 +4,8 @@ using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using BookmarksManager;
 using MediaMaster.DataBase.Models;
-using MediaMaster.Controls;
 using Microsoft.UI.Xaml.Controls;
-using EFCore.BulkExtensions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Input;
-using System.Diagnostics;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -20,7 +16,7 @@ namespace MediaMaster.Views;
 /// <summary>
 ///     An empty page that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class HomePage
+public sealed partial class HomePage : Page
 {
     private ITeachingService TeachingService { get; }
 
@@ -33,17 +29,28 @@ public sealed partial class HomePage
         TeachingService = App.GetService<ITeachingService>();
         BrowserService = App.GetService<BrowserService>();
 
-        InitializeComponent();
+        this.InitializeComponent();
 
         TeachingService.Configure(1, TeachingTip1);
         TeachingService.Configure(2, TeachingTip2);
         TeachingService.Configure(3, TeachingTip3);
 
-        MediaViewer.Media = new Media
-        {
-            Name = "Raptor_Dimorphism",
-            FilePath = @"C:\Users\Antony\Downloads\ovisetup.exe"
-        };
+        //var media = new Media 
+        //{ 
+        //    Name = "Raptor_Dimorphism",
+        //    FilePath = @"C:\Users\Antony\Downloads\ovisetup.exe"
+        //};
+
+        //for (int i = 0;  i < 50; i++)
+        //{
+        //    var tag = new Tag
+        //    {
+        //        Name = $"hello {i}"
+        //    };
+        //    media.Tags.Add(tag);
+        //}
+
+        //MediaViewer.Media = media;
 
         //_collection = new(DataBase.Medias.Local);
         //DataBase.Medias.Local.CollectionChanged += (_, args) =>
@@ -105,7 +112,7 @@ public sealed partial class HomePage
         //await BrowserService.FindActiveTabs();
         await using (MediaDbContext dataBase = new())
         {
-            MediaItemsView.ItemsSource = await dataBase.Medias.ToListAsync();
+            MediaItemsView.ItemsSource = dataBase.Medias.ToList();
         }
     }
 

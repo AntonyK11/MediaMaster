@@ -7,12 +7,11 @@
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:customControls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
     xmlns:local="using:BookmarksManager"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:MediaMaster.DataBase.Models"
     xmlns:views="using:MediaMaster.Views"
+    xmlns:winUiCommunity="using:WinUICommunity"
     NavigationCacheMode="Disabled"
     mc:Ignorable="d">
 
@@ -49,14 +48,11 @@
 
         <DataTemplate x:Key="MediaTemplate" x:DataType="models:Media">
             <ItemContainer
-                Width="60"
-                Height="60"
+                Width="200"
+                Height="200"
                 DataContext="{x:Bind}"
                 Tapped="ItemContainer_Tapped">
-                <customControls:MediaIcon
-                    MaxHeight="60"
-                    LoadIcon="False"
-                    MediaPath="{x:Bind FilePath}" />
+                <customControls:MediaIcon LoadIcon="False" MediaPath="{x:Bind FilePath}" />
             </ItemContainer>
         </DataTemplate>
     </Page.Resources>
@@ -86,158 +82,168 @@
             Visibility="{x:Bind MediaViewer.Visibility, Mode=OneWay}" />
 
 
-        <ScrollViewer
+        <Grid
             Grid.Column="0"
-            HorizontalScrollBarVisibility="Auto"
-            VerticalScrollBarVisibility="Auto">
-            <Grid ColumnSpacing="20" RowSpacing="20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            ColumnSpacing="20"
+            RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" Spacing="16">
-                    <Button
-                        x:Name="ActiveTabButton"
-                        Click="GetActiveTabs"
-                        Content="Find Active Tabs" />
-                    <Button
-                        x:Name="BookmarkButton"
-                        Click="GetBookmarks"
-                        Content="Get Bookmarks" />
-                    <Button
-                        x:Name="Button1"
-                        Click="{x:Bind TeachingService.PrevStep}"
-                        Content="Previous TeachingTip" />
-                    <Button
-                        x:Name="Button2"
-                        Click="{x:Bind TeachingService.NextStep}"
-                        Content="Next TeachingTip" />
-                    <Button
-                        x:Name="Button3"
-                        Click="{x:Bind TeachingService.Reset}"
-                        Content="Reset TeachingService" />
-
-
-                    <TeachingTip
-                        x:Name="TeachingTip1"
-                        Title="THis is a teaching tip"
-                        Subtitle="This is the first step"
-                        Target="{x:Bind Button1}">
-                        <TeachingTip.IconSource>
-                            <SymbolIconSource Symbol="Home" />
-                        </TeachingTip.IconSource>
-                        <TeachingTip.Content>
-                            <Grid Margin="0,16,0,0" ColumnSpacing="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <Button
-                                    Grid.Column="0"
-                                    HorizontalAlignment="Stretch"
-                                    Click="{x:Bind TeachingService.PrevStep}"
-                                    Content="Previous" />
-                                <Button
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Stretch"
-                                    Click="{x:Bind TeachingService.NextStep}"
-                                    Content="Next" />
-                            </Grid>
-                        </TeachingTip.Content>
-                    </TeachingTip>
-
-                    <TeachingTip
-                        x:Name="TeachingTip2"
-                        Title="THis is a teaching tip"
-                        Subtitle="This is the second step"
-                        Target="{x:Bind Button2}">
-                        <TeachingTip.IconSource>
-                            <SymbolIconSource Symbol="Bullets" />
-                        </TeachingTip.IconSource>
-                        <TeachingTip.Content>
-                            <Grid Margin="0,16,0,0" ColumnSpacing="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <Button
-                                    Grid.Column="0"
-                                    HorizontalAlignment="Stretch"
-                                    Click="{x:Bind TeachingService.PrevStep}"
-                                    Content="Previous" />
-                                <Button
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Stretch"
-                                    Click="{x:Bind TeachingService.NextStep}"
-                                    Content="Next" />
-                            </Grid>
-                        </TeachingTip.Content>
-                    </TeachingTip>
-
-                    <TeachingTip
-                        x:Name="TeachingTip3"
-                        Title="THis is a teaching tip"
-                        Subtitle="This is the third step"
-                        Target="{x:Bind Button3}">
-                        <TeachingTip.IconSource>
-                            <SymbolIconSource Symbol="Help" />
-                        </TeachingTip.IconSource>
-                        <TeachingTip.Content>
-                            <Grid Margin="0,16,0,0" ColumnSpacing="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <Button
-                                    Grid.Column="0"
-                                    HorizontalAlignment="Stretch"
-                                    Click="{x:Bind TeachingService.PrevStep}"
-                                    Content="Previous" />
-                                <Button
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Stretch"
-                                    Click="{x:Bind TeachingService.NextStep}"
-                                    Content="Next" />
-                            </Grid>
-                        </TeachingTip.Content>
-                    </TeachingTip>
-                </StackPanel>
-
-                <TextBlock Grid.Row="1">Active Tabs</TextBlock>
-
-                <ListView
-                    x:Name="TabsList"
-                    Grid.Row="2"
-                    IncrementalLoadingThreshold="1"
-                    IncrementalLoadingTrigger="Edge" />
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <Button
+                    x:Name="ActiveTabButton"
+                    Click="GetActiveTabs"
+                    Content="Find Active Tabs" />
+                <Button
+                    x:Name="BookmarkButton"
+                    Click="GetBookmarks"
+                    Content="Get Bookmarks" />
+                <Button
+                    x:Name="Button1"
+                    Click="{x:Bind TeachingService.PrevStep}"
+                    Content="Previous TeachingTip" />
+                <Button
+                    x:Name="Button2"
+                    Click="{x:Bind TeachingService.NextStep}"
+                    Content="Next TeachingTip" />
+                <Button
+                    x:Name="Button3"
+                    Click="{x:Bind TeachingService.Reset}"
+                    Content="Reset TeachingService" />
 
 
-                <ItemsView
-                    x:Name="MediaItemsView"
-                    Grid.Row="5"
-                    Width="600"
-                    Height="600"
-                    ItemTemplate="{StaticResource MediaTemplate}">
-                    <ItemsView.Layout>
-                        <UniformGridLayout />
-                    </ItemsView.Layout>
-                </ItemsView>
+                <TeachingTip
+                    x:Name="TeachingTip1"
+                    Title="THis is a teaching tip"
+                    Subtitle="This is the first step"
+                    Target="{x:Bind Button1}">
+                    <TeachingTip.IconSource>
+                        <SymbolIconSource Symbol="Home" />
+                    </TeachingTip.IconSource>
+                    <TeachingTip.Content>
+                        <Grid Margin="0,16,0,0" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                <!--<TextBlock Grid.Row="3">Browsers Bookmarks</TextBlock>
+                            <Button
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.PrevStep}"
+                                Content="Previous" />
+                            <Button
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.NextStep}"
+                                Content="Next" />
+                        </Grid>
+                    </TeachingTip.Content>
+                </TeachingTip>
+
+                <TeachingTip
+                    x:Name="TeachingTip2"
+                    Title="THis is a teaching tip"
+                    Subtitle="This is the second step"
+                    Target="{x:Bind Button2}">
+                    <TeachingTip.IconSource>
+                        <SymbolIconSource Symbol="Bullets" />
+                    </TeachingTip.IconSource>
+                    <TeachingTip.Content>
+                        <Grid Margin="0,16,0,0" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.PrevStep}"
+                                Content="Previous" />
+                            <Button
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.NextStep}"
+                                Content="Next" />
+                        </Grid>
+                    </TeachingTip.Content>
+                </TeachingTip>
+
+                <TeachingTip
+                    x:Name="TeachingTip3"
+                    Title="THis is a teaching tip"
+                    Subtitle="This is the third step"
+                    Target="{x:Bind Button3}">
+                    <TeachingTip.IconSource>
+                        <SymbolIconSource Symbol="Help" />
+                    </TeachingTip.IconSource>
+                    <TeachingTip.Content>
+                        <Grid Margin="0,16,0,0" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.PrevStep}"
+                                Content="Previous" />
+                            <Button
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.NextStep}"
+                                Content="Next" />
+                        </Grid>
+                    </TeachingTip.Content>
+                </TeachingTip>
+            </StackPanel>
+
+            <customControls:SearchBox
+                x:Name="TagSearchBox"
+                Grid.Row="1"
+                Width="600"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center" />
+
+            <TextBlock Grid.Row="2">Active Tabs</TextBlock>
+
+            <ListView
+                x:Name="TabsList"
+                Grid.Row="3"
+                IncrementalLoadingThreshold="1"
+                IncrementalLoadingTrigger="Edge" />
+
+
+            <ItemsView
+                x:Name="MediaItemsView"
+                Grid.Row="4"
+                ItemTemplate="{StaticResource MediaTemplate}">
+                <ItemsView.Layout>
+                    <UniformGridLayout />
+                </ItemsView.Layout>
+            </ItemsView>
+
+            <winUiCommunity:PagerControl
+                Grid.Row="5"
+                DisplayMode="NumberBox"
+                NumberOfPages="100" />
+
+            <!--<TextBlock Grid.Row="3">Browsers Bookmarks</TextBlock>
 
                 <TreeView
                     x:Name="BookmarksTree"
                     Grid.Row="4"
                     ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />-->
 
-                <!--<table:TableView
+            <!--<table:TableView
             x:Name="MediasDataGrid"
             Grid.Row="1"
             Grid.Column="0"
@@ -269,8 +275,8 @@
                 <table:TableViewTextColumn Binding="{Binding Path=Categories, Converter={StaticResource EnumerableToStringConverter}}" Header="Categories" />
             </table:TableView.Columns>
         </table:TableView>-->
-            </Grid>
-            <!--<Grid
+        </Grid>
+        <!--<Grid
         HorizontalAlignment="Center"
         VerticalAlignment="Center"
         ColumnSpacing="20"
@@ -291,8 +297,8 @@
         </Grid.ColumnDefinitions>
 
 
-            -->
-            <!--<RepeatButton Click="DecrementButton_Click">
+        -->
+        <!--<RepeatButton Click="DecrementButton_Click">
     -
     </RepeatButton>
 
@@ -301,7 +307,7 @@
     <RepeatButton Click="IncrementButton_Click">
     +
     </RepeatButton>-->
-            <!--
+        <!--
 
         <TextBox
             x:Name="TitleInputBox"
@@ -329,8 +335,8 @@
             HorizontalAlignment="Center"
             Click="Button_Click"
             Content="Refresh" />
-            -->
-            <!--<ListView
+        -->
+        <!--<ListView
     x:Name="MediasList"
     Grid.Row="4"
     Height="300"
@@ -345,7 +351,7 @@
     </ListView>-->
 
 
-            <!--<controls:DataGrid
+        <!--<controls:DataGrid
             x:Name="MediasDataGrid"
             Grid.Row="4"
             Grid.Column="0"
@@ -390,9 +396,8 @@
                 <controls:DataGridTextColumn Binding="{Binding Path=Categories, Converter={StaticResource EnumerableToStringConverter}}" Header="Categories" />
             </controls:DataGrid.Columns>
         </controls:DataGrid>-->
-            <!--
+        <!--
 
     </Grid>-->
-        </ScrollViewer>
     </Grid>
 </Page>

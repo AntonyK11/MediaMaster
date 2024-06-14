@@ -53,6 +53,18 @@
                     Text="{x:Bind Media.Name, Mode=OneWay, FallbackValue=Media_not_found}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
+
+            <local:TagView
+                x:Name="TagView"
+                Grid.Row="2"
+                DeleteMode="Enabled">
+
+                <local:TagView.Layout>
+                    <FlowLayout MinColumnSpacing="4" MinRowSpacing="4" />
+                </local:TagView.Layout>
+
+            </local:TagView>
+
         </Grid>
     </ScrollView>
 </UserControl>

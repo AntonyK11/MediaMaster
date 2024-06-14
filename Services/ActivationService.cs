@@ -109,6 +109,7 @@ public class ActivationService : IActivationService
     }
 
     private bool _contextMenuLock = true;
+    private readonly ContextMenuService _menuService = new();
 
     private async Task ResetContextMenu()
     {
@@ -127,13 +128,13 @@ public class ActivationService : IActivationService
                 Param = "--Files \"{path}\" --NoWindow"
             };
 
-            ContextMenuService.Ins.ClearCache();
-            StorageFolder? menuFolder = await ContextMenuService.Ins.GetMenusFolderAsync();
+            _menuService.ClearCache();
+            StorageFolder? menuFolder = await _menuService.GetMenusFolderAsync();
             foreach (var file in Directory.EnumerateFiles(menuFolder.Path)) File.Delete(file);
 
-            await ContextMenuService.Ins.SaveAsync(menu);
-            await ContextMenuService.Ins.BuildToCacheAsync();
-            ContextMenuService.Ins.SetCustomMenuName($"{"add_context_menu".GetLocalizedString()} (Win 11)");
+            await _menuService.SaveAsync(menu);
+            await _menuService.BuildToCacheAsync();
+            _menuService.SetCustomMenuName($"{"add_context_menu".GetLocalizedString()} (Win 11)");
         }
         _contextMenuLock = true;
     }

@@ -42,6 +42,12 @@
 
 		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+
+		<WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
+		<!--<PublishAot>true</PublishAot>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>partial</TrimMode>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>-->
 	</PropertyGroup>
 
 	<PropertyGroup Label="MultilingualAppToolkit">
@@ -73,13 +79,14 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240531000-experimental1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Text.Json" Version="8.0.3" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 		<PackageReference Include="WinUI3Localizer" Version="2.2.0" />
 		<PackageReference Include="WinUI3XamlPreview" Version="0.8.2" />
-		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.8.0" />
+		<PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
+		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.9.0" />
 		<PackageReference Include="WinUIEx" Version="2.3.4" />
 	</ItemGroup>
 
@@ -151,9 +158,25 @@
 
 	<ItemGroup>
 	  <None Remove="Controls\MediaIcon.xaml" />
+	  <None Remove="Views\Dialog\EditTagDialog.xaml" />
+	  <None Remove="Views\Dialog\SelectTagsDialog.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Resource Remove="Controls\MediaIcon.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Controls\ItemView.xaml">
+	    <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Update="Views\Dialog\EditTagDialog.xaml">
+	    <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+	    <SubType>Designer</SubType>
+	  </Page>
+	  <Page Update="Views\Dialog\SelectTagsDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 </Project>

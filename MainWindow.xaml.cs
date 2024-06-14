@@ -9,8 +9,6 @@ using H.NotifyIcon.EfficiencyMode;
 using static MediaMaster.Services.WindowsNativeValues;
 using static MediaMaster.Services.WindowsApiService;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
-using WinUIEx.Messaging;
 
 namespace MediaMaster;
 
@@ -20,12 +18,6 @@ public sealed partial class MainWindow
     {
         InitializeComponent();
 
-        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets\\WindowIcon.ico"));
-
-        AppWindowTitleBar.IsCustomizationSupported();
-
-        Title = "AppDisplayName".GetLocalizedString();
-        App.GetService<ITranslationService>().LanguageChanged += LanguageChanged;
         App.GetService<IThemeSelectorService>().ThemeChanged += MainWindow_ThemeChanged;
 
         ExtendsContentIntoTitleBar = true;
@@ -101,10 +93,5 @@ public sealed partial class MainWindow
 
         attributeValue = theme == ElementTheme.Dark ? 1 : 0;
         _ = DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, ref attributeValue, sizeof(int));
-    }
-
-    private void LanguageChanged(object? sender, LanguageChangedEventArgs e)
-    {
-        Title = "AppDisplayName".GetLocalizedString();
     }
 }

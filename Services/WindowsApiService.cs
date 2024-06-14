@@ -76,10 +76,6 @@ public static partial class WindowsApiService
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool EnableMenuItem(IntPtr hMenu, uint uIdEnableItem, uint uEnable);
 
-    [LibraryImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool GetCursorPos(out POINT lpPoint);
-
     /// <summary>
     ///     Extends the window frame into the client area.
     /// </summary>

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MediaMaster.DataBase.Models;
+﻿namespace MediaMaster.DataBase.Models;
 
 public class MediaTag
 {

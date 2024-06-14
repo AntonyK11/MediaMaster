@@ -1,22 +1,32 @@
+using EFCore.BulkExtensions;
+using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace MediaMaster.Controls;
 
 public sealed partial class MediaViewer : UserControl
 {
-
     public static readonly DependencyProperty? MediaProperty
         = DependencyProperty.Register(
             nameof(Media),
             typeof(Media),
             typeof(MediaViewer),
             new PropertyMetadata(null));
+
+    private MyCancellationTokenSource? _tokenSource;
+
+    public MediaViewer()
+    {
+        InitializeComponent();
+
+        TagView.SelectTagsInvoked += async (_, tags) => await SelectTags(TagView.GetItemSource());
+
+        TagView.RemoveTagsInvoked += async (_, tags) => await SelectTags(tags);
+    }
 
     public Media? Media
     {
@@ -32,20 +42,50 @@ public sealed partial class MediaViewer : UserControl
                 MediaIcon.MediaPath = value?.FilePath;
                 MediaExtensionIcon.Source = null;
                 SetMediaExtensionIcon();
+                TagView.MediaId = value?.MediaId;
             }
         }
     }
 
-    public MediaViewer()
+    private async Task SelectTags(IEnumerable<Tag> selectedTags)
     {
-        InitializeComponent();
+        await using (MediaDbContext dataBase = new())
+        {
+            if (Media != null)
+            {
+                Media? trackedMedia = await dataBase.Medias.Include(m => m.Tags)
+                    .FirstOrDefaultAsync(m => m.MediaId == Media.MediaId);
 
-        //Visibility = Visibility.Collapsed;
+                if (trackedMedia != null)
+                {
+                    HashSet<int> currentTagIds = trackedMedia.Tags.Select(t => t.TagId).ToHashSet();
+                    HashSet<int> selectedTagIds = selectedTags.Select(t => t.TagId).ToHashSet();
+
+                    List<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToList();
+                    List<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToList();
+
+                    // Bulk add new tags
+                    if (tagsToAdd.Count != 0)
+                    {
+                        List<MediaTag> newMediaTags = tagsToAdd.Select(tagId => new MediaTag
+                            { MediaId = trackedMedia.MediaId, TagId = tagId }).ToList();
+                        await dataBase.BulkInsertAsync(newMediaTags);
+                    }
+
+                    // Bulk remove old tags
+                    if (tagsToRemove.Count != 0)
+                    {
+                        List<MediaTag> mediaTagsToRemove = await dataBase.MediaTags
+                            .Where(mt => mt.MediaId == trackedMedia.MediaId && tagsToRemove.Contains(mt.TagId))
+                            .ToListAsync();
+                        await dataBase.BulkDeleteAsync(mediaTagsToRemove);
+                    }
+                }
+            }
+        }
     }
 
-    private MyCancellationTokenSource? _tokenSource;
-
-    public void SetMediaExtensionIcon()
+    private void SetMediaExtensionIcon()
     {
         if (Media != null)
         {
@@ -58,4 +98,3 @@ public sealed partial class MediaViewer : UserControl
         }
     }
 }
-

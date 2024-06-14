@@ -1,52 +1,17 @@
 using System.Collections.ObjectModel;
-using System.Numerics;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.UI.Input;
+using Windows.Foundation;
+using Windows.System;
+using MediaMaster.DataBase;
+using MediaMaster.DataBase.Models;
+using MediaMaster.Views.Dialog;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Windows.System;
-using Windows.UI;
-using Windows.UI.Core;
-using CommunityToolkit.WinUI;
-using Microsoft.UI.Xaml.Media;
-
 
 namespace MediaMaster.Controls;
 
-public enum ItemsViewDeleteMode
+public sealed partial class TagView : UserControl
 {
-    Enabled,
-    Disabled
-}
-
-public sealed partial class TagView
-{
-    public static readonly DependencyProperty ItemsSourceProperty
-        = DependencyProperty.Register(
-            nameof(ItemsSource),
-            typeof(object),
-            typeof(TagView),
-            new PropertyMetadata(null));
-
-    public object ItemsSource
-    {
-        get => GetValue(ItemsSourceProperty);
-        set
-        {
-            SetValue(ItemsSourceProperty, value);
-            if (value is ObservableCollection<Tag> observableCollection)
-            {
-                observableCollection.CollectionChanged += (_, _) =>
-                {
-                    ScrollView.ScrollBy(ScrollView.ViewportWidth / 10000000, 0);
-                };
-            }
-        }
-    }
-
     public static readonly DependencyProperty SelectionModeProperty
         = DependencyProperty.Register(
             nameof(SelectionMode),
@@ -59,7 +24,7 @@ public sealed partial class TagView
         get => (ItemsViewSelectionMode)GetValue(SelectionModeProperty);
         set => SetValue(SelectionModeProperty, value);
     }
-
+    
     public static readonly DependencyProperty DeleteModeProperty
         = DependencyProperty.Register(
             nameof(DeleteMode),
@@ -70,13 +35,22 @@ public sealed partial class TagView
     public ItemsViewDeleteMode DeleteMode
     {
         get => (ItemsViewDeleteMode)GetValue(DeleteModeProperty);
-        set
-        {
-            SetValue(DeleteModeProperty, value);
-            SetDeleteState(value == ItemsViewDeleteMode.Enabled);
-        }
+        set => SetValue(DeleteModeProperty, value);
     }
+    
+    public static readonly DependencyProperty AddTagButtonProperty
+        = DependencyProperty.Register(
+            nameof(AddTagButton),
+            typeof(bool),
+            typeof(TagView),
+            new PropertyMetadata(true));
 
+    public bool AddTagButton
+    {
+        get => (bool)GetValue(AddTagButtonProperty);
+        set => SetValue(AddTagButtonProperty, value);
+    }
+    
     public static readonly DependencyProperty ShowScrollButtonsProperty
         = DependencyProperty.Register(
             nameof(ShowScrollButtons),
@@ -87,246 +61,145 @@ public sealed partial class TagView
     public bool ShowScrollButtons
     {
         get => (bool)GetValue(ShowScrollButtonsProperty);
+        set => SetValue(ShowScrollButtonsProperty, value);
+    }
+    
+    public static readonly DependencyProperty LayoutProperty
+        = DependencyProperty.Register(
+            nameof(Layout),
+            typeof(Layout),
+            typeof(TagView),
+            new PropertyMetadata(new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }));
+
+    public Layout Layout
+    {
+        get => (Layout)GetValue(LayoutProperty);
+        set => SetValue(LayoutProperty, value);
+    }
+    
+    public static readonly DependencyProperty MediaIdProperty
+        = DependencyProperty.Register(
+            nameof(MediaId),
+            typeof(int?),
+            typeof(TagView),
+            new PropertyMetadata(null));
+
+    public int? MediaId
+    {
+        get => (int?)GetValue(MediaIdProperty);
         set
         {
-            SetValue(ShowScrollButtonsProperty, value);
-            if (value)
-            {
-                UpdateScrollButtonsVisibility();
-            }
-            else
-            {
-                ScrollBackBtn.Visibility = Visibility.Collapsed;
-                ScrollForwardBtn.Visibility = Visibility.Collapsed;
-            }
+            SetValue(MediaIdProperty, value);
+            _ = UpdateItemSource();
         }
     }
+    
+    public static readonly DependencyProperty TagIdProperty
+        = DependencyProperty.Register(
+            nameof(TagId),
+            typeof(int?),
+            typeof(TagView),
+            new PropertyMetadata(null));
 
-    private ScrollView ScrollView => ItemsViewer.FindDescendants().OfType<ScrollView>().FirstOrDefault(i => i.Name == "PART_ScrollView")!;
-
+    public int? TagId
+    {
+        get => (int?)GetValue(TagIdProperty);
+        set
+        {
+            SetValue(TagIdProperty, value);
+            _ = UpdateItemSource(refreshAll: true);
+        }
+    }
+    
+    public event TypedEventHandler<object, ICollection<Tag>>? RemoveTagsInvoked;
+    public event TypedEventHandler<object, ICollection<int>>? SelectTagsInvoked;
+    public event TypedEventHandler<object, int>? EditTagInvoked;
+    
     public TagView()
     {
         InitializeComponent();
-        ItemsViewer.SizeChanged += (_, _) => UpdateScrollButtonsVisibility();
+        _ = UpdateItemSource();
 
-        ItemsViewer.Loaded += (_, _) =>
+        ItemView.SelectItemsInvoked += async (_, tags) =>
         {
-            var itemsRepeater = ItemsViewer.FindDescendants().OfType<ItemsRepeater>().FirstOrDefault(i => i.Name == "PART_ItemsRepeater");
-            if (itemsRepeater == null) return;
-            
-            itemsRepeater.ElementPrepared += (_, args) =>
-            {
-                var itemContainer = (ItemContainer)args.Element;
-                itemContainer.ApplyTemplate();
-                var result = VisualStateManager.GoToState(itemContainer, DeleteMode == ItemsViewDeleteMode.Enabled ? "EnableDelete" : "DisableDelete", true);
-            };
+            List<int> tagIds = tags.Where(t => t is Tag).Cast<Tag>().Select(t => t.TagId).ToList();
+            (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) =
+                await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : []);
 
-            SetDeleteState(DeleteMode == ItemsViewDeleteMode.Enabled);
+            if (selectTagsDialog != null)
+            {
+                await UpdateItemSource(selectTagsDialog.SelectedTags);
+            }
+
+            SelectTagsInvoked?.Invoke(this, tagIds);
+        };
+
+        ItemView.RemoveItemsInvoked += async (_, tags) =>
+        {
+            List<Tag> collection = tags.Where(t => t is Tag).Cast<Tag>().ToList();
+            await UpdateItemSource(collection);
+            RemoveTagsInvoked?.Invoke(this, collection);
+        };
+
+        EditTagInvoked += async (_, tagId) =>
+        {
+            (ContentDialogResult result, EditTagDialog? editTagDialog) = await EditTagDialog.ShowDialogAsync(tagId);
+
+            if (editTagDialog != null)
+            {
+                await editTagDialog.SaveChangesAsync();
+            }
+
+            await UpdateItemSource();
         };
     }
 
-    private void SetDeleteState(bool state)
+    public ICollection<Tag> GetItemSource()
     {
-        var itemsRepeater = ItemsViewer.FindDescendants().OfType<ItemsRepeater>().FirstOrDefault(i => i.Name == "PART_ItemsRepeater");
-        if (itemsRepeater == null) return;
-
-        int count = VisualTreeHelper.GetChildrenCount(itemsRepeater);
-        for (int childIndex = 0; childIndex < count; childIndex++)
-        {
-            var itemContainer = (ItemContainer)VisualTreeHelper.GetChild(itemsRepeater, childIndex);
-            VisualStateManager.GoToState(itemContainer, state ? "EnableDelete" : "DisableDelete", true);
-        }
-    }
-
-    public void UpdateScrollButtonsVisibility(object? n = null, object? n2 = null)
-    {
-        if (!ShowScrollButtons)
-        {
-            return;
-        }
-
-        if (ScrollView.HorizontalOffset < 1)
-        {
-            ScrollBackBtn.Visibility = Visibility.Collapsed;
-        }
-        else if (ScrollView.HorizontalOffset > 1)
-        {
-            ScrollBackBtn.Visibility = Visibility.Visible;
-        }
-
-        if (ScrollView.HorizontalOffset > ScrollView.ScrollableWidth - 1)
-        {
-            ScrollForwardBtn.Visibility = Visibility.Collapsed;
-        }
-        else if (ScrollView.HorizontalOffset < ScrollView.ScrollableWidth - 1)
-        {
-            ScrollForwardBtn.Visibility = Visibility.Visible;
-        }
-    }
-
-    private void ScrollBackBtn_Click(object sender, RoutedEventArgs e)
-    {
-        ScrollBy(-ScrollView.ViewportWidth);
-
-    }
-
-    private void ScrollForwardBtn_Click(object sender, RoutedEventArgs e)
-    {
-        ScrollBy(ScrollView.ViewportWidth);
-    }
-
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-    {
-        var button = ((Button)sender);
-        var tag = ((Grid)button.Parent).FindDescendants().OfType<TextBlock>().FirstOrDefault(t => t.Name == "TextBlock").Text;
-        RemoveTag(tag);
+        return ItemView.GetItemSource<Tag>();
     }
 
     private void OnKeyDown(object sender, KeyRoutedEventArgs e)
     {
         if (DeleteMode == ItemsViewDeleteMode.Enabled && e.Key is VirtualKey.Delete)
         {
-            var tag = (string)((ItemContainer)sender).GetValue(AutomationProperties.NameProperty);
-            RemoveTag(tag);
+            var tag = ((ItemContainer)sender).Tag;
+            ItemView.RemoveItem(tag);
         }
     }
 
-    public void RemoveTag(string Name)
+    private void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        if (ItemsSource is not Collection<Tag> itemsSource)
-        {
-            return;
-        }
-
-        var tag = itemsSource.FirstOrDefault(t => t.Name == Name);
-
-        if (tag != null)
-        {
-            itemsSource.Remove(tag);
-        }
+        EditTagInvoked?.Invoke(this, (int)((FrameworkElement)sender).Tag);
     }
 
-    private int _operationCount;
-
-    private DateTime _lastScrollTime = DateTime.Now;
-
-    private void PART_ScrollView_OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+    private async Task UpdateItemSource(ICollection<Tag>? tags = null, bool refreshAll = false)
     {
-        e.Handled = true;
-
-        var properties = e.GetCurrentPoint(ScrollView).Properties;
-        var delta = properties.MouseWheelDelta;
-        var scrollAmount = ScrollView.ViewportWidth/5;
-        var offsetDelta = delta > 0 ? -scrollAmount : scrollAmount;
-
-        ScrollBy(offsetDelta);
-    }
-
-    private void ScrollBy(double scrollAmount)
-    {
-
-        if (DateTime.Now - _lastScrollTime > TimeSpan.FromMilliseconds(100))
+        if (tags == null)
         {
-            _operationCount = 0;
-        }
-
-        const double minimumVelocity = 30.0;
-        //const float inertiaDecayRate = 0.95f;
-        //const double velocityNeededPerPixel = 2.995733261108394;
-        const float inertiaDecayRate = 0.9995f;
-        const double velocityNeededPerPixel = 7.600855902349023;
-
-        var offsetVelocity = _operationCount == 0 ? minimumVelocity : 0.0;
-        _operationCount++;
-
-        if (scrollAmount < 0.0)
-        {
-            offsetVelocity *= -1;
-        }
-        offsetVelocity += scrollAmount * velocityNeededPerPixel;
-        ScrollView.AddScrollVelocity(new Vector2((float)offsetVelocity, 0), new Vector2(inertiaDecayRate, 0));
-    }
-
-    private void PART_ScrollView_OnViewChanged(ScrollView sender, object args)
-    {
-        UpdateScrollButtonsVisibility();
-        _lastScrollTime = DateTime.Now;
-    }
-}
-
-public class Tag
-{
-    private string _name = null!;
-    public required string Name
-    {
-        get => _name;
-        set
-        {
-            _name = value;
-            CalculateColor();
-        }
-    }
-
-    public SolidColorBrush? Color { get; private set; }
-
-    public Tag()
-    {
-        CalculateColor();
-    }
-
-    private void CalculateColor()
-    {
-        if (string.IsNullOrEmpty(Name))
-        {
-            return;
-        }
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(Name));
-        var index = 0;
-
-        var color = Windows.UI.Color.FromArgb(50, hash[0], hash[1], hash[2]);
-        while (CalculateContrastRatio(Windows.UI.Color.FromArgb(255, 255, 255, 255), color) < 4.5 ||
-               CalculateContrastRatio(Windows.UI.Color.FromArgb(255, 0, 0, 0), color) < 4.5)
-        {
-            index++;
-            if (index + 2 >= hash.Length)
+            await using (MediaDbContext dataBase = new())
             {
-                index = 0;
-                hash = SHA256.HashData(Encoding.UTF8.GetBytes(Convert.ToBase64String(hash)));
+                if (MediaId != null)
+                {
+                    tags = dataBase.Medias.Select(m => new { m.MediaId, m.Tags }).FirstOrDefault(m => m.MediaId == MediaId)?.Tags;
+                }
+                else if (TagId != null)
+                {
+                    if (refreshAll)
+                    {
+                        tags = dataBase.Tags.Select(t => new { t.TagId, t.Parents }).FirstOrDefault(t => t.TagId == TagId)?.Parents.ToList();
+                    }
+                    else if (GetItemSource().Count != 0)
+                    {
+                        tags = dataBase.Tags.Where(dbTag => GetItemSource().Select(t => t.TagId).Contains(dbTag.TagId)).ToList();
+                    }
+                }
             }
-            color = Windows.UI.Color.FromArgb(50, hash[index], hash[index + 1], hash[index + 2]);
         }
-        Color = new SolidColorBrush(color);
-    }
 
-    // https://github.com/microsoft/WinUI-Gallery/blob/main/WinUIGallery/ControlPages/Accessibility/AccessibilityColorContrastPage.xaml.cs#L67-L86
-    // Find the contrast ratio: https://www.w3.org/WAI/GL/wiki/Contrast_ratio
-    public static double CalculateContrastRatio(Color first, Color second)
-    {
-        var relLuminanceOne = GetRelativeLuminance(first);
-        var relLuminanceTwo = GetRelativeLuminance(second);
-        return (Math.Max(relLuminanceOne, relLuminanceTwo) + 0.05)
-               / (Math.Min(relLuminanceOne, relLuminanceTwo) + 0.05);
-    }
-
-    // Get relative luminance: https://www.w3.org/WAI/GL/wiki/Relative_luminance
-    public static double GetRelativeLuminance(Color c)
-    {
-        var rSRGB = c.R / 255.0;
-        var gSRGB = c.G / 255.0;
-        var bSRGB = c.B / 255.0;
-
-        var r = rSRGB <= 0.04045 ? rSRGB / 12.92 : Math.Pow(((rSRGB + 0.055) / 1.055), 2.4);
-        var g = gSRGB <= 0.04045 ? gSRGB / 12.92 : Math.Pow(((gSRGB + 0.055) / 1.055), 2.4);
-        var b = bSRGB <= 0.04045 ? bSRGB / 12.92 : Math.Pow(((bSRGB + 0.055) / 1.055), 2.4);
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        if (tags != null)
+        {
+            ItemView.ItemsSource = new ObservableCollection<object>(tags.OrderBy(e => e.Name));
+        }
     }
 }
-
-public class CustomItemsView : ItemsView
-{
-    public CustomItemsView()
-    {
-        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
-    }
-}
-

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase.Models;
 using Windows.Storage;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace MediaMaster.DataBase;
 
@@ -10,6 +11,10 @@ public class MediaDbContext : DbContext
 {
     public DbSet<Media> Medias { get; init; }
     public DbSet<Tag> Tags { get; init; }
+
+    public DbSet<MediaTag> MediaTags { get; init; }
+
+    public DbSet<TagTag> TagTags { get; init; }
 
     //private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
     private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
@@ -23,6 +28,8 @@ public class MediaDbContext : DbContext
         //optionsBuilder.UseLazyLoadingProxies();
 
         optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
+
+        //optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,6 +38,23 @@ public class MediaDbContext : DbContext
             .HasMany(e => e.Tags)
             .WithMany(e => e.Medias)
             .UsingEntity<MediaTag>();
+
+        modelBuilder.Entity<Tag>()
+            .HasMany(e => e.Children)
+            .WithMany(e=> e.Parents)
+            .UsingEntity<TagTag>(
+                t => t
+                    .HasOne<Tag>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ChildrenTagId),
+                t => t
+                    .HasOne<Tag>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ParentsTagId),
+                j =>
+                {
+                    j.HasKey(t => new { t.ChildrenTagId, t.ParentsTagId });
+                });
     }
 
     public async Task InitializeAsync()

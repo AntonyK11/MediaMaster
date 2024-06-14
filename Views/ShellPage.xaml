@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
 <Page
     x:Class="MediaMaster.Views.ShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -14,7 +13,7 @@
     <Grid>
         <controls:TitleBarControl x:Name="AppTitleBar" l:Uids.Uid="AppTitleBar">
             <controls:TitleBarControl.Icon>
-                <BitmapIcon ShowAsMonochrome="False" UriSource="/Assets/WindowIcon.ico" />
+                <BitmapIconSource ShowAsMonochrome="False" UriSource="/Assets/WindowIcon.ico" />
             </controls:TitleBarControl.Icon>
         </controls:TitleBarControl>
 

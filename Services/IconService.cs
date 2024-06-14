@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Media.Imaging;
+﻿using System.Diagnostics;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -29,152 +30,31 @@ public class MyCancellationTokenSource : CancellationTokenSource
     }
 }
 
+public static class TaskDelaySafe
+{
+    public static async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
+    {
+        await TaskDelaySafe.Delay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
+    }
+
+    public static async Task Delay(TimeSpan delay, CancellationToken cancellationToken)
+    {
+        var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var task = new TaskCompletionSource<int>();
+
+        tokenSource.Token.Register(() => task.SetResult(0));
+
+        await Task.WhenAny(
+            Task.Delay(delay, CancellationToken.None),
+            task.Task);
+    }
+}
+
 public static class IconService
 {
     public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
 
-    public static async Task<ImageSource> CreateSoftwareBitmapSourceAsync(Bitmap bitmap)
-    {
-        using (MemoryStream memoryStream = new())
-        {
-            bitmap.Save(memoryStream, ImageFormat.Png);
-            memoryStream.Position = 0;
-            return await App.DispatcherQueue.EnqueueAsync(async () =>
-            {
-                BitmapImage bitmapImage = new BitmapImage();
-
-                await bitmapImage.SetSourceAsync(memoryStream.AsRandomAccessStream());
-
-                return bitmapImage;
-            });
-        }
-    }
-
-    public static async Task<WriteableBitmap> ConvertBitmapToWriteableBitmap(Bitmap bitmap)
-    {
-        int width = bitmap.Width;
-        int height = bitmap.Height;
-
-        // Create a WriteableBitmap
-        WriteableBitmap writeableBitmap = new WriteableBitmap(width, height);
-
-        // Access the pixel buffer
-        await using (Stream stream = writeableBitmap.PixelBuffer.AsStream())
-        {
-            BitmapData? bitmapData = null;
-
-            try
-            {
-                // Lock the bitmap data
-                var bmpBounds = new Rectangle(0, 0,width, height);
-                bitmapData = bitmap.LockBits(bmpBounds, ImageLockMode.ReadOnly, bitmap.PixelFormat);
-
-                // Calculate the number of bytes
-                var byteCount = bitmapData.Stride * bitmapData.Height;
-                var pixels = new byte[byteCount];
-
-                // Copy the bitmap data to the byte array
-                Marshal.Copy(bitmapData.Scan0, pixels, 0, byteCount);
-
-                // Write the pixels to the stream
-                await stream.WriteAsync(pixels, 0, byteCount);
-            }
-            finally
-            {
-                // Unlock the bitmap data
-                if (bitmapData != null)
-                {
-                    bitmap.UnlockBits(bitmapData);
-                }
-            }
-        }
-
-        return writeableBitmap;
-    }
-
-    //public static IntPtr ExtractIcon(string path, int size)
-    //{
-    //    // Determine the index of the desired icon in the system image list.
-    //    var shfi = new SHFILEINFO();
-    //    _ = SHGetFileInfo(path, 0, ref shfi, (uint)Marshal.SizeOf(shfi), SHGFI_SYSICONINDEX | SHGFI_LARGEICON);
-
-    //    // Retrieve the system image list.
-    //    Guid iidImageList = typeof(IImageList).GUID;
-    //    if (SHGetImageList(size, ref iidImageList, out IImageList iml) == 0)
-    //    {
-    //        if (iml.GetIcon(shfi.iIcon, ILD_TRANSPARENT | ILD_ASYNC, out IntPtr hIcon) == 0 && hIcon != IntPtr.Zero)
-    //        {
-    //            return hIcon;
-    //        }
-    //    }
-
-    //    return IntPtr.Zero;
-    //}
-
-    //public async static Task<ImageSource> GetExtensionIcon(string path, int size = SHIL_JUMBO)
-    //{
-    //    if (File.Exists(path))
-    //    {
-    //        //var hIcon = ExtractIcon(path, size);
-    //        //if (hIcon != IntPtr.Zero)
-    //        //{
-    //        //    Bitmap bitmap;
-    //        //    using (Icon icon = Icon.FromHandle(hIcon))
-    //        //    {
-    //        //        bitmap = icon.ToBitmap();
-    //        //    }
-    //        //    DestroyIcon(hIcon);
-
-    //        //    return await CreateSoftwareBitmapSourceAsync(bitmap);
-    //        //}
-    //        ShellFile shellFile = ShellFile.FromFilePath(path);
-    //        shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.IconOnly;
-    //        // Use default large icon size, but you can specify any size here
-    //        var bitmap = shellFile.Thumbnail.ExtraLargeBitmap;
-
-    //        return await CreateSoftwareBitmapSourceAsync(bitmap);
-    //    }
-
-    //    return DefaultIcon;
-    //}
-
-    //public async static Task<ImageSource> GetIcon(string path, int size, SIIGBF flags)
-    //{
-    //    if (Path.Exists(path))
-    //    {
-    //        Guid iidImageFactory = typeof(IShellItemImageFactory).GUID;
-    //        int hr = SHCreateItemFromParsingName(path, IntPtr.Zero, ref iidImageFactory, out IShellItemImageFactory imageFactory);
-    //        if (hr == 0)
-    //        {
-    //            imageFactory.GetImage(new SIZE(size, size), flags, out IntPtr hBitmap);
-    //            using (Bitmap bitmap = Image.FromHbitmap(hBitmap))
-    //            {
-    //                DeleteObject(hBitmap);
-
-    //                bitmap.MakeTransparent(Color.Black);
-    //                return await CreateSoftwareBitmapSourceAsync(bitmap);
-    //            }
-    //        }
-    //    }
-    //    return DefaultIcon;
-    //}
-
-    //public async static Task<BitmapImage?> GetFileIcon(string path, int size)
-    //{
-    //    if (Path.GetExtension(path).Equals(".url", StringComparison.CurrentCultureIgnoreCase)) return DefaultIcon;
-
-    //    var file = await StorageFile.GetFileFromPathAsync(path);
-    //    var iconThumbnail = await file.GetThumbnailAsync(ThumbnailMode.SingleItem, ((uint)size));
-
-    //    if (iconThumbnail == null) return DefaultIcon;
-
-    //    var bitmap = new BitmapImage();
-    //    await bitmap.SetSourceAsync(iconThumbnail);
-
-    //    if (iconThumbnail == null) return DefaultIcon;
-    //    return bitmap;
-    //}
-
+    // https://github.com/castorix/WinUI3_MediaEngine/blob/master/CMediaEngine.cs#L2136-L2168
     public static async Task<WriteableBitmap?> GetCaptureWriteableBitmap(IntPtr m_hBitmapCapture)
     {
         if (m_hBitmapCapture != IntPtr.Zero)
@@ -241,6 +121,10 @@ public static class IconService
         {
             if (cts.Token.IsCancellationRequested) return;
 
+            //await TaskDelaySafe.Delay(1000, cts.Token);
+
+            //if (cts.Token.IsCancellationRequested) return;
+
             if (File.Exists(path))
             {
                 if (imageMode == ImageMode.IconAndThumbnail)
@@ -260,7 +144,7 @@ public static class IconService
         }
     }
 
-    private static async Task SetImage(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource cts, Microsoft.UI.Xaml.Controls.Image image)
+    private static async Task SetImage(string path, ImageMode imageMode, int width, int height, CancellationTokenSource cts, Microsoft.UI.Xaml.Controls.Image image)
     {
         if (cts.Token.IsCancellationRequested) return;
 
@@ -270,55 +154,54 @@ public static class IconService
             _ => 0
         };
 
-        ImageSource? icon = await GetThumbnail(path, width, height, options);
+        ImageSource? icon = null;
+
+        if (imageMode != ImageMode.ThumbnailOnly)
+        {
+            icon = await GetThumbnail(path, width, height, options | SIIGBF.SIIGBF_INCACHEONLY);
+        }
+
+        if (icon == null)
+        {
+            icon = await GetThumbnail(path, width, height, options);
+        }
 
         if (cts.Token.IsCancellationRequested) return;
 
-        await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon);
+        if (icon != null)
+        {
+            await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon);
+        }
     }
 
+    // https://github.com/rlv-dan/ShellThumbs/blob/master/ShellThumbs.cs#L64-L104
     public static async Task<ImageSource?> GetThumbnail(string fileName, int width, int height, SIIGBF options)
     {
-        if (Path.Exists(fileName))
+        var hBitmap = GetHBitmap(fileName, width, height, options);
+        if (hBitmap != IntPtr.Zero)
         {
-            var hBitmap = GetHBitmap(fileName, width, height, options);
-            if (hBitmap != IntPtr.Zero)
+            BitmapSource? icon = null;
+            try
             {
-                BitmapSource? icon = null;
-                try
-                {
-                    icon = await App.DispatcherQueue.EnqueueAsync(() => GetCaptureWriteableBitmap(hBitmap));
-                }
-                catch (COMException ex)
-                {
-                    if (!(ex.ErrorCode == -2147175936 && options.HasFlag(SIIGBF.SIIGBF_THUMBNAILONLY))) // -2147175936 == 0x8004B200
-                    {
-                        throw;
-                    }
-                }
-                finally
-                {
-                    DeleteObject(hBitmap);
-                }
-
-                return icon;
+                icon = await App.DispatcherQueue.EnqueueAsync(() => GetCaptureWriteableBitmap(hBitmap));
             }
+            catch (COMException ex)
+            {
+                if (!(ex.ErrorCode == -2147175936 && options.HasFlag(SIIGBF.SIIGBF_THUMBNAILONLY))) // -2147175936 == 0x8004B200
+                {
+                    throw;
+                }
+            }
+            finally
+            {
+                DeleteObject(hBitmap);
+            }
+
+            return icon;
         }
 
         return null;
     }
-
-    //public static Bitmap GetBitmapFromHBitmap(IntPtr nativeHBitmap)
-    //{
-    //    Bitmap bmp = Image.FromHbitmap(nativeHBitmap);
-
-    //    if (Image.GetPixelFormatSize(bmp.PixelFormat) < 32)
-    //    {
-    //        return bmp;
-    //    }
-
-    //    return CreateAlphaBitmap(bmp, PixelFormat.Format32bppArgb);
-    //}
 
     private static IntPtr GetHBitmap(string fileName, int width, int height, SIIGBF options)
     {
@@ -338,43 +221,4 @@ public static class IconService
 
         return IntPtr.Zero;
     }
-
-    //private static unsafe Bitmap CreateAlphaBitmap(Bitmap srcBitmap, PixelFormat targetPixelFormat)
-    //{
-    //    var result = new Bitmap(srcBitmap.Width, srcBitmap.Height, targetPixelFormat);
-
-    //    var bmpBounds = new Rectangle(0, 0, srcBitmap.Width, srcBitmap.Height);
-    //    var srcData = srcBitmap.LockBits(bmpBounds, ImageLockMode.ReadOnly, srcBitmap.PixelFormat);
-    //    var destData = result.LockBits(bmpBounds, ImageLockMode.ReadOnly, targetPixelFormat);
-
-    //    var srcDataPtr = (byte*)srcData.Scan0;
-    //    var destDataPtr = (byte*)destData.Scan0;
-
-    //    try
-    //    {
-    //        for (var y = 0; y <= srcData.Height - 1; y++)
-    //        {
-    //            for (var x = 0; x <= srcData.Width - 1; x++)
-    //            {
-    //                //this is really important because one stride may be positive and the other negative
-    //                var position = srcData.Stride * y + 4 * x;
-    //                var position2 = destData.Stride * y + 4 * x;
-
-    //                memcpy(destDataPtr + position2, srcDataPtr + position, 4);
-    //            }
-    //        }
-    //    }
-    //    finally
-    //    {
-    //        srcBitmap.UnlockBits(srcData);
-    //        result.UnlockBits(destData);
-    //    }
-
-    //    using (srcBitmap)
-    //    {
-    //        return result;
-    //    }
-    //}
 }
-//}
-

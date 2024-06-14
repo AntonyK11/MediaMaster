@@ -1,21 +1,13 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using Windows.System;
 using Windows.UI.Core;
-using ABI.Windows.UI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Automation;
 using CommunityToolkit.WinUI.Collections;
-using Microsoft.UI.Xaml.Media;
-using Color = Windows.UI.Color;
-using System.Text;
-using MediaMaster.DataBase;
+using MediaMaster.DataBase.Models;
 
 namespace MediaMaster.Controls;
 
@@ -42,10 +34,10 @@ public sealed partial class SearchBox
     {
         _popup = AutoSuggestBox.FindDescendants().OfType<Popup>().FirstOrDefault(x => x.Name is "SuggestionsPopup")!;
         _tagView = AutoSuggestBox.FindDescendants().OfType<TagView>().FirstOrDefault(x => x.Name is "TagView")!;
-        _tagView.ItemsSource = ViewModel.Tags;
+        //_tagView.ItemsSource = ViewModel.Tags;
 
         var tagView2 = AutoSuggestBox.FindDescendants().OfType<Popup>().FirstOrDefault(x => x.Name is "SuggestionsPopup")?.FindChildren().OfType<TagView>().FirstOrDefault(x => x.Name is "TagView2");
-        tagView2.ItemsSource = ViewModel.Tags;
+        //tagView2.ItemsSource = ViewModel.Tags;
 
         AutoSuggestBox.ItemsSource = new IncrementalLoadingCollection<ViewModel, Tag>();
 
@@ -56,7 +48,6 @@ public sealed partial class SearchBox
         //};
 
     }
-
 
     private void AutoSuggestBox_GettingFocus(UIElement sender, GettingFocusEventArgs args)
     {
@@ -92,7 +83,7 @@ public class ViewModel : IIncrementalSource<Tag>
 
     public ViewModel()
     {
-        for (var i = 0; i < 9999; i++)
+        for (var i = 0; i < 10; i++)
         {
             Tags.Add(new Tag
             {

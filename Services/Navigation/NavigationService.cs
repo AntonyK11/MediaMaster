@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Navigation;
 
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Interfaces.ViewModels;
-using MediaMaster.Helpers;
+using MediaMaster.Extensions;
 
 namespace MediaMaster.Services.Navigation;
 
