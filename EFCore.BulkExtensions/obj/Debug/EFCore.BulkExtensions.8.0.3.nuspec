@@ -10,7 +10,7 @@
     <description>EntityFramework .Net EFCore EF Core Bulk Batch Extensions for Insert Update Delete Read (CRUD) operations on SQL Server, PostgreSQL, MySQL, SQLite</description>
     <releaseNotes>nugets update</releaseNotes>
     <tags>EntityFrameworkCore Entity Framework Core .Net EFCore EF Core SQL Server PostgreSQL MySQL SQLite Bulk Batch Copy SqlBulkCopy Extensions Insert Update Delete Read Truncate SaveChanges</tags>
-    <repository type="Git" url="https://github.com/borisdj/EFCore.BulkExtensions" />
+    <repository type="Git" url="https://github.com/borisdj/EFCore.BulkExtensions" commit="55f4ebc13fc20c5b8683e3734db758d8557cfdce" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="MedallionTopologicalSort" version="1.0.0" exclude="Build,Analyzers" />
@@ -29,9 +29,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="E:\source\EFCore.BulkExtensions\bin\Debug\net8.0\EFCore.BulkExtensions.pdb" target="lib\net8.0\EFCore.BulkExtensions.pdb" />
-    <file src="E:\source\EFCore.BulkExtensions\bin\Debug\net8.0\EFCore.BulkExtensions.dll" target="lib\net8.0\EFCore.BulkExtensions.dll" />
-    <file src="E:\source\EFCore.BulkExtensions\bin\Debug\net8.0\EFCore.BulkExtensions.xml" target="lib\net8.0\EFCore.BulkExtensions.xml" />
-    <file src="E:\source\EFCore.BulkExtensions\EFCoreBulk.png" target="EFCoreBulk.png" />
+    <file src="E:\source\MediaMaster\EFCore.BulkExtensions\bin\Debug\net8.0\EFCore.BulkExtensions.pdb" target="lib\net8.0\EFCore.BulkExtensions.pdb" />
+    <file src="E:\source\MediaMaster\EFCore.BulkExtensions\bin\Debug\net8.0\EFCore.BulkExtensions.dll" target="lib\net8.0\EFCore.BulkExtensions.dll" />
+    <file src="E:\source\MediaMaster\EFCore.BulkExtensions\bin\Debug\net8.0\EFCore.BulkExtensions.xml" target="lib\net8.0\EFCore.BulkExtensions.xml" />
+    <file src="E:\source\MediaMaster\EFCore.BulkExtensions\EFCoreBulk.png" target="EFCoreBulk.png" />
   </files>
 </package>

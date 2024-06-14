@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute("EntityFramework .Net EFCore EF Core Bulk Batch Extensions for Insert Update Delet" +
     "e Read (CRUD) operations on SQL Server, PostgreSQL, MySQL, SQLite")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("8.0.3.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("8.0.3+3da89346ddfb95a7f4d2a99c66560a7e21d70cb8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("8.0.3+55f4ebc13fc20c5b8683e3734db758d8557cfdce")]
 [assembly: System.Reflection.AssemblyProductAttribute("EFCore.BulkExtensions")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EFCore.BulkExtensions")]
 [assembly: System.Reflection.AssemblyVersionAttribute("8.0.3.0")]
