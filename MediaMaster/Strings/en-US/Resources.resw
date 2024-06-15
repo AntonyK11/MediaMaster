@@ -201,4 +201,16 @@
   <data name="Edit_Tag_Dialog.Title" xml:space="preserve">
     <value>Edit Tag</value>
   </data>
+  <data name="Delete_Tag_Dialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Delete_Tag_Dialog.PrimaryButtonText" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Delete_Tag_Dialog.Title" xml:space="preserve">
+    <value>Delete Tag</value>
+  </data>
+  <data name="Edit_Tag_Dialog.SecondaryButtonText" xml:space="preserve">
+    <value>Delete</value>
+  </data>
 </root>

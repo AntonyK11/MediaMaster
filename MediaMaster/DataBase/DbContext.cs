@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase.Models;
 using Windows.Storage;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace MediaMaster.DataBase;
 
@@ -13,11 +12,10 @@ public class MediaDbContext : DbContext
     public DbSet<Tag> Tags { get; init; }
 
     public DbSet<MediaTag> MediaTags { get; init; }
-
     public DbSet<TagTag> TagTags { get; init; }
 
-    //private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
-    private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
+    private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
+    //private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

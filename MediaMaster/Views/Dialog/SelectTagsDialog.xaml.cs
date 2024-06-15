@@ -3,6 +3,7 @@ using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
@@ -130,16 +131,12 @@ public sealed partial class SelectTagsDialog : Page
 
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        (ContentDialogResult result, EditTagDialog? editTagDialog) =
-            await EditTagDialog.ShowDialogAsync((int)((FrameworkElement)sender).Tag);
+        var tagId = (int)((FrameworkElement)sender).Tag;
+        await EditTagDialog.ShowDialogAsync(tagId);
 
-        if (editTagDialog != null)
-        {
-            await editTagDialog.SaveChangesAsync();
-            SetupTags(SelectedTags.Select(t => t.TagId).ToList());
-            SelectTags();
-            TextBox_TextChanged(null, null);
-        }
+        SetupTags(SelectedTags.Select(t => t.TagId).ToList());
+        SelectTags();
+        TextBox_TextChanged(null, null);
     }
 
     public static async Task<(ContentDialogResult, SelectTagsDialog?)> ShowDialogAsync(
@@ -160,5 +157,18 @@ public sealed partial class SelectTagsDialog : Page
 
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
         return (result, selectTagsDialog);
+    }
+
+    private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
+    {
+        var tagId = (int)((FrameworkElement)sender).Tag;
+        var result = await EditTagDialog.DeleteTag(tagId);
+
+        if (result == ContentDialogResult.Primary)
+        {
+            SetupTags(SelectedTags.Select(t => t.TagId).ToList());
+            SelectTags();
+            TextBox_TextChanged(null, null);
+        }
     }
 }

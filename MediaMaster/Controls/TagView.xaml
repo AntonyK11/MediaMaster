@@ -28,6 +28,10 @@
                             Click="EditTagFlyout_OnClick"
                             Tag="{x:Bind TagId}"
                             Text="Edit Tag" />
+                        <MenuFlyoutItem
+                            Click="DeleteTagFlyout_OnClick"
+                            Tag="{x:Bind TagId}"
+                            Text="Delete Tag" />
                     </MenuFlyout>
                 </ItemContainer.ContextFlyout>
             </ItemContainer>

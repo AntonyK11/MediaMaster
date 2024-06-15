@@ -77,8 +77,54 @@ public sealed partial class EditTagDialog : Page
         Uids.SetUid(dialog, "Edit_Tag_Dialog");
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
-        ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
+        ContentDialogResult? deleteResult = null;
+        ContentDialogResult result;
+        do
+        {
+            result = await dialog.ShowAndEnqueueAsync();
+            deleteResult = null;
+
+            switch (result)
+            {
+                case ContentDialogResult.Primary:
+                {
+                    await editTagDialog.SaveChangesAsync();
+                    break;
+                }
+                case ContentDialogResult.Secondary:
+                {
+                    deleteResult = await DeleteTag(tagId);
+                    break;
+                }
+            }
+        } while (deleteResult == ContentDialogResult.None);
+
         return (result, editTagDialog);
+    }
+
+    public static async Task<ContentDialogResult> DeleteTag(int tagId)
+    {
+        if (App.MainWindow == null) return ContentDialogResult.None;
+
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow.Content.XamlRoot,
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        Uids.SetUid(dialog, "Delete_Tag_Dialog");
+        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            await using (var database = new MediaDbContext())
+            {
+                await database.Tags.Where(t => t.TagId == tagId).ExecuteDeleteAsync();
+            }
+        }
+
+        return result;
     }
 
     public async Task SaveChangesAsync()

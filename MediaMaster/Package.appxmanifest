@@ -72,17 +72,17 @@
 				</com:ComServer>
 			</com:Extension>
 	        
-			<uap5:Extension Category="windows.appExecutionAlias">
+			<!--<uap5:Extension Category="windows.appExecutionAlias">
 				<uap5:AppExecutionAlias>
 					<uap5:ExecutionAlias Alias="MediaMaster-WinUI3XP.exe"/>
 				</uap5:AppExecutionAlias>
-			</uap5:Extension>
+			</uap5:Extension>-->
 
-			<!--<uap5:Extension Category="windows.appExecutionAlias">
+			<uap5:Extension Category="windows.appExecutionAlias">
 				<uap5:AppExecutionAlias>
 					<uap5:ExecutionAlias Alias="MediaMaster.exe"/>
 				</uap5:AppExecutionAlias>
-			</uap5:Extension>-->
+			</uap5:Extension>
 
 			<desktop:Extension Category="windows.toastNotificationActivation">
 				<desktop:ToastNotificationActivation ToastActivatorCLSID="83F67492-34FA-4F91-A07A-DA1E5650971F" />
