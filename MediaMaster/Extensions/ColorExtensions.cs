@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,25 +9,16 @@ namespace MediaMaster.Extensions;
 
 public static class ColorExtensions
 {
-    public static Windows.UI.Color ToWindowsColor(this System.Drawing.Color color)
+    public static Windows.UI.Color ToWindowsColor(this Color color)
     {
         return Windows.UI.Color.FromArgb(color.A, color.R, color.G, color.B);
     }
 
-    //public static Windows.UI.Color? ToWindowsColor(this System.Drawing.Color? color)
-    //{
-    //    return color?.ToWindowsColor();
-    //}
 
-    public static System.Drawing.Color ToSystemColor(this Windows.UI.Color color)
+    public static Color ToSystemColor(this Windows.UI.Color color)
     {
-        return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+        return Color.FromArgb(color.A, color.R, color.G, color.B);
     }
-
-    //public static System.Drawing.Color? ToSystemColor(this Windows.UI.Color? color)
-    //{
-    //    return color?.ToSystemColor();
-    //}
 
     public static Color CalculateColor(this string name)
     {
@@ -40,45 +29,56 @@ public static class ColorExtensions
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(name));
         var index = 0;
 
-        var color = Color.FromArgb(50, hash[0], hash[1], hash[2]);
-        while (CalculateContrastRatio(Color.FromArgb(255, 255, 255, 255), color) < 4.5 ||
-               CalculateContrastRatio(Color.FromArgb(255, 0, 0, 0), color) < 4.5)
+        Color color;
+        do
         {
-            index++;
             if (index + 2 >= hash.Length)
             {
                 index = 0;
                 hash = SHA256.HashData(Encoding.UTF8.GetBytes(Convert.ToBase64String(hash)));
             }
+
             color = Color.FromArgb(50, hash[index], hash[index + 1], hash[index + 2]);
-        }
+            index++;
+
+        } while (color.GetBackgroundColor(ElementTheme.Dark).CalculateContrastRatio(color.CalculateColorText(ElementTheme.Dark)) < 4.5 ||
+                 color.GetBackgroundColor(ElementTheme.Light).CalculateContrastRatio(color.CalculateColorText(ElementTheme.Light)) < 4.5);
+
         return color;
     }
 
-    public static Color CalculateColorText(this Color color)
+    public static Color CalculateColorText(this Color color, ElementTheme? theme = null)
     {
-        var themeColor = App.GetService<IThemeSelectorService>().ActualTheme == ElementTheme.Light
-            ? Color.FromArgb(255, 254, 251, 253)
-            : Color.FromArgb(255, 45, 45, 45);
+        var backgroundColor = color.GetBackgroundColor(theme);
 
-        var alphaPercent = (double)color.A / 255;
-
-        var adjustedColor = GetRelativeLuminance(BlendColor(color, themeColor, alphaPercent)) < 0.5
+        var adjustedColor = GetRelativeLuminance(backgroundColor) < 0.5
             ? Color.FromArgb(255, 255, 255, 255)
             : Color.FromArgb(255, 0, 0, 0);
 
         return adjustedColor;
     }
 
+    public static Color GetBackgroundColor(this Color color, ElementTheme? theme = null)
+    {
+        theme ??= App.GetService<IThemeSelectorService>().ActualTheme;
+
+        var themeColor = theme == ElementTheme.Light
+            ? Color.FromArgb(255, 254, 251, 253)
+            : Color.FromArgb(255, 45, 45, 45);
+
+        var alphaPercent = (double)color.A / 255;
+
+        return BlendColor(color, themeColor, alphaPercent);
+    }
+
     public static Color BlendColor(this Color color1, Color color2, double percent)
     {
 
-        var a = color1.A * percent + color2.A * (1 - percent);
         var r = color1.R * percent + color2.R * (1 - percent);
         var g = color1.G * percent + color2.G * (1 - percent);
         var b = color1.B * percent + color2.B * (1 - percent);
 
-        return Color.FromArgb((int)a, (int)r, (int)g, (int)b);
+        return Color.FromArgb(255, (int)r, (int)g, (int)b);
     }
 
     // https://github.com/microsoft/WinUI-Gallery/blob/main/WinUIGallery/ControlPages/Accessibility/AccessibilityColorContrastPage.xaml.cs#L67-L86

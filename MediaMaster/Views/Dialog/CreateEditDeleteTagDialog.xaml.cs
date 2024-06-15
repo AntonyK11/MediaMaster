@@ -60,9 +60,10 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
     private void CheckColorContrast(Color color)
     {
-        var goodContrast = color.CalculateContrastRatio(color.CalculateColorText()) < 4.5;
+        var badContrast = color.GetBackgroundColor(ElementTheme.Dark).CalculateContrastRatio(color.CalculateColorText(ElementTheme.Dark)) < 4.5
+                           && color.GetBackgroundColor(ElementTheme.Light).CalculateContrastRatio(color.CalculateColorText(ElementTheme.Light)) < 4.5;
 
-        FontIcon.Visibility = goodContrast ? Visibility.Visible : Visibility.Collapsed;
+        ContrastIcon.Visibility = badContrast ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(int? tagId = null)

@@ -49,7 +49,7 @@
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <TextBlock Text="Confirm" />
                                         <FontIcon
-                                            x:Name="FontIcon"
+                                            x:Name="ContrastIcon"
                                             FontSize="16"
                                             Glyph="&#xE7BA;"
                                             Visibility="Visible" />
