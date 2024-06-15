@@ -213,4 +213,20 @@
   <data name="Edit_Tag_Dialog.SecondaryButtonText" xml:space="preserve">
     <value>Supprimer</value>
   </data>
+  <data name="Select_Tags_Dialog.SecondaryButtonText" xml:space="preserve">
+    <value>Nouveau Tag</value>
+  </data>
+  <data name="Create_Tag_Dialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Create_Tag_Dialog.PrimaryButtonText" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="Create_Tag_Dialog.Title" xml:space="preserve">
+    <value>Créer Tag</value>
+  </data>
+  <data name="Delete_Tag_Dialog.Content" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ce tag ?
+Cette action est permanente et ne peut être annulée.</value>
+  </data>
 </root>

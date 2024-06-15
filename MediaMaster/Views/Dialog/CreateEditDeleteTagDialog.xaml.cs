@@ -12,14 +12,16 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
-public sealed partial class EditTagDialog : Page
+public sealed partial class CreateEditDeleteTagDialog : Page
 {
     public EditTagDialogViewModel ViewModel = new();
     private readonly Tag? _tag;
 
-    public EditTagDialog(int tagId)
+    public CreateEditDeleteTagDialog(int? tagId = null)
     {
         InitializeComponent();
+
+        if (tagId == null) return;
 
         using (var database = new MediaDbContext())
         {
@@ -63,21 +65,23 @@ public sealed partial class EditTagDialog : Page
         FontIcon.Visibility = goodContrast ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public static async Task<(ContentDialogResult, EditTagDialog?)> ShowDialogAsync(int tagId)
+    public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(int? tagId = null)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 
-        var editTagDialog = new EditTagDialog(tagId);
+        var tagDialog = new CreateEditDeleteTagDialog(tagId);
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,
             DefaultButton = ContentDialogButton.Primary,
-            Content = editTagDialog
+            Content = tagDialog
         };
-        Uids.SetUid(dialog, "Edit_Tag_Dialog");
+
+        Uids.SetUid(dialog, tagId == null ? "Create_Tag_Dialog" : "Edit_Tag_Dialog");
+
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
-        ContentDialogResult? deleteResult = null;
+        ContentDialogResult? deleteResult;
         ContentDialogResult result;
         do
         {
@@ -88,18 +92,21 @@ public sealed partial class EditTagDialog : Page
             {
                 case ContentDialogResult.Primary:
                 {
-                    await editTagDialog.SaveChangesAsync();
+                    await tagDialog.SaveChangesAsync();
                     break;
                 }
                 case ContentDialogResult.Secondary:
                 {
-                    deleteResult = await DeleteTag(tagId);
+                    if (tagId != null)
+                    {
+                        deleteResult = await DeleteTag((int)tagId);
+                    }
                     break;
                 }
             }
         } while (deleteResult == ContentDialogResult.None);
 
-        return (result, editTagDialog);
+        return (result, tagDialog);
     }
 
     public static async Task<ContentDialogResult> DeleteTag(int tagId)
@@ -129,12 +136,17 @@ public sealed partial class EditTagDialog : Page
 
     public async Task SaveChangesAsync()
     {
-        if (_tag == null) return;
-
         await using (MediaDbContext dataBase = new())
         {
-            Tag? trackedTag =
-                await dataBase.Tags.Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == _tag.TagId);
+            Tag? trackedTag;
+            if (_tag == null)
+            {
+                trackedTag = new Tag();
+            }
+            else
+            {
+                trackedTag = await dataBase.Tags.Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == _tag.TagId);
+            }
 
             if (trackedTag != null)
             {
@@ -142,7 +154,12 @@ public sealed partial class EditTagDialog : Page
                 trackedTag.Shorthand = ViewModel.Shorthand;
                 trackedTag.Color = ViewModel.Color.ToSystemColor();
 
+                if (_tag == null)
+                {
+                    await dataBase.Tags.AddAsync(trackedTag);
+                }
                 await dataBase.SaveChangesAsync();
+                
 
                 HashSet<int> currentTagIds = trackedTag.Parents.Select(t => t.TagId).ToHashSet();
                 HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();

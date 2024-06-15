@@ -132,7 +132,7 @@ public sealed partial class SelectTagsDialog : Page
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tagId = (int)((FrameworkElement)sender).Tag;
-        await EditTagDialog.ShowDialogAsync(tagId);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(tagId);
 
         SetupTags(SelectedTags.Select(t => t.TagId).ToList());
         SelectTags();
@@ -155,14 +155,31 @@ public sealed partial class SelectTagsDialog : Page
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
 
-        ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
+        ContentDialogResult result;
+        do
+        {
+            result = await dialog.ShowAndEnqueueAsync();
+
+            if (result == ContentDialogResult.Secondary)
+            {
+                (ContentDialogResult createResult, _) = await CreateEditDeleteTagDialog.ShowDialogAsync();
+
+                if (createResult == ContentDialogResult.Primary)
+                {
+                    selectTagsDialog.SetupTags(selectTagsDialog.SelectedTags.Select(t => t.TagId).ToList());
+                    selectTagsDialog.SelectTags();
+                    selectTagsDialog.TextBox_TextChanged(null, null);
+                }
+            }
+        } while (result == ContentDialogResult.Secondary);
+
         return (result, selectTagsDialog);
     }
 
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tagId = (int)((FrameworkElement)sender).Tag;
-        var result = await EditTagDialog.DeleteTag(tagId);
+        var result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
 
         if (result == ContentDialogResult.Primary)
         {

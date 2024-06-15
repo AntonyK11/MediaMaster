@@ -150,33 +150,5 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\EFCore.BulkExtensions\EFCore.BulkExtensions.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <CustomAdditionalCompileInputs Remove="Controls\MediaIcon.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Controls\MediaIcon.xaml" />
-	  <None Remove="Views\Dialog\EditTagDialog.xaml" />
-	  <None Remove="Views\Dialog\SelectTagsDialog.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Resource Remove="Controls\MediaIcon.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Page Update="Controls\ItemView.xaml">
-	    <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	  <Page Update="Views\Dialog\EditTagDialog.xaml">
-	    <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-	    <SubType>Designer</SubType>
-	  </Page>
-	  <Page Update="Views\Dialog\SelectTagsDialog.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
+	</ItemGroup>		
 </Project>

@@ -7,10 +7,6 @@ using MediaMaster.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using MediaMaster.Extensions;
-using MediaMaster.Interfaces.Services;
-using Microsoft.EntityFrameworkCore;
-using WinUI3Localizer;
 
 namespace MediaMaster.Controls;
 
@@ -126,8 +122,7 @@ public sealed partial class TagView : UserControl
         ItemView.SelectItemsInvoked += async (_, tags) =>
         {
             List<int> tagIds = tags.Where(t => t is Tag).Cast<Tag>().Select(t => t.TagId).ToList();
-            (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) =
-                await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : []);
+            (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : []);
 
             if (selectTagsDialog != null)
             {
@@ -143,18 +138,6 @@ public sealed partial class TagView : UserControl
             await UpdateItemSource(collection);
             RemoveTagsInvoked?.Invoke(this, collection);
         };
-
-        //EditTagInvoked += async (_, tagId) =>
-        //{
-        //    (ContentDialogResult result, EditTagDialog? editTagDialog) = await EditTagDialog.ShowDialogAsync(tagId);
-
-        //    if (editTagDialog != null)
-        //    {
-        //        await editTagDialog.SaveChangesAsync();
-        //    }
-
-        //    await UpdateItemSource();
-        //};
     }
 
     public ICollection<Tag> GetItemSource()
@@ -174,7 +157,7 @@ public sealed partial class TagView : UserControl
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tagId = (int)((FrameworkElement)sender).Tag;
-        await EditTagDialog.ShowDialogAsync(tagId);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(tagId);
 
         await UpdateItemSource();
     }
@@ -182,7 +165,7 @@ public sealed partial class TagView : UserControl
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tagId = (int)((FrameworkElement)sender).Tag;
-        var result = await EditTagDialog.DeleteTag(tagId);
+        var result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
 
         if (result == ContentDialogResult.Primary)
         {

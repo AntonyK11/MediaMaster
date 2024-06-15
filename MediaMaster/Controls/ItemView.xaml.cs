@@ -48,8 +48,9 @@ public sealed partial class ItemView
             var collection = (ObservableCollection<object>?)GetValue(ItemsSourceProperty);
             if (collection == null)
             {
-                collection = new ObservableCollection<object>();
+                collection = new ObservableCollection<object> { new AddItem() };
                 collection.CollectionChanged += OnCollectionChanged;
+                SetValue(ItemsSourceProperty, collection);
             }
 
             return collection;
@@ -198,6 +199,7 @@ public sealed partial class ItemView
 
     public ItemView()
     {
+        _ = ItemsSource;
         InitializeComponent();
         ItemsViewer.SizeChanged += (_, _) => UpdateScrollButtonsVisibility();
 
@@ -220,7 +222,7 @@ public sealed partial class ItemView
     }
 
     private ScrollView? ScrollView => ItemsViewer.FindDescendants().OfType<ScrollView>()
-        .FirstOrDefault(i => i.Name == "PART_ScrollView")!;
+        .FirstOrDefault(i => i.Name == "PART_ScrollView");
 
     public event TypedEventHandler<object, ICollection<object>>? RemoveItemsInvoked;
     public event TypedEventHandler<object, ICollection<object>>? SelectItemsInvoked;

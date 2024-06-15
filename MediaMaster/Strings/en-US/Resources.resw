@@ -213,4 +213,20 @@
   <data name="Edit_Tag_Dialog.SecondaryButtonText" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Select_Tags_Dialog.SecondaryButtonText" xml:space="preserve">
+    <value>New Tag</value>
+  </data>
+  <data name="Create_Tag_Dialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Create_Tag_Dialog.PrimaryButtonText" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Create_Tag_Dialog.Title" xml:space="preserve">
+    <value>Create Tag</value>
+  </data>
+  <data name="Delete_Tag_Dialog.Content" xml:space="preserve">
+    <value>Are you sure you want to delete this tag ?
+This action is permanent and cannot be undone.</value>
+  </data>
 </root>
