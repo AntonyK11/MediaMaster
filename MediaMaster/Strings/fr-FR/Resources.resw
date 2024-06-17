@@ -190,7 +190,7 @@
     <value>Selectionner</value>
   </data>
   <data name="Select_Tags_Dialog.Title" xml:space="preserve">
-    <value>Selectionner un Tag</value>
+    <value>Selectionner une étiquette</value>
   </data>
   <data name="Edit_Tag_Dialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
@@ -199,7 +199,7 @@
     <value>Sauvegarder</value>
   </data>
   <data name="Edit_Tag_Dialog.Title" xml:space="preserve">
-    <value>Éditer le Tag</value>
+    <value>Éditer l'étiquette</value>
   </data>
   <data name="Delete_Tag_Dialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
@@ -208,13 +208,13 @@
     <value>Supprimer</value>
   </data>
   <data name="Delete_Tag_Dialog.Title" xml:space="preserve">
-    <value>Supprimer le Tag</value>
+    <value>Supprimer l'étiquette</value>
   </data>
   <data name="Edit_Tag_Dialog.SecondaryButtonText" xml:space="preserve">
     <value>Supprimer</value>
   </data>
   <data name="Select_Tags_Dialog.SecondaryButtonText" xml:space="preserve">
-    <value>Nouveau Tag</value>
+    <value>Nouvelle étiquette</value>
   </data>
   <data name="Create_Tag_Dialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
@@ -223,10 +223,10 @@
     <value>Créer</value>
   </data>
   <data name="Create_Tag_Dialog.Title" xml:space="preserve">
-    <value>Créer Tag</value>
+    <value>Créer une étiquette</value>
   </data>
   <data name="Delete_Tag_Dialog.Content" xml:space="preserve">
-    <value>Êtes-vous sûr de vouloir supprimer ce tag ?
+    <value>Êtes-vous sûr de vouloir supprimer cette étiquette ?
 Cette action est permanente et ne peut être annulée.</value>
   </data>
 </root>

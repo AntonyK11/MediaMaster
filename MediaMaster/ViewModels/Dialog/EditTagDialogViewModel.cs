@@ -20,7 +20,7 @@ public partial class EditTagDialogViewModel : ObservableObject
         set
         {
             _color = value;
-            ColorBrush = new SolidColorBrush(Color);
+            ColorBrush = new SolidColorBrush(value);
         }
     }
 }
