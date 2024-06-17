@@ -4,6 +4,7 @@ using Windows.System;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Views.Dialog;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -162,6 +163,27 @@ public sealed partial class TagView : UserControl
         await UpdateItemSource();
     }
 
+    private void RemoveTagFlyout_OnClick(object sender, RoutedEventArgs e)
+    {
+        ItemView.RemoveItem(((FrameworkElement)sender).Tag);
+    }
+
+    private async void DuplicateTagFlyout_OnClick(object sender, RoutedEventArgs e)
+    {
+        var tagId = (int)((FrameworkElement)sender).Tag;
+
+        Tag? tag;
+        await using (var database = new MediaDbContext())
+        {
+            tag = await database.Tags.Include(t => t.Parents).FirstOrDefaultAsync(t => t.TagId == tagId);
+            if (tag == null) return;
+        }
+
+        await CreateEditDeleteTagDialog.ShowDialogAsync(tag: tag);
+
+        await UpdateItemSource();
+    }
+
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tagId = (int)((FrameworkElement)sender).Tag;
@@ -173,7 +195,7 @@ public sealed partial class TagView : UserControl
         }
     }
 
-    private async Task UpdateItemSource(ICollection<Tag>? tags = null, bool refreshAll = false)
+    public async Task UpdateItemSource(ICollection<Tag>? tags = null, bool refreshAll = false)
     {
         if (tags == null)
         {

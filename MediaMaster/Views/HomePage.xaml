@@ -225,9 +225,10 @@
             <ItemsView
                 x:Name="MediaItemsView"
                 Grid.Row="4"
-                ItemTemplate="{StaticResource MediaTemplate}">
+                ItemTemplate="{StaticResource MediaTemplate}"
+                SelectionMode="Extended">
                 <ItemsView.Layout>
-                    <UniformGridLayout />
+                    <UniformGridLayout MinColumnSpacing="8" MinRowSpacing="8" />
                 </ItemsView.Layout>
             </ItemsView>
 

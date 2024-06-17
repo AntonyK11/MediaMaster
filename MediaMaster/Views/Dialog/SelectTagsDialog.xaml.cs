@@ -134,6 +134,38 @@ public sealed partial class SelectTagsDialog : Page
         var tagId = (int)((FrameworkElement)sender).Tag;
         await CreateEditDeleteTagDialog.ShowDialogAsync(tagId);
 
+        UpdateItemSource();
+    }
+
+    private async void DuplicateTagFlyout_OnClick(object sender, RoutedEventArgs e)
+    {
+        var tagId = (int)((FrameworkElement)sender).Tag;
+
+        Tag? tag;
+        await using (var database = new MediaDbContext())
+        {
+            tag = await database.Tags.Include(t => t.Parents).FirstOrDefaultAsync(t => t.TagId == tagId);
+            if (tag == null) return;
+        }
+
+        await CreateEditDeleteTagDialog.ShowDialogAsync(tag: tag);
+
+        UpdateItemSource();
+    }
+
+    private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
+    {
+        var tagId = (int)((FrameworkElement)sender).Tag;
+        var result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
+
+        if (result == ContentDialogResult.Primary)
+        {
+            UpdateItemSource();
+        }
+    }
+
+    public void UpdateItemSource()
+    {
         SetupTags(SelectedTags.Select(t => t.TagId).ToList());
         SelectTags();
         TextBox_TextChanged(null, null);
@@ -166,26 +198,11 @@ public sealed partial class SelectTagsDialog : Page
 
                 if (createResult == ContentDialogResult.Primary)
                 {
-                    selectTagsDialog.SetupTags(selectTagsDialog.SelectedTags.Select(t => t.TagId).ToList());
-                    selectTagsDialog.SelectTags();
-                    selectTagsDialog.TextBox_TextChanged(null, null);
+                    selectTagsDialog.UpdateItemSource();
                 }
             }
         } while (result == ContentDialogResult.Secondary);
 
         return (result, selectTagsDialog);
-    }
-
-    private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
-    {
-        var tagId = (int)((FrameworkElement)sender).Tag;
-        var result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
-
-        if (result == ContentDialogResult.Primary)
-        {
-            SetupTags(SelectedTags.Select(t => t.TagId).ToList());
-            SelectTags();
-            TextBox_TextChanged(null, null);
-        }
     }
 }

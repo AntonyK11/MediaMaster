@@ -17,24 +17,29 @@ public sealed partial class CreateEditDeleteTagDialog : Page
     public EditTagDialogViewModel ViewModel = new();
     private readonly Tag? _tag;
 
-    public CreateEditDeleteTagDialog(int? tagId = null)
+    public CreateEditDeleteTagDialog(int? tagId = null, Tag? tag = null)
     {
         InitializeComponent();
 
-        if (tagId == null) return;
-
-        using (var database = new MediaDbContext())
+        if (tagId != null)
         {
-            _tag = database.Tags.FirstOrDefault(t => t.TagId == tagId);
+            using (var database = new MediaDbContext())
+            {
+                tag = database.Tags.FirstOrDefault(t => t.TagId == tagId);
+            }
+            TagView.TagId = tagId;
+            _tag = tag;
+        }
+        else if (tag != null)
+        {
+            _ = TagView.UpdateItemSource(tag.Parents);
         }
 
-        if (_tag == null) return;
+        if (tag == null) return;
 
-        ViewModel.Name = _tag.Name;
-        ViewModel.Shorthand = _tag.Shorthand ?? "";
-        ViewModel.Color = _tag.Color.ToWindowsColor();
-
-        TagView.TagId = tagId;
+        ViewModel.Name = tag.Name;
+        ViewModel.Shorthand = tag.Shorthand ?? "";
+        ViewModel.Color = tag.Color.ToWindowsColor();
 
         Color color = ViewModel.Color.ToSystemColor();
         CheckColorContrast(color);
@@ -66,11 +71,11 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         ContrastIcon.Visibility = badContrast ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(int? tagId = null)
+    public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(int? tagId = null, Tag? tag = null)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 
-        var tagDialog = new CreateEditDeleteTagDialog(tagId);
+        var tagDialog = new CreateEditDeleteTagDialog(tagId, tag);
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,

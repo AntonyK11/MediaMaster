@@ -71,12 +71,23 @@ public sealed partial class MediaIcon
         DoubleTapped += (_, _) => OpenMedia();
     }
 
-    public async void OpenMedia()
+    public void OpenMedia()
     {
         if (MediaPath != null && File.Exists(MediaPath))
         {
-            var file = await StorageFile.GetFileFromPathAsync(MediaPath);
-            await Launcher.LaunchFileAsync(file);
+            try
+            {
+                ProcessStartInfo startInfo = new(MediaPath)
+                {
+                    UseShellExecute = true
+                };
+
+                Process.Start(startInfo);
+            }
+            catch
+            {
+                // ignored
+            }
         }
     }
 

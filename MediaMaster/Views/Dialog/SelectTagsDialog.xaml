@@ -30,6 +30,11 @@
                             Tag="{x:Bind TagId}"
                             Text="Edit Tag" />
                         <MenuFlyoutItem
+                            Click="DuplicateTagFlyout_OnClick"
+                            Tag="{x:Bind TagId}"
+                            Text="Duplicate Tag" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem
                             Click="DeleteTagFlyout_OnClick"
                             Tag="{x:Bind TagId}"
                             Text="Delete Tag" />
