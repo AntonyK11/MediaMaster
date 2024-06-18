@@ -183,7 +183,7 @@ public sealed partial class SelectTagsDialog : Page
             DefaultButton = ContentDialogButton.Primary,
             Content = selectTagsDialog
         };
-        Uids.SetUid(dialog, "Select_Tags_Dialog");
+        Uids.SetUid(dialog, "/Tag/SelectDialog");
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
 

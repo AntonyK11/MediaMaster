@@ -123,6 +123,12 @@
   <data name="Shell_Main.Content" xml:space="preserve">
     <value>Main fr</value>
   </data>
+  <data name="Settings_Appearance.Text" xml:space="preserve">
+    <value>Appearance fr</value>
+  </data>
+  <data name="Settings_Theme.Title" xml:space="preserve">
+    <value>App Theme fr</value>
+  </data>
   <data name="Settings_Theme_Light.Content" xml:space="preserve">
     <value>Light fr</value>
   </data>
@@ -144,23 +150,14 @@
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
     <value>https://YourPrivacyUrlGoesHere/ fr</value>
   </data>
+  <data name="Settings_Theme.Description" xml:space="preserve">
+    <value>Select which app theme to display fr</value>
+  </data>
   <data name="MainWindow_en-US.Text" xml:space="preserve">
     <value>English</value>
   </data>
   <data name="MainWindow_fr-FR.Text" xml:space="preserve">
     <value>Français</value>
-  </data>
-  <data name="Settings_Appearance.Text" xml:space="preserve">
-    <value>Appearance fr</value>
-  </data>
-  <data name="Settings_Theme.Title" xml:space="preserve">
-    <value>App Theme fr</value>
-  </data>
-  <data name="Settings_Theme.Description" xml:space="preserve">
-    <value>Select which app theme to display fr</value>
-  </data>
-  <data name="AppTitleBar.Title" xml:space="preserve">
-    <value>MédiaMaster</value>
   </data>
   <data name="edit_toast_button" xml:space="preserve">
     <value>Éditer</value>
@@ -183,50 +180,7 @@
   <data name="AppTitleBar.Subtitle" xml:space="preserve">
     <value>Béta</value>
   </data>
-  <data name="Select_Tags_Dialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
-  <data name="Select_Tags_Dialog.PrimaryButtonText" xml:space="preserve">
-    <value>Selectionner</value>
-  </data>
-  <data name="Select_Tags_Dialog.Title" xml:space="preserve">
-    <value>Selectionner une étiquette</value>
-  </data>
-  <data name="Edit_Tag_Dialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
-  <data name="Edit_Tag_Dialog.PrimaryButtonText" xml:space="preserve">
-    <value>Sauvegarder</value>
-  </data>
-  <data name="Edit_Tag_Dialog.Title" xml:space="preserve">
-    <value>Éditer l'étiquette</value>
-  </data>
-  <data name="Delete_Tag_Dialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
-  <data name="Delete_Tag_Dialog.PrimaryButtonText" xml:space="preserve">
-    <value>Supprimer</value>
-  </data>
-  <data name="Delete_Tag_Dialog.Title" xml:space="preserve">
-    <value>Supprimer l'étiquette</value>
-  </data>
-  <data name="Edit_Tag_Dialog.SecondaryButtonText" xml:space="preserve">
-    <value>Supprimer</value>
-  </data>
-  <data name="Select_Tags_Dialog.SecondaryButtonText" xml:space="preserve">
-    <value>Nouvelle étiquette</value>
-  </data>
-  <data name="Create_Tag_Dialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
-  <data name="Create_Tag_Dialog.PrimaryButtonText" xml:space="preserve">
-    <value>Créer</value>
-  </data>
-  <data name="Create_Tag_Dialog.Title" xml:space="preserve">
-    <value>Créer une étiquette</value>
-  </data>
-  <data name="Delete_Tag_Dialog.Content" xml:space="preserve">
-    <value>Êtes-vous sûr de vouloir supprimer cette étiquette ?
-Cette action est permanente et ne peut être annulée.</value>
+  <data name="AppTitleBar.Title" xml:space="preserve">
+    <value>MediaMaster</value>
   </data>
 </root>

@@ -5,13 +5,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Width="400"
     mc:Ignorable="d">
 
     <StackPanel Spacing="16">
-        <TextBox Header="Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
-        <TextBox Header="Shorthand" Text="{x:Bind ViewModel.Shorthand, Mode=TwoWay}" />
+        <TextBox l:Uids.Uid="/Tag/Name_TextBox" Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
+        <TextBox
+            l:Uids.Uid="/Tag/Shorthand_TextBox"
+            Header="Shorthand_TextBox.Header"
+            Text="{x:Bind ViewModel.Shorthand, Mode=TwoWay}" />
 
         <Grid>
             <Rectangle
@@ -43,11 +47,11 @@
                                 <Button
                                     Grid.Column="0"
                                     HorizontalAlignment="Stretch"
+                                    l:Uids.Uid="/Tag/ColorPicker_ConfirmButton"
                                     Click="Confirm_Click"
-                                    Style="{ThemeResource AccentButtonStyle}"
-                                    ToolTipService.ToolTip="This color might not have enough contrast">
+                                    Style="{ThemeResource AccentButtonStyle}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="Confirm" />
+                                        <TextBlock l:Uids.Uid="/Tag/ColorPicker_ConfirmButton" />
                                         <FontIcon
                                             x:Name="ContrastIcon"
                                             FontSize="16"
@@ -58,8 +62,8 @@
                                 <Button
                                     Grid.Column="1"
                                     HorizontalAlignment="Stretch"
-                                    Click="Cancel_Click"
-                                    Content="Cancel" />
+                                    l:Uids.Uid="/Tag/ColorPicker_CancelButton"
+                                    Click="Cancel_Click" />
                             </Grid>
                         </StackPanel>
                     </Flyout>

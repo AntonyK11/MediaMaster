@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="using:WinUI3Localizer"
     xmlns:local="using:MediaMaster.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:MediaMaster.DataBase.Models"
@@ -25,22 +26,22 @@
                 <ItemContainer.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem
+                            l:Uids.Uid="/Tag/Flyout_Edit"
                             Click="EditTagFlyout_OnClick"
-                            Tag="{x:Bind TagId}"
-                            Text="Edit Tag" />
+                            Tag="{x:Bind TagId}" />
                         <MenuFlyoutItem
+                            l:Uids.Uid="/Tag/Flyout_Duplicate"
                             Click="DuplicateTagFlyout_OnClick"
-                            Tag="{x:Bind TagId}"
-                            Text="Duplicate Tag" />
+                            Tag="{x:Bind TagId}" />
                         <MenuFlyoutItem
+                            l:Uids.Uid="/Tag/Flyout_Remove"
                             Click="RemoveTagFlyout_OnClick"
-                            Tag="{x:Bind}"
-                            Text="Remove Tag" />
+                            Tag="{x:Bind}" />
                         <MenuFlyoutSeparator />
                         <MenuFlyoutItem
+                            l:Uids.Uid="/Tag/Flyout_Delete"
                             Click="DeleteTagFlyout_OnClick"
-                            Tag="{x:Bind TagId}"
-                            Text="Delete Tag" />
+                            Tag="{x:Bind TagId}" />
                     </MenuFlyout>
                 </ItemContainer.ContextFlyout>
             </ItemContainer>

@@ -117,70 +117,74 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppDescription" xml:space="preserve">
-    <value>Minecraft Mod Launcher</value>
+  <data name="ColorPicker_CancelButton.Content" xml:space="preserve">
+    <value>Annuler</value>
   </data>
-  <data name="Shell_Main.Content" xml:space="preserve">
-    <value>Main</value>
+  <data name="ColorPicker_ConfirmButton.Text" xml:space="preserve">
+    <value>Confirmer</value>
   </data>
-  <data name="Settings_Appearance.Text" xml:space="preserve">
-    <value>Appearance</value>
+  <data name="ColorPicker_ConfirmButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Cette couleur n'a peut-être pas assez de contraste</value>
   </data>
-  <data name="Settings_Theme.Title" xml:space="preserve">
-    <value>App Theme</value>
+  <data name="CreateDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
   </data>
-  <data name="Settings_Theme_Light.Content" xml:space="preserve">
-    <value>Light</value>
+  <data name="CreateDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Créer</value>
   </data>
-  <data name="Settings_Theme_Dark.Content" xml:space="preserve">
-    <value>Dark</value>
+  <data name="CreateDialog.Title" xml:space="preserve">
+    <value>Créer une étiquette</value>
   </data>
-  <data name="Settings_Theme_Default.Content" xml:space="preserve">
-    <value>Default</value>
+  <data name="DeleteDialog.Content" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cette étiquette ?
+Cette action est permanente et ne peut être annulée.</value>
   </data>
-  <data name="Settings_About.Text" xml:space="preserve">
-    <value>About this application</value>
+  <data name="DeleteDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Supprimer</value>
   </data>
-  <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>TODO: Replace with your app description.</value>
+  <data name="DeleteDialog.Title" xml:space="preserve">
+    <value>Supprimer l'étiquette</value>
   </data>
-  <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>Privacy Statement</value>
+  <data name="EditDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
   </data>
-  <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
-    <value>https://YourPrivacyUrlGoesHere/</value>
+  <data name="EditDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Sauvegarder</value>
   </data>
-  <data name="Settings_Theme.Description" xml:space="preserve">
-    <value>Select which app theme to display</value>
+  <data name="EditDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Supprimer</value>
   </data>
-  <data name="MainWindow_en-US.Text" xml:space="preserve">
-    <value>English</value>
+  <data name="EditDialog.Title" xml:space="preserve">
+    <value>Éditer l'étiquette</value>
   </data>
-  <data name="MainWindow_fr-FR.Text" xml:space="preserve">
-    <value>Français</value>
+  <data name="Flyout_Delete.Text" xml:space="preserve">
+    <value>Supprimer</value>
   </data>
-  <data name="AppTitleBar.Title" xml:space="preserve">
-    <value>MediaMaster</value>
+  <data name="Flyout_Duplicate.Text" xml:space="preserve">
+    <value>Dupliquer</value>
   </data>
-  <data name="edit_toast_button" xml:space="preserve">
-    <value>Edit</value>
+  <data name="Flyout_Edit.Text" xml:space="preserve">
+    <value>Éditer</value>
   </data>
-  <data name="media_added_toast_text" xml:space="preserve">
-    <value>New media(s) added</value>
+  <data name="Flyout_Remove.Text" xml:space="preserve">
+    <value>Enlever</value>
   </data>
-  <data name="dismiss_toast_button" xml:space="preserve">
-    <value>Dismiss</value>
+  <data name="Name_TextBox.Header" xml:space="preserve">
+    <value>Nom</value>
   </data>
-  <data name="add_context_menu" xml:space="preserve">
-    <value>Add to MediaMaster</value>
+  <data name="SelectDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
   </data>
-  <data name="TitleBarCloseButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Close</value>
+  <data name="SelectDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Selectionner</value>
   </data>
-  <data name="NavigationBackButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Back</value>
+  <data name="SelectDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Nouvelle étiquette</value>
   </data>
-  <data name="AppTitleBar.Subtitle" xml:space="preserve">
-    <value>beta</value>
+  <data name="SelectDialog.Title" xml:space="preserve">
+    <value>Selectionner une étiquette</value>
+  </data>
+  <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
   </data>
 </root>

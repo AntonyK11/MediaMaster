@@ -83,7 +83,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             Content = tagDialog
         };
 
-        Uids.SetUid(dialog, tagId == null ? "Create_Tag_Dialog" : "Edit_Tag_Dialog");
+        Uids.SetUid(dialog, tagId == null ? "/Tag/CreateDialog" : "/Tag/EditDialog");
 
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
@@ -124,7 +124,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             XamlRoot = App.MainWindow.Content.XamlRoot,
             DefaultButton = ContentDialogButton.Primary,
         };
-        Uids.SetUid(dialog, "Delete_Tag_Dialog");
+        Uids.SetUid(dialog, "/Tag/DeleteDialog");
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
