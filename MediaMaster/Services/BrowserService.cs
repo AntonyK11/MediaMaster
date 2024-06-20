@@ -56,10 +56,6 @@ public class BrowserService
 
     private readonly Stopwatch _watch = new();
 
-    private IEnumerable<TimeSpan> elapsedspans = [];
-
-    private static TimeSpan Average(IEnumerable<TimeSpan> spans) => TimeSpan.FromMilliseconds(spans.Select(s => s.TotalMilliseconds).Average());
-
     private bool _isRunning;
     public async Task FindActiveTabs()
     {
@@ -177,7 +173,7 @@ public class BrowserService
 
             foreach (var process in processes)
             {
-                if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero)
+                if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero && WindowsApiService.IsWindow(process.MainWindowHandle))
                 {
                     if (cache
                         && _browsersWindowTitle.TryGetValue(browser.Name, out var title)
@@ -187,18 +183,25 @@ public class BrowserService
                         break;
                     }
 
-                    var result = GetBrowserTab(process.MainWindowHandle);
-                    if (result is not null)
+                    try
                     {
-                        url = result;
-                        found = true;
-
-                        if (!process.HasExited)
+                        var result = GetBrowserTab(process.MainWindowHandle);
+                        if (result is not null)
                         {
-                            _browsersWindowTitle[browser.Name] = process.MainWindowTitle;
-                        }
+                            url = result;
+                            found = true;
 
-                        break;
+                            if (!process.HasExited)
+                            {
+                                _browsersWindowTitle[browser.Name] = process.MainWindowTitle;
+                            }
+
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                        // Catch any exceptions
                     }
                 }
 

@@ -1,7 +1,7 @@
 [
   {
     "Name": "Firefox",
-    "Icon": "\\Assets\\firefox.svg",
+    "Icon": "\\Assets\\Browsers\\firefox.svg",
     "ProfilesDirectory": "Mozilla\\Firefox\\Profiles",
     "ProcessName": "firefox",
     "PackageId": "Mozilla.Firefox",
@@ -12,7 +12,7 @@
   },
   {
     "Name": "Google Chrome",
-    "Icon": "\\Assets\\chrome.svg",
+    "Icon": "\\Assets\\Browsers\\chrome.svg",
     "ProfilesDirectory": "Google\\Chrome\\User Data",
     "ProcessName": "chrome",
     "PackageId": null,
@@ -23,7 +23,7 @@
   },
   {
     "Name": "Microsoft Edge",
-    "Icon": "\\Assets\\edge.svg",
+    "Icon": "\\Assets\\Browsers\\edge.svg",
     "ProfilesDirectory": "Microsoft\\Edge\\User Data",
     "ProcessName": "msedge",
     "PackageId": null,
@@ -34,7 +34,7 @@
   },
   {
     "Name": "Opera",
-    "Icon": "\\Assets\\opera.svg",
+    "Icon": "\\Assets\\Browsers\\opera.svg",
     "ProfilesDirectory": "Opera Software\\Opera Stable",
     "ProcessName": "opera",
     "PackageId": null,
@@ -45,7 +45,7 @@
   },
   {
     "Name": "Opera GX",
-    "Icon": "\\Assets\\opera-gx.svg",
+    "Icon": "\\Assets\\Browsers\\opera-gx.svg",
     "ProfilesDirectory": "Opera Software\\Opera GX Stable",
     "ProcessName": "opera",
     "PackageId": null,
@@ -56,7 +56,7 @@
   },
   {
     "Name": "Vivaldi",
-    "Icon": "\\Assets\\vivaldi.svg",
+    "Icon": "\\Assets\\Browsers\\vivaldi.svg",
     "ProfilesDirectory": "Vivaldi\\User Data",
     "ProcessName": "vivaldi",
     "PackageId": null,
@@ -67,11 +67,22 @@
   },
   {
     "Name": "Brave",
-    "Icon": "\\Assets\\brave.png",
+    "Icon": "\\Assets\\Browsers\\brave.png",
     "ProfilesDirectory": "BraveSoftware\\Brave-Browser\\User Data",
     "ProcessName": "brave",
     "PackageId": null,
     "IsOnlyPackaged": false,
+    "BookmarkFormat": "chromium",
+    "IsInLocalAppData": true,
+    "HasProfiles": true
+  },
+  {
+    "Name": "Arc",
+    "Icon": "\\Assets\\Browsers\\edge.svg",
+    "ProfilesDirectory": "Arc\\User Data",
+    "ProcessName": "arc",
+    "PackageId": "TheBrowserCompany.Arc",
+    "IsOnlyPackaged": true,
     "BookmarkFormat": "chromium",
     "IsInLocalAppData": true,
     "HasProfiles": true

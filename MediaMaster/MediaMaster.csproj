@@ -115,25 +115,32 @@
 		<Content Include="Data\MediaCategories.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\firefox.svg">
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\EFCore.BulkExtensions\EFCore.BulkExtensions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="Assets\Browsers\brave.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\brave.png">
+	  <Content Include="Assets\Browsers\chrome.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\chrome.svg">
+	  <Content Include="Assets\Browsers\edge.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\edge.svg">
+	  <Content Include="Assets\Browsers\firefox.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\opera-gx.svg">
+	  <Content Include="Assets\Browsers\opera-gx.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\opera.svg">
+	  <Content Include="Assets\Browsers\opera.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\vivaldi.svg">
+	  <Content Include="Assets\Browsers\vivaldi.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
