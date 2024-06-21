@@ -15,6 +15,7 @@ public static class ContentDialogExtensions
             var first = DialogStack.First();
             DialogStack.Push(newDialog);
             first.Hide();
+            await Task.Delay(210);
         }
         else
         {

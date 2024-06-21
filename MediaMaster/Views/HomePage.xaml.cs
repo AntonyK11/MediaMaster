@@ -118,7 +118,7 @@ public sealed partial class HomePage : Page
 
     private async void GetBookmarks(object sender, RoutedEventArgs e)
     {
-        //BookmarksTree.ItemsSource = await BrowserService.GetBookmarks();
+        BookmarksTree.ItemsSource = await BrowserService.GetBookmarks();
     }
 
     private async void AddData(object sender, RoutedEventArgs e)

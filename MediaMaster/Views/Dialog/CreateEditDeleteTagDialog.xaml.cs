@@ -36,9 +36,9 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         }
 
         if (tag == null) return;
-
+        AliasesListView.Strings = tag.Aliases;
         ViewModel.Name = tag.Name;
-        ViewModel.Shorthand = tag.Shorthand ?? "";
+        ViewModel.Shorthand = tag.Shorthand;
         ViewModel.Color = tag.Color.ToWindowsColor();
 
         Color color = ViewModel.Color.ToSystemColor();
@@ -85,7 +85,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
         Uids.SetUid(dialog, tagId == null ? "/Tag/CreateDialog" : "/Tag/EditDialog");
 
-        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
+        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
         ContentDialogResult? deleteResult;
         ContentDialogResult result;
@@ -125,7 +125,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             DefaultButton = ContentDialogButton.Primary,
         };
         Uids.SetUid(dialog, "/Tag/DeleteDialog");
-        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
+        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
 
@@ -159,6 +159,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 trackedTag.Name = ViewModel.Name;
                 trackedTag.Shorthand = ViewModel.Shorthand;
                 trackedTag.Color = ViewModel.Color.ToSystemColor();
+                trackedTag.Aliases = AliasesListView.Strings?.ToList() ?? [];
 
                 if (_tag == null)
                 {

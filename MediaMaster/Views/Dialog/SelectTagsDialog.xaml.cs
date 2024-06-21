@@ -105,7 +105,7 @@ public sealed partial class SelectTagsDialog : Page
         _watchForSelectionChange = false;
         List<object> selection = ListView.SelectedItems.ToList();
 
-        var splitText = TextBox.Text.ToLower().Trim().Split(" ");
+        var splitText = TextBox.Text.Trim().Split(" ");
         if (_advancedCollectionView != null)
         {
             _advancedCollectionView.Filter = x =>
@@ -114,8 +114,8 @@ public sealed partial class SelectTagsDialog : Page
                 {
                     return splitText.All(key =>
                         tag.Name.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
-                        (tag.Shorthand != null && tag.Shorthand.Contains(key, StringComparison.CurrentCultureIgnoreCase)) ||
-                        tag.Aliases.Select(a => a.ToLower()).Contains(key.ToLower()));
+                        tag.Shorthand.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
+                        tag.Aliases.Any(a => a.Contains(key, StringComparison.CurrentCultureIgnoreCase)));
                 }
 
                 return false;
@@ -184,7 +184,7 @@ public sealed partial class SelectTagsDialog : Page
             Content = selectTagsDialog
         };
         Uids.SetUid(dialog, "/Tag/SelectDialog");
-        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().Theme;
+        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
 
         ContentDialogResult result;

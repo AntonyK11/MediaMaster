@@ -16,11 +16,13 @@
                 <Grid>
                     <Rectangle
                         Margin="-40,-4,-8,-3"
+                        x:Phase="1"
                         Fill="{x:Bind ColorBrush, Mode=OneWay}"
                         RadiusX="4"
                         RadiusY="4" />
                     <TextBlock
                         Margin="0,5,0,5"
+                        x:Phase="2"
                         Foreground="{x:Bind TextColorBrush}"
                         Text="{x:Bind Name, Mode=OneWay}" />
                 </Grid>

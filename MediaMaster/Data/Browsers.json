@@ -78,7 +78,7 @@
   },
   {
     "Name": "Arc",
-    "Icon": "\\Assets\\Browsers\\edge.svg",
+    "Icon": "\\Assets\\Browsers\\arc.svg",
     "ProfilesDirectory": "Arc\\User Data",
     "ProcessName": "arc",
     "PackageId": "TheBrowserCompany.Arc",

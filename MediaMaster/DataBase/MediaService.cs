@@ -1,6 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using EFCore.BulkExtensions;
 using MediaMaster.DataBase.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.DataBase;
 
@@ -24,35 +27,33 @@ public class MediaService
 
             await using (MediaDbContext dataBase = new())
             {
-                IDictionary<string, Tag> tags = dataBase.Tags.ToDictionary(t => t.Name);
+                IDictionary<string, Tag> tags = await dataBase.Tags.AsNoTracking().ToDictionaryAsync(t => t.Name);
+                IDictionary<string, int> medias = await dataBase.Medias.AsNoTracking().ToDictionaryAsync(m => m.FilePath, m => m.MediaId);
+
                 ICollection<Tag> newTags = [];
-                ICollection<Media> medias = mediaPaths.Select(mediaPath => GetMedia(mediaPath, ref tags, ref newTags)).ToList();
+                ICollection<Media> newMedias = [];
 
-                await dataBase.BulkInsertAsync(medias, new BulkConfig
+                mediaPaths = mediaPaths.Where(p => !medias.ContainsKey(p)).ToList();
+
+                foreach (var mediaPath in mediaPaths)
                 {
-                    SetOutputIdentity = true,
-                    PropertiesToIncludeOnUpdate = [string.Empty], // do nothing if exists
-                    UpdateByProperties = [nameof(Media.FilePath)], // conflict target
-                });
-                await dataBase.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
-
-                Debug.WriteLine($"Media: {medias.Count}");
-                Debug.WriteLine($"Tags: {newTags.Count}");
-
-                ICollection<MediaTag> mediaTags = [];
-                foreach (var media in medias)
-                {
-                    foreach (var tag in media.Tags)
-                    {
-                        mediaTags.Add(new MediaTag
-                        {
-                            MediaId = media.MediaId,
-                            TagId = tag.TagId
-                        });
-                    }
+                    GetMedia(mediaPath, ref medias, ref newMedias, ref tags, ref newTags);
                 }
 
+                await dataBase.BulkInsertAsync(newMedias, new BulkConfig { SetOutputIdentity = true });
+                await dataBase.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
+                
+                var mediaTags = newMedias.SelectMany(media => media.Tags.Select(tag => new MediaTag
+                {
+                    MediaId = media.MediaId,
+                    TagId = tag.TagId
+                })).ToList();
+
                 await dataBase.BulkInsertAsync(mediaTags);
+
+                Debug.WriteLine($"Media: {newMedias.Count}");
+                Debug.WriteLine($"Tags: {newTags.Count}");
+                Debug.WriteLine($"MediaTags: {mediaTags.Count}");
             }
         }
         catch (Exception e)
@@ -88,7 +89,7 @@ public class MediaService
         return [];
     }
 
-    private static Media GetMedia(string path,  ref IDictionary<string, Tag> tags, ref ICollection<Tag> newTags)
+    private static void GetMedia(string path, ref IDictionary<string, int> medias, ref ICollection<Media> newMedia,  ref IDictionary<string, Tag> tags, ref ICollection<Tag> newTags)
     {
         var extension = Path.GetExtension(path);
         Media media = new()
@@ -107,7 +108,6 @@ public class MediaService
             newTags.Add(tag);
         }
         media.Tags.Add(tag);
-
-        return media;
+        newMedia.Add(media);
     }
 }

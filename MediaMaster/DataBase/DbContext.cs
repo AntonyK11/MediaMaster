@@ -66,6 +66,44 @@ public class MediaDbContext : DbContext
         //ChangeTracker.StateChanged += Timestamps.UpdateTimestamps;
         //ChangeTracker.Tracked += Timestamps.UpdateTimestamps;
 
+        var file = new Tag
+        {
+            Name = "File",
+            Shorthand = "file",
+            Protected = true,
+            Aliases = { "Hello", "hi", "how are you ?ssdasdasd asd adf sdfgsdf gdfsg  vngbmntghd  nf nf nn nNN NNNNNNNN " }
+        };
+        await Tags.AddAsync(file);
+
+        var website = new Tag
+        {
+            Name = "Website",
+            Shorthand = "web",
+            Protected = true,
+            Aliases = { "Hello", "hi", "how are you ?" }
+        };
+        await Tags.AddAsync(website);
+
+        var favorite = new Tag
+        {
+            Name = "Favorite",
+            Protected = true,
+            Aliases = { "Favorited", "Favorites" },
+            Argb = -204544
+        };
+        await Tags.AddAsync(favorite);
+
+        var archived = new Tag
+        {
+            Name = "Archived",
+            Protected = true,
+            Aliases = { "Archive" },
+            Argb = -3921124
+        };
+        await Tags.AddAsync(archived);
+
+        await SaveChangesAsync();
+
         //for (var i = 0; i < 10; i++)
         //{
         //    Tag media = this.CreateProxy<Tag>(t =>

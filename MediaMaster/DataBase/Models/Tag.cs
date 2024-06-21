@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using MediaMaster.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.DataBase.Models;
@@ -11,13 +12,13 @@ public class Tag
     [Key]
     public virtual int TagId { get; set; }
 
-    //public virtual required string Name { get; set; }
-
     public virtual string Name { get; set; } = "";
 
-    public virtual string? Shorthand { get; set; } = "";
+    public virtual string Shorthand { get; set; } = "";
 
-    public virtual ICollection<string> Aliases { get; } = [];
+    public virtual bool Protected { get; set; }
+
+    public virtual IList<string> Aliases { get; set; } = [];
 
     public virtual ICollection<Media> Medias { get; } = [];
 
@@ -26,6 +27,28 @@ public class Tag
     public virtual ICollection<Tag> Children { get; } = [];
 
     public int? Argb { get; set; }
+
+    [NotMapped]
+    public string DisplayName
+    {
+        get
+        {
+            using (var database = new MediaDbContext())
+            {
+                var parent = database.Tags.Select(t => new { t.TagId, Parents = t.Parents.Select(p => new { p.Name, p.Shorthand }) }).FirstOrDefault(t => t.TagId == TagId)?.Parents.FirstOrDefault();
+                if (parent == null)
+                {
+                    return Name;
+                }
+                var parentShortHand = parent.Shorthand;
+                if (parentShortHand.IsNullOrEmpty())
+                {
+                    parentShortHand = parent.Name;
+                }
+                return $"{Name} ({parentShortHand})";
+            }
+        }
+    }
 
     [NotMapped]
     public Color Color

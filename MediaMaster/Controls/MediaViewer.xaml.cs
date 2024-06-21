@@ -53,8 +53,7 @@ public sealed partial class MediaViewer : UserControl
         {
             if (Media != null)
             {
-                Media? trackedMedia = await dataBase.Medias.Include(m => m.Tags)
-                    .FirstOrDefaultAsync(m => m.MediaId == Media.MediaId);
+                var trackedMedia = await dataBase.Medias.Select(m => new { m.MediaId, Tags = m.Tags.Select(t => new { t.TagId }) }).FirstOrDefaultAsync(m => m.MediaId == Media.MediaId);
 
                 if (trackedMedia != null)
                 {
@@ -67,8 +66,7 @@ public sealed partial class MediaViewer : UserControl
                     // Bulk add new tags
                     if (tagsToAdd.Count != 0)
                     {
-                        List<MediaTag> newMediaTags = tagsToAdd.Select(tagId => new MediaTag
-                            { MediaId = trackedMedia.MediaId, TagId = tagId }).ToList();
+                        List<MediaTag> newMediaTags = tagsToAdd.Select(tagId => new MediaTag { MediaId = trackedMedia.MediaId, TagId = tagId }).ToList();
                         await dataBase.BulkInsertAsync(newMediaTags);
                     }
 

@@ -52,7 +52,10 @@
                 Height="200"
                 DataContext="{x:Bind}"
                 Tapped="ItemContainer_Tapped">
-                <customControls:MediaIcon LoadIcon="False" MediaPath="{x:Bind FilePath}" />
+                <customControls:MediaIcon
+                    x:Phase="1"
+                    LoadIcon="False"
+                    MediaPath="{x:Bind FilePath}" />
             </ItemContainer>
         </DataTemplate>
     </Page.Resources>
@@ -92,6 +95,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
@@ -237,12 +242,12 @@
                 DisplayMode="NumberBox"
                 NumberOfPages="100" />
 
-            <!--<TextBlock Grid.Row="3">Browsers Bookmarks</TextBlock>
+            <TextBlock Grid.Row="6">Browsers Bookmarks</TextBlock>
 
-                <TreeView
-                    x:Name="BookmarksTree"
-                    Grid.Row="4"
-                    ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />-->
+            <TreeView
+                x:Name="BookmarksTree"
+                Grid.Row="7"
+                ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />
 
             <!--<table:TableView
             x:Name="MediasDataGrid"

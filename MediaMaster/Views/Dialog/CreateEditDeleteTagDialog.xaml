@@ -16,7 +16,10 @@
             l:Uids.Uid="/Tag/Shorthand_TextBox"
             Header="Shorthand_TextBox.Header"
             Text="{x:Bind ViewModel.Shorthand, Mode=TwoWay}" />
-
+        <StackPanel Spacing="8">
+            <TextBlock Text="Aliases" />
+            <controls:EditableListView x:Name="AliasesListView" Height="200" />
+        </StackPanel>
         <Grid>
             <Rectangle
                 Width="24"

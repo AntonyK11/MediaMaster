@@ -1,12 +1,12 @@
 using System.Collections.ObjectModel;
 using Windows.UI.Core;
+using CommunityToolkit.Common.Collections;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
-using CommunityToolkit.WinUI.Collections;
 using MediaMaster.DataBase.Models;
 
 namespace MediaMaster.Controls;
@@ -39,7 +39,7 @@ public sealed partial class SearchBox
         var tagView2 = AutoSuggestBox.FindDescendants().OfType<Popup>().FirstOrDefault(x => x.Name is "SuggestionsPopup")?.FindChildren().OfType<TagView>().FirstOrDefault(x => x.Name is "TagView2");
         //tagView2.ItemsSource = ViewModel.Tags;
 
-        AutoSuggestBox.ItemsSource = new IncrementalLoadingCollection<ViewModel, Tag>();
+        //AutoSuggestBox.ItemsSource = new IncrementalLoadingCollection<ViewModel, Tag>();
 
         //AutoSuggestBox.SuggestionChosen += async (_, _) =>
         //{
