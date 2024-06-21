@@ -1,3 +1,4 @@
+using MediaMaster.DataBase;
 using MediaMaster.Services;
 using Microsoft.UI.Xaml;
 using System.Diagnostics;
@@ -57,10 +58,17 @@ public sealed partial class HomePage
 
         IReadOnlyList<IStorageItem>? items = await e.DataView.GetStorageItemsAsync();
 
+        Debug.WriteLine("Adding files");
+        DateTime time = DateTime.Now;
         foreach (IStorageItem? item in items)
         {
-            Debug.WriteLine(item.Path);
+            await Task.Run(async () =>
+            {
+                await MediaService.AddMediaAsync(item.Path);
+                Debug.WriteLine(item.Path);
+            });
         }
+        Debug.WriteLine(DateTime.Now - time);
     }
 
 }

@@ -118,7 +118,8 @@ public sealed partial class EditableListView : UserControl
 
     private async void Update(StringValue item)
     {
-        await Task.Delay(10);
+        // TODO find a way to avoid the time delay
+        await Task.Delay(20);
         var listViewItem = ListView.ContainerFromItem(item);
         if (listViewItem == null) return;
         var textBlock = listViewItem.FindDescendants().OfType<TextBlock>().FirstOrDefault(x => x.Name is "TextBlock");
