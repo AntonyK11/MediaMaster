@@ -12,59 +12,55 @@ namespace MediaMaster.Views.Dialog;
 
 public sealed partial class SelectTagsDialog : Page
 {
-    public ICollection<Tag> SelectedTags { get; set; } = [];
+    public ICollection<Tag> SelectedTags { get; private set; } = [];
     
-    private readonly ICollection<int> _tagsToExclude = [];
+    private readonly bool _showExtensions;
+
+    private readonly ICollection<int> _tagsToExclude;
 
     private AdvancedCollectionView? _advancedCollectionView;
     private ICollection<Tag> _tags = [];
     private bool _watchForSelectionChange = true;
 
-    public SelectTagsDialog(ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null)
+    public SelectTagsDialog(ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
+        bool showExtensions = true)
     {
         InitializeComponent();
 
-        //using (var database = new MediaDbContext())
-        //{
-        //    _tags = database.Tags.ToList();
-        //}
+        _showExtensions = showExtensions;
+        _tagsToExclude = tagsToExclude ?? [];
 
-        if (tagsToExclude != null)
-        {
-            _tagsToExclude = tagsToExclude;
-        }
-
-        SetupTags(selectedTags);
-
-        SelectTags();
-
-        ListView.SelectionChanged += ListViewOnSelectionChanged;
+        UpdateItemSource(selectedTags);
     }
 
-    private async void SetupTags(ICollection<int>? selectedTags)
+    private void UpdateItemSource(ICollection<int>? selectedTags = null)
     {
         _watchForSelectionChange = false;
+
+        SetupTags(selectedTags ?? SelectedTags.Select(t => t.TagId).ToList());
+        SelectTags();
+        TextBox_TextChanged(null, null);
+
+        _watchForSelectionChange = true;
+    }
+
+    private async void SetupTags(ICollection<int> selectedTags)
+    {
         await using (var database = new MediaDbContext())
         {
             _tags = database.Tags.Where(tag => !_tagsToExclude.Contains(tag.TagId)).ToList();
         }
 
-        _advancedCollectionView = new AdvancedCollectionView(_tags.ToList(), true);
+        _advancedCollectionView = new AdvancedCollectionView(_tags.Where(t => !(t.Flags.HasFlag(TagFlags.Extension) && !_showExtensions)).ToList(), true);
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("Name", SortDirection.Ascending));
         ListView.ItemsSource = _advancedCollectionView;
 
-        if (selectedTags != null)
-        {
-            SelectedTags = _tags.Where(t => selectedTags.Contains(t.TagId)).ToList();
-        }
-
-        _watchForSelectionChange = true;
+        SelectedTags = _tags.Where(t => selectedTags.Contains(t.TagId)).ToList();
     }
 
     private void SelectTags()
     {
-        _watchForSelectionChange = false;
-        foreach (Tag? tag in ((ICollection<object>)ListView.ItemsSource).Cast<Tag>())
+        foreach (Tag? tag in ((ICollection<object>)ListView.ItemsSource).Where(o => o is Tag).Cast<Tag>())
         {
             if (SelectedTags.Select(t => t.TagId).Contains(tag.TagId))
             {
@@ -81,28 +77,10 @@ public sealed partial class SelectTagsDialog : Page
                 }
             }
         }
-        _watchForSelectionChange = true;
-    }
-
-    private void ListViewOnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_watchForSelectionChange)
-        {
-            foreach (Tag tag in e.AddedItems.Where(t => !SelectedTags.Contains(t)))
-            {
-                SelectedTags.Add(tag);
-            }
-
-            foreach (var tagId in e.RemovedItems.Where(t => t is Tag).Cast<Tag>().Select(t => t.TagId))
-            {
-                SelectedTags.Remove(SelectedTags.FirstOrDefault(t => t.TagId == tagId) ?? new Tag());
-            }
-        }
     }
 
     private void TextBox_TextChanged(object? sender, TextChangedEventArgs? args)
     {
-        _watchForSelectionChange = false;
         List<object> selection = ListView.SelectedItems.ToList();
 
         var splitText = TextBox.Text.Trim().Split(" ");
@@ -126,12 +104,27 @@ public sealed partial class SelectTagsDialog : Page
         {
             ListView.SelectedItems.Add(tag);
         }
-        _watchForSelectionChange = true;
+    }
+
+    private void ListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_watchForSelectionChange)
+        {
+            foreach (Tag tag in e.AddedItems.Where(t => !SelectedTags.Contains(t)))
+            {
+                SelectedTags.Add(tag);
+            }
+
+            foreach (var tagId in e.RemovedItems.Where(t => t is Tag).Cast<Tag>().Select(t => t.TagId))
+            {
+                SelectedTags.Remove(SelectedTags.FirstOrDefault(t => t.TagId == tagId) ?? new Tag());
+            }
+        }
     }
 
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).Tag;
+        var tagId = (int)((FrameworkElement)sender).DataContext;
         await CreateEditDeleteTagDialog.ShowDialogAsync(tagId);
 
         UpdateItemSource();
@@ -139,7 +132,7 @@ public sealed partial class SelectTagsDialog : Page
 
     private async void DuplicateTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).Tag;
+        var tagId = (int)((FrameworkElement)sender).DataContext;
 
         Tag? tag;
         await using (var database = new MediaDbContext())
@@ -148,6 +141,7 @@ public sealed partial class SelectTagsDialog : Page
             if (tag == null) return;
         }
 
+        tag.Permissions = 0;
         await CreateEditDeleteTagDialog.ShowDialogAsync(tag: tag);
 
         UpdateItemSource();
@@ -155,8 +149,8 @@ public sealed partial class SelectTagsDialog : Page
 
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).Tag;
-        var result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
+        var tagId = (int)((FrameworkElement)sender).DataContext;
+        ContentDialogResult result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
 
         if (result == ContentDialogResult.Primary)
         {
@@ -164,19 +158,12 @@ public sealed partial class SelectTagsDialog : Page
         }
     }
 
-    public void UpdateItemSource()
-    {
-        SetupTags(SelectedTags.Select(t => t.TagId).ToList());
-        SelectTags();
-        TextBox_TextChanged(null, null);
-    }
-
     public static async Task<(ContentDialogResult, SelectTagsDialog?)> ShowDialogAsync(
-        ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null)
+        ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null, bool showExtensions = true)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 
-        var selectTagsDialog = new SelectTagsDialog(selectedTags, tagsToExclude);
+        var selectTagsDialog = new SelectTagsDialog(selectedTags, tagsToExclude, showExtensions);
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,

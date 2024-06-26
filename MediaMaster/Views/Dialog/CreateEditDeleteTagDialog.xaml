@@ -10,15 +10,23 @@
     Width="400"
     mc:Ignorable="d">
 
+
     <StackPanel Spacing="16">
-        <TextBox l:Uids.Uid="/Tag/Name_TextBox" Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
+        <TextBox
+            l:Uids.Uid="/Tag/Name_TextBox"
+            IsEnabled="{x:Bind ViewModel.CanChangeName, Mode=OneWay}"
+            Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
         <TextBox
             l:Uids.Uid="/Tag/Shorthand_TextBox"
             Header="Shorthand_TextBox.Header"
+            IsEnabled="{x:Bind ViewModel.CanChangeShortHand, Mode=OneWay}"
             Text="{x:Bind ViewModel.Shorthand, Mode=TwoWay}" />
         <StackPanel Spacing="8">
             <TextBlock Text="Aliases" />
-            <controls:EditableListView x:Name="AliasesListView" Height="200" />
+            <controls:EditableListView
+                x:Name="AliasesListView"
+                Height="200"
+                IsEnabled="{x:Bind ViewModel.CanChangeAliases, Mode=OneWay}" />
         </StackPanel>
         <Grid>
             <Rectangle
@@ -33,7 +41,8 @@
                 Padding="15"
                 Background="Transparent"
                 Canvas.ZIndex="0"
-                CornerRadius="32">
+                CornerRadius="32"
+                IsEnabled="{x:Bind ViewModel.CanChangeColor, Mode=OneWay}">
                 <Button.Flyout>
                     <Flyout x:Name="Flyout" Placement="Left">
                         <StackPanel Spacing="16">
@@ -77,7 +86,7 @@
         <controls:TagView
             x:Name="TagView"
             AddTagButton="True"
-            DeleteMode="Enabled">
+            IsEnabled="{x:Bind ViewModel.CanChangeParents, Mode=OneWay}">
 
             <controls:TagView.Layout>
                 <FlowLayout MinColumnSpacing="4" MinRowSpacing="4" />

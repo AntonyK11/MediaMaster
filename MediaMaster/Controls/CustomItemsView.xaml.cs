@@ -1,24 +1,35 @@
+using System.Collections;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Numerics;
 using Windows.Foundation;
 using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.Controls;
 
-public enum ItemsViewDeleteMode
-{
-    Enabled,
-    Disabled
-}
+public class AddItem;
 
-public class AddItem
+public class ItemsComparer : IComparer
 {
+    public static readonly IComparer Instance = new ItemsComparer();
+
+    public int Compare(object? x, object? y)
+    {
+        if (x is AddItem)
+        {
+            return 1;
+        }
+        if (y is AddItem)
+        {
+            return -1;
+        }
+
+        return 0;
+    }
 }
 
 internal class ItemTemplateSelector : DataTemplateSelector
@@ -32,51 +43,46 @@ internal class ItemTemplateSelector : DataTemplateSelector
     }
 }
 
-public sealed partial class ItemView
+public sealed partial class CustomItemsView
 {
     public static readonly DependencyProperty ItemsSourceProperty
         = DependencyProperty.Register(
             nameof(ItemsSource),
             typeof(ObservableCollection<object>),
-            typeof(ItemView),
+            typeof(CustomItemsView),
             new PropertyMetadata(null));
     
     public ObservableCollection<object> ItemsSource
     {
-        get
-        {
-            var collection = (ObservableCollection<object>?)GetValue(ItemsSourceProperty);
-            if (collection == null)
-            {
-                collection = new ObservableCollection<object> { new AddItem() };
-                collection.CollectionChanged += OnCollectionChanged;
-                SetValue(ItemsSourceProperty, collection);
-            }
-
-            return collection;
-        }
+        get => (ObservableCollection<object>)GetValue(ItemsSourceProperty);
         set
         {
             SetValue(ItemsSourceProperty, value);
-            //if (value is ObservableCollection<Tag> observableCollection)
-            //{
-            //    observableCollection.CollectionChanged += (_, _) =>
-            //    {
-            //        ScrollView.ScrollBy(ScrollView.ViewportWidth / 10000000, 0);
-            //    };
-            //}
+            HandleAddItemButton();
 
-            if (AddItemButton)
-            {
-                var addItem = value.FirstOrDefault(t => t is AddItem);
-                if (addItem == null)
-                {
-                    addItem = new AddItem();
-                    value.Add(addItem);
-                }
-            }
+            var advancedCollectionView = new AdvancedCollectionView(value, true);
+            advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, Comparer));
+            ItemsView.ItemsSource = advancedCollectionView;
+        }
+    }
 
-            value.CollectionChanged += OnCollectionChanged;
+    public static readonly DependencyProperty ComparerProperty
+        = DependencyProperty.Register(
+            nameof(Comparer),
+            typeof(IComparer),
+            typeof(CustomItemsView),
+            new PropertyMetadata(null));
+
+    public IComparer? Comparer
+    {
+        get => (IComparer?)GetValue(ComparerProperty);
+        set
+        {
+            SetValue(ComparerProperty, value);
+
+            var advancedCollectionView = new AdvancedCollectionView(ItemsSource, true);
+            advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, value));
+            ItemsView.ItemsSource = advancedCollectionView;
         }
     }
 
@@ -84,61 +90,29 @@ public sealed partial class ItemView
         = DependencyProperty.Register(
             nameof(SelectionMode),
             typeof(ItemsViewSelectionMode),
-            typeof(ItemView),
+            typeof(CustomItemsView),
             new PropertyMetadata(ItemsViewSelectionMode.None));
-
+    
     public ItemsViewSelectionMode SelectionMode
     {
         get => (ItemsViewSelectionMode)GetValue(SelectionModeProperty);
         set => SetValue(SelectionModeProperty, value);
-    }
-    
-    public static readonly DependencyProperty DeleteModeProperty
-        = DependencyProperty.Register(
-            nameof(DeleteMode),
-            typeof(ItemsViewDeleteMode),
-            typeof(ItemView),
-            new PropertyMetadata(ItemsViewDeleteMode.Disabled));
-
-    public ItemsViewDeleteMode DeleteMode
-    {
-        get => (ItemsViewDeleteMode)GetValue(DeleteModeProperty);
-        set
-        {
-            SetValue(DeleteModeProperty, value);
-            SetDeleteState(value == ItemsViewDeleteMode.Enabled);
-        }
     }
 
     public static readonly DependencyProperty AddItemButtonProperty
         = DependencyProperty.Register(
             nameof(AddItemButton),
             typeof(bool),
-            typeof(ItemView),
+            typeof(CustomItemsView),
             new PropertyMetadata(true));
-
+    
     public bool AddItemButton
     {
         get => (bool)GetValue(AddItemButtonProperty);
         set
         {
             SetValue(AddItemButtonProperty, value);
-            var addItem = ItemsSource.FirstOrDefault(t => t is AddItem);
-            if (!value)
-            {
-                if (addItem != null)
-                {
-                    ItemsSource.Remove(addItem);
-                }
-            }
-            else
-            {
-                if (addItem == null)
-                {
-                    addItem = new AddItem();
-                    ItemsSource.Add(addItem);
-                }
-            }
+            HandleAddItemButton();
         }
     }
 
@@ -146,9 +120,9 @@ public sealed partial class ItemView
         = DependencyProperty.Register(
             nameof(ShowScrollButtons),
             typeof(bool),
-            typeof(ItemView),
+            typeof(CustomItemsView),
             new PropertyMetadata(true));
-
+    
     public bool ShowScrollButtons
     {
         get => (bool)GetValue(ShowScrollButtonsProperty);
@@ -171,7 +145,7 @@ public sealed partial class ItemView
         = DependencyProperty.Register(
             nameof(Layout),
             typeof(Layout),
-            typeof(ItemView),
+            typeof(CustomItemsView),
             new PropertyMetadata(new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }));
 
     public Layout Layout
@@ -184,7 +158,7 @@ public sealed partial class ItemView
         = DependencyProperty.Register(
             nameof(ItemTemplate),
             typeof(DataTemplate),
-            typeof(ItemView),
+            typeof(CustomItemsView),
             new PropertyMetadata(null));
 
     public DataTemplate ItemTemplate
@@ -193,84 +167,47 @@ public sealed partial class ItemView
         set => SetValue(ItemTemplateProperty, value);
     }
 
+    public event TypedEventHandler<object, object>? RemoveItemsInvoked;
+    public event TypedEventHandler<object, ICollection<object>>? SelectItemsInvoked;
+    
     private DateTime _lastScrollTime = DateTime.Now;
 
     private int _operationCount;
-
-    public ItemView()
+    
+    public CustomItemsView()
     {
-        _ = ItemsSource;
         InitializeComponent();
-        ItemsViewer.SizeChanged += (_, _) => UpdateScrollButtonsVisibility();
-
-        ItemsViewer.Loaded += (_, _) =>
-        {
-            ItemsRepeater? itemsRepeater = ItemsViewer.FindDescendants().OfType<ItemsRepeater>()
-                .FirstOrDefault(i => i.Name == "PART_ItemsRepeater");
-            if (itemsRepeater == null) return;
-
-            itemsRepeater.ElementPrepared += (_, args) =>
-            {
-                var itemContainer = (ItemContainer)args.Element;
-                itemContainer.ApplyTemplate();
-                VisualStateManager.GoToState(itemContainer,
-                    DeleteMode == ItemsViewDeleteMode.Enabled ? "EnableDelete" : "DisableDelete", true);
-            };
-
-            SetDeleteState(DeleteMode == ItemsViewDeleteMode.Enabled);
-        };
+        ItemsSource = [new AddItem()];
+        // ItemsSource.CollectionChanged += OnCollectionChanged;
+        ItemsView.SizeChanged += (_, _) => UpdateScrollButtonsVisibility();
     }
 
-    private ScrollView? ScrollView => ItemsViewer.FindDescendants().OfType<ScrollView>()
-        .FirstOrDefault(i => i.Name == "PART_ScrollView");
-
-    public event TypedEventHandler<object, ICollection<object>>? RemoveItemsInvoked;
-    public event TypedEventHandler<object, ICollection<object>>? SelectItemsInvoked;
+    private void HandleAddItemButton()
+    {
+        var addItem = ItemsSource.FirstOrDefault(t => t is AddItem);
+        if (!AddItemButton)
+        {
+            if (addItem != null)
+            {
+                ItemsSource.Remove(addItem);
+            }
+        }
+        else if (addItem == null)
+        {
+            addItem = new AddItem();
+            ItemsSource.Add(addItem);
+        }
+    }
 
     public ICollection<T> GetItemSource<T>()
     {
         return ItemsSource.Where(e => e is T and not AddItem).Cast<T>().ToList();
     }
+    
+    private ScrollView? ScrollView => ItemsView.FindDescendants().OfType<ScrollView>()
+        .FirstOrDefault(i => i.Name == "PART_ScrollView");
 
-    private async void OnCollectionChanged(object? sender,
-        NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
-    {
-        if (AddItemButton && sender is ObservableCollection<object> collection)
-        {
-            await Task.Delay(1);
-            var addItem = collection.FirstOrDefault(t => t is AddItem);
-
-            if (addItem != null)
-            {
-                var index = collection.IndexOf(addItem);
-                if (index != collection.Count - 1)
-                {
-                    collection.Move(index, collection.Count - 1);
-                }
-            }
-            else
-            {
-                addItem = new AddItem();
-                collection.Add(addItem);
-            }
-        }
-    }
-
-    private void SetDeleteState(bool state)
-    {
-        ItemsRepeater? itemsRepeater = ItemsViewer.FindDescendants().OfType<ItemsRepeater>()
-            .FirstOrDefault(i => i.Name == "PART_ItemsRepeater");
-        if (itemsRepeater == null) return;
-
-        var count = VisualTreeHelper.GetChildrenCount(itemsRepeater);
-        for (var childIndex = 0; childIndex < count; childIndex++)
-        {
-            var itemContainer = (ItemContainer)VisualTreeHelper.GetChild(itemsRepeater, childIndex);
-            VisualStateManager.GoToState(itemContainer, state ? "EnableDelete" : "DisableDelete", true);
-        }
-    }
-
-    public void UpdateScrollButtonsVisibility(object? n = null, object? n2 = null)
+    private void UpdateScrollButtonsVisibility(object? n = null, object? n2 = null)
     {
         if (!ShowScrollButtons || ScrollView == null)
         {
@@ -298,42 +235,29 @@ public sealed partial class ItemView
 
     private void ScrollBackBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (ScrollView == null)
-        {
-            return;
-        }
-
+        if (ScrollView == null) return;
         ScrollBy(-ScrollView.ViewportWidth);
     }
 
     private void ScrollForwardBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (ScrollView == null)
-        {
-            return;
-        }
-
+        if (ScrollView == null) return;
         ScrollBy(ScrollView.ViewportWidth);
     }
 
     private void PART_DeleteButton_OnClick(object sender, RoutedEventArgs e)
     {
         var button = (Button)sender;
-        TextBlock? textBlock = ((Grid)button.Parent).FindDescendants().OfType<TextBlock>()
-            .FirstOrDefault(t => t.Name == "TextBlock");
-        if (textBlock == null) return;
-        RemoveItem(textBlock.Tag);
+        CustomItemContainer? customItemContainer = button.FindAscendant<CustomItemContainer>();
+        if (customItemContainer != null)
+        {
+            RemoveItem(customItemContainer.DataContext);
+        }
     }
 
     public void RemoveItem(object item)
     {
-        var itemToRemove = ItemsSource.FirstOrDefault(i => i == item);
-
-        if (itemToRemove != null)
-        {
-            ItemsSource.Remove(itemToRemove);
-            RemoveItemsInvoked?.Invoke(this, GetItemSource<object>());
-        }
+        RemoveItemsInvoked?.Invoke(this, item);
     }
 
     private void PART_AddButton_OnClick(object sender, RoutedEventArgs e)
@@ -343,7 +267,7 @@ public sealed partial class ItemView
 
     private void PART_ScrollView_OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
     {
-        if (ScrollView == null)
+        if (ScrollView == null || ScrollView.ScrollableWidth == 0)
         {
             return;
         }
@@ -394,11 +318,3 @@ public sealed partial class ItemView
         _lastScrollTime = DateTime.Now;
     }
 }
-
-// public class CustomItemsView : ItemsView
-// {
-//     public CustomItemsView()
-//     {
-//         ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
-//     }
-// }

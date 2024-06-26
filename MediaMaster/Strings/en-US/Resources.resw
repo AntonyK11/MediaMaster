@@ -183,4 +183,10 @@
   <data name="AppTitleBar.Subtitle" xml:space="preserve">
     <value>beta</value>
   </data>
+  <data name="CustomItemsView_ScrollForwardButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Scroll Right</value>
+  </data>
+  <data name="CustomItemsView_ScrollBackButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Scroll Left</value>
+  </data>
 </root>

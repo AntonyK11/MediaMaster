@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase.Models;
 using Windows.Storage;
@@ -13,6 +14,11 @@ public class MediaDbContext : DbContext
 
     public DbSet<MediaTag> MediaTags { get; init; }
     public DbSet<TagTag> TagTags { get; init; }
+
+    public static Tag? FileTag;
+    public static Tag? WebsiteTag;
+    public static Tag? FavoriteTag;
+    public static Tag? ArchivedTag;
 
     private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
     //private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
@@ -66,41 +72,57 @@ public class MediaDbContext : DbContext
         //ChangeTracker.StateChanged += Timestamps.UpdateTimestamps;
         //ChangeTracker.Tracked += Timestamps.UpdateTimestamps;
 
-        var file = new Tag
-        {
-            Name = "File",
-            Shorthand = "file",
-            Protected = true,
-            Aliases = { "Hello", "hi", "how are you ?ssdasdasd asd adf sdfgsdf gdfsg  vngbmntghd  nf nf nn nNN NNNNNNNN " }
-        };
-        await Tags.AddAsync(file);
+        ICollection<Tag> tags = Tags.AsNoTracking().ToList();
 
-        var website = new Tag
+        if (tags.FirstOrDefault(t => t.Name == "File") is not { } fileTag)
         {
-            Name = "Website",
-            Shorthand = "web",
-            Protected = true,
-            Aliases = { "Hello", "hi", "how are you ?" }
-        };
-        await Tags.AddAsync(website);
+            fileTag = new Tag
+            {
+                Name = "File",
+                Shorthand = "file",
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete
+            };
+            await Tags.AddAsync(fileTag);
+        }
+        FileTag = fileTag;
 
-        var favorite = new Tag
+        if (tags.FirstOrDefault(t => t.Name == "Website") is not { } websiteTag)
         {
-            Name = "Favorite",
-            Protected = true,
-            Aliases = { "Favorited", "Favorites" },
-            Argb = -204544
-        };
-        await Tags.AddAsync(favorite);
+            websiteTag = new Tag
+            {
+                Name = "Website",
+                Shorthand = "web",
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete
+            };
+            await Tags.AddAsync(websiteTag);
+        }
+        WebsiteTag = websiteTag;
 
-        var archived = new Tag
+        if (tags.FirstOrDefault(t => t.Name == "Favorite") is not { } favoriteTag)
         {
-            Name = "Archived",
-            Protected = true,
-            Aliases = { "Archive" },
-            Argb = -3921124
-        };
-        await Tags.AddAsync(archived);
+            favoriteTag = new Tag
+            {
+                Name = "Favorite",
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete | TagPermissions.CannotChangeColor,
+                Aliases = { "Favorited", "Favorites" },
+                Argb = -204544
+            };
+            await Tags.AddAsync(favoriteTag);
+        }
+        FavoriteTag = favoriteTag;
+
+        if (tags.FirstOrDefault(t => t.Name == "Archived") is not { } archivedTag)
+        {
+            archivedTag = new Tag
+            {
+                Name = "Archived",
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete | TagPermissions.CannotChangeColor,
+                Aliases = { "Archive" },
+                Argb = -3921124
+            };
+            await Tags.AddAsync(archivedTag);
+        }
+        ArchivedTag = archivedTag;
 
         await SaveChangesAsync();
 
@@ -119,30 +141,30 @@ public class MediaDbContext : DbContext
         //}
     }
 
-    public void AddTag(string name, IEnumerable<Tag> parents)
-    {
-        Tag tag = this.CreateProxy<Tag>(t =>
-        {
-            t.Name = name;
-            foreach (Tag tag in parents)
-            {
-                t.Parents.Add(tag);
-            }
-        });
-        Tags.Add(tag);
-    }
+    //public void AddTag(string name, IEnumerable<Tag> parents)
+    //{
+    //    Tag tag = this.CreateProxy<Tag>(t =>
+    //    {
+    //        t.Name = name;
+    //        foreach (Tag tag in parents)
+    //        {
+    //            t.Parents.Add(tag);
+    //        }
+    //    });
+    //    Tags.Add(tag);
+    //}
 
-    public void AddMedia(string name, string path, IEnumerable<Tag> tags)
-    {
-        Media media = this.CreateProxy<Media>(m =>
-        {
-            m.Name = name;
-            m.FilePath = path;
-            foreach (Tag tag in tags)
-            {
-                m.Tags.Add(tag);
-            }
-        });
-        Medias.Add(media);
-    }
+    //public void AddMedia(string name, string path, IEnumerable<Tag> tags)
+    //{
+    //    Media media = this.CreateProxy<Media>(m =>
+    //    {
+    //        m.Name = name;
+    //        m.FilePath = path;
+    //        foreach (Tag tag in tags)
+    //        {
+    //            m.Tags.Add(tag);
+    //        }
+    //    });
+    //    Medias.Add(media);
+    //}
 }

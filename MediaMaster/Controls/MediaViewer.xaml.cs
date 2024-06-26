@@ -23,9 +23,8 @@ public sealed partial class MediaViewer : UserControl
     {
         InitializeComponent();
 
-        TagView.SelectTagsInvoked += async (_, tags) => await SelectTags(TagView.GetItemSource());
-
-        TagView.RemoveTagsInvoked += async (_, tags) => await SelectTags(tags);
+        TagView.SelectTagsInvoked += async (_, _) => await SelectTags(TagView.Tags);
+        TagView.RemoveTagsInvoked += async (_, _) => await SelectTags(TagView.Tags);
     }
 
     public Media? Media

@@ -1,15 +1,39 @@
-using System.Collections.ObjectModel;
+using System.Collections;
 using Windows.Foundation;
-using Windows.System;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
+using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
+
+
+public class TagsComparer : IComparer
+{
+    public static readonly IComparer Instance = new TagsComparer();
+
+    public int Compare(object? x, object? y)
+    {
+        var result = ItemsComparer.Instance.Compare(x, y);
+
+        if (result != 0)
+        {
+            return result;
+        }
+
+        Tag? tag1 = x is not Tag tag_1 ? null : tag_1;
+        Tag? tag2 = y is not Tag tag_2 ? null : tag_2;
+
+        var cx = tag1?.Name as IComparable;
+        var cy = tag2?.Name as IComparable;
+
+        // ReSharper disable once PossibleUnintendedReferenceComparison
+        return cx == cy ? 0 : cx == null ? -1 : cy == null ? +1 : cx.CompareTo(cy);
+    }
+}
 
 public sealed partial class TagView : UserControl
 {
@@ -24,19 +48,6 @@ public sealed partial class TagView : UserControl
     {
         get => (ItemsViewSelectionMode)GetValue(SelectionModeProperty);
         set => SetValue(SelectionModeProperty, value);
-    }
-    
-    public static readonly DependencyProperty DeleteModeProperty
-        = DependencyProperty.Register(
-            nameof(DeleteMode),
-            typeof(ItemsViewDeleteMode),
-            typeof(TagView),
-            new PropertyMetadata(ItemsViewDeleteMode.Disabled));
-
-    public ItemsViewDeleteMode DeleteMode
-    {
-        get => (ItemsViewDeleteMode)GetValue(DeleteModeProperty);
-        set => SetValue(DeleteModeProperty, value);
     }
     
     public static readonly DependencyProperty AddTagButtonProperty
@@ -112,18 +123,21 @@ public sealed partial class TagView : UserControl
         }
     }
     
-    public event TypedEventHandler<object, ICollection<Tag>>? RemoveTagsInvoked;
+    public event TypedEventHandler<object, Tag>? RemoveTagsInvoked;
     public event TypedEventHandler<object, ICollection<int>>? SelectTagsInvoked;
+
+    public ICollection<Tag> Tags = [];
     
     public TagView()
     {
         InitializeComponent();
+        CustomItemsView.Comparer = TagsComparer.Instance;
         _ = UpdateItemSource();
 
-        ItemView.SelectItemsInvoked += async (_, tags) =>
+        CustomItemsView.SelectItemsInvoked += async (_, _) =>
         {
-            List<int> tagIds = tags.Where(t => t is Tag).Cast<Tag>().Select(t => t.TagId).ToList();
-            (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : []);
+            List<int> tagIds = Tags.Select(t => t.TagId).ToList();
+            (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : [], MediaId == null);
 
             if (selectTagsDialog != null)
             {
@@ -133,31 +147,32 @@ public sealed partial class TagView : UserControl
             SelectTagsInvoked?.Invoke(this, tagIds);
         };
 
-        ItemView.RemoveItemsInvoked += async (_, tags) =>
+        CustomItemsView.RemoveItemsInvoked += async (_, tagObject) =>
         {
-            List<Tag> collection = tags.Where(t => t is Tag).Cast<Tag>().ToList();
-            await UpdateItemSource(collection);
-            RemoveTagsInvoked?.Invoke(this, collection);
+            var tagId = (int)tagObject;
+            var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
+            
+            if (tag == null) return;
+            
+            if (!(tag.Flags.HasFlag(TagFlags.Extension) && MediaId != null))
+            {
+                var tagToRemove = Tags.FirstOrDefault(t => t.TagId == tag.TagId);
+                if (tagToRemove == null) return;
+                Tags.Remove(tagToRemove);
+                RemoveTagsInvoked?.Invoke(this, tag);
+                await UpdateItemSource(Tags);
+            }
         };
     }
 
     public ICollection<Tag> GetItemSource()
     {
-        return ItemView.GetItemSource<Tag>();
-    }
-
-    private void OnKeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        if (DeleteMode == ItemsViewDeleteMode.Enabled && e.Key is VirtualKey.Delete)
-        {
-            var tag = ((ItemContainer)sender).Tag;
-            ItemView.RemoveItem(tag);
-        }
+        return CustomItemsView.GetItemSource<Tag>();
     }
 
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).Tag;
+        var tagId = (int)((FrameworkElement)sender).DataContext;
         await CreateEditDeleteTagDialog.ShowDialogAsync(tagId);
 
         await UpdateItemSource();
@@ -165,12 +180,12 @@ public sealed partial class TagView : UserControl
 
     private void RemoveTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        ItemView.RemoveItem(((FrameworkElement)sender).Tag);
+        CustomItemsView.RemoveItem(((FrameworkElement)sender).DataContext);
     }
 
     private async void DuplicateTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).Tag;
+        var tagId = (int)((FrameworkElement)sender).DataContext;
 
         Tag? tag;
         await using (var database = new MediaDbContext())
@@ -179,6 +194,7 @@ public sealed partial class TagView : UserControl
             if (tag == null) return;
         }
 
+        tag.Permissions = 0;
         await CreateEditDeleteTagDialog.ShowDialogAsync(tag: tag);
 
         await UpdateItemSource();
@@ -186,7 +202,7 @@ public sealed partial class TagView : UserControl
 
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).Tag;
+        var tagId = (int)((FrameworkElement)sender).DataContext;
         var result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
 
         if (result == ContentDialogResult.Primary)
@@ -197,31 +213,84 @@ public sealed partial class TagView : UserControl
 
     public async Task UpdateItemSource(ICollection<Tag>? tags = null, bool refreshAll = false)
     {
+        Tags = tags ?? [];
         if (tags == null)
         {
             await using (MediaDbContext dataBase = new())
             {
                 if (MediaId != null)
                 {
-                    tags = dataBase.Medias.Select(m => new { m.MediaId, m.Tags }).FirstOrDefault(m => m.MediaId == MediaId)?.Tags;
+                    Tags = dataBase.Medias.Select(m => new { m.MediaId, m.Tags }).FirstOrDefault(m => m.MediaId == MediaId)?.Tags.ToList() ?? [];
                 }
                 else if (TagId != null)
                 {
                     if (refreshAll)
                     {
-                        tags = dataBase.Tags.Select(t => new { t.TagId, t.Parents }).FirstOrDefault(t => t.TagId == TagId)?.Parents.ToList();
+                        Tags = dataBase.Tags.Select(t => new { t.TagId, t.Parents }).FirstOrDefault(t => t.TagId == TagId)?.Parents.ToList() ?? [];
                     }
                     else if (GetItemSource().Count != 0)
                     {
-                        tags = dataBase.Tags.Where(dbTag => GetItemSource().Select(t => t.TagId).Contains(dbTag.TagId)).ToList();
+                        Tags = dataBase.Tags.Where(tag => GetItemSource().Select(t => t.TagId).Contains(tag.TagId)).ToList();
                     }
                 }
             }
         }
 
-        if (tags != null)
+        var showExtensions = App.GetService<SettingsService>().ShowExtensions;
+        tags = Tags.Where(t => !(t.Flags.HasFlag(TagFlags.Extension) && !showExtensions)).OrderBy(e => e.Name).ToList();
+
+        foreach (var obj in CustomItemsView.ItemsSource.ToList())
         {
-            ItemView.ItemsSource = new ObservableCollection<object>(tags.OrderBy(e => e.Name));
+            if (obj is not Tag tag) continue;
+
+            var dbTag = tags.FirstOrDefault(t => t.TagId == tag.TagId);
+            if (dbTag == null || tag.Name != dbTag.Name || tag.Flags != dbTag.Flags || tag.Permissions != dbTag.Permissions || tag.DisplayName != dbTag.DisplayName)
+            {
+                CustomItemsView.ItemsSource.Remove(tag);
+            }
+            else
+            {
+                tags.Remove(dbTag);
+            }
+        }
+        
+        foreach (var obj in tags)
+        {
+            CustomItemsView.ItemsSource.Add(obj);
+        }
+    }
+
+    private void RemoveTagFlyout_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+
+        var tagId = (int)sender.DataContext;
+        var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
+
+        if (tag == null) return;
+
+        if (!(tag.Flags.HasFlag(TagFlags.Extension) && MediaId != null))
+        {
+            sender.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            sender.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void CustomItemContainer_Loaded(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+        var tagId = (int)sender.DataContext;
+        var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
+
+        if (tag == null) return;
+        if (!(tag.Flags.HasFlag(TagFlags.Extension) && MediaId != null))
+        {
+            ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Visible;
+        }
+        else
+        {
+            ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Collapsed;
         }
     }
 }

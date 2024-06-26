@@ -8,63 +8,61 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollView Background="{x:Bind Background, Mode=OneWay}" CornerRadius="{x:Bind CornerRadius, Mode=OneWay}">
-        <Grid RowSpacing="16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="300" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+    <Grid
+        Background="{x:Bind Background, Mode=OneWay}"
+        CornerRadius="{x:Bind CornerRadius, Mode=OneWay}"
+        RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="300" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border
+            Grid.Row="0"
+            HorizontalAlignment="Stretch"
+            Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <local:MediaIcon
+                x:Name="MediaIcon"
+                MaxHeight="300"
+                ImageMode="ThumbnailOnly" />
+        </Border>
+
+        <Grid
+            Grid.Row="1"
+            MinHeight="24"
+            Margin="16,0"
+            HorizontalAlignment="Center"
+            ColumnSpacing="12">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
             <Border
-                Grid.Row="0"
-                HorizontalAlignment="Stretch"
-                Background="{ThemeResource LayerFillColorDefaultBrush}">
-                <local:MediaIcon
-                    x:Name="MediaIcon"
-                    MaxHeight="300"
-                    ImageMode="ThumbnailOnly" />
+                Grid.Column="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                CornerRadius="4">
+                <Image Name="MediaExtensionIcon" />
             </Border>
 
-            <Grid
-                Grid.Row="1"
-                MinHeight="24"
-                Margin="16,0"
-                HorizontalAlignment="Center"
-                ColumnSpacing="12">
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="24" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Border
-                    Grid.Column="0"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    CornerRadius="4">
-                    <Image Name="MediaExtensionIcon" />
-                </Border>
-
-                <TextBlock
-                    Grid.Column="1"
-                    VerticalAlignment="Center"
-                    Style="{StaticResource BodyStrongTextBlockStyle}"
-                    Text="{x:Bind Media.Name, Mode=OneWay, FallbackValue=Media_not_found}"
-                    TextWrapping="WrapWholeWords" />
-            </Grid>
-
-            <local:TagView
-                x:Name="TagView"
-                Grid.Row="2"
-                DeleteMode="Enabled">
-
-                <local:TagView.Layout>
-                    <FlowLayout MinColumnSpacing="4" MinRowSpacing="4" />
-                </local:TagView.Layout>
-
-            </local:TagView>
-
+            <TextBlock
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Style="{StaticResource BodyStrongTextBlockStyle}"
+                Text="{x:Bind Media.Name, Mode=OneWay, FallbackValue=Media_not_found}"
+                TextWrapping="WrapWholeWords" />
         </Grid>
-    </ScrollView>
+
+        <local:TagView x:Name="TagView" Grid.Row="2">
+
+            <local:TagView.Layout>
+                <FlowLayout MinColumnSpacing="4" MinRowSpacing="4" />
+            </local:TagView.Layout>
+
+        </local:TagView>
+
+    </Grid>
 </UserControl>

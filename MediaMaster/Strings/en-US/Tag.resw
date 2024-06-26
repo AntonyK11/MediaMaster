@@ -136,7 +136,8 @@
     <value>Create Tag</value>
   </data>
   <data name="DeleteDialog.Content" xml:space="preserve">
-    <value>Are you sure you want to delete this tag ? This action is permanent and cannot be undone.</value>
+    <value>Are you sure you want to delete this tag ?
+This action is permanent and cannot be undone.</value>
   </data>
   <data name="DeleteDialog.PrimaryButtonText" xml:space="preserve">
     <value>Delete</value>
@@ -188,5 +189,11 @@
   </data>
   <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="ItemView_ScrollForwardButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Scroll right</value>
+  </data>
+  <data name="ItemView_ScrollBackButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Scroll left</value>
   </data>
 </root>

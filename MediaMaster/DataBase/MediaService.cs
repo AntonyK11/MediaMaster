@@ -27,8 +27,8 @@ public class MediaService
 
             await using (MediaDbContext dataBase = new())
             {
-                IDictionary<string, Tag> tags = await dataBase.Tags.AsNoTracking().ToDictionaryAsync(t => t.Name);
-                IDictionary<string, int> medias = await dataBase.Medias.AsNoTracking().ToDictionaryAsync(m => m.FilePath, m => m.MediaId);
+                IDictionary<string, Tag> tags = await dataBase.Tags.AsNoTracking().Select(t => new Tag{ TagId = t.TagId, Name = t.Name }).ToDictionaryAsync(t => t.Name);
+                IDictionary<string, int> medias = await dataBase.Medias.AsNoTracking().Select(m => new { m.MediaId, m.FilePath }).ToDictionaryAsync(m => m.FilePath, m => m.MediaId);
 
                 ICollection<Tag> newTags = [];
                 ICollection<Media> newMedias = [];
@@ -51,9 +51,18 @@ public class MediaService
 
                 await dataBase.BulkInsertAsync(mediaTags);
 
+                var tagTags = newTags.SelectMany(tag => tag.Parents.Select(parent => new TagTag
+                {
+                    ParentsTagId = parent.TagId,
+                    ChildrenTagId = tag.TagId
+                })).ToList();
+
+                await dataBase.BulkInsertAsync(tagTags);
+
                 Debug.WriteLine($"Media: {newMedias.Count}");
                 Debug.WriteLine($"Tags: {newTags.Count}");
                 Debug.WriteLine($"MediaTags: {mediaTags.Count}");
+                Debug.WriteLine($"MediaTags: {tagTags.Count}");
             }
         }
         catch (Exception e)
@@ -102,8 +111,14 @@ public class MediaService
         {
             tag = new Tag
             {
-                Name = extension
+                Name = extension,
+                Flags = TagFlags.Extension,
+                Permissions = TagPermissions.CannotChangeName | TagPermissions.CannotChangeParents | TagPermissions.CannotDelete
             };
+            if (MediaDbContext.FileTag != null)
+            {
+                tag.Parents.Add(MediaDbContext.FileTag);
+            }
             tags.Add(extension, tag);
             newTags.Add(tag);
         }

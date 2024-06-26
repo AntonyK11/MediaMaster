@@ -40,6 +40,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         ViewModel.Name = tag.Name;
         ViewModel.Shorthand = tag.Shorthand;
         ViewModel.Color = tag.Color.ToWindowsColor();
+        ViewModel.Permissions = tag.Permissions;
 
         Color color = ViewModel.Color.ToSystemColor();
         CheckColorContrast(color);
@@ -84,6 +85,10 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         };
 
         Uids.SetUid(dialog, tagId == null ? "/Tag/CreateDialog" : "/Tag/EditDialog");
+        if (tagDialog._tag?.Permissions.HasFlag(TagPermissions.CannotDelete) is true)
+        {
+            dialog.SecondaryButtonText = "";
+        }
 
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
@@ -125,6 +130,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             DefaultButton = ContentDialogButton.Primary,
         };
         Uids.SetUid(dialog, "/Tag/DeleteDialog");
+        dialog.DefaultButton = ContentDialogButton.Close;
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();

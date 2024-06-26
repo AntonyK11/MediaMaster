@@ -1,15 +1,10 @@
-﻿using System.Diagnostics;
-using Microsoft.UI.Xaml.Media.Imaging;
-using System.Drawing.Imaging;
-using System.Drawing;
+﻿using Microsoft.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices;
 using CommunityToolkit.WinUI;
 using static MediaMaster.Services.WindowsNativeValues;
 using static MediaMaster.Services.WindowsApiService;
 using Microsoft.UI.Xaml.Media;
 using System.Runtime.InteropServices.WindowsRuntime;
-using MediaMaster.Controls;
-using Microsoft.Identity.Client;
 
 namespace MediaMaster.Services;
 
