@@ -42,7 +42,7 @@ public static class ContentDialogExtensions
     private class Dialog(ContentDialog contentDialog)
     {
         private bool _wasHidden;
-        private readonly TaskCompletionSource<bool> _tcs = new();
+        private readonly TaskCompletionSource _tcs = new();
 
         public async Task<ContentDialogResult?> ShowAsync()
         {
@@ -53,7 +53,7 @@ public static class ContentDialogExtensions
                 return null;
             }
 
-            _tcs.SetResult(true);
+            _tcs.SetResult();
             return result;
         }
 

@@ -198,7 +198,7 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Click="PART_DeleteButton_OnClick"
-                                    Content="&#xE894;"
+                                    Content="&#xE711;"
                                     FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                     FontSize="13"
                                     IsTabStop="False"

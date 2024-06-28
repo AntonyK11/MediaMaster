@@ -39,6 +39,8 @@ public class Tag
 
     public virtual string Shorthand { get; set; } = "";
 
+    public virtual string FirstParentReferenceName { get; set; } = "";
+
     public virtual TagFlags Flags { get; set; }
 
     public virtual TagPermissions Permissions { get; set; }
@@ -53,40 +55,23 @@ public class Tag
 
     public int? Argb { get; set; }
 
-    private string? _displayName;
+    public string GetReferenceName()
+    {
+        return Shorthand.IsNullOrEmpty() ? Name : Shorthand;
+    }
+
+    private Color? _color;
+    private Color? _textColor;
     private string _oldName = "";
+    private int? _oldargb;
+    private Color? _oldcolor;
 
     [NotMapped]
     public string DisplayName
     {
         get
         {
-
-            if (_displayName != null && _oldName == Name) return _displayName;
-            _oldName = Name;
-
-            using (var database = new MediaDbContext())
-            {
-                //var parentId = database.TagTags.AsNoTracking().FirstOrDefault(t => t.ChildrenTagId == TagId)?.ParentsTagId;
-                var parent = database.Tags.AsNoTracking().Select(t => new { t.TagId, Parents = t.Parents.Select(p => new { p.Name, p.Shorthand }) }).FirstOrDefault(t => t.TagId == TagId)?.Parents.MinBy(t => t.Name);
-                //if (parentId != null)
-                //{
-                    //var parent = database.Tags.AsNoTracking().Select(t => new { t.TagId, t.Name, t.Shorthand }).FirstOrDefault(t => t.TagId == (int)parentId);
-                    if (parent != null)
-                    {
-                        var parentShortHand = parent.Shorthand;
-                        if (parentShortHand.IsNullOrEmpty())
-                        {
-                            parentShortHand = parent.Name;
-                        }
-
-                        _displayName = $"{Name} ({parentShortHand})";
-                        return _displayName;
-                    }
-                //}
-                _displayName = Name;
-            }
-            return _displayName;
+            return FirstParentReferenceName.IsNullOrEmpty() ? Name : $"{Name} ({FirstParentReferenceName})";
         }
     }
 
@@ -95,7 +80,15 @@ public class Tag
     {
         get
         {
-            return Argb == null ? Name.CalculateColor() : Color.FromArgb((int)Argb);
+            if (_color != null && _oldargb == Argb && (Argb != null || _oldName == Name))
+            {
+                return (Color)_color;
+            }
+
+            _oldName = Name;
+            _oldargb = Argb;
+            _color = Argb == null ? Name.CalculateColor() : Color.FromArgb((int)Argb);
+            return (Color)_color;
         }
         set
         {
@@ -103,7 +96,20 @@ public class Tag
         }
     }
 
-    [NotMapped] public virtual Color TextColor => Color.CalculateColorText();
+    [NotMapped] public virtual Color TextColor
+    {
+        get
+        {
+            if (_textColor != null && _oldcolor == Color)
+            {
+                return (Color)_textColor;
+            }
+
+            _oldcolor = Color;
+            _textColor = Color.CalculateColorText();
+            return (Color)_textColor;
+        }
+    }
 
     [NotMapped] 
     public virtual SolidColorBrush ColorBrush

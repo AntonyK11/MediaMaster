@@ -20,8 +20,8 @@
                 DataContextChanged="CustomItemContainer_Loaded"
                 Foreground="{x:Bind TextColorBrush}">
                 <TextBlock
-                    x:Name="TextBlock"
                     Padding="8,0,4,0"
+                    VerticalAlignment="Center"
                     Text="{x:Bind DisplayName}" />
                 <ItemContainer.ContextFlyout>
                     <MenuFlyout>

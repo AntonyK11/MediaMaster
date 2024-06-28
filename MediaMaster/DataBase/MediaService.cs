@@ -27,7 +27,7 @@ public class MediaService
 
             await using (MediaDbContext dataBase = new())
             {
-                IDictionary<string, Tag> tags = await dataBase.Tags.AsNoTracking().Select(t => new Tag{ TagId = t.TagId, Name = t.Name }).ToDictionaryAsync(t => t.Name);
+                IDictionary<string, Tag> tags = await dataBase.Tags.AsNoTracking().Select(t => new Tag{ TagId = t.TagId, Name = t.Name }).GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
                 IDictionary<string, int> medias = await dataBase.Medias.AsNoTracking().Select(m => new { m.MediaId, m.FilePath }).ToDictionaryAsync(m => m.FilePath, m => m.MediaId);
 
                 ICollection<Tag> newTags = [];
@@ -118,6 +118,7 @@ public class MediaService
             if (MediaDbContext.FileTag != null)
             {
                 tag.Parents.Add(MediaDbContext.FileTag);
+                tag.FirstParentReferenceName = MediaDbContext.FileTag.GetReferenceName();
             }
             tags.Add(extension, tag);
             newTags.Add(tag);

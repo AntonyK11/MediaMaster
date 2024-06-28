@@ -15,9 +15,9 @@ namespace MediaMaster.Views.Dialog;
 public sealed partial class CreateEditDeleteTagDialog : Page
 {
     public EditTagDialogViewModel ViewModel = new();
-    private readonly Tag? _tag;
+    public readonly Tag? CurrentTag;
 
-    public CreateEditDeleteTagDialog(int? tagId = null, Tag? tag = null)
+    public CreateEditDeleteTagDialog(int? tagId = null, Tag? tagParam = null)
     {
         InitializeComponent();
 
@@ -25,22 +25,23 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         {
             using (var database = new MediaDbContext())
             {
-                tag = database.Tags.FirstOrDefault(t => t.TagId == tagId);
+                tagParam = database.Tags.FirstOrDefault(t => t.TagId == tagId);
             }
             TagView.TagId = tagId;
-            _tag = tag;
         }
-        else if (tag != null)
+        else if (tagParam != null)
         {
-            _ = TagView.UpdateItemSource(tag.Parents);
+            _ = TagView.UpdateItemSource(tagParam.Parents);
         }
+        CurrentTag = tagParam;
 
-        if (tag == null) return;
-        AliasesListView.Strings = tag.Aliases;
-        ViewModel.Name = tag.Name;
-        ViewModel.Shorthand = tag.Shorthand;
-        ViewModel.Color = tag.Color.ToWindowsColor();
-        ViewModel.Permissions = tag.Permissions;
+        if (CurrentTag == null) return;
+
+        AliasesListView.Strings = CurrentTag.Aliases;
+        ViewModel.Name = CurrentTag.Name;
+        ViewModel.Shorthand = CurrentTag.Shorthand;
+        ViewModel.Color = CurrentTag.Color.ToWindowsColor();
+        ViewModel.Permissions = CurrentTag.Permissions;
 
         Color color = ViewModel.Color.ToSystemColor();
         CheckColorContrast(color);
@@ -85,7 +86,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         };
 
         Uids.SetUid(dialog, tagId == null ? "/Tag/CreateDialog" : "/Tag/EditDialog");
-        if (tagDialog._tag?.Permissions.HasFlag(TagPermissions.CannotDelete) is true)
+        if (tagDialog.CurrentTag?.Permissions.HasFlag(TagPermissions.CannotDelete) is true)
         {
             dialog.SecondaryButtonText = "";
         }
@@ -151,23 +152,26 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         await using (MediaDbContext dataBase = new())
         {
             Tag? trackedTag;
-            if (_tag == null)
+            if (CurrentTag == null)
             {
                 trackedTag = new Tag();
             }
             else
             {
-                trackedTag = await dataBase.Tags.Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == _tag.TagId);
+                trackedTag = await dataBase.Tags.Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == CurrentTag.TagId);
             }
 
             if (trackedTag != null)
             {
                 trackedTag.Name = ViewModel.Name;
                 trackedTag.Shorthand = ViewModel.Shorthand;
+
+                trackedTag.FirstParentReferenceName = TagView.GetItemSource().MinBy(t => t.Name)?.GetReferenceName() ?? "";
+
                 trackedTag.Color = ViewModel.Color.ToSystemColor();
                 trackedTag.Aliases = AliasesListView.Strings?.ToList() ?? [];
 
-                if (_tag == null)
+                if (CurrentTag == null)
                 {
                     await dataBase.Tags.AddAsync(trackedTag);
                 }
@@ -183,18 +187,18 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 // Bulk add new tags
                 if (tagsToAdd.Count != 0)
                 {
-                    List<TagTag> newMediaTags = tagsToAdd.Select(tagId => new TagTag
+                    List<TagTag> newTagTags = tagsToAdd.Select(tagId => new TagTag
                         { ParentsTagId = tagId, ChildrenTagId = trackedTag.TagId }).ToList();
-                    await dataBase.BulkInsertAsync(newMediaTags);
+                    await dataBase.BulkInsertAsync(newTagTags);
                 }
 
                 // Bulk remove old tags
                 if (tagsToRemove.Count != 0)
                 {
-                    List<TagTag> mediaTagsToRemove = await dataBase.TagTags
+                    List<TagTag> tagTagsToRemove = await dataBase.TagTags
                         .Where(t => t.ChildrenTagId == trackedTag.TagId && tagsToRemove.Contains(t.ParentsTagId))
                         .ToListAsync();
-                    await dataBase.BulkDeleteAsync(mediaTagsToRemove);
+                    await dataBase.BulkDeleteAsync(tagTagsToRemove);
                 }
             }
         }

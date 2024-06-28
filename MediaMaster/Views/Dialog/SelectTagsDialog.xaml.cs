@@ -1,3 +1,4 @@
+using Windows.System;
 using CommunityToolkit.WinUI.Collections;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -6,12 +7,14 @@ using MediaMaster.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
 public sealed partial class SelectTagsDialog : Page
 {
+    public ICollection<Tag> Tags { get; private set; } = [];
     public ICollection<Tag> SelectedTags { get; private set; } = [];
     
     private readonly bool _showExtensions;
@@ -19,7 +22,6 @@ public sealed partial class SelectTagsDialog : Page
     private readonly ICollection<int> _tagsToExclude;
 
     private AdvancedCollectionView? _advancedCollectionView;
-    private ICollection<Tag> _tags = [];
     private bool _watchForSelectionChange = true;
 
     public SelectTagsDialog(ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
@@ -33,92 +35,60 @@ public sealed partial class SelectTagsDialog : Page
         UpdateItemSource(selectedTags);
     }
 
-    private void UpdateItemSource(ICollection<int>? selectedTags = null)
+    private async void UpdateItemSource(ICollection<int>? selectedTags = null)
+    {
+        await SetupTags(selectedTags ?? SelectedTags.Select(t => t.TagId).ToList());
+        TextBox_TextChanged(null, null);
+    }
+
+    private async Task SetupTags(ICollection<int> selectedTags)
     {
         _watchForSelectionChange = false;
-
-        SetupTags(selectedTags ?? SelectedTags.Select(t => t.TagId).ToList());
-        SelectTags();
-        TextBox_TextChanged(null, null);
-
-        _watchForSelectionChange = true;
-    }
-
-    private async void SetupTags(ICollection<int> selectedTags)
-    {
         await using (var database = new MediaDbContext())
         {
-            _tags = database.Tags.Where(tag => !_tagsToExclude.Contains(tag.TagId)).ToList();
+            Tags = database.Tags.Where(tag => !_tagsToExclude.Contains(tag.TagId)).ToList();
         }
 
-        _advancedCollectionView = new AdvancedCollectionView(_tags.Where(t => !(t.Flags.HasFlag(TagFlags.Extension) && !_showExtensions)).ToList(), true);
+        _advancedCollectionView = new AdvancedCollectionView(Tags.Where(t => _showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList());
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("Name", SortDirection.Ascending));
-        ListView.ItemsSource = _advancedCollectionView;
+        ItemsView.ItemsSource = _advancedCollectionView;
 
-        SelectedTags = _tags.Where(t => selectedTags.Contains(t.TagId)).ToList();
-    }
-
-    private void SelectTags()
-    {
-        foreach (Tag? tag in ((ICollection<object>)ListView.ItemsSource).Where(o => o is Tag).Cast<Tag>())
-        {
-            if (SelectedTags.Select(t => t.TagId).Contains(tag.TagId))
-            {
-                if (!ListView.SelectedItems.Contains(tag))
-                {
-                    ListView.SelectedItems.Add(tag);
-                }
-            }
-            else
-            {
-                if (ListView.SelectedItems.Contains(tag))
-                {
-                    ListView.SelectedItems.Remove(tag);
-                }
-            }
-        }
+        SelectedTags = Tags.Where(t => selectedTags.Contains(t.TagId)).ToList();
+        _watchForSelectionChange = true;
     }
 
     private void TextBox_TextChanged(object? sender, TextChangedEventArgs? args)
     {
-        List<object> selection = ListView.SelectedItems.ToList();
+        _watchForSelectionChange = false;
 
         var splitText = TextBox.Text.Trim().Split(" ");
         if (_advancedCollectionView != null)
         {
-            _advancedCollectionView.Filter = x =>
+            using (_advancedCollectionView.DeferRefresh())
             {
-                if (x is Tag tag)
+                _advancedCollectionView.Filter = x =>
                 {
-                    return splitText.All(key =>
-                        tag.Name.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
-                        tag.Shorthand.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
-                        tag.Aliases.Any(a => a.Contains(key, StringComparison.CurrentCultureIgnoreCase)));
-                }
+                    if (x is Tag tag)
+                    {
+                        return splitText.All(key =>
+                            tag.Name.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
+                            tag.Shorthand.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
+                            tag.Aliases.Any(a => a.Contains(key, StringComparison.CurrentCultureIgnoreCase)));
+                    }
 
-                return false;
-            };
+                    return false;
+                };
+            }
         }
 
-        foreach (var tag in selection)
-        {
-            ListView.SelectedItems.Add(tag);
-        }
+        _watchForSelectionChange = true;
     }
 
-    private void ListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void ListView_OnSelectionChanged(ItemsView itemsView, ItemsViewSelectionChangedEventArgs args)
     {
         if (_watchForSelectionChange)
         {
-            foreach (Tag tag in e.AddedItems.Where(t => !SelectedTags.Contains(t)))
-            {
-                SelectedTags.Add(tag);
-            }
-
-            foreach (var tagId in e.RemovedItems.Where(t => t is Tag).Cast<Tag>().Select(t => t.TagId))
-            {
-                SelectedTags.Remove(SelectedTags.FirstOrDefault(t => t.TagId == tagId) ?? new Tag());
-            }
+            SelectedTags = itemsView.SelectedItems.OfType<Tag>().ToList();
         }
     }
 
@@ -191,5 +161,30 @@ public sealed partial class SelectTagsDialog : Page
         } while (result == ContentDialogResult.Secondary);
 
         return (result, selectTagsDialog);
+    }
+
+    private void ItemsView_OnProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    {
+        if (args is { Modifiers: VirtualKeyModifiers.Control, Key: VirtualKey.A })
+        {
+            args.Handled = true;
+            var oldSelectionCount = ((ItemsView)sender).SelectedItems.Count;
+            ((ItemsView)sender).SelectAll();
+            var newSelectionCount = ((ItemsView)sender).SelectedItems.Count;
+            if (oldSelectionCount == newSelectionCount)
+            {
+                ((ItemsView)sender).DeselectAll();
+            }
+        }
+    }
+
+    private async void FrameworkElement_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+        _watchForSelectionChange = false;
+        var itemContainer = (ItemContainer)sender;
+        var tagId = (int)itemContainer.DataContext;
+        itemContainer.IsSelected = SelectedTags.Select(t => t.TagId).Contains(tagId);
+        await Task.Delay(1);
+        _watchForSelectionChange = true;
     }
 }

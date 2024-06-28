@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.ObjectModel;
 using Windows.Foundation;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -24,8 +25,8 @@ public class TagsComparer : IComparer
             return result;
         }
 
-        Tag? tag1 = x is not Tag tag_1 ? null : tag_1;
-        Tag? tag2 = y is not Tag tag_2 ? null : tag_2;
+        Tag? tag1 = x as Tag;
+        Tag? tag2 = y as Tag;
 
         var cx = tag1?.Name as IComparable;
         var cy = tag2?.Name as IComparable;
@@ -134,35 +135,44 @@ public sealed partial class TagView : UserControl
         CustomItemsView.Comparer = TagsComparer.Instance;
         _ = UpdateItemSource();
 
-        CustomItemsView.SelectItemsInvoked += async (_, _) =>
-        {
-            List<int> tagIds = Tags.Select(t => t.TagId).ToList();
-            (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : [], MediaId == null);
+        CustomItemsView.SelectItemsInvoked += (_, _) => TagsSelected();
+        CustomItemsView.RemoveItemsInvoked += (_, tagObjectId) => TagRemoved((int)tagObjectId);
+    }
 
-            if (selectTagsDialog != null)
+    private async void TagsSelected()
+    {
+        List<int> tagIds = Tags.Select(t => t.TagId).ToList();
+        (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : [], MediaId == null);
+
+        if (selectTagsDialog != null)
+        {
+            if (result == ContentDialogResult.Primary)
             {
                 await UpdateItemSource(selectTagsDialog.SelectedTags);
             }
-
-            SelectTagsInvoked?.Invoke(this, tagIds);
-        };
-
-        CustomItemsView.RemoveItemsInvoked += async (_, tagObject) =>
-        {
-            var tagId = (int)tagObject;
-            var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
-            
-            if (tag == null) return;
-            
-            if (!(tag.Flags.HasFlag(TagFlags.Extension) && MediaId != null))
+            else
             {
-                var tagToRemove = Tags.FirstOrDefault(t => t.TagId == tag.TagId);
-                if (tagToRemove == null) return;
-                Tags.Remove(tagToRemove);
-                RemoveTagsInvoked?.Invoke(this, tag);
-                await UpdateItemSource(Tags);
+                await UpdateItemSource(selectTagsDialog.Tags.Where(t => tagIds.Contains(t.TagId)).ToList());
             }
-        };
+        }
+
+        SelectTagsInvoked?.Invoke(this, tagIds);
+    }
+
+    private async void TagRemoved(int tagId)
+    {
+        var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
+
+        if (tag == null) return;
+
+        if (MediaId == null || !tag.Flags.HasFlag(TagFlags.Extension))
+        {
+            var tagToRemove = Tags.FirstOrDefault(t => t.TagId == tag.TagId);
+            if (tagToRemove == null) return;
+            Tags.Remove(tagToRemove);
+            RemoveTagsInvoked?.Invoke(this, tag);
+            await UpdateItemSource(Tags);
+        }
     }
 
     public ICollection<Tag> GetItemSource()
@@ -213,7 +223,6 @@ public sealed partial class TagView : UserControl
 
     public async Task UpdateItemSource(ICollection<Tag>? tags = null, bool refreshAll = false)
     {
-        Tags = tags ?? [];
         if (tags == null)
         {
             await using (MediaDbContext dataBase = new())
@@ -235,40 +244,51 @@ public sealed partial class TagView : UserControl
                 }
             }
         }
+        else
+        {
+            Tags = tags.ToList();
+        }
 
         var showExtensions = App.GetService<SettingsService>().ShowExtensions;
-        tags = Tags.Where(t => !(t.Flags.HasFlag(TagFlags.Extension) && !showExtensions)).OrderBy(e => e.Name).ToList();
+        var filteredTags = Tags.Where(t => showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).OrderBy(e => e.Name).ToList();
 
-        foreach (var obj in CustomItemsView.ItemsSource.ToList())
+        const int tagCheckLimit = 10000;
+
+        ICollection<Tag> itemSource = CustomItemsView.ItemsSource.OfType<Tag>().ToList();
+        ICollection<Tag> tagsToRemove = [];
+        ICollection<Tag> tagsToAdd = [];
+        await Task.Run(() =>
         {
-            if (obj is not Tag tag) continue;
+            tagsToRemove = itemSource.AsParallel().Except(filteredTags.AsParallel(), new TagComparer()).Take(tagCheckLimit).ToList();
+            tagsToAdd = filteredTags.AsParallel().Except(itemSource.AsParallel(), new TagComparer()).Take(tagCheckLimit).ToList();
+        });
 
-            var dbTag = tags.FirstOrDefault(t => t.TagId == tag.TagId);
-            if (dbTag == null || tag.Name != dbTag.Name || tag.Flags != dbTag.Flags || tag.Permissions != dbTag.Permissions || tag.DisplayName != dbTag.DisplayName)
+        if (tagsToAdd.Count >= tagCheckLimit || tagsToRemove.Count >= tagCheckLimit)
+        {
+            CustomItemsView.ItemsSource = new ObservableCollection<object>(filteredTags);
+        }
+        else
+        {
+            foreach (var tag in tagsToRemove)
             {
                 CustomItemsView.ItemsSource.Remove(tag);
             }
-            else
-            {
-                tags.Remove(dbTag);
-            }
-        }
         
-        foreach (var obj in tags)
-        {
-            CustomItemsView.ItemsSource.Add(obj);
+            foreach (var tag in tagsToAdd)
+            {
+                CustomItemsView.ItemsSource.Add(tag);
+            }
         }
     }
 
     private void RemoveTagFlyout_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
     {
-
         var tagId = (int)sender.DataContext;
         var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
 
         if (tag == null) return;
 
-        if (!(tag.Flags.HasFlag(TagFlags.Extension) && MediaId != null))
+        if (MediaId == null || tag.Flags.HasFlag(TagFlags.Extension))
         {
             sender.Visibility = Visibility.Visible;
         }
@@ -284,7 +304,7 @@ public sealed partial class TagView : UserControl
         var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
 
         if (tag == null) return;
-        if (!(tag.Flags.HasFlag(TagFlags.Extension) && MediaId != null))
+        if (MediaId == null || tag.Flags.HasFlag(TagFlags.Extension))
         {
             ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Visible;
         }
@@ -292,5 +312,20 @@ public sealed partial class TagView : UserControl
         {
             ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Collapsed;
         }
+    }
+}
+
+public class TagComparer : IEqualityComparer<Tag>
+{
+    public bool Equals(Tag? x, Tag? y)
+    {
+        if (x == y) return true;
+        if (x == null || y == null) return false;
+        return x.TagId == y.TagId && x.Name == y.Name && x.Flags == y.Flags && x.Permissions == y.Permissions && x.DisplayName == y.DisplayName;
+    }
+
+    public int GetHashCode(Tag obj)
+    {
+        return HashCode.Combine(obj.TagId, obj.Name, obj.Flags, obj.Permissions, obj.DisplayName);
     }
 }
