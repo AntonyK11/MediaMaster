@@ -163,6 +163,7 @@
                     Grid.Row="1"
                     Grid.Column="2"
                     Width="30"
+                    Height="32"
                     Padding="{ThemeResource HelperButtonThemePadding}"
                     VerticalAlignment="Stretch"
                     AutomationProperties.AccessibilityView="Raw"
@@ -259,27 +260,41 @@
         </ControlTemplate>
     </UserControl.Resources>
 
-    <Grid Height="32">
-        <TextBlock
-            x:Name="TextBlock"
-            Margin="11,6,0,7"
-            CharacterSpacing="18" />
+    <Grid>
         <TextBox
             x:Name="TextBox"
             KeyDown="TextBox_OnKeyDown"
             PlaceholderText="{x:Bind PlaceholderText, Mode=TwoWay}"
             Template="{StaticResource CustomTextBoxTemplate}"
             Text="{x:Bind Text, Mode=TwoWay}"
+            TextWrapping="Wrap"
             Visibility="Collapsed" />
-        <Button
-            x:Name="EditButton"
-            Width="32"
-            Height="34"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Center"
-            AllowFocusOnInteraction="False"
-            Click="EditButton_OnClick"
-            Content="&#xE70F;"
-            Template="{StaticResource ButtonTemplate}" />
+        <Grid
+            x:Name="Grid"
+            Padding="11,0,1,0"
+            ColumnSpacing="9">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                x:Name="TextBlock"
+                Grid.Column="0"
+                Padding="0,0,1,3"
+                VerticalAlignment="Center"
+                TextWrapping="WrapWholeWords" />
+            <Button
+                x:Name="EditButton"
+                Grid.Column="1"
+                Width="32"
+                Height="34"
+                Margin="2,0,-2,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                AllowFocusOnInteraction="False"
+                Click="EditButton_OnClick"
+                Content="&#xE70F;"
+                Template="{StaticResource ButtonTemplate}" />
+        </Grid>
     </Grid>
 </UserControl>

@@ -25,7 +25,11 @@ public sealed partial class EditableListView : UserControl
     public ObservableCollection<StringValue> ItemsSource
     {
         get => (ObservableCollection<StringValue>)GetValue(ItemsSourceProperty);
-        set => SetValue(ItemsSourceProperty, value);
+        set
+        {
+            SetValue(ItemsSourceProperty, value);
+            SetupEmptyStringValue();
+        }
     }
 
     public ICollection<string> Strings
@@ -45,7 +49,11 @@ public sealed partial class EditableListView : UserControl
 
     private void EditableTextBlock_OnTextConfirmed(EditableTextBlock sender, string args)
     {
+        SetupEmptyStringValue();
+    }
 
+    private void SetupEmptyStringValue()
+    {
         if (ItemsSource.Count(v => v.Value.IsNullOrEmpty()) == 0)
         {
             ItemsSource.Add(new StringValue());

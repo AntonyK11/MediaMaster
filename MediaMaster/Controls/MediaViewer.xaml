@@ -48,15 +48,18 @@
                 <Image Name="MediaExtensionIcon" />
             </Border>
 
-            <TextBlock
+            <!--<TextBlock
                 Grid.Column="1"
                 VerticalAlignment="Center"
                 Style="{StaticResource BodyStrongTextBlockStyle}"
                 Text="{x:Bind Media.Name, Mode=OneWay, FallbackValue=Media_not_found}"
-                TextWrapping="WrapWholeWords" />
+                TextWrapping="WrapWholeWords" />-->
+            <local:EditableTextBlock
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                PlaceholderText="Media Name"
+                Text="{x:Bind Media.Name, Mode=OneWay, FallbackValue=Media_not_found}" />
         </Grid>
-
-        <local:EditableTextBlock PlaceholderText="Hello World" Text="Hello World" />
 
         <local:TagView x:Name="TagView">
 

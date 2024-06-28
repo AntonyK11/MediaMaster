@@ -77,11 +77,16 @@ public sealed partial class EditableTextBlock : UserControl
 
     private void EditableTextBlock_OnLostFocus(object? sender, RoutedEventArgs? e)
     {
-        Confirm();
+        if (!TextBox.ContextFlyout.IsOpen)
+        {
+            Confirm();
+        }
     }
 
     public void Edit()
     {
+        TextBox.Height = Grid.ActualHeight;
+        TextBox.Width = Grid.ActualWidth;
         TextBox.Visibility = Visibility.Visible;
         TextBlock.Visibility = Visibility.Collapsed;
         EditButton.Visibility = Visibility.Collapsed;
@@ -115,7 +120,7 @@ public sealed partial class EditableTextBlock : UserControl
         else
         {
             TextBlock.Text = Text;
-            TextBlock.CharacterSpacing = 18;
+            TextBlock.CharacterSpacing = 23;
             TextBlock.Foreground = (SolidColorBrush)Resources["TextControlForeground"];
         }
     }
