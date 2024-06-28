@@ -9,30 +9,12 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-
-        <StaticResource x:Key="TextControlForeground" ResourceKey="TextFillColorPrimaryBrush" />
-        <StaticResource x:Key="TextControlPlaceholderForeground" ResourceKey="TextFillColorSecondaryBrush" />
-
         <DataTemplate x:Key="StringListViewTemplate" x:DataType="local:StringValue">
-            <ListViewItem x:Name="ListViewItem" DoubleTapped="UIElement_OnDoubleTapped">
-                <Frame>
-                    <Grid>
-                        <TextBlock
-                            x:Name="TextBlock"
-                            Margin="11,6,0,7"
-                            x:Phase="1"
-                            CharacterSpacing="18"
-                            Text="{x:Bind Value, Mode=OneWay}" />
-                        <TextBox
-                            x:Name="TextBox"
-                            KeyDown="TextBox_OnKeyDown"
-                            LostFocus="TextBox_OnLostFocus"
-                            PlaceholderText="Add new item"
-                            Tag="{x:Bind}"
-                            Text="{x:Bind Value, Mode=TwoWay}"
-                            Visibility="Collapsed" />
-                    </Grid>
-                </Frame>
+            <ListViewItem x:Name="ListViewItem">
+                <local:EditableTextBlock
+                    PlaceholderText="Add new item"
+                    Text="{x:Bind Value, Mode=TwoWay}"
+                    TextConfirmed="EditableTextBlock_OnTextConfirmed" />
             </ListViewItem>
         </DataTemplate>
     </UserControl.Resources>

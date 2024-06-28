@@ -12,30 +12,6 @@ using Microsoft.UI.Xaml.Controls;
 namespace MediaMaster.Controls;
 
 
-public class TagsComparer : IComparer
-{
-    public static readonly IComparer Instance = new TagsComparer();
-
-    public int Compare(object? x, object? y)
-    {
-        var result = ItemsComparer.Instance.Compare(x, y);
-
-        if (result != 0)
-        {
-            return result;
-        }
-
-        Tag? tag1 = x as Tag;
-        Tag? tag2 = y as Tag;
-
-        var cx = tag1?.Name as IComparable;
-        var cy = tag2?.Name as IComparable;
-
-        // ReSharper disable once PossibleUnintendedReferenceComparison
-        return cx == cy ? 0 : cx == null ? -1 : cy == null ? +1 : cx.CompareTo(cy);
-    }
-}
-
 public sealed partial class TagView : UserControl
 {
     public static readonly DependencyProperty SelectionModeProperty
@@ -259,8 +235,8 @@ public sealed partial class TagView : UserControl
         ICollection<Tag> tagsToAdd = [];
         await Task.Run(() =>
         {
-            tagsToRemove = itemSource.AsParallel().Except(filteredTags.AsParallel(), new TagComparer()).Take(tagCheckLimit).ToList();
-            tagsToAdd = filteredTags.AsParallel().Except(itemSource.AsParallel(), new TagComparer()).Take(tagCheckLimit).ToList();
+            tagsToRemove = itemSource.AsParallel().Except(filteredTags.AsParallel(), TagComparer.Instance).Take(tagCheckLimit).ToList();
+            tagsToAdd = filteredTags.AsParallel().Except(itemSource.AsParallel(), TagComparer.Instance).Take(tagCheckLimit).ToList();
         });
 
         if (tagsToAdd.Count >= tagCheckLimit || tagsToRemove.Count >= tagCheckLimit)
@@ -315,8 +291,35 @@ public sealed partial class TagView : UserControl
     }
 }
 
+public class TagsComparer : IComparer
+{
+    public static readonly IComparer Instance = new TagsComparer();
+
+    public int Compare(object? x, object? y)
+    {
+        var result = ItemsComparer.Instance.Compare(x, y);
+
+        if (result != 0)
+        {
+            return result;
+        }
+
+        Tag? tag1 = x as Tag;
+        Tag? tag2 = y as Tag;
+
+        if (tag1 == tag2) return 0;
+
+        var cx = tag1?.Name as IComparable;
+        var cy = tag2?.Name as IComparable;
+
+        return cx == null ? -1 : cy == null ? +1 : cx.CompareTo(cy);
+    }
+}
+
 public class TagComparer : IEqualityComparer<Tag>
 {
+    public static readonly IEqualityComparer<Tag> Instance = new TagComparer();
+
     public bool Equals(Tag? x, Tag? y)
     {
         if (x == y) return true;

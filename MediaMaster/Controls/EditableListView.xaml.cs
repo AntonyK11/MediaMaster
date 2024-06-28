@@ -1,12 +1,10 @@
 using System.Collections.ObjectModel;
-using Windows.System;
+using Windows.UI.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.WinUI;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.Controls;
 
@@ -27,15 +25,7 @@ public sealed partial class EditableListView : UserControl
     public ObservableCollection<StringValue> ItemsSource
     {
         get => (ObservableCollection<StringValue>)GetValue(ItemsSourceProperty);
-        set
-        {
-            SetValue(ItemsSourceProperty, value);
-            value.Add(new StringValue());
-            foreach (var stringValue in value)
-            {
-                Update(stringValue);
-            }
-        }
+        set => SetValue(ItemsSourceProperty, value);
     }
 
     public ICollection<string> Strings
@@ -47,105 +37,34 @@ public sealed partial class EditableListView : UserControl
         }
     }
 
-    private void TextBox_OnLostFocus(object sender, RoutedEventArgs e)
-    {
-        if (((UIElement)sender).Visibility == Visibility.Visible)
-        {
-            Selector_OnSelectionChanged(ListView.SelectedItems.FirstOrDefault());
-        }
-    }
-
     public EditableListView()
     {
-        ItemsSource = [];
-        this.InitializeComponent();
-        Loaded += (_, _) =>
-        {
-            foreach (var stringValue in ItemsSource)
-            {
-                Update(stringValue);
-            }
-        };
-
-        ListView.SelectionChanged += (sender, args) => Selector_OnSelectionChanged(args.RemovedItems.FirstOrDefault());
+        ItemsSource = [new StringValue()];
+        InitializeComponent();
     }
 
-    private void UIElement_OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    private void EditableTextBlock_OnTextConfirmed(EditableTextBlock sender, string args)
     {
-        if (sender is ListViewItem listViewItem)
+
+        if (ItemsSource.Count(v => v.Value.IsNullOrEmpty()) == 0)
         {
-            var textBox = listViewItem.FindDescendants().OfType<TextBox>().FirstOrDefault(x => x.Name is "TextBox");
-            var textBlock = listViewItem.FindDescendants().OfType<TextBlock>().FirstOrDefault(x => x.Name is "TextBlock");
-            if (textBox == null || textBlock == null) return;
-
-            textBox.Visibility = Visibility.Visible;
-            textBlock.Visibility = Visibility.Collapsed;
-            textBox.Focus(FocusState.Programmatic);
-            textBox.SelectAll();
-        }
-    }
-
-    private void Selector_OnSelectionChanged(object? itemRemoved)
-    {
-        if (itemRemoved == null) return;
-
-        var listViewItem = ListView.ContainerFromItem(itemRemoved);
-        var textBox = listViewItem.FindDescendants().OfType<TextBox>().FirstOrDefault(x => x.Name is "TextBox");
-        var textBlock = listViewItem.FindDescendants().OfType<TextBlock>().FirstOrDefault(x => x.Name is "TextBlock");
-        if (textBox == null || textBlock == null) return;
-
-        if (((StringValue)itemRemoved).Value.IsNullOrEmpty() && !textBox.Text.IsNullOrEmpty())
-        {
-            var stringValue = new StringValue();
-            ItemsSource.Add(stringValue);
-            Update(stringValue);
-        }
-
-        ((StringValue)itemRemoved).Value = textBox.Text;
-        Update(((StringValue)itemRemoved));
-        textBlock.Text = textBox.Text;
-
-        while (ItemsSource.Count(v => v.Value.IsNullOrEmpty()) > 1)
-        {
-            ItemsSource.Remove(ItemsSource.First(v => v.Value.IsNullOrEmpty()));
-        }
-
-        textBox.Visibility = Visibility.Collapsed;
-        textBlock.Visibility = Visibility.Visible;
-        textBox.SelectionStart = 0;
-        textBox.SelectionLength = 0;
-    }
-
-    private async void Update(StringValue item)
-    {
-        // TODO find a way to avoid the time delay
-        await Task.Delay(20);
-        var listViewItem = ListView.ContainerFromItem(item);
-        if (listViewItem == null) return;
-        var textBlock = listViewItem.FindDescendants().OfType<TextBlock>().FirstOrDefault(x => x.Name is "TextBlock");
-        if (textBlock == null) return;
-
-        if (item.Value.IsNullOrEmpty())
-        {
-            textBlock.CharacterSpacing = 0;
-            textBlock.Foreground = (SolidColorBrush)Resources["TextControlPlaceholderForeground"];
-            textBlock.Text = "Add new item";
+            ItemsSource.Add(new StringValue());
         }
         else
         {
-            textBlock.CharacterSpacing = 18;
-            textBlock.Foreground = (SolidColorBrush)Resources["TextControlForeground"];
+            while (ItemsSource.Count(v => v.Value.IsNullOrEmpty()) > 1)
+            {
+                ItemsSource.Remove(ItemsSource.First(v => v.Value.IsNullOrEmpty()));
+            }
         }
     }
+}
 
-    private void TextBox_OnKeyDown(object sender, KeyRoutedEventArgs e)
+public class ConfirmButton : Button
+{
+    public ConfirmButton()
     {
-        if (e.Key == VirtualKey.Enter)
-        {
-            var item = (StringValue)((TextBox)sender).Tag;
-            Selector_OnSelectionChanged(item);
-            e.Handled = true;
-        }
+        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
     }
 }
 

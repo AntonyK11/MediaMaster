@@ -8,18 +8,19 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid
+    <StackPanel
         Background="{x:Bind Background, Mode=OneWay}"
         CornerRadius="{x:Bind CornerRadius, Mode=OneWay}"
-        RowSpacing="16">
-        <Grid.RowDefinitions>
+        Orientation="Vertical"
+        Spacing="16">
+        <!--<Grid.RowDefinitions>
             <RowDefinition Height="300" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        </Grid.RowDefinitions>-->
 
         <Border
-            Grid.Row="0"
+            Height="300"
             HorizontalAlignment="Stretch"
             Background="{ThemeResource LayerFillColorDefaultBrush}">
             <local:MediaIcon
@@ -29,7 +30,6 @@
         </Border>
 
         <Grid
-            Grid.Row="1"
             MinHeight="24"
             Margin="16,0"
             HorizontalAlignment="Center"
@@ -56,7 +56,9 @@
                 TextWrapping="WrapWholeWords" />
         </Grid>
 
-        <local:TagView x:Name="TagView" Grid.Row="2">
+        <local:EditableTextBlock PlaceholderText="Hello World" Text="Hello World" />
+
+        <local:TagView x:Name="TagView">
 
             <local:TagView.Layout>
                 <FlowLayout MinColumnSpacing="4" MinRowSpacing="4" />
@@ -64,5 +66,5 @@
 
         </local:TagView>
 
-    </Grid>
+    </StackPanel>
 </UserControl>

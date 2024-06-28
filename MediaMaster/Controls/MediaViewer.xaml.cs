@@ -23,8 +23,8 @@ public sealed partial class MediaViewer : UserControl
     {
         InitializeComponent();
 
-        TagView.SelectTagsInvoked += async (_, _) => await SelectTags(TagView.Tags);
-        TagView.RemoveTagsInvoked += async (_, _) => await SelectTags(TagView.Tags);
+        TagView.SelectTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
+        TagView.RemoveTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
     }
 
     public Media? Media
@@ -46,7 +46,7 @@ public sealed partial class MediaViewer : UserControl
         }
     }
 
-    private async Task SelectTags(IEnumerable<Tag> selectedTags)
+    private async void SaveSelectedTags(IEnumerable<Tag> selectedTags)
     {
         await using (MediaDbContext dataBase = new())
         {
