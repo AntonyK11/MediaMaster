@@ -2,7 +2,9 @@ using Windows.Storage;
 using Microsoft.UI.Xaml;
 using Windows.System;
 using System.Diagnostics;
+using Windows.UI.Core;
 using MediaMaster.Services;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Controls;
@@ -69,6 +71,8 @@ public sealed partial class MediaIcon
         OpenMediaFlyout.Click += (_, _) => OpenMedia();
         OpenFolderFlyout.Click += (_, _) => OpenFolder();
         DoubleTapped += (_, _) => OpenMedia();
+
+        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Hand, 0));
     }
 
     public void OpenMedia()

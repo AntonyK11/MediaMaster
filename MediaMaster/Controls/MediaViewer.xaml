@@ -56,10 +56,17 @@
                 TextWrapping="WrapWholeWords" />-->
             <local:EditableTextBlock
                 Grid.Column="1"
-                VerticalAlignment="Center"
                 PlaceholderText="Media Name"
                 Text="{x:Bind Media.Name, Mode=OneWay, FallbackValue=Media_not_found}" />
         </Grid>
+
+        <TextBlock />
+
+        <local:EditableTextBlock
+            MinHeight="100"
+            ConfirmOnReturn="False"
+            Text="{x:Bind Media.Description, Mode=OneWay, FallbackValue=Media_not_found}" />
+
 
         <local:TagView x:Name="TagView">
 

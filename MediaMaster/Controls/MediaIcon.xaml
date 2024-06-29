@@ -20,8 +20,8 @@
             <Image Name="Image" Visibility="{x:Bind Image.Source, Converter={StaticResource NullToVisibilityConverterInverted}, Mode=OneWay}">
                 <Image.ContextFlyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem x:Name="OpenMediaFlyout" Text="Open Media" />
-                        <MenuFlyoutItem x:Name="OpenFolderFlyout" Text="Open Folder" />
+                        <MenuFlyoutItem x:Name="OpenMediaFlyout" Text="Open file" />
+                        <MenuFlyoutItem x:Name="OpenFolderFlyout" Text="Open file in explorer" />
                     </MenuFlyout>
                 </Image.ContextFlyout>
             </Image>

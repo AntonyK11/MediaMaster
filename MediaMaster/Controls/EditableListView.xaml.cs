@@ -1,8 +1,6 @@
 using System.Collections.ObjectModel;
-using Windows.UI.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -67,12 +65,3 @@ public sealed partial class EditableListView : UserControl
         }
     }
 }
-
-public class ConfirmButton : Button
-{
-    public ConfirmButton()
-    {
-        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
-    }
-}
-

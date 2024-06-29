@@ -69,6 +69,7 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.0.240109" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
 		<PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="8.0.4" />
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.131" />

@@ -2,10 +2,12 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
+using Windows.UI.Core;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Input;
 
 namespace MediaMaster.Controls;
 
@@ -28,6 +30,8 @@ public sealed partial class EditableTextBlock : UserControl
         }
     }
 
+    private string _text = "";
+
     public static readonly DependencyProperty PlaceholderTextProperty
         = DependencyProperty.Register(
             nameof(PlaceholderText),
@@ -43,6 +47,32 @@ public sealed partial class EditableTextBlock : UserControl
             SetValue(PlaceholderTextProperty, value);
             TextChanged(Text);
         }
+    }
+
+    public static readonly DependencyProperty ConfirmOnReturnProperty
+    = DependencyProperty.Register(
+        nameof(ConfirmOnReturn),
+        typeof(bool),
+        typeof(EditableTextBlock),
+        new PropertyMetadata(true));
+
+    public bool ConfirmOnReturn
+    {
+        get => (bool)GetValue(ConfirmOnReturnProperty);
+        set => SetValue(ConfirmOnReturnProperty, value);
+    }
+
+    public static readonly DependencyProperty ConfirmOnFocusLossProperty
+        = DependencyProperty.Register(
+            nameof(ConfirmOnFocusLoss),
+            typeof(bool),
+            typeof(EditableTextBlock),
+            new PropertyMetadata(true));
+
+    public bool ConfirmOnFocusLoss
+    {
+        get => (bool)GetValue(ConfirmOnFocusLossProperty);
+        set => SetValue(ConfirmOnFocusLossProperty, value);
     }
 
     public event TypedEventHandler<EditableTextBlock, string>? TextConfirmed;
@@ -66,20 +96,28 @@ public sealed partial class EditableTextBlock : UserControl
     {
         Confirm();
     }
+
     private void TextBox_OnKeyDown(object sender, KeyRoutedEventArgs e)
     {
-        if (e.Key == VirtualKey.Enter)
+        if (e.Key == VirtualKey.Enter && ConfirmOnReturn)
         {
             Confirm();
             e.Handled = true;
         }
     }
 
-    private void EditableTextBlock_OnLostFocus(object? sender, RoutedEventArgs? e)
+    private void EditableTextBlock_OnLosingFocus(object? sender, RoutedEventArgs? e)
     {
         if (!TextBox.ContextFlyout.IsOpen)
         {
-            Confirm();
+            if (ConfirmOnFocusLoss)
+            {
+                Confirm();
+            }
+            else
+            {
+                Cancel();
+            }
         }
     }
 
@@ -93,7 +131,8 @@ public sealed partial class EditableTextBlock : UserControl
         TextBox.Opacity = 1;
         TextBox.IsHitTestVisible = true;
 
-        ResizeTextBox();
+        TextBox.Text = _text;
+        TextChanged(_text);
 
         TextBox.Focus(FocusState.Programmatic);
         TextBox.SelectAll();
@@ -110,6 +149,23 @@ public sealed partial class EditableTextBlock : UserControl
         EditButton.IsHitTestVisible = true;
         EditButton.IsEnabled = true;
 
+        Text = TextBox.Text;
+
+        TextBox.SelectionStart = 0;
+        TextBox.SelectionLength = 0;
+    }
+
+    public void Cancel()
+    {
+        TextBox.Opacity = 0;
+        TextBox.IsHitTestVisible = false;
+        TextBlock.Opacity = 1;
+        TextBlock.IsHitTestVisible = true;
+        EditButton.Opacity = 1;
+        EditButton.IsHitTestVisible = true;
+        EditButton.IsEnabled = true;
+
+        TextBox.Text = Text;
         TextChanged(Text);
 
         TextBox.SelectionStart = 0;
@@ -118,13 +174,16 @@ public sealed partial class EditableTextBlock : UserControl
         App.DispatcherQueue.EnqueueAsync(() => TextConfirmed?.Invoke(this, Text));
     }
 
-    private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    private void TextBox_OnBeforeTextChanging(TextBox textBox, TextBoxBeforeTextChangingEventArgs args)
     {
-        TextChanged(TextBox.Text);
+        TextBox.Text = args.NewText;
+        TextChanged(args.NewText);
+        TextBox.SelectionStart = args.NewText.Length;
     }
 
     private void TextChanged(string text)
     {
+        _text = text;
         if (text.IsNullOrEmpty())
         {
             TextBlock.Text = PlaceholderText;
@@ -150,8 +209,17 @@ public sealed partial class EditableTextBlock : UserControl
         TextBox.Height = 0;
         TextBox.Width = 0;
         UpdateLayout();
-        TextBox.Height = TextBlock.ActualHeight;
+        TextBox.Height = Math.Max(TextBlock.MinHeight, Math.Min(TextBlock.ActualHeight, TextBlock.MaxHeight));
         TextBox.Width = Math.Min(TextBlock.ActualWidth + EditButton.ActualWidth + 16, TextGrid.Width);
+        UpdateLayout();
+    }
+}
+
+public class ConfirmButton : Button
+{
+    public ConfirmButton()
+    {
+        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
     }
 }
 
