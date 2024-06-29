@@ -24,7 +24,7 @@ public sealed partial class EditableTextBlock : UserControl
         set
         {
             SetValue(TextProperty, value);
-            SetTextBlockText();
+            TextChanged(value);
         }
     }
 
@@ -41,7 +41,7 @@ public sealed partial class EditableTextBlock : UserControl
         set
         {
             SetValue(PlaceholderTextProperty, value);
-            SetTextBlockText();
+            TextChanged(Text);
         }
     }
 
@@ -85,11 +85,15 @@ public sealed partial class EditableTextBlock : UserControl
 
     public void Edit()
     {
-        TextBox.Height = Grid.ActualHeight;
-        TextBox.Width = Grid.ActualWidth;
-        TextBox.Visibility = Visibility.Visible;
-        TextBlock.Visibility = Visibility.Collapsed;
-        EditButton.Visibility = Visibility.Collapsed;
+        TextBlock.Opacity = 0;
+        TextBlock.IsHitTestVisible = false;
+        EditButton.Opacity = 0;
+        EditButton.IsHitTestVisible = false;
+        EditButton.IsEnabled = false;
+        TextBox.Opacity = 1;
+        TextBox.IsHitTestVisible = true;
+
+        ResizeTextBox();
 
         TextBox.Focus(FocusState.Programmatic);
         TextBox.SelectAll();
@@ -97,11 +101,16 @@ public sealed partial class EditableTextBlock : UserControl
 
     public void Confirm()
     {
-        TextBox.Visibility = Visibility.Collapsed;
-        TextBlock.Visibility = Visibility.Visible;
-        EditButton.Visibility = Visibility.Visible;
+        Text = TextBox.Text;
+        TextBox.Opacity = 0;
+        TextBox.IsHitTestVisible = false;
+        TextBlock.Opacity = 1;
+        TextBlock.IsHitTestVisible = true;
+        EditButton.Opacity = 1;
+        EditButton.IsHitTestVisible = true;
+        EditButton.IsEnabled = true;
 
-        SetTextBlockText();
+        TextChanged(Text);
 
         TextBox.SelectionStart = 0;
         TextBox.SelectionLength = 0;
@@ -109,9 +118,14 @@ public sealed partial class EditableTextBlock : UserControl
         App.DispatcherQueue.EnqueueAsync(() => TextConfirmed?.Invoke(this, Text));
     }
 
-    private void SetTextBlockText()
+    private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        if (Text.IsNullOrEmpty())
+        TextChanged(TextBox.Text);
+    }
+
+    private void TextChanged(string text)
+    {
+        if (text.IsNullOrEmpty())
         {
             TextBlock.Text = PlaceholderText;
             TextBlock.CharacterSpacing = 0;
@@ -119,10 +133,25 @@ public sealed partial class EditableTextBlock : UserControl
         }
         else
         {
-            TextBlock.Text = Text;
+            TextBlock.Text = text;
             TextBlock.CharacterSpacing = 23;
             TextBlock.Foreground = (SolidColorBrush)Resources["TextControlForeground"];
         }
+        ResizeTextBox();
+    }
+
+    private void Grid_OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        ResizeTextBox();
+    }
+
+    private void ResizeTextBox()
+    {
+        TextBox.Height = 0;
+        TextBox.Width = 0;
+        UpdateLayout();
+        TextBox.Height = TextBlock.ActualHeight;
+        TextBox.Width = Math.Min(TextBlock.ActualWidth + EditButton.ActualWidth + 16, TextGrid.Width);
     }
 }
 
