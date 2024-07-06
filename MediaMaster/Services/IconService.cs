@@ -86,7 +86,7 @@ public static class IconService
     {
         image.Source = null;
         var tokenSource = new MyCancellationTokenSource();
-        Task.Run(() => AddImage(path, imageMode, width, height, tokenSource, image), tokenSource.Token);
+        Task.Factory.StartNew(() => AddImage(path, imageMode, width, height, tokenSource, image), tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         return tokenSource;
     }
 

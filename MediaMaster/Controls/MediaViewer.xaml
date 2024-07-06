@@ -26,10 +26,12 @@
         </Border>
 
         <ScrollView Grid.Row="1">
-            <StackPanel Margin="16" Spacing="16">
+            <StackPanel
+                x:Name="StackPanel"
+                Margin="16"
+                Spacing="16">
                 <Grid
                     MinHeight="24"
-                    Margin="16,0"
                     HorizontalAlignment="Center"
                     ColumnSpacing="12">
 
@@ -51,35 +53,6 @@
                         Grid.Column="1"
                         PlaceholderText="Media name" />
                 </Grid>
-
-                <StackPanel Spacing="4">
-                    <TextBlock Text="File Path" />
-                    <local:EditableTextBlock
-                        x:Name="PathTextBox"
-                        HorizontalAlignment="Stretch"
-                        ConfirmOnReturn="False"
-                        Edit="PathTextBox_OnEdit"
-                        EditOnClick="False"
-                        EditOnDoubleClick="False" />
-                </StackPanel>
-
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Description" />
-                    <local:EditableTextBlock
-                        x:Name="DescriptionTextBox"
-                        HorizontalAlignment="Stretch"
-                        ConfirmOnReturn="False"
-                        PlaceholderText="Empty description" />
-                </StackPanel>
-
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Tags" />
-                    <local:TagView x:Name="TagView">
-                        <local:TagView.Layout>
-                            <FlowLayout MinColumnSpacing="4" MinRowSpacing="4" />
-                        </local:TagView.Layout>
-                    </local:TagView>
-                </StackPanel>
             </StackPanel>
         </ScrollView>
     </Grid>

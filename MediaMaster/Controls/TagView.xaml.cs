@@ -264,7 +264,7 @@ public sealed partial class TagView : UserControl
 
         if (tag == null) return;
 
-        if (MediaId == null || tag.Flags.HasFlag(TagFlags.Extension))
+        if (MediaId == null || !tag.Flags.HasFlag(TagFlags.Extension))
         {
             sender.Visibility = Visibility.Visible;
         }
@@ -280,7 +280,7 @@ public sealed partial class TagView : UserControl
         var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
 
         if (tag == null) return;
-        if (MediaId == null || tag.Flags.HasFlag(TagFlags.Extension))
+        if (MediaId == null || !tag.Flags.HasFlag(TagFlags.Extension))
         {
             ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Visible;
         }

@@ -1,0 +1,35 @@
+﻿using MediaMaster.DataBase.Models;
+using Microsoft.UI.Xaml.Controls;
+
+namespace MediaMaster.Services.MediaInfo;
+
+internal class MediaInfoService
+{
+    public readonly ICollection<MediaInfoControlBase> MediaInfoControls = [];
+
+    public MediaInfoService(StackPanel parent)
+    {
+        Register(new MediaFilePath(parent));
+        Register(new MediaDescription(parent));
+        Register(new MediaTags(parent));
+    }
+
+    private void Register(MediaInfoControlBase mediaInfoControl)
+    {
+        if (MediaInfoControls.Any(p => p == mediaInfoControl))
+        {
+            throw new ArgumentException($"This type is already registered : {MediaInfoControls.First(p => p == mediaInfoControl)}");
+        }
+
+        MediaInfoControls.Add(mediaInfoControl);
+    }
+
+    public void SetMedia(Media media)
+    {
+        foreach (var mediaInfoControl in MediaInfoControls)
+        {
+            mediaInfoControl.Initialize(media);
+        }
+    }
+}
+

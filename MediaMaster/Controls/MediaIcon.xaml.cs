@@ -1,11 +1,8 @@
-using Windows.Storage;
 using Microsoft.UI.Xaml;
-using Windows.System;
 using System.Diagnostics;
 using Windows.UI.Core;
 using MediaMaster.Services;
 using Microsoft.UI.Input;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Controls;
 
@@ -19,7 +16,7 @@ public sealed partial class MediaIcon
             new PropertyMetadata(null));
 
     private MyCancellationTokenSource? _tokenSource;
-    private TaskCompletionSource<int> _task = new TaskCompletionSource<int>();
+    private TaskCompletionSource<int> _task = new();
 
     public string? MediaPath
     {

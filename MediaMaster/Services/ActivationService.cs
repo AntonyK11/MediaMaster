@@ -157,17 +157,15 @@ public class ActivationService : IActivationService
                 await LaunchWindow(true);
                 AddFiles();
 
-                _ = Task.Run(async () => {
-                    DateTime time = DateTime.Now;
-                    Debug.WriteLine("Adding files");
-                    var files = filesValue.Split(", ");
-                    foreach (var file in files)
-                    {
-                        await MediaService.AddMediaAsync(file.Replace("\"", ""));
-                        Debug.WriteLine(file.Replace("\"", ""));
-                    }
-                    Debug.WriteLine(DateTime.Now - time);
-                });
+                DateTime time = DateTime.Now;
+                Debug.WriteLine("Adding files");
+                var files = filesValue.Split(", ");
+                foreach (var file in files)
+                {
+                    _ = MediaService.AddMediaAsync(file.Replace("\"", ""));
+                    Debug.WriteLine(file.Replace("\"", ""));
+                }
+                Debug.WriteLine(DateTime.Now - time);
             }
             else
             {
