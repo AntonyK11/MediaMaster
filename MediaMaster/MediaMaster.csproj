@@ -12,7 +12,7 @@
 		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
 		<PublishProfile>Properties\PublishProfiles\win-$(Platform).pubxml</PublishProfile>
 
-		<UseRidGraph>true</UseRidGraph>
+		<!--<UseRidGraph>true</UseRidGraph>-->
 
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -44,8 +44,8 @@
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 
 		<WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
-		<!--<PublishAot>true</PublishAot>
-		<PublishTrimmed>true</PublishTrimmed>
+		<!--<PublishAot>true</PublishAot>-->
+		<!--<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
 		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>-->
 	</PropertyGroup>
@@ -81,7 +81,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240531000-experimental1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Text.Json" Version="8.0.3" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
@@ -90,6 +90,8 @@
 		<PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
 		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.9.0" />
 		<PackageReference Include="WinUIEx" Version="2.3.4" />
+
+		<!--<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.0-prerelease.240602.1" />-->
 	</ItemGroup>
 
   <ItemGroup>
@@ -141,5 +143,17 @@
 	  <Content Include="Assets\Browsers\vivaldi.svg">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <CustomAdditionalCompileInputs Remove="Controls\TipIcon.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Controls\TipIcon.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Remove="Controls\TipIcon.xaml" />
 	</ItemGroup>		
 </Project>

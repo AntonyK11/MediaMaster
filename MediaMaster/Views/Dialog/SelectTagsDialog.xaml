@@ -13,24 +13,22 @@
 
     <Page.Resources>
         <DataTemplate x:Key="TagListViewTemplate" x:DataType="models:Tag">
-            <ItemContainer
+            <ListViewItem
                 Height="36"
-                DataContext="{x:Bind TagId}"
                 DataContextChanged="FrameworkElement_OnDataContextChanged"
                 ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}">
-                <Grid Padding="40.5,0,0,0">
+                <Grid>
                     <Rectangle
-                        Margin="-41,-4,-8,-3"
+                        Margin="-40,-9,-8,-8"
                         Fill="{x:Bind ColorBrush, Mode=OneWay}"
                         RadiusX="4"
                         RadiusY="4" />
                     <TextBlock
-                        Margin="0,5,0,5"
                         VerticalAlignment="Center"
                         Foreground="{x:Bind TextColorBrush}"
                         Text="{x:Bind DisplayName, Mode=OneWay}" />
                 </Grid>
-                <ItemContainer.ContextFlyout>
+                <ListViewItem.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem l:Uids.Uid="/Tag/Flyout_Edit" Click="EditTagFlyout_OnClick" />
                         <MenuFlyoutItem l:Uids.Uid="/Tag/Flyout_Duplicate" Click="DuplicateTagFlyout_OnClick" />
@@ -40,22 +38,8 @@
                             Click="DeleteTagFlyout_OnClick"
                             Visibility="{x:Bind Permissions, Converter={StaticResource TagPermissionsToVisibilityConverter}, ConverterParameter=CannotDelete}" />
                     </MenuFlyout>
-                </ItemContainer.ContextFlyout>
-                <ItemContainer.Resources>
-                    <VerticalAlignment x:Key="ItemContainerCheckboxVerticalAlignment">Center</VerticalAlignment>
-                    <HorizontalAlignment x:Key="ItemContainerCheckboxHorizontalAlignment">Left</HorizontalAlignment>
-                    <StaticResource x:Key="ItemContainerSelectionVisualBackground" ResourceKey="SubtleFillColorTransparentBrush" />
-                    <StaticResource x:Key="ItemContainerSelectionVisualPointerOverBackground" ResourceKey="SubtleFillColorTransparentBrush" />
-                    <StaticResource x:Key="ItemContainerSelectionVisualPressedBackground" ResourceKey="SubtleFillColorTransparentBrush" />
-                    <StaticResource x:Key="ItemContainerSelectedInnerBorderBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-                    <Thickness x:Key="ItemContainerCheckboxMargin">10,-2</Thickness>
-                    <Thickness x:Key="ItemContainerSelectedInnerMargin">0</Thickness>
-                    <Thickness x:Key="ItemContainerSelectedInnerThickness">0</Thickness>
-                </ItemContainer.Resources>
-                <ItemContainer.Transitions>
-                    <ContentThemeTransition />
-                </ItemContainer.Transitions>
-            </ItemContainer>
+                </ListViewItem.ContextFlyout>
+            </ListViewItem>
         </DataTemplate>
 
         <helpers:TagPermissionsToVisibilityConverter x:Key="TagPermissionsToVisibilityConverter" />
@@ -67,19 +51,11 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBox x:Name="TextBox" TextChanged="TextBox_TextChanged" />
-        <ItemsView
-            x:Name="ItemsView"
+        <ListView
+            x:Name="ListView"
             Grid.Row="1"
             ItemTemplate="{StaticResource TagListViewTemplate}"
-            ProcessKeyboardAccelerators="ItemsView_OnProcessKeyboardAccelerators"
             SelectionChanged="ListView_OnSelectionChanged"
-            SelectionMode="Multiple">
-            <ItemsView.Layout>
-                <StackLayout Spacing="4" />
-            </ItemsView.Layout>
-            <!--<ItemsView.ItemTransitionProvider>
-                <ItemCollectionTransitionProvider />
-            </ItemsView.ItemTransitionProvider>-->
-        </ItemsView>
+            SelectionMode="Multiple" />
     </Grid>
 </Page>

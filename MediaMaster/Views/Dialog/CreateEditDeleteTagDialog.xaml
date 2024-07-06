@@ -28,59 +28,69 @@
                 Height="200"
                 IsEnabled="{x:Bind ViewModel.CanChangeAliases, Mode=OneWay}" />
         </StackPanel>
-        <Grid>
-            <Rectangle
-                Width="24"
-                Height="24"
-                Margin="4,0,0,0"
-                HorizontalAlignment="Left"
-                Fill="{x:Bind ViewModel.ColorBrush, Mode=OneWay}"
-                RadiusX="32"
-                RadiusY="32" />
-            <Button
-                Padding="15"
-                Background="Transparent"
-                Canvas.ZIndex="0"
-                CornerRadius="32"
-                IsEnabled="{x:Bind ViewModel.CanChangeColor, Mode=OneWay}">
-                <Button.Flyout>
-                    <Flyout x:Name="Flyout" Placement="Left">
-                        <StackPanel Spacing="16">
-                            <ColorPicker
-                                x:Name="ColorPicker"
-                                ColorChanged="ColorPicker_OnColorChanged"
-                                IsAlphaEnabled="True"
-                                Color="{x:Bind ViewModel.Color, Mode=OneWay}" />
-                            <Grid ColumnSpacing="8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Button
-                                    Grid.Column="0"
-                                    HorizontalAlignment="Stretch"
-                                    l:Uids.Uid="/Tag/ColorPicker_ConfirmButton"
-                                    Click="Confirm_Click"
-                                    Style="{ThemeResource AccentButtonStyle}">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock l:Uids.Uid="/Tag/ColorPicker_ConfirmButton" />
-                                        <FontIcon
-                                            x:Name="ContrastIcon"
-                                            FontSize="16"
-                                            Glyph="&#xE7BA;"
-                                            Visibility="Visible" />
-                                    </StackPanel>
-                                </Button>
-                                <Button
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Stretch"
-                                    l:Uids.Uid="/Tag/ColorPicker_CancelButton"
-                                    Click="Cancel_Click" />
-                            </Grid>
-                        </StackPanel>
-                    </Flyout>
-                </Button.Flyout>
-            </Button>
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Rectangle
+                    Width="24"
+                    Height="24"
+                    Margin="4,0,0,0"
+                    HorizontalAlignment="Left"
+                    Fill="{x:Bind ViewModel.ColorBrush, Mode=OneWay}"
+                    RadiusX="32"
+                    RadiusY="32" />
+                <Button
+                    Padding="15"
+                    Background="Transparent"
+                    Canvas.ZIndex="0"
+                    CornerRadius="32"
+                    IsEnabled="{x:Bind ViewModel.CanChangeColor, Mode=OneWay}">
+                    <Button.Flyout>
+                        <Flyout x:Name="Flyout" Placement="Left">
+                            <StackPanel Spacing="16">
+                                <ColorPicker
+                                    x:Name="ColorPicker"
+                                    ColorChanged="ColorPicker_OnColorChanged"
+                                    IsAlphaEnabled="True"
+                                    Color="{x:Bind ViewModel.Color, Mode=OneWay}" />
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Stretch"
+                                        l:Uids.Uid="/Tag/ColorPicker_ConfirmButton"
+                                        Click="Confirm_Click"
+                                        Style="{ThemeResource AccentButtonStyle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock l:Uids.Uid="/Tag/ColorPicker_ConfirmButton" />
+                                            <FontIcon
+                                                x:Name="ContrastIcon"
+                                                FontSize="16"
+                                                Glyph="&#xE7BA;"
+                                                Visibility="Visible" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Stretch"
+                                        l:Uids.Uid="/Tag/ColorPicker_CancelButton"
+                                        Click="Cancel_Click" />
+                                </Grid>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+            <TextBlock
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Text="{x:Bind ViewModel.ColorName, Mode=OneWay}" />
         </Grid>
 
         <controls:TagView

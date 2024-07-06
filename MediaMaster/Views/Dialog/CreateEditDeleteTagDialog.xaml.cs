@@ -28,20 +28,24 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 tagParam = database.Tags.FirstOrDefault(t => t.TagId == tagId);
             }
             TagView.TagId = tagId;
+            CurrentTag = tagParam;
         }
         else if (tagParam != null)
         {
             _ = TagView.UpdateItemSource(tagParam.Parents);
         }
-        CurrentTag = tagParam;
 
-        if (CurrentTag == null) return;
-
-        AliasesListView.Strings = CurrentTag.Aliases;
-        ViewModel.Name = CurrentTag.Name;
-        ViewModel.Shorthand = CurrentTag.Shorthand;
-        ViewModel.Color = CurrentTag.Color.ToWindowsColor();
-        ViewModel.Permissions = CurrentTag.Permissions;
+        if (tagParam == null)
+        {
+            ViewModel.Color = new Windows.UI.Color();
+            return;
+        }
+         
+        AliasesListView.Strings = tagParam.Aliases;
+        ViewModel.Name = tagParam.Name;
+        ViewModel.Shorthand = tagParam.Shorthand;
+        ViewModel.Color = tagParam.Color.ToWindowsColor();
+        ViewModel.Permissions = tagParam.Permissions;
 
         Color color = ViewModel.Color.ToSystemColor();
         CheckColorContrast(color);

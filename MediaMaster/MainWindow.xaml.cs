@@ -1,8 +1,5 @@
-using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using WinRT.Interop;
 using MediaMaster.Interfaces.Services;
-using WinUI3Localizer;
 using MediaMaster.Services;
 using WinUIEx;
 using H.NotifyIcon.EfficiencyMode;
@@ -27,7 +24,7 @@ public sealed partial class MainWindow
         InitializeTheme();
     }
 
-    private async void MainWindow_Closed(object sender, WindowEventArgs args)
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
         if (App.GetService<SettingsService>().LeaveAppRunning)
         {

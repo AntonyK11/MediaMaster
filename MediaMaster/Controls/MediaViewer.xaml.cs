@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Windows.Storage.Pickers;
 using EFCore.BulkExtensions;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -5,17 +7,48 @@ using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using WinUIEx;
 
 namespace MediaMaster.Controls;
 
 public sealed partial class MediaViewer : UserControl
 {
-    public static readonly DependencyProperty? MediaProperty
+    public static readonly DependencyProperty? MediaIdProperty
         = DependencyProperty.Register(
-            nameof(Media),
-            typeof(Media),
+            nameof(MediaId),
+            typeof(int),
             typeof(MediaViewer),
             new PropertyMetadata(null));
+
+    public int? MediaId
+    {
+        get => (int)GetValue(MediaIdProperty);
+        set
+        {
+            SetValue(MediaIdProperty, value);
+
+            Visibility = value != null ? Visibility.Visible : Visibility.Collapsed;
+
+            TagView.MediaId = value;
+            MediaExtensionIcon.Source = null;
+
+            if (value == null) return;
+
+            Media? media;
+            using (var database = new MediaDbContext())
+            {
+                media = database.Find<Media>(value);
+            }
+
+            if (media == null) return;
+
+            NameTextBox.Text = media.Name;
+            PathTextBox.Text = media.FilePath;
+            DescriptionTextBox.Text = media.Description;
+            MediaIcon.MediaPath = media.FilePath;
+            SetMediaExtensionIcon();
+        }
+    }
 
     private MyCancellationTokenSource? _tokenSource;
 
@@ -23,36 +56,20 @@ public sealed partial class MediaViewer : UserControl
     {
         InitializeComponent();
 
+        NameTextBox.TextConfirmed += (_, _) => SaveMedia();
+        DescriptionTextBox.TextConfirmed += (_, _) => SaveMedia();
+
         TagView.SelectTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
         TagView.RemoveTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
-    }
-
-    public Media? Media
-    {
-        get => (Media)GetValue(MediaProperty);
-        set
-        {
-            if (value != Media)
-            {
-                SetValue(MediaProperty, value);
-
-                Visibility = value != null ? Visibility.Visible : Visibility.Collapsed;
-
-                MediaIcon.MediaPath = value?.FilePath;
-                MediaExtensionIcon.Source = null;
-                SetMediaExtensionIcon();
-                TagView.MediaId = value?.MediaId;
-            }
-        }
     }
 
     private async void SaveSelectedTags(IEnumerable<Tag> selectedTags)
     {
         await using (MediaDbContext dataBase = new())
         {
-            if (Media != null)
+            if (MediaId != null)
             {
-                var trackedMedia = await dataBase.Medias.Select(m => new { m.MediaId, Tags = m.Tags.Select(t => new { t.TagId }) }).FirstOrDefaultAsync(m => m.MediaId == Media.MediaId);
+                var trackedMedia = await dataBase.Medias.Select(m => new { m.MediaId, Tags = m.Tags.Select(t => new { t.TagId }) }).FirstOrDefaultAsync(m => m.MediaId == MediaId);
 
                 if (trackedMedia != null)
                 {
@@ -84,14 +101,51 @@ public sealed partial class MediaViewer : UserControl
 
     private void SetMediaExtensionIcon()
     {
-        if (Media != null)
+        if (MediaId != null)
         {
             if (_tokenSource is { IsDisposed: false })
             {
                 _tokenSource?.Cancel();
             }
 
-            _tokenSource = IconService.AddImage1(Media.FilePath, ImageMode.IconOnly, 24, 24, MediaExtensionIcon);
+            _tokenSource = IconService.AddImage1(PathTextBox.Text, ImageMode.IconOnly, 24, 24, MediaExtensionIcon);
+        }
+    }
+
+    private async void PathTextBox_OnEdit(EditableTextBlock sender, string args)
+    {
+        if (App.MainWindow == null) return;
+
+        var openPicker = new FileOpenPicker();
+
+        var hWnd = App.MainWindow.GetWindowHandle();
+
+        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hWnd);
+
+        openPicker.ViewMode = PickerViewMode.Thumbnail;
+
+        //openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder Path.GetDirectoryName(PathTextBox.Text);
+        openPicker.FileTypeFilter.Add("*");
+        openPicker.CommitButtonText = "hello";
+
+        var file = await openPicker.PickSingleFileAsync();
+    }
+
+    private async void SaveMedia()
+    {
+        if (MediaId == null) return;
+
+        await using (var database = new MediaDbContext())
+        {
+            var media = await database.FindAsync<Media>(MediaId);
+
+
+            if (media == null) return;
+
+            media.Name = NameTextBox.Text;
+            media.Description = DescriptionTextBox.Text;
+
+            await database.SaveChangesAsync();
         }
     }
 }

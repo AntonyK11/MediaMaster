@@ -265,29 +265,23 @@
 
     <Grid
         Width="{x:Bind Width}"
-        Height="{x:Bind Height}"
         MinWidth="{x:Bind MinWidth}"
-        MinHeight="{x:Bind MinHeight}">
+        MaxWidth="{x:Bind MaxWidth}">
         <TextBox
             x:Name="TextBox"
             Width="0"
             Height="0"
             AcceptsReturn="{x:Bind ConfirmOnReturn, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-            BeforeTextChanging="TextBox_OnBeforeTextChanging"
+            AllowFocusWhenDisabled="False"
+            IsEnabled="False"
             IsHitTestVisible="False"
             KeyDown="TextBox_OnKeyDown"
             Opacity="0"
             PlaceholderText="{x:Bind PlaceholderText, Mode=TwoWay}"
             Template="{StaticResource CustomTextBoxTemplate}"
+            TextChanging="TextBox_TextChanging"
             TextWrapping="Wrap" />
-        <Grid
-            x:Name="TextGrid"
-            Width="{x:Bind Width}"
-            Height="{x:Bind Height}"
-            MinWidth="{x:Bind MinWidth}"
-            MinHeight="{x:Bind MinHeight}"
-            Padding="11,2,1,0"
-            ColumnSpacing="4">
+        <Grid x:Name="TextGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -295,25 +289,41 @@
             <TextBlock
                 x:Name="TextBlock"
                 Grid.Column="0"
-                Width="{x:Bind Width}"
                 Height="{x:Bind Height}"
-                MinWidth="{x:Bind MinWidth}"
                 MinHeight="{x:Bind MinHeight}"
-                Padding="0,5,1,9"
+                MaxHeight="{x:Bind MaxHeight}"
+                Padding="11,6,8,7"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
-                SizeChanged="Grid_OnSizeChanged"
+                CharacterSpacing="23"
+                Foreground="{ThemeResource TextControlForeground}"
+                SizeChanged="TextBlock_OnSizeChanged"
                 TextWrapping="WrapWholeWords" />
             <Button
                 x:Name="EditButton"
                 Grid.Column="1"
-                Width="32"
-                Height="34"
-                Margin="2,0,-2,0"
+                Width="30"
+                Height="32"
                 AllowFocusOnInteraction="False"
+                BorderThickness="0"
                 Click="EditButton_OnClick"
                 Content="&#xE70F;"
                 Template="{StaticResource ButtonTemplate}" />
         </Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="TextBlockStates">
+                <VisualState x:Name="CurrentTextState" />
+                <VisualState x:Name="PlaceholderTextState">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="TextBlock" Storyboard.TargetProperty="Foreground">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlPlaceholderForeground}" />
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="TextBlock" Storyboard.TargetProperty="CharacterSpacing">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </UserControl>

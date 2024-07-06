@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="MediaMaster.Controls.TipIcon"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <Button
+            x:Name="TipIconButton"
+            Margin="0"
+            Padding="0"
+            BorderThickness="0"
+            Click="TipIconButton_OnClick"
+            ToolTipService.ToolTip="{x:Bind Text}">
+            <FontIcon FontSize="16" Glyph="&#xE946;" />
+            <Button.Resources>
+                <StaticResource x:Key="ButtonBackground" ResourceKey="ControlFillColorTransparentBrush" />
+                <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="ControlFillColorTransparentBrush" />
+                <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="ControlFillColorTransparentBrush" />
+                <StaticResource x:Key="ButtonBackgroundDisabled" ResourceKey="ControlFillColorTransparentBrush" />
+            </Button.Resources>
+        </Button>
+
+        <TeachingTip
+            x:Name="TipIconTeachingTip"
+            IsLightDismissEnabled="True"
+            Subtitle="{x:Bind Text}"
+            Target="{x:Bind TipIconButton}" />
+    </Grid>
+</UserControl>

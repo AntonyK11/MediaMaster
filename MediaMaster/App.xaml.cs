@@ -6,7 +6,6 @@ using MediaMaster.Services;
 using MediaMaster.ViewModels;
 using MediaMaster.Views;
 using Microsoft.UI.Dispatching;
-using MediaMaster.DataBase;
 using Microsoft.UI.Xaml;
 using H.NotifyIcon;
 using Windows.Storage;
@@ -113,88 +112,6 @@ public partial class App : Application
         base.OnLaunched(args);
 
         await GetService<IActivationService>().ActivateAsync();
-        //Thread thread = new(async () => { await GetService<DataBaseService>().InitializeAsync(); })
-        //{
-        //    Name = "DataBaseService"
-        //};
-        //thread.Start();
-        //await Task.Run(() => GetService<DataBaseService>().InitializeAsync());
-        // await db.InitializeAsync();
-
-        //await GetService<DataBaseService>().InitializeAsync();
-
-        //var activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
-        //switch (activatedArgs.Kind)
-        //{
-        //    case ExtendedActivationKind.AppNotification:
-        //        await GetService<IAppNotificationService>().HandleNotificationAsync((AppNotificationActivatedEventArgs)activatedArgs.Data);
-        //        break;
-        //    case ExtendedActivationKind.Launch:
-        //    {
-        //        LaunchActivatedEventArgs? launchArgs = (LaunchActivatedEventArgs)activatedArgs.Data;
-        //        await LaunchApp(launchArgs.Arguments);
-        //        break;
-        //    }
-        //    case ExtendedActivationKind.StartupTask:
-        //        if (GetService<SettingsService>().LeaveAppRunning)
-        //        {
-        //            await LaunchApp("--NoWindow");
-        //        }
-        //        else
-        //        {
-        //            await LaunchApp("");
-        //        }
-        //        break;
-        //    default:
-        //        await LaunchApp("");
-        //        break;
-        //}
-
-        //await LoadWindow();
-
-        //GetService<ITranslationService>().LanguageChanged += async (_, _) => await ResetContextMenu();
-
-        //RegistryKey? _key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Classes\\Folder\\Shell", true);
-        //System.Diagnostics.Debug.WriteLine(_key);
-        //RegistryKey newkey = _key.CreateSubKey("My Menu Item");
-        //newkey.SetValue("AppliesTo", "under:C:");
-        //System.Diagnostics.Debug.WriteLine(newkey);
-
-        //RegistryKey subNewkey = newkey.CreateSubKey("Command");
-        //subNewkey.SetValue("", "MediaMaster.exe");
-        //System.Diagnostics.Debug.WriteLine(subNewkey);
-        //subNewkey.Close();
-
-        //newkey.Close();
-        //_key.Close();
-
-        //_key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Classes\\Directory\\Shell", true);
-        //System.Diagnostics.Debug.WriteLine(_key);
-        //newkey = _key.CreateSubKey("My Menu Item");
-        //newkey.SetValue("AppliesTo", "under:C:");
-        //System.Diagnostics.Debug.WriteLine(newkey);
-
-        //subNewkey = newkey.CreateSubKey("Command");
-        //subNewkey.SetValue("", "MediaMaster.exe");
-        //System.Diagnostics.Debug.WriteLine(subNewkey);
-        //subNewkey.Close();
-
-        //newkey.Close();
-        //_key.Close();
-
-        //_key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Classes\\Directory\\Background\\Shell", true);
-        //System.Diagnostics.Debug.WriteLine(_key);
-        //newkey = _key.CreateSubKey("My Menu Item");
-        //newkey.SetValue("AppliesTo", "under:C:");
-        //System.Diagnostics.Debug.WriteLine(newkey);
-
-        //subNewkey = newkey.CreateSubKey("Command");
-        //subNewkey.SetValue("", "MediaMaster.exe");
-        //System.Diagnostics.Debug.WriteLine(subNewkey);
-        //subNewkey.Close();
-
-        //newkey.Close();
-        //_key.Close();
     }
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)

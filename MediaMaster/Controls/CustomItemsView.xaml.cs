@@ -60,7 +60,7 @@ public sealed partial class CustomItemsView
             SetValue(ItemsSourceProperty, value);
             HandleAddItemButton();
 
-            var advancedCollectionView = new AdvancedCollectionView(value, true);
+            var advancedCollectionView = new AdvancedCollectionView(value);
             advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, Comparer));
             ItemsView.ItemsSource = advancedCollectionView;
         }
@@ -80,7 +80,7 @@ public sealed partial class CustomItemsView
         {
             SetValue(ComparerProperty, value);
 
-            var advancedCollectionView = new AdvancedCollectionView(ItemsSource, true);
+            var advancedCollectionView = new AdvancedCollectionView(ItemsSource);
             advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, value));
             ItemsView.ItemsSource = advancedCollectionView;
         }
@@ -178,7 +178,6 @@ public sealed partial class CustomItemsView
     {
         InitializeComponent();
         ItemsSource = [new AddItem()];
-        // ItemsSource.CollectionChanged += OnCollectionChanged;
         ItemsView.SizeChanged += (_, _) => UpdateScrollButtonsVisibility();
     }
 
@@ -207,7 +206,7 @@ public sealed partial class CustomItemsView
     private ScrollView? ScrollView => ItemsView.FindDescendants().OfType<ScrollView>()
         .FirstOrDefault(i => i.Name == "PART_ScrollView");
 
-    private void UpdateScrollButtonsVisibility(object? n = null, object? n2 = null)
+    private void UpdateScrollButtonsVisibility(object? sender = null, SizeChangedEventArgs? args = null)
     {
         if (!ShowScrollButtons || ScrollView == null)
         {

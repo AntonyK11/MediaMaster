@@ -76,7 +76,7 @@ public sealed partial class TitleBarControl
 
         AppIconElement.PointerPressed += ViewModel.AppIcon_LeftClick;
         AppIconElement.RightTapped += TitleBarViewModel.AppIcon_RightClick;
-        AppIconElement.DoubleTapped += (_, _) => App.Shutdown();
+        AppIconElement.DoubleTapped += (_, _) => App.MainWindow?.Close();
 
         if (App.MainWindow != null)
         {

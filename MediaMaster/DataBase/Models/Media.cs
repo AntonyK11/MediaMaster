@@ -9,11 +9,11 @@ public class Media : IHasTimestamps
     [Key]
     public virtual int MediaId { get; set; }
 
-    public virtual string Name { get; set; }
+    public virtual string Name { get; set; } = "";
 
-    public virtual string? Description { get; set; } = null;
+    public virtual string Description { get; set; } = "";
 
-    public virtual string FilePath { get; set; }
+    public virtual string FilePath { get; set; } = "";
 
     public virtual DateTime Modified { get; set; } = DateTime.UtcNow;
 

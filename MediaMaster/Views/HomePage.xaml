@@ -50,7 +50,7 @@
             <ItemContainer
                 Width="200"
                 Height="200"
-                DataContext="{x:Bind}"
+                DataContext="{x:Bind MediaId}"
                 Tapped="ItemContainer_Tapped">
                 <customControls:MediaIcon
                     x:Phase="1"

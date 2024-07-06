@@ -1,6 +1,7 @@
 ﻿using Windows.UI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MediaMaster.DataBase.Models;
+using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.ViewModels.Dialog;
@@ -10,6 +11,8 @@ public partial class EditTagDialogViewModel : ObservableObject
     [ObservableProperty] private string _name = "";
 
     [ObservableProperty] private string _shorthand = "";
+
+    [ObservableProperty] private string _colorName = "";
 
     [ObservableProperty] private bool _canChangeName = true;
 
@@ -32,6 +35,7 @@ public partial class EditTagDialogViewModel : ObservableObject
         {
             _color = value;
             ColorBrush = new SolidColorBrush(value);
+            ColorName = ColorHelper.ToDisplayName(value);
         }
     }
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Windows.System;
 using CommunityToolkit.WinUI.Collections;
 using MediaMaster.DataBase;
@@ -51,7 +52,7 @@ public sealed partial class SelectTagsDialog : Page
 
         _advancedCollectionView = new AdvancedCollectionView(Tags.Where(t => _showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList());
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("Name", SortDirection.Ascending));
-        ItemsView.ItemsSource = _advancedCollectionView;
+        ListView.ItemsSource = _advancedCollectionView;
 
         SelectedTags = Tags.Where(t => selectedTags.Contains(t.TagId)).ToList();
         _watchForSelectionChange = true;
@@ -84,30 +85,37 @@ public sealed partial class SelectTagsDialog : Page
         _watchForSelectionChange = true;
     }
 
-    private void ListView_OnSelectionChanged(ItemsView itemsView, ItemsViewSelectionChangedEventArgs args)
+    private void ListView_OnSelectionChanged(object sender, SelectionChangedEventArgs args)
     {
         if (_watchForSelectionChange)
         {
-            SelectedTags = itemsView.SelectedItems.OfType<Tag>().ToList();
+            foreach (var tag in args.RemovedItems.OfType<Tag>())
+            {
+                SelectedTags.Remove(tag);
+            }
+
+            foreach (var tag in args.AddedItems.OfType<Tag>())
+            {
+                SelectedTags.Add(tag);
+            }
         }
     }
 
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).DataContext;
-        await CreateEditDeleteTagDialog.ShowDialogAsync(tagId);
+        var tag = (Tag)((FrameworkElement)sender).DataContext;
+        await CreateEditDeleteTagDialog.ShowDialogAsync(tag.TagId);
 
         UpdateItemSource();
     }
 
     private async void DuplicateTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).DataContext;
+        var tag = (Tag)((FrameworkElement)sender).DataContext;
 
-        Tag? tag;
         await using (var database = new MediaDbContext())
         {
-            tag = await database.Tags.Include(t => t.Parents).FirstOrDefaultAsync(t => t.TagId == tagId);
+            tag = await database.Tags.Include(t => t.Parents).FirstOrDefaultAsync(t => t.TagId == tag.TagId);
             if (tag == null) return;
         }
 
@@ -119,8 +127,8 @@ public sealed partial class SelectTagsDialog : Page
 
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
-        var tagId = (int)((FrameworkElement)sender).DataContext;
-        ContentDialogResult result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
+        var tag = (Tag)((FrameworkElement)sender).DataContext;
+        ContentDialogResult result = await CreateEditDeleteTagDialog.DeleteTag(tag.TagId);
 
         if (result == ContentDialogResult.Primary)
         {
@@ -162,28 +170,14 @@ public sealed partial class SelectTagsDialog : Page
 
         return (result, selectTagsDialog);
     }
-
-    private void ItemsView_OnProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
-    {
-        if (args is { Modifiers: VirtualKeyModifiers.Control, Key: VirtualKey.A })
-        {
-            args.Handled = true;
-            var oldSelectionCount = ((ItemsView)sender).SelectedItems.Count;
-            ((ItemsView)sender).SelectAll();
-            var newSelectionCount = ((ItemsView)sender).SelectedItems.Count;
-            if (oldSelectionCount == newSelectionCount)
-            {
-                ((ItemsView)sender).DeselectAll();
-            }
-        }
-    }
+    
 
     private async void FrameworkElement_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
     {
         _watchForSelectionChange = false;
-        var itemContainer = (ItemContainer)sender;
-        var tagId = (int)itemContainer.DataContext;
-        itemContainer.IsSelected = SelectedTags.Select(t => t.TagId).Contains(tagId);
+        var listViewItem = (ListViewItem)sender;
+        var tag = (Tag?)listViewItem.DataContext;
+        listViewItem.IsSelected = tag != null && SelectedTags.Contains(tag);
         await Task.Delay(1);
         _watchForSelectionChange = true;
     }

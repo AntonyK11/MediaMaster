@@ -172,7 +172,7 @@ public sealed partial class HomePage : Page
 
     private void ItemContainer_Tapped(object sender, TappedRoutedEventArgs e)
     {
-        MediaViewer.Media = ((Media)((FrameworkElement)sender).DataContext);
+        MediaViewer.MediaId = ((int)((FrameworkElement)sender).DataContext);
     }
 }
 

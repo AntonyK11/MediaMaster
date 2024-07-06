@@ -5,7 +5,6 @@ using Windows.System;
 using Windows.UI.Core;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
 
@@ -26,7 +25,7 @@ public sealed partial class EditableTextBlock : UserControl
         set
         {
             SetValue(TextProperty, value);
-            TextChanged(value);
+            SetText(Text);
         }
     }
 
@@ -45,7 +44,7 @@ public sealed partial class EditableTextBlock : UserControl
         set
         {
             SetValue(PlaceholderTextProperty, value);
-            TextChanged(Text);
+            SetText(Text);
         }
     }
 
@@ -75,143 +74,178 @@ public sealed partial class EditableTextBlock : UserControl
         set => SetValue(ConfirmOnFocusLossProperty, value);
     }
 
+    public static readonly DependencyProperty EditOnDoubleClickProperty
+        = DependencyProperty.Register(
+            nameof(EditOnDoubleClick),
+            typeof(bool),
+            typeof(EditableTextBlock),
+            new PropertyMetadata(true));
+
+    public bool EditOnDoubleClick
+    {
+        get => (bool)GetValue(EditOnDoubleClickProperty);
+        set => SetValue(EditOnDoubleClickProperty, value);
+    }
+
+    public static readonly DependencyProperty EditOnClickProperty
+        = DependencyProperty.Register(
+            nameof(EditOnClick),
+            typeof(bool),
+            typeof(EditableTextBlock),
+            new PropertyMetadata(true));
+
+    public bool EditOnClick
+    {
+        get => (bool)GetValue(EditOnClickProperty);
+        set => SetValue(EditOnClickProperty, value);
+    }
+
     public event TypedEventHandler<EditableTextBlock, string>? TextConfirmed;
+    public event TypedEventHandler<EditableTextBlock, string>? Edit;
 
     public EditableTextBlock()
     {
         InitializeComponent();
+        SetText(_text);
     }
 
     private void EditButton_OnClick(object sender, RoutedEventArgs e)
     {
-        Edit();
+        App.DispatcherQueue.EnqueueAsync(() => Edit?.Invoke(this, Text));
+        if (EditOnClick)
+        {
+            EditText();
+        }
     }
 
     private void EditableTextBlock_OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
-        Edit();
+        if (EditOnDoubleClick)
+        {
+            EditText();
+        }
     }
 
     private void ConfirmButton_OnClick(object sender, RoutedEventArgs e)
     {
-        Confirm();
+        ConfirmChanges();
     }
 
     private void TextBox_OnKeyDown(object sender, KeyRoutedEventArgs e)
     {
         if (e.Key == VirtualKey.Enter && ConfirmOnReturn)
         {
-            Confirm();
+            ConfirmChanges();
             e.Handled = true;
         }
     }
 
-    private void EditableTextBlock_OnLosingFocus(object? sender, RoutedEventArgs? e)
+    private async void EditableTextBlock_OnLosingFocus(object? sender, RoutedEventArgs? e)
     {
+        await Task.Delay(1);
         if (!TextBox.ContextFlyout.IsOpen)
         {
             if (ConfirmOnFocusLoss)
             {
-                Confirm();
+                ConfirmChanges();
             }
             else
             {
-                Cancel();
+                CancelChanges();
             }
         }
     }
 
-    public void Edit()
+    public void EditText()
+    {
+        ShowTextBox();
+
+        SetText(Text);
+        TextBox.Focus(FocusState.Programmatic);
+        TextBox.SelectAll();
+    }
+
+    public void ConfirmChanges()
+    {
+        HideTextBox();
+        Text = TextBox.Text;
+        App.DispatcherQueue.EnqueueAsync(() => TextConfirmed?.Invoke(this, Text));
+    }
+
+    public void CancelChanges()
+    {
+        HideTextBox();
+        SetText(Text);
+        TextBox.IsEnabled = false;
+    }
+
+    private void ShowTextBox()
     {
         TextBlock.Opacity = 0;
         TextBlock.IsHitTestVisible = false;
         EditButton.Opacity = 0;
         EditButton.IsHitTestVisible = false;
         EditButton.IsEnabled = false;
+
         TextBox.Opacity = 1;
         TextBox.IsHitTestVisible = true;
-
-        TextBox.Text = _text;
-        TextChanged(_text);
-
-        TextBox.Focus(FocusState.Programmatic);
-        TextBox.SelectAll();
+        TextBox.IsTabStop = true;
+        TextBox.IsEnabled = true;
     }
 
-    public void Confirm()
+    private void HideTextBox()
     {
-        Text = TextBox.Text;
         TextBox.Opacity = 0;
         TextBox.IsHitTestVisible = false;
+        TextBox.IsTabStop = false;
+        TextBox.IsEnabled = false;
+
         TextBlock.Opacity = 1;
         TextBlock.IsHitTestVisible = true;
         EditButton.Opacity = 1;
         EditButton.IsHitTestVisible = true;
         EditButton.IsEnabled = true;
-
-        Text = TextBox.Text;
-
-        TextBox.SelectionStart = 0;
-        TextBox.SelectionLength = 0;
     }
 
-    public void Cancel()
+    private void TextBox_TextChanging(TextBox textBox, TextBoxTextChangingEventArgs textBoxTextChangingEventArgs)
     {
-        TextBox.Opacity = 0;
-        TextBox.IsHitTestVisible = false;
-        TextBlock.Opacity = 1;
-        TextBlock.IsHitTestVisible = true;
-        EditButton.Opacity = 1;
-        EditButton.IsHitTestVisible = true;
-        EditButton.IsEnabled = true;
-
-        TextBox.Text = Text;
-        TextChanged(Text);
-
+        var selectionStart = TextBox.SelectionStart;
         TextBox.SelectionStart = 0;
-        TextBox.SelectionLength = 0;
-
-        App.DispatcherQueue.EnqueueAsync(() => TextConfirmed?.Invoke(this, Text));
+        SetText(TextBox.Text);
+        TextBox.SelectionStart = selectionStart;
     }
 
-    private void TextBox_OnBeforeTextChanging(TextBox textBox, TextBoxBeforeTextChangingEventArgs args)
-    {
-        TextBox.Text = args.NewText;
-        TextChanged(args.NewText);
-        TextBox.SelectionStart = args.NewText.Length;
-    }
-
-    private void TextChanged(string text)
+    private void SetText(string text)
     {
         _text = text;
-        if (text.IsNullOrEmpty())
+
+        VisualStateManager.GoToState(this, text.IsNullOrEmpty() ? "PlaceholderTextState" : "CurrentTextState", true);
+        
+        if (TextBox.Text != text)
         {
-            TextBlock.Text = PlaceholderText;
-            TextBlock.CharacterSpacing = 0;
-            TextBlock.Foreground = (SolidColorBrush)Resources["TextControlPlaceholderForeground"];
+            TextBox.Text = text;
         }
-        else
-        {
-            TextBlock.Text = text;
-            TextBlock.CharacterSpacing = 23;
-            TextBlock.Foreground = (SolidColorBrush)Resources["TextControlForeground"];
-        }
+        TextBlock.Text = text.IsNullOrEmpty() ? PlaceholderText : text;
+
         ResizeTextBox();
     }
 
-    private void Grid_OnSizeChanged(object sender, SizeChangedEventArgs e)
+    private async void TextBlock_OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        await Task.Yield();
         ResizeTextBox();
     }
 
     private void ResizeTextBox()
     {
+        TextBlock.SizeChanged -= TextBlock_OnSizeChanged;
         TextBox.Height = 0;
         TextBox.Width = 0;
         UpdateLayout();
-        TextBox.Height = Math.Max(TextBlock.MinHeight, Math.Min(TextBlock.ActualHeight, TextBlock.MaxHeight));
-        TextBox.Width = Math.Min(TextBlock.ActualWidth + EditButton.ActualWidth + 16, TextGrid.Width);
+        TextBox.Height = Math.Max(TextBlock.MinHeight, Math.Min(TextBlock.DesiredSize.Height, TextBlock.MaxHeight));
+        TextBox.Width = Math.Min(TextBlock.ActualSize.X + EditButton.Width + 16, TextGrid.ActualSize.X);
         UpdateLayout();
+        TextBlock.SizeChanged += TextBlock_OnSizeChanged;
     }
 }
 
@@ -222,4 +256,3 @@ public class ConfirmButton : Button
         ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
     }
 }
-
