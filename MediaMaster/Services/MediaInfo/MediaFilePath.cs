@@ -11,11 +11,11 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaFilePath";
 
-    public override void Initialize(Media media)
+    public override void Initialize(Media? media)
     {
         base.Initialize(media);
 
-        if (EditableTextBlock == null) return;
+        if (EditableTextBlock == null || media == null) return;
         EditableTextBlock.Text = media.FilePath;
     }
 

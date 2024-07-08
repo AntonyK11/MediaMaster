@@ -7,11 +7,11 @@ public class MediaDescription(StackPanel parent) : MediaInfoTextBlockBase(parent
 {
     public override string TranslationKey { get; set; } = "MediaDescription";
 
-    public override void Initialize(Media media)
+    public override void Initialize(Media? media)
     {
         base.Initialize(media);
 
-        if (EditableTextBlock == null) return;
+        if (EditableTextBlock == null || media == null) return;
         EditableTextBlock.Text = media.Description;
     }
 

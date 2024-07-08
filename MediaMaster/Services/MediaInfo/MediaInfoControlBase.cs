@@ -12,7 +12,7 @@ public abstract class MediaInfoControlBase(StackPanel parent)
 
     public abstract string TranslationKey { get; set; }
 
-    public virtual void Initialize(Media media)
+    public virtual void Initialize(Media? media)
     {
         if (ShowInfo(media))
         {
@@ -34,7 +34,7 @@ public abstract class MediaInfoControlBase(StackPanel parent)
         }
     }
 
-    public virtual bool ShowInfo(Media media)
+    public virtual bool ShowInfo(Media? media)
     {
         return true;
     }

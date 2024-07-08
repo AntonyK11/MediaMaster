@@ -1,4 +1,5 @@
-﻿using EFCore.BulkExtensions;
+﻿using System.Diagnostics;
+using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -16,12 +17,12 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 
     public override string TranslationKey { get; set; } = "MediaTags";
 
-    public override void Initialize(Media media)
+    public override void Initialize(Media? media)
     {
         base.Initialize(media);
 
         if (TagView == null) return;
-        TagView.MediaId = media.MediaId;
+        TagView.MediaId = media?.MediaId;
     }
 
     public override void Setup()
@@ -37,7 +38,8 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
             {
                 MinColumnSpacing = 4,
                 MinRowSpacing = 4
-            }
+            },
+            MaxHeight = 200
         };
         stackPanel.Children.Add(TextBlock);
         stackPanel.Children.Add(TagView);

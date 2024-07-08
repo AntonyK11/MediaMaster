@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Windows.System;
+using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Collections;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -8,6 +9,7 @@ using MediaMaster.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using WinUI3Localizer;
 
@@ -39,6 +41,12 @@ public sealed partial class SelectTagsDialog : Page
     private async void UpdateItemSource(ICollection<int>? selectedTags = null)
     {
         await SetupTags(selectedTags ?? SelectedTags.Select(t => t.TagId).ToList());
+
+        if (_advancedCollectionView != null)
+        {
+            SelectTags(_advancedCollectionView.OfType<Tag>().ToList(), SelectedTags);
+        }
+
         TextBox_TextChanged(null, null);
     }
 
@@ -55,9 +63,60 @@ public sealed partial class SelectTagsDialog : Page
         ListView.ItemsSource = _advancedCollectionView;
 
         SelectedTags = Tags.Where(t => selectedTags.Contains(t.TagId)).ToList();
+
         _watchForSelectionChange = true;
     }
 
+    private void SelectTags(IList<Tag> tags, ICollection<Tag> selectedTags)
+    {
+        _watchForSelectionChange = false;
+
+        var selectedTagIds = selectedTags.Select(t => t.TagId).ToHashSet();
+        var selectedIndexes = new List<int>();
+
+        for (var i = 0; i < tags.Count; i++)
+        {
+            if (selectedTagIds.Contains(tags[i].TagId))
+            {
+                selectedIndexes.Add(i);
+            }
+        }
+
+        var rangesToSelect = FindContiguousRanges(selectedIndexes);
+
+        foreach (var range in rangesToSelect)
+        {
+            ListView.SelectRange(range);
+        }
+
+        _watchForSelectionChange = true;
+    }
+
+    private static List<ItemIndexRange> FindContiguousRanges(List<int> indexes)
+    {
+        var ranges = new List<ItemIndexRange>();
+        if (indexes.Count == 0) return ranges;
+
+        indexes.Sort();
+        var start = indexes[0];
+
+        for (var i = 0; i < indexes.Count - 1; i++)
+        {
+            var current = indexes[i];
+            var next = indexes[i + 1];
+
+            if (current == next - 1)
+            {
+                continue;
+            }
+            
+            ranges.Add(new ItemIndexRange(start, (uint)(current - start + 1)));
+            start = next;
+        }
+        ranges.Add(new ItemIndexRange(start, (uint)(indexes.Last() - start + 1)));
+        return ranges;
+    }
+    
     private void TextBox_TextChanged(object? sender, TextChangedEventArgs? args)
     {
         _watchForSelectionChange = false;
@@ -169,16 +228,5 @@ public sealed partial class SelectTagsDialog : Page
         } while (result == ContentDialogResult.Secondary);
 
         return (result, selectTagsDialog);
-    }
-    
-
-    private async void FrameworkElement_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-    {
-        _watchForSelectionChange = false;
-        var listViewItem = (ListViewItem)sender;
-        var tag = (Tag?)listViewItem.DataContext;
-        listViewItem.IsSelected = tag != null && SelectedTags.Contains(tag);
-        await Task.Delay(1);
-        _watchForSelectionChange = true;
     }
 }

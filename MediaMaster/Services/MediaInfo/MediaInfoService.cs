@@ -24,7 +24,7 @@ internal class MediaInfoService
         MediaInfoControls.Add(mediaInfoControl);
     }
 
-    public void SetMedia(Media media)
+    public void SetMedia(Media? media)
     {
         foreach (var mediaInfoControl in MediaInfoControls)
         {

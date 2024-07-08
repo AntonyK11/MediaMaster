@@ -13,10 +13,7 @@
 
     <Page.Resources>
         <DataTemplate x:Key="TagListViewTemplate" x:DataType="models:Tag">
-            <ListViewItem
-                Height="36"
-                DataContextChanged="FrameworkElement_OnDataContextChanged"
-                ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}">
+            <ListViewItem Height="36" ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}">
                 <Grid>
                     <Rectangle
                         Margin="-40,-9,-8,-8"

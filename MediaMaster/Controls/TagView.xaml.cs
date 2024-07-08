@@ -225,19 +225,14 @@ public sealed partial class TagView : UserControl
             Tags = tags.ToList();
         }
 
+        const int tagCheckLimit = 100;
         var showExtensions = App.GetService<SettingsService>().ShowExtensions;
-        var filteredTags = Tags.Where(t => showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).OrderBy(e => e.Name).ToList();
 
-        const int tagCheckLimit = 10000;
-
+        ICollection<Tag> filteredTags = Tags.Where(t => showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList();
         ICollection<Tag> itemSource = CustomItemsView.ItemsSource.OfType<Tag>().ToList();
-        ICollection<Tag> tagsToRemove = [];
-        ICollection<Tag> tagsToAdd = [];
-        await Task.Run(() =>
-        {
-            tagsToRemove = itemSource.AsParallel().Except(filteredTags.AsParallel(), TagComparer.Instance).Take(tagCheckLimit).ToList();
-            tagsToAdd = filteredTags.AsParallel().Except(itemSource.AsParallel(), TagComparer.Instance).Take(tagCheckLimit).ToList();
-        });
+
+        ICollection<Tag>  tagsToRemove = itemSource.Except(filteredTags, TagComparer.Instance).Take(tagCheckLimit).ToList();
+        ICollection<Tag>  tagsToAdd = filteredTags.Except(itemSource, TagComparer.Instance).Take(tagCheckLimit).ToList();
 
         if (tagsToAdd.Count >= tagCheckLimit || tagsToRemove.Count >= tagCheckLimit)
         {

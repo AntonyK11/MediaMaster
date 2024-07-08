@@ -42,6 +42,7 @@ public sealed partial class MediaViewer : UserControl
         NameTextBox.TextConfirmed += (_, _) => SaveMedia();
 
         _mediaInfoService = new MediaInfoService(StackPanel);
+        _mediaInfoService.SetMedia(null);
     }
 
     public async void FindMedia(int mediaId)
@@ -53,9 +54,9 @@ public sealed partial class MediaViewer : UserControl
             media = await database.FindAsync<Media>(mediaId);
         }
 
-        if (media == null) return;
-
         _mediaInfoService.SetMedia(media);
+
+        if (media == null) return;
 
         NameTextBox.Text = media.Name;
         MediaIcon.MediaPath = media.FilePath;
