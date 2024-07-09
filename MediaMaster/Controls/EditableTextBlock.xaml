@@ -7,7 +7,7 @@
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    DoubleTapped="EditableTextBlock_OnDoubleTapped"
+    DoubleTapped="OnDoubleTapped"
     LosingFocus="EditableTextBlock_OnLosingFocus"
     mc:Ignorable="d">
 
@@ -297,6 +297,7 @@
                 VerticalAlignment="Center"
                 CharacterSpacing="23"
                 Foreground="{ThemeResource TextControlForeground}"
+                IsTextSelectionEnabled="True"
                 SizeChanged="TextBlock_OnSizeChanged"
                 TextWrapping="WrapWholeWords" />
             <Button

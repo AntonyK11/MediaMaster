@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using EFCore.BulkExtensions;
+﻿using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -12,7 +11,6 @@ namespace MediaMaster.Services.MediaInfo;
 
 public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 {
-    public TextBlock? TextBlock;
     public TagView? TagView;
 
     public override string TranslationKey { get; set; } = "MediaTags";
@@ -31,7 +29,7 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
         {
             Spacing = 10
         };
-        TextBlock = new TextBlock();
+        Title = GetTitle();
         TagView = new TagView
         {
             Layout = new FlowLayout
@@ -41,7 +39,7 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
             },
             MaxHeight = 200
         };
-        stackPanel.Children.Add(TextBlock);
+        stackPanel.Children.Add(Title);
         stackPanel.Children.Add(TagView);
         Parent.Children.Add(stackPanel);
 
@@ -51,26 +49,26 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 
     public override void SetupTranslations()
     {
-        if (TextBlock != null)
+        if (Title != null)
         {
-            Uids.SetUid(TextBlock, $"/Media/{TranslationKey}_Title");
+            Uids.SetUid(Title, $"/Media/{TranslationKey}_Title");
         }
     }
 
     public override void Show()
     {
-        if (TextBlock != null && TagView != null)
+        base.Show();
+        if (TagView != null)
         {
-            TextBlock.Visibility = Visibility.Visible;
             TagView.Visibility = Visibility.Visible;
         }
     }
 
     public override void Hide()
     {
-        if (TextBlock != null && TagView != null)
+        base.Hide();
+        if (TagView != null)
         {
-            TextBlock.Visibility = Visibility.Collapsed;
             TagView.Visibility = Visibility.Collapsed;
         }
     }
@@ -83,7 +81,7 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
         {
             if (TagView.MediaId != null)
             {
-                var trackedMedia = await dataBase.Medias.Select(m => new { m.MediaId, Tags = m.Tags.Select(t => new { t.TagId }) }).FirstOrDefaultAsync(m => m.MediaId == TagView.MediaId);
+                var trackedMedia = await dataBase.Medias.Include(m => m.Tags).FirstOrDefaultAsync(m => m.MediaId == TagView.MediaId);
 
                 if (trackedMedia != null)
                 {
@@ -108,6 +106,9 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
                             .ToListAsync();
                         await dataBase.BulkDeleteAsync(mediaTagsToRemove);
                     }
+
+                    trackedMedia.Modified = DateTime.UtcNow;
+                    await dataBase.SaveChangesAsync();
                 }
             }
         }

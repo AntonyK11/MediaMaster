@@ -29,7 +29,7 @@
             <StackPanel
                 x:Name="StackPanel"
                 Margin="16"
-                Spacing="16">
+                Spacing="12">
                 <Grid
                     MinHeight="24"
                     HorizontalAlignment="Center"

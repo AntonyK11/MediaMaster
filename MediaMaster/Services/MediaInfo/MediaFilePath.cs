@@ -28,7 +28,7 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
             EditOnClick = false,
             EditOnDoubleClick = false
         };
-        editableTextBlock.Edit += PathTextBox_OnEdit;
+        editableTextBlock.EditButtonPressed += PathTextBox_OnEdit;
         return editableTextBlock;
     }
 

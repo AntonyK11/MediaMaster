@@ -84,10 +84,10 @@ public sealed partial class MediaViewer : UserControl
         {
             var media = await database.FindAsync<Media>(MediaId);
 
-
             if (media == null) return;
 
             media.Name = NameTextBox.Text;
+            media.Modified = DateTime.UtcNow;
 
             await database.SaveChangesAsync();
         }

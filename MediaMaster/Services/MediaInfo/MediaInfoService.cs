@@ -11,6 +11,9 @@ internal class MediaInfoService
     {
         Register(new MediaFilePath(parent));
         Register(new MediaDescription(parent));
+        Register(new MediaCreationDate(parent));
+        Register(new MediaAdditionDate(parent));
+        Register(new MediaEditionDate(parent));
         Register(new MediaTags(parent));
     }
 

@@ -144,7 +144,7 @@ public partial class TitleBarViewModel : ObservableObject
         );
     }
 
-    public async void AppIcon_LeftClick(object sender, PointerRoutedEventArgs args)
+    public void AppIcon_LeftClick(object sender, PointerRoutedEventArgs args)
     {
         if (AppWindow == null) return;
 

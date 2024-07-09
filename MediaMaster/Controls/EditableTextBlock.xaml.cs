@@ -101,24 +101,28 @@ public sealed partial class EditableTextBlock : UserControl
     }
 
     public event TypedEventHandler<EditableTextBlock, string>? TextConfirmed;
-    public event TypedEventHandler<EditableTextBlock, string>? Edit;
+    public event TypedEventHandler<EditableTextBlock, string>? EditButtonPressed;
+
+    private DateTime? _focusGainedTime;
 
     public EditableTextBlock()
     {
         InitializeComponent();
-        SetText(_text);
+        Loaded += (_, _) => SetText(_text);
+
+        TextBlock.AddHandler(DoubleTappedEvent, new DoubleTappedEventHandler(OnDoubleTapped), true);
     }
 
     private void EditButton_OnClick(object sender, RoutedEventArgs e)
     {
-        App.DispatcherQueue.EnqueueAsync(() => Edit?.Invoke(this, Text));
+        App.DispatcherQueue.EnqueueAsync(() => EditButtonPressed?.Invoke(this, Text));
         if (EditOnClick)
         {
             EditText();
         }
     }
 
-    private void EditableTextBlock_OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    private void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         if (EditOnDoubleClick)
         {
@@ -140,10 +144,19 @@ public sealed partial class EditableTextBlock : UserControl
         }
     }
 
-    private async void EditableTextBlock_OnLosingFocus(object? sender, RoutedEventArgs? e)
+    private async void EditableTextBlock_OnLosingFocus(object sender, LosingFocusEventArgs e)
     {
-        await Task.Delay(1);
-        if (!TextBox.ContextFlyout.IsOpen)
+        await Task.Yield();
+        if (_focusGainedTime != null && DateTime.Now - _focusGainedTime < TimeSpan.FromMilliseconds(200))
+        {
+            
+            TextBox.Focus(FocusState.Programmatic);
+            TextBox.SelectAll();
+            return;
+        }
+        _focusGainedTime = null;
+
+        if (!TextBox.ContextFlyout.IsOpen && e.NewFocusedElement != TextBox)
         {
             if (ConfirmOnFocusLoss)
             {
@@ -158,6 +171,7 @@ public sealed partial class EditableTextBlock : UserControl
 
     public void EditText()
     {
+        _focusGainedTime = DateTime.Now;
         ShowTextBox();
 
         SetText(Text);

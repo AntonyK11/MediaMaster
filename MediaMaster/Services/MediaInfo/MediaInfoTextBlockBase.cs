@@ -1,4 +1,6 @@
 ﻿using MediaMaster.Controls;
+using MediaMaster.DataBase;
+using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
@@ -7,7 +9,6 @@ namespace MediaMaster.Services.MediaInfo;
 
 public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoControlBase(parent)
 {
-    public TextBlock? TextBlock;
     public EditableTextBlock? EditableTextBlock;
 
     public override void Setup()
@@ -16,18 +17,18 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
         {
             Spacing = 4
         };
-        TextBlock = new TextBlock();
+        Title = GetTitle();
         EditableTextBlock = GetEditableTextBlock();
-        stackPanel.Children.Add(TextBlock);
+        stackPanel.Children.Add(Title);
         stackPanel.Children.Add(EditableTextBlock);
         Parent.Children.Add(stackPanel);
     }
 
     public override void SetupTranslations()
     {
-        if (TextBlock != null && EditableTextBlock != null)
+        if (Title != null && EditableTextBlock != null)
         {
-            Uids.SetUid(TextBlock, $"/Media/{TranslationKey}_Title");
+            Uids.SetUid(Title, $"/Media/{TranslationKey}_Title");
             Uids.SetUid(EditableTextBlock, $"/Media/{TranslationKey}_TextBlock");
         }
     }
@@ -45,18 +46,18 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
 
     public override void Show()
     {
-        if (TextBlock != null && EditableTextBlock != null)
+        base.Show();
+        if (EditableTextBlock != null)
         {
-            TextBlock.Visibility = Visibility.Visible;
             EditableTextBlock.Visibility = Visibility.Visible;
         }
     }
 
     public override void Hide()
     {
-        if (TextBlock != null && EditableTextBlock != null)
+        base.Hide();
+        if (EditableTextBlock != null)
         {
-            TextBlock.Visibility = Visibility.Collapsed;
             EditableTextBlock.Visibility = Visibility.Collapsed;
         }
     }
@@ -65,5 +66,25 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
     {
         UpdateMedia(text);
     }
+
+    public virtual async void UpdateMedia(string text)
+    {
+        if (Media == null) return;
+
+        await using (var database = new MediaDbContext())
+        {
+            var media = await database.Medias.FindAsync(Media.MediaId);
+
+            if (media == null) return;
+
+            UpdateMediaProperty(ref media, text);
+
+            media.Modified = DateTime.UtcNow;
+
+            await database.SaveChangesAsync();
+        }
+    }
+
+    public virtual void UpdateMediaProperty(ref Media media, string text) { }
 }
 

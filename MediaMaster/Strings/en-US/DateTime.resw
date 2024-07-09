@@ -117,25 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MediaDescription_Title.Text" xml:space="preserve">
-    <value>Description</value>
+  <data name="one_second_ago" xml:space="preserve">
+    <value>one second ago</value>
   </data>
-  <data name="MediaDescription_TextBlock.PlaceholderText" xml:space="preserve">
-    <value>Empty description</value>
+  <data name="seconds_ago" xml:space="preserve">
+    <value>{0} seconds ago</value>
   </data>
-  <data name="MediaFilePath_Title.Text" xml:space="preserve">
-    <value>File Path</value>
+  <data name="a_minute_ago" xml:space="preserve">
+    <value>a minute ago</value>
   </data>
-  <data name="MediaTags_Title.Text" xml:space="preserve">
-    <value>Tags</value>
+  <data name="minutes_ago" xml:space="preserve">
+    <value>{0} minutes ago</value>
   </data>
-  <data name="MediaAdditionDate_Title.Text" xml:space="preserve">
-    <value>Date Added</value>
+  <data name="an_hour_ago" xml:space="preserve">
+    <value>an hour ago</value>
   </data>
-  <data name="MediaCreationDate_Title.Text" xml:space="preserve">
-    <value>Date Created</value>
+  <data name="hours_ago" xml:space="preserve">
+    <value>{0} hours ago</value>
   </data>
-  <data name="MediaEditionDate_Title.Text" xml:space="preserve">
-    <value>Date Edited</value>
+  <data name="yesterday" xml:space="preserve">
+    <value>yesterday</value>
+  </data>
+  <data name="days_ago" xml:space="preserve">
+    <value>{0} days ago</value>
+  </data>
+  <data name="one_month_ago" xml:space="preserve">
+    <value>one month ago</value>
+  </data>
+  <data name="months_ago" xml:space="preserve">
+    <value>{0} months ago</value>
+  </data>
+  <data name="one_year_ago" xml:space="preserve">
+    <value>one year ago</value>
+  </data>
+  <data name="years_ago" xml:space="preserve">
+    <value>{0} years ago</value>
   </data>
 </root>
