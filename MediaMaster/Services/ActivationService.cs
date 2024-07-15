@@ -4,7 +4,6 @@ using WinUIEx;
 using Windows.Storage;
 using MediaMaster.DataBase;
 using Microsoft.Windows.AppNotifications;
-using System.Diagnostics;
 using Microsoft.Windows.AppLifecycle;
 using Windows.ApplicationModel.Activation;
 using WinUI3Localizer;

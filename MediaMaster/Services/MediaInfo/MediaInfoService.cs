@@ -9,6 +9,7 @@ internal class MediaInfoService
 
     public MediaInfoService(StackPanel parent)
     {
+        Register(new MediaDuration(parent));
         Register(new MediaFilePath(parent));
         Register(new MediaDescription(parent));
         Register(new MediaCreationDate(parent));

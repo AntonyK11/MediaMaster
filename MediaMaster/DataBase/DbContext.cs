@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase.Models;
 using Windows.Storage;
 using Microsoft.Extensions.Logging;

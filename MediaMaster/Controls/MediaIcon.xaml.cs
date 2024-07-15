@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml;
-using System.Diagnostics;
 using Windows.UI.Core;
 using MediaMaster.Services;
 using Microsoft.UI.Input;
@@ -98,7 +97,7 @@ public sealed partial class MediaIcon
         {
             ProcessStartInfo startInfo = new()
             {
-                Arguments = Path.GetDirectoryName(MediaPath),
+                Arguments = $"/select, \"{MediaPath}\"",
                 FileName = "explorer.exe"
             };
 

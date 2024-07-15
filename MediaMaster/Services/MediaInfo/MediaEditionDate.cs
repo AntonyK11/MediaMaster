@@ -1,7 +1,6 @@
 ﻿using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
 using Microsoft.UI.Xaml.Controls;
-using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -22,14 +21,6 @@ public class MediaEditionDate(StackPanel parent) : MediaInfoTextBase(parent)
         }
 
         Text.Text = $"{date.ToLongDateString()} {date.ToShortTimeString()} | {date.GetTimeDifference()}";
-    }
-
-    public override void SetupTranslations()
-    {
-        if (Title != null)
-        {
-            Uids.SetUid(Title, $"/Media/{TranslationKey}_Title");
-        }
     }
 }
 

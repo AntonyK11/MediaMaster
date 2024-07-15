@@ -72,26 +72,26 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
 		<PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="8.0.4" />
-		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.131" />
+		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.0" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="System.Text.Json" Version="8.0.3" />
+		<PackageReference Include="System.Text.Json" Version="8.0.4" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+		<PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
 		<PackageReference Include="WinUI3Localizer" Version="2.2.0" />
 		<PackageReference Include="WinUI3XamlPreview" Version="0.8.2" />
 		<PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
 		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.9.0" />
 		<PackageReference Include="WinUIEx" Version="2.3.4" />
-
-		<!--<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.0-prerelease.240602.1" />-->
+<!--<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.0-prerelease.240602.1" />-->
 	</ItemGroup>
 
   <ItemGroup>
@@ -156,4 +156,5 @@
 	<ItemGroup>
 	  <Resource Remove="Controls\TipIcon.xaml" />
 	</ItemGroup>		
+
 </Project>

@@ -68,27 +68,27 @@ public sealed partial class MainWindow
         // https://stackoverflow.com/questions/53000291/how-to-smooth-ugly-jitter-flicker-jumping-when-resizing-windows-especially-drag
         // https://github.com/microsoft/microsoft-ui-xaml/issues/5148
         var hWnd = this.GetWindowHandle();
-        MARGINS margins = new() { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 };
+        Margins margins = new() { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 };
         _ = DwmExtendFrameIntoClientArea(hWnd, ref margins);
 
-        WINDOWCOMPOSITIONATTRIBDATA winCompAttrData = new()
+        WindowCompositionAttributeData winCompAttrData = new()
         {
-            Attribute = WINDOWCOMPOSITIONATTRIB.WCA_ACCENT_POLICY,
-            Data = Marshal.UnsafeAddrOfPinnedArrayElement([(int)ACCENT_STATE.ACCENT_ENABLE_HOSTBACKDROP], 0),
+            Attribute = WindowCompositionAttribute.AccentPolicy,
+            Data = Marshal.UnsafeAddrOfPinnedArrayElement([(int)AccentState.AccentEnableHostBackdrop], 0),
             SizeOfData = sizeof(int)
         };
 
         if (theme == ElementTheme.Dark)
         {
-            winCompAttrData.Attribute = WINDOWCOMPOSITIONATTRIB.WCA_USEDARKMODECOLORS;
+            winCompAttrData.Attribute = WindowCompositionAttribute.UseDarkModeColors;
         }
         _ = SetWindowCompositionAttribute(hWnd, ref winCompAttrData);
 
-        var attribute = (Environment.OSVersion.Version.Build < 22523) ? DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE_DEPRECATED : DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE;
-        var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
+        var attribute = (Environment.OSVersion.Version.Build < 22523) ? DwmWindowAttribute.SystemBackdropTypeDeprecated : DwmWindowAttribute.SystemBackdropType;
+        var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)DwSystemBackdropType.MainWindow;
         _ = DwmSetWindowAttribute(hWnd, attribute, ref attributeValue, sizeof(int));
 
         attributeValue = theme == ElementTheme.Dark ? 1 : 0;
-        _ = DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, ref attributeValue, sizeof(int));
+        _ = DwmSetWindowAttribute(hWnd, DwmWindowAttribute.UseImmersiveDarkMode, ref attributeValue, sizeof(int));
     }
 }

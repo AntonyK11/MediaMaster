@@ -1,6 +1,6 @@
-﻿using System.Drawing;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using static MediaMaster.Services.WindowsNativeValues;
+using static MediaMaster.Services.WindowsNativeInterfaces;
 
 namespace MediaMaster.Services;
 
@@ -81,12 +81,12 @@ public static partial class WindowsApiService
     /// </summary>
     /// <param name="hWnd"> The handle to the window in which the frame will be extended into the client area. </param>
     /// <param name="pMarInset">
-    ///     A pointer to a <see cref="MARGINS" /> structure that describes the margins
+    ///     A pointer to a <see cref="Margins" /> structure that describes the margins
     ///     to use when extending the frame into the client area.
     /// </param>
     /// <returns></returns>
     [LibraryImport("dwmapi.dll")]
-    internal static partial int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
+    internal static partial int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref Margins pMarInset);
 
     /// <summary>
     ///     Sets various information regarding DWM window attributes.
@@ -94,8 +94,7 @@ public static partial class WindowsApiService
     /// <param name="hwnd"> The window whose information is to be changed. </param>
     /// <param name="pAttrData"> Pointer to a structure which both specifies and delivers the attribute data. </param>
     [LibraryImport("user32.dll")]
-    internal static partial int SetWindowCompositionAttribute(IntPtr hwnd,
-        ref WINDOWCOMPOSITIONATTRIBDATA pAttrData);
+    internal static partial int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData pAttrData);
 
     /// <summary>
     ///     Sets the value of Desktop Window Manager (DWM) non-client rendering attributes for a window.
@@ -103,13 +102,13 @@ public static partial class WindowsApiService
     /// <param name="hwnd"> The handle to the window for which the attribute value is to be set. </param>
     /// <param name="dwAttribute">
     ///     A flag describing which value to set, specified as a value of the
-    ///     <see cref="DWMWINDOWATTRIBUTE" /> enumeration.
+    ///     <see cref="DwmWindowAttribute" /> enumeration.
     ///     This parameter specifies which attribute to set, and the pvAttribute parameter points to the value to set.
     /// </param>
     /// <param name="pvAttribute">
     ///     A pointer to an object containing the attribute value to set. The type of the value set depends on the value of the
     ///     dwAttribute parameter.
-    ///     The <see cref="DWMWINDOWATTRIBUTE" /> enumeration topic indicates, in the row for each flag,
+    ///     The <see cref="DwmWindowAttribute" /> enumeration topic indicates, in the row for each flag,
     ///     what type of value you should pass a pointer to in the pvAttribute parameter.
     /// </param>
     /// <param name="cbAttribute">
@@ -117,65 +116,36 @@ public static partial class WindowsApiService
     ///     The type of the value set, and therefore its size in bytes, depends on the value of the dwAttribute parameter.
     /// </param>
     [LibraryImport("dwmapi.dll")]
-    internal static partial int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute,
+    internal static partial int DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute dwAttribute,
         ref int pvAttribute, int cbAttribute);
 
     [LibraryImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [LibraryImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool SetForegroundWindow(IntPtr hWnd);
-
-    [LibraryImport("user32.dll")]
     internal static partial IntPtr GetForegroundWindow();
-
-    [LibraryImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool DestroyIcon(IntPtr handle);
-
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    internal static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
-
-    [LibraryImport("shell32.dll", EntryPoint = "#727")]
-    internal static partial int SHGetImageList(int iImageList, ref Guid riid, out IImageList ppv);
-
+    
     [LibraryImport("shell32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
-    internal static partial int SHCreateItemFromParsingName(string pszPath, IntPtr pbc, ref Guid riid,out IShellItemImageFactory ppv);
+    internal static partial HResult SHCreateItemFromParsingName(string path, IntPtr pbc, ref Guid riid, out IShellItem shellItem);
 
     [LibraryImport("gdi32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool DeleteObject(IntPtr hObject);
 
-    [LibraryImport("shell32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
-    internal static partial int SHCreateItemFromParsingName(
-    string path,
-    // The following parameter is not used - binding context.
-    IntPtr pbc,
-    ref Guid riid,
-    out IShellItem shellItem);
+    [LibraryImport("gdi32.dll", EntryPoint = "GetObjectA")]
+    internal static partial int GetObject(IntPtr hgdiobj, int cbBuffer, out BITMAP lpvObject);
 
-    [LibraryImport("msvcrt.dll")]
-    [UnmanagedCallConv(CallConvs = [ typeof(System.Runtime.CompilerServices.CallConvCdecl) ])]
-    internal static unsafe partial IntPtr memcpy(void* dst, void* src, UIntPtr count);
+    [LibraryImport("gdi32.dll")]
+    internal static partial IntPtr CreateCompatibleDC(IntPtr hdc);
 
-    [DllImport("gdi32.dll")]
-    public static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out BITMAP lpvObject);
+    [LibraryImport("gdi32.dll")]
+    internal static partial IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
 
-    [DllImport("gdi32.dll")]
-    public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
-
-    [DllImport("gdi32.dll")]
-    public static extern IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
-
-    [DllImport("gdi32.dll")]
-    public static extern bool DeleteDC(IntPtr hdc);
-
-    [DllImport("gdi32.dll")]
-    public static extern int GetDIBits(IntPtr hdc, IntPtr hbm, uint start, uint cLines, byte[] lpvBits, ref BITMAPV5HEADER lpbmi, uint usage);
-
-    [DllImport("user32.dll")]
+    [LibraryImport("gdi32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool IsWindow(IntPtr hWnd);
+    internal static partial bool DeleteDC(IntPtr hdc);
+
+    [LibraryImport("gdi32.dll")]
+    internal static partial int GetDIBits(IntPtr hdc, IntPtr hbm, uint start, uint cLines, byte[] lpvBits, ref BITMAPV5HEADER lpbmi, uint usage);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool IsWindow(IntPtr hWnd);
 }

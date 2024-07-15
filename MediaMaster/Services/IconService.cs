@@ -1,8 +1,10 @@
-﻿using Microsoft.UI.Xaml.Media.Imaging;
+﻿using System.Drawing;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices;
 using CommunityToolkit.WinUI;
 using static MediaMaster.Services.WindowsNativeValues;
 using static MediaMaster.Services.WindowsApiService;
+using static MediaMaster.Services.WindowsNativeInterfaces;
 using Microsoft.UI.Xaml.Media;
 using System.Runtime.InteropServices.WindowsRuntime;
 
@@ -27,59 +29,87 @@ public class MyCancellationTokenSource : CancellationTokenSource
 
 public static class IconService
 {
-    public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
+    private static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
 
     // https://github.com/castorix/WinUI3_MediaEngine/blob/master/CMediaEngine.cs#L2136-L2168
-    public static async Task<WriteableBitmap?> GetCaptureWriteableBitmap(IntPtr m_hBitmapCapture)
-    {
-        if (m_hBitmapCapture != IntPtr.Zero)
+    private static async Task<WriteableBitmap?> GetCaptureWriteableBitmap(IntPtr m_hBitmapCapture)
+    { 
+        if (m_hBitmapCapture == IntPtr.Zero) return null;
+        
+        var result = GetObject(m_hBitmapCapture, Marshal.SizeOf(typeof(BITMAP)), out BITMAP bm);
+        if (result == 0) return null;
+
+        var nWidth = bm.bmWidth;
+        var nHeight = bm.bmHeight;
+        BITMAPV5HEADER bi = new()
         {
-            BITMAP bm;
-            GetObject(m_hBitmapCapture, Marshal.SizeOf(typeof(BITMAP)), out bm);
-            var nWidth = bm.bmWidth;
-            var nHeight = bm.bmHeight;
-            BITMAPV5HEADER bi = new BITMAPV5HEADER();
-            bi.bV5Size = Marshal.SizeOf(typeof(BITMAPV5HEADER));
-            bi.bV5Width = nWidth;
-            bi.bV5Height = -nHeight;
-            bi.bV5Planes = 1;
-            bi.bV5BitCount = 32;
-            bi.bV5Compression = BI_BITFIELDS;
-            bi.bV5AlphaMask = unchecked((int)0xFF000000);
-            bi.bV5RedMask = 0x00FF0000;
-            bi.bV5GreenMask = 0x0000FF00;
-            bi.bV5BlueMask = 0x000000FF;
-
-            var hDC = CreateCompatibleDC(IntPtr.Zero);
+            bV5Size = (uint)Marshal.SizeOf(typeof(BITMAPV5HEADER)),
+            bV5Width = nWidth,
+            bV5Height = -nHeight,
+            bV5Planes = 1,
+            bV5BitCount = 32,
+            bV5Compression = BI_BITFIELDS,
+            bV5AlphaMask = 0xFF000000,
+            bV5RedMask = 0x00FF0000,
+            bV5GreenMask = 0x0000FF00,
+            bV5BlueMask = 0x000000FF
+        };
+        
+        var hDC = CreateCompatibleDC(IntPtr.Zero);
+        try
+        {
             var hBitmapOld = SelectObject(hDC, m_hBitmapCapture);
-            var nNumBytes = (int)(nWidth * 4 * nHeight);
-            var pPixels = new byte[nNumBytes];
-            _ = GetDIBits(hDC, m_hBitmapCapture, 0, (uint)nHeight, pPixels, ref bi, DIB_RGB_COLORS);
-
-            for (var i = 0; i < nNumBytes; i += 4)
+            try
             {
-                var alpha = pPixels[i + 3];
-                pPixels[i + 0] = (byte)((pPixels[i + 0] * alpha) / 255); // Blue
-                pPixels[i + 1] = (byte)((pPixels[i + 1] * alpha) / 255); // Green
-                pPixels[i + 2] = (byte)((pPixels[i + 2] * alpha) / 255); // Red
+                var nNumBytes = nWidth * 4 * nHeight;
+                var pPixels = new byte[nNumBytes];
+                result = GetDIBits(hDC, m_hBitmapCapture, 0, (uint)nHeight, pPixels, ref bi, DIB_RGB_COLORS);
+                if (result != 0)
+                {
+                    ApplyAlphaChannel(pPixels);
+                    return await CreateWriteableBitmapFromPixels(nWidth, nHeight, pPixels);
+                }
+
+                return null;
             }
-
-            WriteableBitmap m_hWriteableBitmapCapture = new WriteableBitmap(nWidth, nHeight);
-
-            await using (Stream pixelStream = m_hWriteableBitmapCapture.PixelBuffer.AsStream())
+            finally
             {
-                await pixelStream.WriteAsync(pPixels, 0, pPixels.Length);
+                SelectObject(hDC, hBitmapOld);
             }
-
-            m_hWriteableBitmapCapture.Invalidate();
-
-            SelectObject(hDC, hBitmapOld);
-            DeleteDC(hDC);
-
-            return m_hWriteableBitmapCapture;
         }
+        finally
+        {
+            DeleteDC(hDC);
+        }
+    }
+    
+    private static void ApplyAlphaChannel(byte[] pixels)
+    {
+        Parallel.For(0, pixels.Length / 4, i =>
+        {
+            var index = i * 4;
+            var alpha = pixels[index + 3];
+            if (alpha == 255) return; // Skip fully opaque pixels
+            
+            var multiplier = alpha / 255.0;
+            pixels[index + 0] = (byte)(pixels[index + 0] * multiplier); // Blue
+            pixels[index + 1] = (byte)(pixels[index + 1] * multiplier); // Green
+            pixels[index + 2] = (byte)(pixels[index + 2] * multiplier); // Red
+        });
+    }
 
-        return null;
+    private static async Task<WriteableBitmap> CreateWriteableBitmapFromPixels(int width, int height, byte[] pixels)
+    {
+        return await App.DispatcherQueue.EnqueueAsync(async () =>
+        {
+            var bitmap = new WriteableBitmap(width, height);
+            await using (Stream pixelStream = bitmap.PixelBuffer.AsStream())
+            {
+                await pixelStream.WriteAsync(pixels);
+            }
+            bitmap.Invalidate();
+            return bitmap;
+        });
     }
 
     public static MyCancellationTokenSource AddImage1(string? path, ImageMode imageMode, int width, int height, Microsoft.UI.Xaml.Controls.Image image)
@@ -121,7 +151,7 @@ public static class IconService
 
         SIIGBF options = imageMode switch
         {
-            ImageMode.IconOnly => SIIGBF.SIIGBF_ICONONLY,
+            ImageMode.IconOnly => SIIGBF.IconOnly,
             _ => 0
         };
 
@@ -129,7 +159,7 @@ public static class IconService
 
         if (imageMode != ImageMode.ThumbnailOnly)
         {
-            icon = await GetThumbnail(path, width, height, options | SIIGBF.SIIGBF_INCACHEONLY);
+            icon = await GetThumbnail(path, width, height, options | SIIGBF.InCacheOnly);
         }
 
         if (icon == null)
@@ -151,23 +181,8 @@ public static class IconService
         var hBitmap = GetHBitmap(fileName, width, height, options);
         if (hBitmap != IntPtr.Zero)
         {
-            BitmapSource? icon = null;
-            try
-            {
-                icon = await App.DispatcherQueue.EnqueueAsync(() => GetCaptureWriteableBitmap(hBitmap));
-            }
-            catch (COMException ex)
-            {
-                if (!(ex.ErrorCode == -2147175936 && options.HasFlag(SIIGBF.SIIGBF_THUMBNAILONLY))) // -2147175936 == 0x8004B200
-                {
-                    throw;
-                }
-            }
-            finally
-            {
-                DeleteObject(hBitmap);
-            }
-
+            BitmapSource? icon = await GetCaptureWriteableBitmap(hBitmap);
+            DeleteObject(hBitmap);
             return icon;
         }
 
@@ -177,13 +192,13 @@ public static class IconService
     private static IntPtr GetHBitmap(string fileName, int width, int height, SIIGBF options)
     {
         Guid shellItem2Guid = typeof(IShellItemImageFactory).GUID;
-        var retCode = SHCreateItemFromParsingName(fileName, IntPtr.Zero, ref shellItem2Guid, out IShellItemImageFactory nativeShellItem);
+        var retCode = SHCreateItemFromParsingName(fileName, IntPtr.Zero, ref shellItem2Guid, out IShellItem nativeShellItem);
 
-        if (retCode == 0)
+        if (retCode == HResult.Ok)
         {
-            SIZE nativeSize = new SIZE(width, height);
+            WindowsNativeValues.Size nativeSize = new(width, height);
 
-            HResult hr = nativeShellItem.GetImage(nativeSize, options, out var hBitmap);
+            HResult hr = (nativeShellItem as IShellItemImageFactory).GetImage(nativeSize, options, out var hBitmap);
             if (hr == HResult.Ok)
             {
                 return hBitmap;

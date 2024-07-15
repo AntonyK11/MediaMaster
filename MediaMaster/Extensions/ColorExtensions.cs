@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
 using MediaMaster.Interfaces.Services;

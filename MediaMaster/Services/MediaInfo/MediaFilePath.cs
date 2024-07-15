@@ -1,9 +1,10 @@
-﻿using Windows.Storage.Pickers;
+﻿using System.Reflection;
 using MediaMaster.Controls;
 using MediaMaster.DataBase.Models;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using WinUIEx;
+using HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -34,21 +35,70 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
 
     private async void PathTextBox_OnEdit(EditableTextBlock sender, string args)
     {
-        if (App.MainWindow == null) return;
+        if (EditableTextBlock == null) return;
+        //using (OpenFileDialog dialog = new())
+        //{
+        //    dialog.InitialDirectory = Path.GetDirectoryName(EditableTextBlock.Text);
+        //    dialog.FileName = Path.GetFileName(EditableTextBlock.Text);
+        //    dialog.CheckFileExists = true;
 
-        var openPicker = new FileOpenPicker();
+        //    var hwnd = App.MainWindow.GetWindowHandle();
+        //    var window = NativeWindow.FromHandle(hwnd);
+        //    if (dialog.ShowDialog(window) == DialogResult.OK)
+        //    {
+        //        var file = dialog.FileName;
+        //        Debug.WriteLine(file);
+        //    }
+        //}
+        
+        //IFileOpenDialog d = (IFileOpenDialog)new FileOpenDialog();
 
-        var hWnd = App.MainWindow.GetWindowHandle();
+        //var guid = typeof(IShellItem).GUID;
+        //var result = SHCreateItemFromParsingName(Path.GetDirectoryName(EditableTextBlock.Text), IntPtr.Zero, ref guid, out IShellItem initialDirectoryShellItem);
+        //if (result != HResult.Ok)
+        //{
+        //    Debug.WriteLine("Failed to create shell item from directory");
+        //}
+        //else
+        //{
+        //    d.SetDefaultFolder(initialDirectoryShellItem);
+        //}
+        //d.SetFileName(Path.GetFileName(EditableTextBlock.Text));
 
-        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hWnd);
+        //result = d.Show(App.MainWindow.GetWindowHandle());
 
-        openPicker.ViewMode = PickerViewMode.Thumbnail;
+        //if (result == HResult.Ok)
+        //{
+        //    d.GetResult(out IShellItem item);
+        //    item.GetDisplayName(SIGDN.FileSystemPath, out var pszFilePath);
+        //    var filePath = Marshal.PtrToStringAuto(pszFilePath);
+        //    Marshal.FreeCoTaskMem(pszFilePath);
 
-        //openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder Path.GetDirectoryName(PathTextBox.Text);
-        openPicker.FileTypeFilter.Add("*");
-        openPicker.CommitButtonText = "hello";
+        //    Debug.WriteLine(filePath);
+        //}
 
-        var file = await openPicker.PickSingleFileAsync();
+        using (CommonOpenFileDialog dialog = new())
+        {
+            dialog.InitialDirectory = Path.GetDirectoryName(EditableTextBlock.Text);
+            dialog.DefaultFileName = Path.GetFileName(EditableTextBlock.Text);
+            dialog.EnsureFileExists = true;
+            dialog.EnsurePathExists = true;
+
+            // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
+            // Cannot use System.Windows.Forms.OpenFileDialog because it makes the app crash if the window is closed after the dialog in certain situations
+            FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (fi != null && App.MainWindow != null)
+            {
+                var hwnd = App.MainWindow.GetWindowHandle();
+                fi.SetValue(dialog, hwnd);
+            }
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var file = dialog.FileName;
+                Debug.WriteLine(file);
+            }
+        }
     }
 
     public override void UpdateMediaProperty(ref Media media, string text)

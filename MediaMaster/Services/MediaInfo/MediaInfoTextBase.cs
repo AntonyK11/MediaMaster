@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -40,6 +41,14 @@ public abstract class MediaInfoTextBase(StackPanel parent) : MediaInfoControlBas
         if (Text != null)
         {
             Text.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    public override void SetupTranslations()
+    {
+        if (Title != null)
+        {
+            Uids.SetUid(Title, $"/Media/{TranslationKey}_Title");
         }
     }
 }

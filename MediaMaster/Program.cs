@@ -1,14 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿global using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using WinRT;
 using Microsoft.Windows.AppLifecycle;
 using CommunityToolkit.WinUI;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using MediaMaster.DataBase;
 using MediaMaster.Interfaces.Services;
-using System.Diagnostics;
 
 namespace MediaMaster;
 

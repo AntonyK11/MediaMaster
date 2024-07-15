@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using Windows.System;
-using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Collections;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -10,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;

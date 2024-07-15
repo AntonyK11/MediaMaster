@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using MediaMaster.Interfaces.Services;
+﻿using MediaMaster.Interfaces.Services;
 using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services;

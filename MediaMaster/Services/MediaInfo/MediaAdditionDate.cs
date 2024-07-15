@@ -1,6 +1,5 @@
 ﻿using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml.Controls;
-using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -15,14 +14,6 @@ public class MediaAdditionDate(StackPanel parent) : MediaInfoTextBase(parent)
         if (Text == null || media == null) return;
         var timeAdded = media.Added.ToLocalTime();
         Text.Text = $"{timeAdded.ToLongDateString()} {timeAdded.ToShortTimeString()}";
-    }
-
-    public override void SetupTranslations()
-    {
-        if (Title != null)
-        {
-            Uids.SetUid(Title, $"/Media/{TranslationKey}_Title");
-        }
     }
 }
 

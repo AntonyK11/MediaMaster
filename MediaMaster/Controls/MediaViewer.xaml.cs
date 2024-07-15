@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Services;
@@ -47,7 +46,6 @@ public sealed partial class MediaViewer : UserControl
 
     public async void FindMedia(int mediaId)
     {
-        Debug.WriteLine(mediaId);
         Media? media;
         await using (var database = new MediaDbContext())
         {

@@ -1,7 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using EFCore.BulkExtensions;
+﻿using EFCore.BulkExtensions;
 using MediaMaster.DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 

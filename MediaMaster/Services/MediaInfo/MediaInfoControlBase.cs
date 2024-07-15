@@ -17,14 +17,14 @@ public abstract class MediaInfoControlBase(StackPanel parent)
 
     public virtual void Initialize(Media? media)
     {
+        if (FirstShown)
+        {
+            FirstShown = false;
+            Setup();
+        }
+
         if (ShowInfo(media))
         {
-            if (FirstShown)
-            {
-                FirstShown = false;
-                Setup();
-            }
-            else
             {
                 Show();
             }

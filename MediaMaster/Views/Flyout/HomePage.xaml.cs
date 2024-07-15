@@ -1,7 +1,6 @@
 using MediaMaster.DataBase;
 using MediaMaster.Services;
 using Microsoft.UI.Xaml;
-using System.Diagnostics;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 

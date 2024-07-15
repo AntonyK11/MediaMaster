@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using BookmarksManager;
 using BookmarksManager.Chrome;
 using BookmarksManager.Firefox;
