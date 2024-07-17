@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using Microsoft.UI.Xaml.Media.Imaging;
+﻿using Microsoft.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices;
 using CommunityToolkit.WinUI;
 using static MediaMaster.Services.WindowsNativeValues;
@@ -85,17 +84,34 @@ public static class IconService
     
     private static void ApplyAlphaChannel(byte[] pixels)
     {
-        Parallel.For(0, pixels.Length / 4, i =>
+        var pixelsSpan = new Span<byte>(pixels);
+
+        for (var i = 0; i < pixelsSpan.Length; i += 4)
         {
-            var index = i * 4;
-            var alpha = pixels[index + 3];
-            if (alpha == 255) return; // Skip fully opaque pixels
-            
-            var multiplier = alpha / 255.0;
-            pixels[index + 0] = (byte)(pixels[index + 0] * multiplier); // Blue
-            pixels[index + 1] = (byte)(pixels[index + 1] * multiplier); // Green
-            pixels[index + 2] = (byte)(pixels[index + 2] * multiplier); // Red
-        });
+            var alpha = pixelsSpan[i + 3];
+            switch (alpha)
+            {
+                case 255:
+                    break;
+
+                case 0:
+                {
+                    pixelsSpan[i + 0] = 0; // Blue
+                    pixelsSpan[i + 1] = 0; // Green
+                    pixelsSpan[i + 2] = 0; // Red
+                    break;
+                }
+
+                default:
+                {
+                    var multiplier = alpha / 255.0;
+                    pixelsSpan[i + 0] = (byte)(pixelsSpan[i + 0] * multiplier); // Blue
+                    pixelsSpan[i + 1] = (byte)(pixelsSpan[i + 1] * multiplier); // Green
+                    pixelsSpan[i + 2] = (byte)(pixelsSpan[i + 2] * multiplier); // Red
+                    break;
+                }
+            }
+        }
     }
 
     private static async Task<WriteableBitmap> CreateWriteableBitmapFromPixels(int width, int height, byte[] pixels)

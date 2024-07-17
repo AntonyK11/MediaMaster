@@ -15,19 +15,19 @@
                 <Grid
                     Margin="0,6"
                     HorizontalAlignment="Stretch"
-                    ColumnSpacing="8">
+                    ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Image
                         Height="26"
-                        Source="{x:Bind BrowserIcon, Mode=OneWay}"
-                        ToolTipService.ToolTip="{x:Bind Browser, Mode=OneWay}" />
+                        Source="{x:Bind Icon, Mode=OneWay}"
+                        ToolTipService.ToolTip="{x:Bind Domain, Mode=OneWay}" />
                     <TextBlock
                         Grid.Column="1"
                         VerticalAlignment="Center"
-                        Text="{x:Bind Url, Mode=OneWay}"
+                        Text="{x:Bind Title, Mode=OneWay}"
                         TextTrimming="CharacterEllipsis" />
                 </Grid>
             </ListViewItem>

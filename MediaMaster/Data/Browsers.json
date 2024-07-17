@@ -1,8 +1,8 @@
 [
   {
     "Name": "Firefox",
-    "Icon": "\\Assets\\Browsers\\firefox.svg",
-    "ProfilesDirectory": "Mozilla\\Firefox\\Profiles",
+    "Icon": "Assets/Browsers/firefox.svg",
+    "ProfilesDirectory": "Mozilla/Firefox/Profiles",
     "ProcessName": "firefox",
     "PackageId": "Mozilla.Firefox",
     "IsOnlyPackaged": false,
@@ -12,8 +12,8 @@
   },
   {
     "Name": "Google Chrome",
-    "Icon": "\\Assets\\Browsers\\chrome.svg",
-    "ProfilesDirectory": "Google\\Chrome\\User Data",
+    "Icon": "Assets/Browsers/chrome.svg",
+    "ProfilesDirectory": "Google/Chrome/User Data",
     "ProcessName": "chrome",
     "PackageId": null,
     "IsOnlyPackaged": false,
@@ -23,8 +23,8 @@
   },
   {
     "Name": "Microsoft Edge",
-    "Icon": "\\Assets\\Browsers\\edge.svg",
-    "ProfilesDirectory": "Microsoft\\Edge\\User Data",
+    "Icon": "Assets/Browsers/edge.svg",
+    "ProfilesDirectory": "Microsoft/Edge/User Data",
     "ProcessName": "msedge",
     "PackageId": null,
     "IsOnlyPackaged": false,
@@ -34,8 +34,8 @@
   },
   {
     "Name": "Opera",
-    "Icon": "\\Assets\\Browsers\\opera.svg",
-    "ProfilesDirectory": "Opera Software\\Opera Stable",
+    "Icon": "Assets/Browsers/opera.svg",
+    "ProfilesDirectory": "Opera Software/Opera Stable",
     "ProcessName": "opera",
     "PackageId": null,
     "IsOnlyPackaged": false,
@@ -45,8 +45,8 @@
   },
   {
     "Name": "Opera GX",
-    "Icon": "\\Assets\\Browsers\\opera-gx.svg",
-    "ProfilesDirectory": "Opera Software\\Opera GX Stable",
+    "Icon": "Assets/Browsers/opera-gx.svg",
+    "ProfilesDirectory": "Opera Software/Opera GX Stable",
     "ProcessName": "opera",
     "PackageId": null,
     "IsOnlyPackaged": false,
@@ -56,8 +56,8 @@
   },
   {
     "Name": "Vivaldi",
-    "Icon": "\\Assets\\Browsers\\vivaldi.svg",
-    "ProfilesDirectory": "Vivaldi\\User Data",
+    "Icon": "Assets/Browsers/vivaldi.svg",
+    "ProfilesDirectory": "Vivaldi/User Data",
     "ProcessName": "vivaldi",
     "PackageId": null,
     "IsOnlyPackaged": false,
@@ -67,8 +67,8 @@
   },
   {
     "Name": "Brave",
-    "Icon": "\\Assets\\Browsers\\brave.png",
-    "ProfilesDirectory": "BraveSoftware\\Brave-Browser\\User Data",
+    "Icon": "Assets/Browsers/brave.png",
+    "ProfilesDirectory": "BraveSoftware/Brave-Browser/User Data",
     "ProcessName": "brave",
     "PackageId": null,
     "IsOnlyPackaged": false,
@@ -78,8 +78,8 @@
   },
   {
     "Name": "Arc",
-    "Icon": "\\Assets\\Browsers\\arc.svg",
-    "ProfilesDirectory": "Arc\\User Data",
+    "Icon": "Assets/Browsers/arc.svg",
+    "ProfilesDirectory": "Arc/User Data",
     "ProcessName": "arc",
     "PackageId": "TheBrowserCompany.Arc",
     "IsOnlyPackaged": true,

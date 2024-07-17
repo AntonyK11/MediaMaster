@@ -1,10 +1,16 @@
 ﻿using System.Collections.ObjectModel;
+using System.Net.Cache;
+using System.Runtime.InteropServices.WindowsRuntime;
 using BookmarksManager;
 using BookmarksManager.Chrome;
 using BookmarksManager.Firefox;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FaviconFetcher;
 using Interop.UIAutomationClient;
 using MediaMaster.Helpers;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using TreeScope = Interop.UIAutomationClient.TreeScope;
 
 
@@ -26,8 +32,10 @@ public class BrowserData
 public partial class BrowserTab : ObservableObject
 {
     [ObservableProperty] private string _browser;
-    [ObservableProperty] private string _browserIcon;
-    [ObservableProperty] private string _url;
+    [ObservableProperty] private ImageSource _icon;
+    [ObservableProperty] private string _domain;
+    [ObservableProperty] private string _title;
+    [ObservableProperty] private Uri _url;
 }
 
 public class BrowserService
@@ -53,8 +61,6 @@ public class BrowserService
         BrowserData = await Json.ToObjectAsync<BrowserData[]>(browsersDataString);
     }
 
-    private readonly Stopwatch _watch = new();
-
     private bool _isRunning;
     public async Task FindActiveTabs()
     {
@@ -62,44 +68,16 @@ public class BrowserService
 
         _isRunning = true;
 
-        _watch.Restart();
-
         var tasks = BrowserData.Select(browser => ProcessBrowserInstances(browser));
         await Task.WhenAll(tasks);
 
-        _watch.Stop();
-        //if (elapsedspans.Count() > 1) elapsedspans = elapsedspans.Skip(1);
-        //elapsedspans = elapsedspans.Append(_watch.Elapsed);
-        //Debug.WriteLine($"{_watch.ElapsedMilliseconds}ms");
-        Debug.WriteLine("-----------------------------");
-        Debug.WriteLine($"{_watch.ElapsedMilliseconds}ms");
-        Debug.WriteLine("-----------------------------");
-
-        //await Task.Run(async () =>
-        //{
-        //    _watch.Restart();
-        //    foreach (var browser in BrowserData)
-        //    {
-        //        try
-        //        {
-        //            await ProcessBrowserInstances(browser);
-        //        }
-        //        catch (Exception)
-        //        {
-        //            // ignore any exceptions as we don't want to crash the app if something goes wrong, we just want to skip the browser
-        //        }
-        //    }
-        //    _watch.Stop();
-        //    if (elapsedspans.Count() > 3) elapsedspans = elapsedspans.Skip(1);
-        //    elapsedspans = elapsedspans.Append(_watch.Elapsed);
-        //    //Debug.WriteLine($"{_watch.ElapsedMilliseconds}ms");
-        //    Debug.WriteLine($"{Average(elapsedspans).TotalMilliseconds}ms");
-        //});
         _isRunning = false;
     }
 
-    public async Task RefreshActiveTab(string browserName)
+    public async Task<BrowserTab?> RefreshActiveTab(string browserName)
     {
+        BrowserTab? tab = null;
+
         var browserData = BrowserData?.FirstOrDefault(b => b.Name == browserName);
         if (browserData != null)
         {
@@ -107,7 +85,7 @@ public class BrowserService
             {
                 try
                 {
-                    await ProcessBrowserInstances(browserData, false);
+                    tab = await ProcessBrowserInstances(browserData, false);
                 }
                 catch (Exception)
                 {
@@ -115,17 +93,16 @@ public class BrowserService
                 }
             });
         }
+        return tab;
     }
 
     // https://stackoverflow.com/a/70748896
-    public async Task ProcessBrowserInstances(BrowserData browser, bool cache = true)
+    public async Task<BrowserTab?> ProcessBrowserInstances(BrowserData browser, bool cache = true)
     {
-        Stopwatch watch = new();
-        watch.Start();
-
-        var skip = false;
         var found = false;
-        var url = "";
+        var title = "";
+        Uri? url = null;
+        BrowserTab? tab = ActiveBrowserTabs.FirstOrDefault(t => t.Browser == browser.Name);
 
         await Task.Run(() =>
         {
@@ -138,14 +115,14 @@ public class BrowserService
                 {
                     if (p.HasExited) return false;
                     var mainModule = p.MainModule;
-                    return mainModule is not null && !mainModule.FileName.Contains("GX");
+                    return mainModule != null && !mainModule.FileName.Contains("GX");
                 }),
 
                 "Opera GX" => processes.Where(p =>
                 {
                     if (p.HasExited) return false;
                     var mainModule = p.MainModule;
-                    return mainModule is not null && mainModule.FileName.Contains("GX");
+                    return mainModule != null && mainModule.FileName.Contains("GX");
                 }),
 
                 _ => processes
@@ -155,39 +132,62 @@ public class BrowserService
             {
                 var tempHWND = WindowsApiService.GetForegroundWindow();
                 List<Process> processesList = processes.ToList();
-                if (processesList.FirstOrDefault(p => p.MainWindowHandle == tempHWND) is { } process)
+                if (processesList.FirstOrDefault(p => p.MainWindowHandle == tempHWND) is { } foregroundProcess)
                 {
-                    processesList.Remove(process);
-                    processesList.Insert(0, process);
+                    processesList.Remove(foregroundProcess);
+                    processesList.Insert(0, foregroundProcess);
                     operaGXHWND = tempHWND;
                 }
-                else if (processesList.FirstOrDefault(p => p.MainWindowHandle == operaGXHWND) is { } processCached)
+                else if (processesList.FirstOrDefault(p => p.MainWindowHandle == operaGXHWND) is { } cachedForegroundProcess)
                 {
-                    processesList.Remove(processCached);
-                    processesList.Insert(0, processCached);
+                    processesList.Remove(cachedForegroundProcess);
+                    processesList.Insert(0, cachedForegroundProcess);
                 }
 
                 processes = processesList;
+            }
+
+            string? windowTitle = null;
+            if (cache)
+            {
+                _browsersWindowTitle.TryGetValue(browser.Name, out windowTitle);
             }
 
             foreach (var process in processes)
             {
                 if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero && WindowsApiService.IsWindow(process.MainWindowHandle))
                 {
-                    if (cache
-                        && _browsersWindowTitle.TryGetValue(browser.Name, out var title)
-                        && title == process.MainWindowTitle)
+                    if (cache && process.MainWindowTitle == windowTitle && tab != null)
                     {
-                        skip = true;
+                        found = true;
                         break;
                     }
 
                     try
                     {
+                        title = process.MainWindowTitle;
+
                         var result = GetBrowserTab(process.MainWindowHandle);
-                        if (result is not null)
+                        if (!result.IsNullOrEmpty())
                         {
-                            url = result;
+                            if (!result.IsNullOrEmpty())
+                            {
+                                if (result!.StartsWith("http"))
+                                {
+                                    if (Uri.IsWellFormedUriString(result, UriKind.Absolute))
+                                    {
+                                        url = new Uri(result);
+                                    }
+                                }
+                                else
+                                {
+                                    if (Uri.IsWellFormedUriString("https://" + result, UriKind.Absolute))
+                                    {
+                                        url = new Uri("https://" + result);
+                                    }
+                                }
+                            }
+
                             found = true;
 
                             if (!process.HasExited)
@@ -208,57 +208,102 @@ public class BrowserService
             }
         });
 
-        var tab = ActiveBrowserTabs.FirstOrDefault(t => t.Browser == browser.Name);
-        if (tab is not null)
-        {
-            watch.Stop();
-            Debug.WriteLine($"{browser.Name} - {watch.ElapsedMilliseconds}ms");
-            if (!found)
-            {
-                if (skip) return;
-                ActiveBrowserTabs.Remove(tab);
-            }
-            else
-            {
-                tab.Url = url;
-            }
-            return;
-        }
         if (found)
         {
-            ActiveBrowserTabs.Add(new BrowserTab { Browser = browser.Name, BrowserIcon = browser.Icon, Url = url });
+            if (url != null)
+            {
+                if (tab == null)
+                {
+                    tab = new BrowserTab { Browser = browser.Name };
+                    ActiveBrowserTabs.Add(tab);
+                }
+
+                if (tab.Url != url)
+                {
+                    tab.Title = title;
+                    tab.Url = url;
+
+                    if (tab.Domain != tab.Url.Host)
+                    {
+                        var uri = new Uri("ms-appx://MediaMaster/" + browser.Icon);
+                        if (browser.Icon.EndsWith(".svg"))
+                        {
+                            tab.Icon = new SvgImageSource(uri);
+                        }
+                        else
+                        {
+                            tab.Icon = new BitmapImage(uri);
+                        }
+
+                        tab.Domain = tab.Url.Host;
+                    }
+                    SetIcon(tab);
+                }
+            }
+        }
+        else if (tab != null)
+        {
+            ActiveBrowserTabs.Remove(tab);
         }
 
-        watch.Stop();
-        Debug.WriteLine($"{browser.Name} - {watch.ElapsedMilliseconds}ms");
+        return tab;
+    }
+
+    private readonly HttpSource _source = new()
+    {
+        CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
+    };
+    private Fetcher? _fetcher = null;
+
+    public async void SetIcon(BrowserTab browserTab)
+    {
+        Uri url = browserTab.Url;
+        IconImage? image = null;
+        _fetcher ??= new Fetcher(_source);
+        await Task.Run(() =>
+        {
+            
+            try
+            {
+                image = _fetcher.FetchClosest(browserTab.Url, new IconSize(32, 32));
+            }
+            catch
+            {
+                // ignore all exceptions
+            }
+        });
+        ImageSource? source = null;
+        if (image != null)
+        {
+            var bitmap = new WriteableBitmap(image.ToSKBitmap().Width, image.ToSKBitmap().Height);
+            await using (Stream stream = bitmap.PixelBuffer.AsStream())
+            {
+                stream.Write(image.Bytes);
+            }
+            image.Dispose();
+            source = bitmap;
+        }
+
+        if (url == browserTab.Url && source != null)
+        {
+            browserTab.Icon = source;
+        }
     }
 
     public string? GetBrowserTab(nint hwnd)
     {
         IUIAutomationElement? element = _automation.ElementFromHandle(hwnd);
-        //IUIAutomationCondition condToolBarControlType = _automation.CreatePropertyCondition(UIA_PropertyIds.UIA_ControlTypePropertyId, UIA_ControlTypeIds.UIA_ToolBarControlTypeId);
-        //IUIAutomationCondition condName = _automation.CreateNotCondition(_automation.CreatePropertyCondition(UIA_PropertyIds.UIA_NamePropertyId, ""));
-        //IUIAutomationCondition condition = _automation.CreateAndCondition(condToolBarControlType, condName);
+
         IUIAutomationCondition condEditControlType = _automation.CreatePropertyCondition(UIA_PropertyIds.UIA_ControlTypePropertyId, UIA_ControlTypeIds.UIA_EditControlTypeId);
         IUIAutomationCondition condKeyboard = _automation.CreatePropertyCondition(UIA_PropertyIds.UIA_IsKeyboardFocusablePropertyId, true);
-        IUIAutomationCondition condition1 = _automation.CreateAndCondition(condEditControlType, condKeyboard);
+        IUIAutomationCondition condition = _automation.CreateAndCondition(condEditControlType, condKeyboard);
 
         IUIAutomationCondition condName = _automation.CreateNotCondition(_automation.CreatePropertyCondition(UIA_PropertyIds.UIA_NamePropertyId, ""));
         while (true)
         {
-            //IUIAutomationElement? elem = element.FindFirst(TreeScope.TreeScope_Descendants, condition);
-            //if (elem is null) break;
-            //condName = _automation.CreateAndCondition(condName, _automation.CreateNotCondition(_automation.CreatePropertyCondition(UIA_PropertyIds.UIA_NamePropertyId, elem.CurrentName)));
-            //condition = _automation.CreateAndCondition(condToolBarControlType, condName);
+            IUIAutomationCondition variableCondition = _automation.CreateAndCondition(condition, condName);
 
-
-            IUIAutomationCondition condition2 = _automation.CreateAndCondition(condition1, condName);
-            //IUIAutomationCondition cond3 = _automation.CreatePropertyCondition(UIA_PropertyIds.UIA_ValueIsReadOnlyPropertyId, false);
-            //condition = _automation.CreateAndCondition(condition, cond3);
-
-            //IUIAutomationCondition cond4 = _automation.CreatePropertyCondition(UIA_PropertyIds.UIA_NamePropertyId, true); // Added to fix weird issue with Firefox where another element was found that was not the URL
-
-            IUIAutomationElement? elem = element.FindFirst(TreeScope.TreeScope_Descendants, condition2);
+            IUIAutomationElement? elem = element.FindFirst(TreeScope.TreeScope_Descendants, variableCondition);
             if (elem is null)
             {
                 break;

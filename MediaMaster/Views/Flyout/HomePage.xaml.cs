@@ -54,7 +54,6 @@ public sealed partial class HomePage
     {
         if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
 
-
         IReadOnlyList<IStorageItem>? items = await e.DataView.GetStorageItemsAsync();
 
         Debug.WriteLine("Adding files");
