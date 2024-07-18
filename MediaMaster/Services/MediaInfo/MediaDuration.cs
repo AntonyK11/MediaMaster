@@ -14,17 +14,16 @@ public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
         base.Initialize(media);
 
         if (Text == null || media == null) return;
-        var duration = GetVideoDuration(media.FilePath);
+        var duration = GetVideoDuration(media.Uri);
         if (duration == null) return;
         var nonNullDuration = (TimeSpan)duration;
-        nonNullDuration -= new TimeSpan(0, 0, 0, 0, nonNullDuration.Milliseconds, nonNullDuration.Microseconds);
+        nonNullDuration = new TimeSpan(nonNullDuration.Days, nonNullDuration.Hours, nonNullDuration.Minutes, nonNullDuration.Seconds);
         Text.Text = nonNullDuration.ToString();
     }
 
     public override bool ShowInfo(Media? media)
     {
-
-        return media != null && GetVideoDuration(media.FilePath) != null;
+        return media == null || GetVideoDuration(media.Uri) != null;
     }
 
     public static TimeSpan? GetVideoDuration(string filePath)

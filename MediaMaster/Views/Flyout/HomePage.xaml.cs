@@ -58,16 +58,18 @@ public sealed partial class HomePage
 
         Debug.WriteLine("Adding files");
         DateTime time = DateTime.Now;
+        await MediaService.AddMediaAsync(items.Select(i => i.Path));
+
         foreach (IStorageItem? item in items)
         {
-            await Task.Run(async () =>
-            {
-                await MediaService.AddMediaAsync(item.Path);
-                Debug.WriteLine(item.Path);
-            });
+            Debug.WriteLine(item.Path);
         }
         Debug.WriteLine(DateTime.Now - time);
     }
 
+    private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        await MediaService.AddMediaAsync([new KeyValuePair<string?, string>(((BrowserTab)TabsList.SelectedItem).Title, ((BrowserTab)TabsList.SelectedItem).Url.AbsoluteUri)]);
+    }
 }
 

@@ -74,6 +74,7 @@
 		<PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="8.0.4" />
 		<PackageReference Include="FaviconFetcher" Version="1.4.0" />
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.0" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.7" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7" />

@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Extensions;
 
-public static class DateTimeExtension
+public static class DateTimeExtensions
 {
     public static string GetTimeDifference(this DateTime date)
     {

@@ -158,12 +158,9 @@ public class ActivationService : IActivationService
 
                 DateTime time = DateTime.Now;
                 Debug.WriteLine("Adding files");
-                var files = filesValue.Split(", ");
-                await Parallel.ForEachAsync(files, async (file, _) =>
-                {
-                    await MediaService.AddMediaAsync(file.Replace("\"", ""));
-                    Debug.WriteLine(file.Replace("\"", ""));
-                });
+                var files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
+                await MediaService.AddMediaAsync(files);
+                Debug.WriteLine(filesValue);
                 Debug.WriteLine(DateTime.Now - time);
             }
             else

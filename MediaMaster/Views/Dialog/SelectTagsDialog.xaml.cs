@@ -16,7 +16,7 @@ public sealed partial class SelectTagsDialog : Page
     public ICollection<Tag> Tags { get; private set; } = [];
     public ICollection<Tag> SelectedTags { get; private set; } = [];
     
-    private readonly bool _showExtensions;
+    private readonly bool _showExtensionsAndWebsites;
 
     private readonly ICollection<int> _tagsToExclude;
 
@@ -24,11 +24,11 @@ public sealed partial class SelectTagsDialog : Page
     private bool _watchForSelectionChange = true;
 
     public SelectTagsDialog(ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
-        bool showExtensions = true)
+        bool showExtensionsAndWebsites = true)
     {
         InitializeComponent();
 
-        _showExtensions = showExtensions;
+        _showExtensionsAndWebsites = showExtensionsAndWebsites;
         _tagsToExclude = tagsToExclude ?? [];
 
         UpdateItemSource(selectedTags);
@@ -54,7 +54,7 @@ public sealed partial class SelectTagsDialog : Page
             Tags = database.Tags.Where(tag => !_tagsToExclude.Contains(tag.TagId)).ToList();
         }
 
-        _advancedCollectionView = new AdvancedCollectionView(Tags.Where(t => _showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList());
+        _advancedCollectionView = new AdvancedCollectionView(Tags.Where(t => _showExtensionsAndWebsites || !(t.Flags.HasFlag(TagFlags.Extension) || t.Flags.HasFlag(TagFlags.Website))).ToList());
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("Name", SortDirection.Ascending));
         ListView.ItemsSource = _advancedCollectionView;
 
@@ -192,11 +192,11 @@ public sealed partial class SelectTagsDialog : Page
     }
 
     public static async Task<(ContentDialogResult, SelectTagsDialog?)> ShowDialogAsync(
-        ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null, bool showExtensions = true)
+        ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null, bool showExtensionsAndWebsites = true)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 
-        var selectTagsDialog = new SelectTagsDialog(selectedTags, tagsToExclude, showExtensions);
+        var selectTagsDialog = new SelectTagsDialog(selectedTags, tagsToExclude, showExtensionsAndWebsites);
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,

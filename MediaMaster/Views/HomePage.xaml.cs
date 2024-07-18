@@ -38,7 +38,7 @@ public sealed partial class HomePage : Page
         //var media = new Media 
         //{ 
         //    Name = "Raptor_Dimorphism",
-        //    FilePath = @"C:\Users\Antony\Downloads\ovisetup.exe"
+        //    Uri = @"C:\Users\Antony\Downloads\ovisetup.exe"
         //};
 
         //for (int i = 0;  i < 50; i++)
@@ -128,7 +128,7 @@ public sealed partial class HomePage : Page
         //    {
         //        p.Name = TitleInputBox.Text;
         //        p.Type = "";
-        //        p.FilePath = "";
+        //        p.Uri = "";
         //    });
         //if (TagsList.SelectedItem != null)
         //{

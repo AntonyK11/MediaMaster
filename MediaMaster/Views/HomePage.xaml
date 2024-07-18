@@ -55,7 +55,7 @@
                 <customControls:MediaIcon
                     x:Phase="1"
                     LoadIcon="False"
-                    MediaPath="{x:Bind FilePath}" />
+                    MediaPath="{x:Bind Uri}" />
             </ItemContainer>
         </DataTemplate>
     </Page.Resources>

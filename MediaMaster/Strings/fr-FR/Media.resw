@@ -135,4 +135,7 @@
   <data name="MediaEditionDate_Title.Text" xml:space="preserve">
     <value>Date Édité</value>
   </data>
+  <data name="MediaVideoDuration_Title.Text" xml:space="preserve">
+    <value>Durée</value>
+  </data>
 </root>

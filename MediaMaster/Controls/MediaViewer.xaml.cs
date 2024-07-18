@@ -38,7 +38,7 @@ public sealed partial class MediaViewer : UserControl
     {
         InitializeComponent();
 
-        NameTextBox.TextConfirmed += (_, _) => SaveMedia();
+        NameTextBox.TextConfirmed += (_, args) => SaveMedia(args);
 
         _mediaInfoService = new MediaInfoService(StackPanel);
         _mediaInfoService.SetMedia(null);
@@ -57,7 +57,7 @@ public sealed partial class MediaViewer : UserControl
         if (media == null) return;
 
         NameTextBox.Text = media.Name;
-        MediaIcon.MediaPath = media.FilePath;
+        MediaIcon.MediaPath = media.Uri;
         SetMediaExtensionIcon(media);
     }
 
@@ -70,13 +70,13 @@ public sealed partial class MediaViewer : UserControl
                 _tokenSource?.Cancel();
             }
 
-            _tokenSource = IconService.AddImage1(media.FilePath, ImageMode.IconOnly, 24, 24, MediaExtensionIcon);
+            _tokenSource = IconService.AddImage(media.Uri, ImageMode.IconOnly, 24, 24, MediaExtensionIcon);
         }
     }
 
-    private async void SaveMedia()
+    private async void SaveMedia(TextConfirmedArgs args)
     {
-        if (MediaId == null) return;
+        if (MediaId == null || args.OldText == args.NewText) return;
 
         await using (var database = new MediaDbContext())
         {
@@ -84,7 +84,7 @@ public sealed partial class MediaViewer : UserControl
 
             if (media == null) return;
 
-            media.Name = NameTextBox.Text;
+            media.Name = args.NewText;
             media.Modified = DateTime.UtcNow;
 
             await database.SaveChangesAsync();

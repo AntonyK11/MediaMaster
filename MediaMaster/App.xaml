@@ -4,6 +4,7 @@
     x:Class="MediaMaster.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:helpers="using:MediaMaster.Helpers">
     <Application.Resources>
         <ResourceDictionary>
@@ -36,7 +37,6 @@
             <helpers:EnumToStringConverter x:Key="EnumToStringConverter" />
 
             <helpers:ColorToThemeConverter x:Key="ColorToThemeConverter" />
-
             <!--  Other app resources here  -->
         </ResourceDictionary>
     </Application.Resources>

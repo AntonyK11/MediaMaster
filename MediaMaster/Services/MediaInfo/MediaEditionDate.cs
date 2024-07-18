@@ -13,8 +13,14 @@ public class MediaEditionDate(StackPanel parent) : MediaInfoTextBase(parent)
         base.Initialize(media);
 
         if (Text == null || media == null) return;
-        var date = File.GetLastWriteTime(media.FilePath);
+
         var modified = media.Modified.ToLocalTime();
+        var date = modified;
+
+        if (!media.Uri.IsWebsite())
+        {
+            date = File.GetLastWriteTime(media.Uri);
+        }
         if (modified > date)
         {
             date = modified;

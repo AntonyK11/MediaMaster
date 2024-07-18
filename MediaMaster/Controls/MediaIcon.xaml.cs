@@ -61,19 +61,67 @@ public sealed partial class MediaIcon
         set => SetValue(LoadIconProperty, value);
     }
 
+    public static readonly DependencyProperty ContextMenuProperty
+        = DependencyProperty.Register(
+            nameof(ContextMenu),
+            typeof(bool),
+            typeof(MediaViewer),
+            new PropertyMetadata(true));
+
+    public bool ContextMenu
+    {
+        get => (bool)GetValue(ContextMenuProperty);
+        set => SetValue(ContextMenuProperty, value);
+    }
+
+    public static readonly DependencyProperty CanOpenProperty
+        = DependencyProperty.Register(
+            nameof(CanOpen),
+            typeof(bool),
+            typeof(MediaViewer),
+            new PropertyMetadata(true));
+
+    public bool CanOpen
+    {
+        get => (bool)GetValue(CanOpenProperty);
+        set
+        {
+            SetValue(CanOpenProperty, value);
+            if (value)
+            {
+                ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Hand, 0));
+            }
+            else
+            {
+                ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
+            }
+        }
+    }
+
     public MediaIcon()
     {
         InitializeComponent();
-        OpenMediaFlyout.Click += (_, _) => OpenMedia();
-        OpenFolderFlyout.Click += (_, _) => OpenFolder();
-        DoubleTapped += (_, _) => OpenMedia();
+        DoubleTapped += (_, _) => Open();
 
-        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Hand, 0));
+        if (CanOpen)
+        {
+            ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Hand, 0));
+        }
+
+        Loaded += (_, _) =>
+        {
+            if (ContextMenu)
+            {
+                OpenFileFlyout.Click += (_, _) => Open();
+                OpenFolderFlyout.Click += (_, _) => OpenFolder();
+                OpenWebPageFlyout.Click += (_, _) => Open();
+            }
+        };
     }
 
-    public void OpenMedia()
+    public void Open()
     {
-        if (MediaPath != null && File.Exists(MediaPath))
+        if (MediaPath != null)
         {
             try
             {
@@ -129,7 +177,6 @@ public sealed partial class MediaIcon
         {
             _tokenSource?.Cancel();
         }
-
-        _tokenSource = IconService.AddImage1(MediaPath, ImageMode, (int)ActualHeight, (int)ActualHeight, Image);
+        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)ActualHeight, (int)ActualHeight, Image);
     }
 }

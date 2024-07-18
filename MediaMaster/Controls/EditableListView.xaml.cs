@@ -45,7 +45,7 @@ public sealed partial class EditableListView : UserControl
         InitializeComponent();
     }
 
-    private void EditableTextBlock_OnTextConfirmed(EditableTextBlock sender, string args)
+    private void EditableTextBlock_OnTextConfirmed(EditableTextBlock sender, TextConfirmedArgs args)
     {
         SetupEmptyStringValue();
     }

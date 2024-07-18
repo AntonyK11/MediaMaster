@@ -7,6 +7,7 @@ using BookmarksManager.Firefox;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FaviconFetcher;
 using Interop.UIAutomationClient;
+using MediaMaster.Extensions;
 using MediaMaster.Helpers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml.Media;
@@ -170,21 +171,23 @@ public class BrowserService
                         var result = GetBrowserTab(process.MainWindowHandle);
                         if (!result.IsNullOrEmpty())
                         {
-                            if (!result.IsNullOrEmpty())
+                            if (result!.IsWebsite())
                             {
-                                if (result!.StartsWith("http"))
+                                result = result.Replace("://www.", "://");
+                                if (Uri.IsWellFormedUriString(result, UriKind.Absolute))
                                 {
-                                    if (Uri.IsWellFormedUriString(result, UriKind.Absolute))
-                                    {
-                                        url = new Uri(result);
-                                    }
+                                    url = new Uri(result);
                                 }
-                                else
+                            }
+                            else
+                            {
+                                if (result!.StartsWith("www."))
                                 {
-                                    if (Uri.IsWellFormedUriString("https://" + result, UriKind.Absolute))
-                                    {
-                                        url = new Uri("https://" + result);
-                                    }
+                                    result = result.Replace("www.", "");
+                                }
+                                if (Uri.IsWellFormedUriString("https://" + result, UriKind.Absolute))
+                                {
+                                    url = new Uri("https://" + result);
                                 }
                             }
 
@@ -237,7 +240,6 @@ public class BrowserService
 
                         tab.Domain = tab.Url.Host;
                     }
-                    SetIcon(tab);
                 }
             }
         }
@@ -247,47 +249,6 @@ public class BrowserService
         }
 
         return tab;
-    }
-
-    private readonly HttpSource _source = new()
-    {
-        CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
-    };
-    private Fetcher? _fetcher = null;
-
-    public async void SetIcon(BrowserTab browserTab)
-    {
-        Uri url = browserTab.Url;
-        IconImage? image = null;
-        _fetcher ??= new Fetcher(_source);
-        await Task.Run(() =>
-        {
-            
-            try
-            {
-                image = _fetcher.FetchClosest(browserTab.Url, new IconSize(32, 32));
-            }
-            catch
-            {
-                // ignore all exceptions
-            }
-        });
-        ImageSource? source = null;
-        if (image != null)
-        {
-            var bitmap = new WriteableBitmap(image.ToSKBitmap().Width, image.ToSKBitmap().Height);
-            await using (Stream stream = bitmap.PixelBuffer.AsStream())
-            {
-                stream.Write(image.Bytes);
-            }
-            image.Dispose();
-            source = bitmap;
-        }
-
-        if (url == browserTab.Url && source != null)
-        {
-            browserTab.Icon = source;
-        }
     }
 
     public string? GetBrowserTab(nint hwnd)

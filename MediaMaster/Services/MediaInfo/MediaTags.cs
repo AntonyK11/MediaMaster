@@ -91,24 +91,27 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
                     List<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToList();
                     List<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToList();
 
-                    // Bulk add new tags
-                    if (tagsToAdd.Count != 0)
+                    if (tagsToAdd.Count != 0 || tagsToRemove.Count != 0)
                     {
-                        List<MediaTag> newMediaTags = tagsToAdd.Select(tagId => new MediaTag { MediaId = trackedMedia.MediaId, TagId = tagId }).ToList();
-                        await dataBase.BulkInsertAsync(newMediaTags);
-                    }
+                        // Bulk add new tags
+                        if (tagsToAdd.Count != 0)
+                        {
+                            List<MediaTag> newMediaTags = tagsToAdd.Select(tagId => new MediaTag { MediaId = trackedMedia.MediaId, TagId = tagId }).ToList();
+                            await dataBase.BulkInsertAsync(newMediaTags);
+                        }
 
-                    // Bulk remove old tags
-                    if (tagsToRemove.Count != 0)
-                    {
-                        List<MediaTag> mediaTagsToRemove = await dataBase.MediaTags
-                            .Where(mt => mt.MediaId == trackedMedia.MediaId && tagsToRemove.Contains(mt.TagId))
-                            .ToListAsync();
-                        await dataBase.BulkDeleteAsync(mediaTagsToRemove);
-                    }
+                        // Bulk remove old tags
+                        if (tagsToRemove.Count != 0)
+                        {
+                            List<MediaTag> mediaTagsToRemove = await dataBase.MediaTags
+                                .Where(mt => mt.MediaId == trackedMedia.MediaId && tagsToRemove.Contains(mt.TagId))
+                                .ToListAsync();
+                            await dataBase.BulkDeleteAsync(mediaTagsToRemove);
+                        }
 
-                    trackedMedia.Modified = DateTime.UtcNow;
-                    await dataBase.SaveChangesAsync();
+                        trackedMedia.Modified = DateTime.UtcNow;
+                        await dataBase.SaveChangesAsync();
+                    }
                 }
             }
         }

@@ -40,7 +40,7 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
             HorizontalAlignment = HorizontalAlignment.Stretch,
             ConfirmOnReturn = false
         };
-        editableTextBlock.TextConfirmed += (_, text) => TextConfirmed(text);
+        editableTextBlock.TextConfirmed += (_, args) => TextConfirmed(args);
         return editableTextBlock;
     }
 
@@ -62,14 +62,14 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
         }
     }
 
-    public virtual void TextConfirmed(string text)
+    public virtual void TextConfirmed(TextConfirmedArgs args)
     {
-        UpdateMedia(text);
+        UpdateMedia(args);
     }
 
-    public virtual async void UpdateMedia(string text)
+    public virtual async void UpdateMedia(TextConfirmedArgs args)
     {
-        if (Media == null) return;
+        if (Media == null || args.OldText == args.NewText) return;
 
         await using (var database = new MediaDbContext())
         {
@@ -77,8 +77,7 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
 
             if (media == null) return;
 
-            UpdateMediaProperty(ref media, text);
-
+            UpdateMediaProperty(ref media, args.NewText);
             media.Modified = DateTime.UtcNow;
 
             await database.SaveChangesAsync();

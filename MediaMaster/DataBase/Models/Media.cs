@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.DataBase.Models;
 
-[Index(nameof(FilePath), IsUnique = true)]
+[Index(nameof(Uri), IsUnique = true)]
 public class Media : IHasTimestamps
 {
     [Key]
@@ -13,7 +13,7 @@ public class Media : IHasTimestamps
 
     public virtual string Description { get; set; } = "";
 
-    public virtual string FilePath { get; set; } = "";
+    public virtual string Uri { get; set; } = "";
 
     public virtual DateTime Modified { get; set; } = DateTime.UtcNow;
 

@@ -157,7 +157,7 @@ public class MediaDbContext : DbContext
     //    Media media = this.CreateProxy<Media>(m =>
     //    {
     //        m.Name = name;
-    //        m.FilePath = path;
+    //        m.Uri = path;
     //        foreach (Tag tag in tags)
     //        {
     //            m.Tags.Add(tag);

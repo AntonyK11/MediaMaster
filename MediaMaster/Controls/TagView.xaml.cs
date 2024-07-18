@@ -141,7 +141,7 @@ public sealed partial class TagView : UserControl
 
         if (tag == null) return;
 
-        if (MediaId == null || !tag.Flags.HasFlag(TagFlags.Extension))
+        if (MediaId == null || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
         {
             var tagToRemove = Tags.FirstOrDefault(t => t.TagId == tag.TagId);
             if (tagToRemove == null) return;
@@ -259,7 +259,7 @@ public sealed partial class TagView : UserControl
 
         if (tag == null) return;
 
-        if (MediaId == null || !tag.Flags.HasFlag(TagFlags.Extension))
+        if (MediaId == null || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
         {
             sender.Visibility = Visibility.Visible;
         }
@@ -275,7 +275,7 @@ public sealed partial class TagView : UserControl
         var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
 
         if (tag == null) return;
-        if (MediaId == null || !tag.Flags.HasFlag(TagFlags.Extension))
+        if (MediaId == null || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
         {
             ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Visible;
         }

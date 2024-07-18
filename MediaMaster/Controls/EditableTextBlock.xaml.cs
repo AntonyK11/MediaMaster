@@ -10,6 +10,12 @@ using Microsoft.UI.Input;
 
 namespace MediaMaster.Controls;
 
+public class TextConfirmedArgs(string oldText, string newText)
+{
+    public string OldText = oldText;
+    public string NewText = newText;
+}
+
 public sealed partial class EditableTextBlock : UserControl
 {
     public static readonly DependencyProperty TextProperty
@@ -100,7 +106,7 @@ public sealed partial class EditableTextBlock : UserControl
         set => SetValue(EditOnClickProperty, value);
     }
 
-    public event TypedEventHandler<EditableTextBlock, string>? TextConfirmed;
+    public event TypedEventHandler<EditableTextBlock, TextConfirmedArgs>? TextConfirmed;
     public event TypedEventHandler<EditableTextBlock, string>? EditButtonPressed;
 
     private DateTime? _focusGainedTime;
@@ -182,8 +188,10 @@ public sealed partial class EditableTextBlock : UserControl
     public void ConfirmChanges()
     {
         HideTextBox();
+        var oldText = Text;
         Text = TextBox.Text;
-        App.DispatcherQueue.EnqueueAsync(() => TextConfirmed?.Invoke(this, Text));
+        var args = new TextConfirmedArgs(oldText, Text);
+        App.DispatcherQueue.EnqueueAsync(() => TextConfirmed?.Invoke(this, args));
     }
 
     public void CancelChanges()
