@@ -7,53 +7,62 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MediaMaster.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winUi="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
-    <Grid Background="{x:Bind Background, Mode=OneWay}" CornerRadius="{x:Bind CornerRadius, Mode=OneWay}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <AcrylicBrush
+                        x:Key="AcrylicBackgroundFillColorBrush"
+                        FallbackColor="#2C2C2C"
+                        TintColor="#2C2C2C"
+                        TintOpacity="0.15" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <AcrylicBrush
+                        x:Key="AcrylicBackgroundFillColorBrush"
+                        FallbackColor="#F9F9F9"
+                        TintColor="#FCFCFC"
+                        TintOpacity="0" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="{x:Bind CornerRadius, Mode=OneWay}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="300" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid
+                Margin="4"
+                winUi:UIElementExtensions.ClipToBounds="True"
+                Background="{ThemeResource LayerOnMicaBaseAltFillColorTertiary}">
+                <Image
+                    Height="{x:Bind IconHeight, Mode=OneWay}"
+                    winUi:VisualExtensions.NormalizedCenterPoint="0.5"
+                    winUi:VisualExtensions.Scale="2.5"
+                    Source="{x:Bind MediaIcon.IconImage.Source, Mode=OneWay}" />
+            </Grid>
+            <Canvas Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}" />
 
-        <Border
-            Grid.Row="0"
-            HorizontalAlignment="Stretch"
-            Background="{ThemeResource LayerFillColorDefaultBrush}">
-            <local:MediaIcon
-                x:Name="MediaIcon"
-                MaxHeight="300"
-                ImageMode="ThumbnailOnly" />
-        </Border>
+            <Border HorizontalAlignment="Stretch">
+                <local:MediaIcon
+                    x:Name="MediaIcon"
+                    Height="{x:Bind IconHeight, Mode=OneWay}"
+                    Margin="{x:Bind IconMargin, Mode=OneWay}"
+                    DelayLoading="{x:Bind DelayIconLoading, Mode=OneWay}"
+                    ImageMode="{x:Bind ImageMode, Mode=OneWay}"
+                    MediaPath="{x:Bind Media.Uri, FallbackValue=null, Mode=OneWay}" />
+            </Border>
+        </Grid>
 
         <ScrollView Grid.Row="1">
-            <StackPanel
-                x:Name="StackPanel"
-                Margin="16"
-                Spacing="12">
-                <Grid
-                    MinHeight="24"
-                    HorizontalAlignment="Center"
-                    ColumnSpacing="12">
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="24" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Border
-                        Grid.Column="0"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        CornerRadius="4">
-                        <Image Name="MediaExtensionIcon" />
-                    </Border>
-
-                    <local:EditableTextBlock
-                        x:Name="NameTextBox"
-                        Grid.Column="1"
-                        PlaceholderText="Media name" />
-                </Grid>
-            </StackPanel>
+            <StackPanel x:Name="StackPanel" Margin="16" />
         </ScrollView>
     </Grid>
 </UserControl>

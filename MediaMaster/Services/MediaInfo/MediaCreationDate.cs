@@ -8,18 +8,16 @@ public class MediaCreationDate(StackPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaCreationDate";
 
-    public override void Initialize(Media? media)
+    public override void UpdateControl(Media? media, bool isCompact)
     {
-        base.Initialize(media);
-
-        if (Text == null || media == null || media.Uri.IsWebsite()) return;
+        if (Text == null || media == null || !File.Exists(media.Uri)) return;
         var date = File.GetCreationTime(media.Uri);
         Text.Text = $"{date.ToLongDateString()} {date.ToShortTimeString()}";
     }
 
-    public override bool ShowInfo(Media? media)
+    public override bool ShowInfo(Media? media, bool isCompact)
     {
-        return media == null || !media.Uri.IsWebsite();
+        return media == null || !(isCompact || !File.Exists(media.Uri));
     }
 }
 

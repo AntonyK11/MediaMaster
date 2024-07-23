@@ -12,36 +12,53 @@ namespace MediaMaster.Services.MediaInfo;
 public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 {
     public TagView? TagView;
+    public StackPanel? StackPanel;
 
     public override string TranslationKey { get; set; } = "MediaTags";
 
-    public override void Initialize(Media? media)
+    public override void UpdateControl(Media? media, bool isCompact)
     {
-        base.Initialize(media);
-
         if (TagView == null) return;
         TagView.MediaId = media?.MediaId;
+        TagView.AddTagButton = !isCompact;
+        if (isCompact)
+        {
+            TagView.Layout = new StackLayout()
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 4
+            };
+        }
+        else
+        {
+            TagView.Layout = new FlowLayout
+            {
+                MinColumnSpacing = 4,
+                MinRowSpacing = 4
+            };
+        }
+
+        if (Title != null)
+        {
+            Title.Visibility = isCompact ? Visibility.Collapsed : Visibility.Visible;
+        }
     }
 
-    public override void Setup()
+    public override void Setup(bool isCompact)
     {
-        var stackPanel = new StackPanel
+        StackPanel = new StackPanel
         {
             Spacing = 10
         };
         Title = GetTitle();
         TagView = new TagView
         {
-            Layout = new FlowLayout
-            {
-                MinColumnSpacing = 4,
-                MinRowSpacing = 4
-            },
-            MaxHeight = 200
+            MaxHeight = 200,
+            AddTagButton = !isCompact
         };
-        stackPanel.Children.Add(Title);
-        stackPanel.Children.Add(TagView);
-        Parent.Children.Add(stackPanel);
+        StackPanel.Children.Add(Title);
+        StackPanel.Children.Add(TagView);
+        Parent.Children.Add(StackPanel);
 
         TagView.SelectTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
         TagView.RemoveTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
@@ -55,21 +72,24 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
         }
     }
 
-    public override void Show()
+    public override bool ShowInfo(Media? media, bool isCompact)
     {
-        base.Show();
-        if (TagView != null)
+        return true;
+    }
+
+    public override void Show(bool isCompact)
+    {
+        if (StackPanel != null)
         {
-            TagView.Visibility = Visibility.Visible;
+            StackPanel.Visibility = Visibility.Visible;
         }
     }
 
     public override void Hide()
     {
-        base.Hide();
-        if (TagView != null)
+        if (StackPanel != null)
         {
-            TagView.Visibility = Visibility.Collapsed;
+            StackPanel.Visibility = Visibility.Collapsed;
         }
     }
 

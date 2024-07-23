@@ -141,4 +141,7 @@
   <data name="MediaVideoDuration_Title.Text" xml:space="preserve">
     <value>Duration</value>
   </data>
+  <data name="MediaWebUrl_Title.Text" xml:space="preserve">
+    <value>Web Url</value>
+  </data>
 </root>

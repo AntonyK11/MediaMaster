@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
 
@@ -7,10 +8,11 @@ namespace MediaMaster.Services.MediaInfo;
 public abstract class MediaInfoTextBase(StackPanel parent) : MediaInfoControlBase(parent)
 {
     public TextBlock? Text;
+    public StackPanel? StackPanel;
 
-    public override void Setup()
+    public override void Setup(bool isCompact)
     {
-        var stackPanel = new StackPanel
+        StackPanel = new StackPanel
         {
             Spacing = 4
         };
@@ -21,32 +23,30 @@ public abstract class MediaInfoTextBase(StackPanel parent) : MediaInfoControlBas
             Padding = new Thickness(11,6,8,7),
             TextWrapping = TextWrapping.WrapWholeWords
         };
-        stackPanel.Children.Add(Title);
-        stackPanel.Children.Add(Text);
-        Parent.Children.Add(stackPanel);
+        StackPanel.Children.Add(Title);
+        StackPanel.Children.Add(Text);
+        Parent.Children.Add(StackPanel);
     }
 
-    public override void Show()
+    public override void Show(bool isCompact)
     {
-        base.Show();
-        if (Text != null)
+        if (StackPanel != null)
         {
-            Text.Visibility = Visibility.Visible;
+            StackPanel.Visibility = Visibility.Visible;
         }
     }
 
     public override void Hide()
     {
-        base.Hide();
-        if (Text != null)
+        if (StackPanel != null)
         {
-            Text.Visibility = Visibility.Collapsed;
+            StackPanel.Visibility = Visibility.Collapsed;
         }
     }
 
     public override void SetupTranslations()
     {
-        if (Title != null)
+        if (Title != null && !TranslationKey.IsNullOrEmpty())
         {
             Uids.SetUid(Title, $"/Media/{TranslationKey}_Title");
         }

@@ -241,14 +241,19 @@ public sealed partial class EditableTextBlock : UserControl
     {
         _text = text;
 
-        VisualStateManager.GoToState(this, text.IsNullOrEmpty() ? "PlaceholderTextState" : "CurrentTextState", true);
-        
         if (TextBox.Text != text)
         {
+            TextBox.TextChanging -= TextBox_TextChanging;
             TextBox.Text = text;
+            TextBox.TextChanging += TextBox_TextChanging;
         }
-        TextBlock.Text = text.IsNullOrEmpty() ? PlaceholderText : text;
 
+        var newText = text.IsNullOrEmpty() ? PlaceholderText : text;
+        if (TextBlock.Text != newText)
+        {
+            TextBlock.Text = newText;
+            VisualStateManager.GoToState(this, text.IsNullOrEmpty() ? "PlaceholderTextState" : "CurrentTextState", true);
+        }
         ResizeTextBox();
     }
 
@@ -275,6 +280,6 @@ public class ConfirmButton : Button
 {
     public ConfirmButton()
     {
-        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
+        ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
     }
 }

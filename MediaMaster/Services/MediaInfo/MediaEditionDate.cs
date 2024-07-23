@@ -8,10 +8,8 @@ public class MediaEditionDate(StackPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaEditionDate";
 
-    public override void Initialize(Media? media)
+    public override void UpdateControl(Media? media, bool isCompact)
     {
-        base.Initialize(media);
-
         if (Text == null || media == null) return;
 
         var modified = media.Modified.ToLocalTime();

@@ -13,10 +13,8 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaFilePath";
 
-    public override void Initialize(Media? media)
+    public override void UpdateControl(Media? media, bool isCompact)
     {
-        base.Initialize(media);
-
         if (EditableTextBlock == null || media == null) return;
         EditableTextBlock.Text = media.Uri;
     }
@@ -67,9 +65,9 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
         media.Uri = text;
     }
 
-    public override bool ShowInfo(Media? media)
+    public override bool ShowInfo(Media? media, bool isCompact)
     {
-        return media == null || !media.Uri.IsWebsite();
+        return media == null || !(isCompact || media.Uri.IsWebsite());
     }
 }
 

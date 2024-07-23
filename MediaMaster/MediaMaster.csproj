@@ -21,7 +21,6 @@
 		<DefaultLanguage>en-US</DefaultLanguage>
 		<DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 		<StartupObject>MediaMaster.Program</StartupObject>
-
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
 		<DisableXbfLineInfo>False</DisableXbfLineInfo>
@@ -48,6 +47,10 @@
 		<!--<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
 		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>-->
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Label="MultilingualAppToolkit">

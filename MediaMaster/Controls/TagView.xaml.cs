@@ -319,11 +319,11 @@ public class TagComparer : IEqualityComparer<Tag>
     {
         if (x == y) return true;
         if (x == null || y == null) return false;
-        return x.TagId == y.TagId && x.Name == y.Name && x.Flags == y.Flags && x.Permissions == y.Permissions && x.DisplayName == y.DisplayName;
+        return x.TagId == y.TagId && x.Name == y.Name && x.Argb == y.Argb && x.Flags == y.Flags && x.Permissions == y.Permissions && x.DisplayName == y.DisplayName;
     }
 
     public int GetHashCode(Tag obj)
     {
-        return HashCode.Combine(obj.TagId, obj.Name, obj.Flags, obj.Permissions, obj.DisplayName);
+        return HashCode.Combine(obj.TagId, obj.Name, obj.Argb, obj.Flags, obj.Permissions, obj.DisplayName);
     }
 }

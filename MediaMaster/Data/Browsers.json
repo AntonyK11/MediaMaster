@@ -1,6 +1,6 @@
 [
   {
-    "Name": "Firefox",
+    "Name": "Mozilla Firefox",
     "Icon": "Assets/Browsers/firefox.svg",
     "ProfilesDirectory": "Mozilla/Firefox/Profiles",
     "ProcessName": "firefox",
@@ -8,7 +8,8 @@
     "IsOnlyPackaged": false,
     "BookmarkFormat": "firefox",
     "IsInLocalAppData": false,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": " — Mozilla Firefox"
   },
   {
     "Name": "Google Chrome",
@@ -19,7 +20,8 @@
     "IsOnlyPackaged": false,
     "BookmarkFormat": "chromium",
     "IsInLocalAppData": true,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": " - Google Chrome"
   },
   {
     "Name": "Microsoft Edge",
@@ -30,7 +32,8 @@
     "IsOnlyPackaged": false,
     "BookmarkFormat": "chromium",
     "IsInLocalAppData": true,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": " - Microsoft Edge"
   },
   {
     "Name": "Opera",
@@ -41,7 +44,8 @@
     "IsOnlyPackaged": false,
     "BookmarkFormat": "chromium",
     "IsInLocalAppData": false,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": " - Opera"
   },
   {
     "Name": "Opera GX",
@@ -52,7 +56,8 @@
     "IsOnlyPackaged": false,
     "BookmarkFormat": "opera-gx",
     "IsInLocalAppData": false,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": " - Opera"
   },
   {
     "Name": "Vivaldi",
@@ -63,7 +68,8 @@
     "IsOnlyPackaged": false,
     "BookmarkFormat": "chromium",
     "IsInLocalAppData": true,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": " - Vivaldi"
   },
   {
     "Name": "Brave",
@@ -74,7 +80,8 @@
     "IsOnlyPackaged": false,
     "BookmarkFormat": "chromium",
     "IsInLocalAppData": true,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": " - Brave"
   },
   {
     "Name": "Arc",
@@ -85,6 +92,7 @@
     "IsOnlyPackaged": true,
     "BookmarkFormat": "chromium",
     "IsInLocalAppData": true,
-    "HasProfiles": true
+    "HasProfiles": true,
+    "TabEndingString": ""
   }
 ]

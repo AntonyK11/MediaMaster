@@ -12,9 +12,6 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <StaticResource x:Key="TextControlForeground" ResourceKey="TextFillColorPrimaryBrush" />
-        <StaticResource x:Key="TextControlPlaceholderForeground" ResourceKey="TextFillColorSecondaryBrush" />
-
         <ControlTemplate x:Name="ButtonTemplate" TargetType="Button">
             <Grid
                 x:Name="ButtonLayoutGrid"
@@ -296,7 +293,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 CharacterSpacing="23"
-                Foreground="{ThemeResource TextControlForeground}"
+                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                 IsTextSelectionEnabled="True"
                 SizeChanged="TextBlock_OnSizeChanged"
                 TextWrapping="WrapWholeWords" />
@@ -317,7 +314,7 @@
                 <VisualState x:Name="PlaceholderTextState">
                     <Storyboard>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="TextBlock" Storyboard.TargetProperty="Foreground">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlPlaceholderForeground}" />
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextFillColorSecondaryBrush}" />
                         </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="TextBlock" Storyboard.TargetProperty="CharacterSpacing">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="0" />

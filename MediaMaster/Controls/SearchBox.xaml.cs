@@ -109,7 +109,7 @@ public class CustomButton : Button
 {
     public CustomButton()
     {
-        ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
+        ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
     }
 }
 

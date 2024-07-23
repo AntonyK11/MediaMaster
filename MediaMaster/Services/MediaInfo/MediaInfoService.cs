@@ -9,8 +9,11 @@ internal class MediaInfoService
 
     public MediaInfoService(StackPanel parent)
     {
+        Register(new MediaName(parent));
+        Register(new MediaNameCompact(parent));
         Register(new MediaDuration(parent));
         Register(new MediaFilePath(parent));
+        Register(new MediaWebUrl(parent));
         Register(new MediaDescription(parent));
         Register(new MediaCreationDate(parent));
         Register(new MediaAdditionDate(parent));
@@ -28,11 +31,11 @@ internal class MediaInfoService
         MediaInfoControls.Add(mediaInfoControl);
     }
 
-    public void SetMedia(Media? media)
+    public void SetMedia(Media? media, bool isCompact)
     {
         foreach (var mediaInfoControl in MediaInfoControls)
         {
-            mediaInfoControl.Initialize(media);
+            mediaInfoControl.Initialize(media, isCompact);
         }
     }
 }

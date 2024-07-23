@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml;
-using Windows.UI.Core;
 using MediaMaster.Services;
 using Microsoft.UI.Input;
 
@@ -89,14 +88,29 @@ public sealed partial class MediaIcon
             SetValue(CanOpenProperty, value);
             if (value)
             {
-                ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Hand, 0));
+                ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
             }
             else
             {
-                ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Arrow, 0));
+                ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
             }
         }
     }
+
+    public static readonly DependencyProperty DelayLoadingProperty
+        = DependencyProperty.Register(
+            nameof(DelayLoading),
+            typeof(bool),
+            typeof(MediaViewer),
+            new PropertyMetadata(true));
+
+    public bool DelayLoading
+    {
+        get => (bool)GetValue(DelayLoadingProperty);
+        set => SetValue(DelayLoadingProperty, value);
+    }
+
+    public Microsoft.UI.Xaml.Controls.Image IconImage => Image;
 
     public MediaIcon()
     {
@@ -105,7 +119,7 @@ public sealed partial class MediaIcon
 
         if (CanOpen)
         {
-            ProtectedCursor = InputCursor.CreateFromCoreCursor(new CoreCursor(CoreCursorType.Hand, 0));
+            ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
         }
 
         Loaded += (_, _) =>
@@ -156,14 +170,18 @@ public sealed partial class MediaIcon
     private async void SetIconAsync()
     {
         var path = MediaPath;
-        if (Image.Source != null)
-        {
-            Image.Source = null;
-        }
 
-        await Task.WhenAny(
-            Task.Delay(500),
-            _task.Task);
+        if (DelayLoading)
+        {
+            if (Image.Source != null)
+            {
+                Image.Source = null;
+            }
+
+            await Task.WhenAny(
+                Task.Delay(500),
+                _task.Task);
+        }
 
         if (path == MediaPath)
         {
@@ -177,6 +195,7 @@ public sealed partial class MediaIcon
         {
             _tokenSource?.Cancel();
         }
-        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)ActualHeight, (int)ActualHeight, Image);
+
+        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)(ActualHeight + Margin.Left + Margin.Right), (int)(ActualHeight + Margin.Top + Margin.Bottom), Image);
     }
 }

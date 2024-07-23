@@ -69,7 +69,15 @@ public sealed partial class HomePage
 
     private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
-        await MediaService.AddMediaAsync([new KeyValuePair<string?, string>(((BrowserTab)TabsList.SelectedItem).Title, ((BrowserTab)TabsList.SelectedItem).Url.AbsoluteUri)]);
+        var tab = (BrowserTab)TabsList.SelectedItem;
+        var title = tab.Title;
+        var tabEndingString = tab.Browser.TabEndingString;
+        if (title.EndsWith(tabEndingString))
+        {
+            title = title.Remove(title.Length - tabEndingString.Length, tabEndingString.Length);
+        }
+
+        await MediaService.AddMediaAsync([new KeyValuePair<string?, string>(title, tab.Url.AbsoluteUri)]);
     }
 }
 

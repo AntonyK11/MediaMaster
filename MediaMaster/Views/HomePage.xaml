@@ -48,14 +48,22 @@
 
         <DataTemplate x:Key="MediaTemplate" x:DataType="models:Media">
             <ItemContainer
-                Width="200"
-                Height="200"
-                DataContext="{x:Bind MediaId}"
+                Width="184"
+                Height="222"
+                DataContext="{x:Bind}"
                 Tapped="ItemContainer_Tapped">
-                <customControls:MediaIcon
-                    x:Phase="1"
-                    LoadIcon="False"
-                    MediaPath="{x:Bind Uri}" />
+                <!--<StackPanel Orientation="Vertical">
+                    <customControls:MediaIcon
+                        x:Phase="1"
+                        LoadIcon="False"
+                        MediaPath="{x:Bind Uri}" />
+                </StackPanel>-->
+                <customControls:MediaViewer
+                    ForceUpdate="False"
+                    IconHeight="76"
+                    IconMargin="26"
+                    IsCompact="True"
+                    Media="{x:Bind}" />
             </ItemContainer>
         </DataTemplate>
     </Page.Resources>
@@ -72,8 +80,10 @@
             Grid.Column="2"
             MinWidth="200"
             MaxWidth="600"
-            Background="{ThemeResource LayerFillColorDefaultBrush}"
-            CornerRadius="0, 8, 0, 0" />
+            CornerRadius="0, 8, 0, 0"
+            DelayIconLoading="False"
+            IconMargin="16"
+            ImageMode="ThumbnailOnly" />
 
 
         <controls:ContentSizer
@@ -235,6 +245,9 @@
                 <ItemsView.Layout>
                     <UniformGridLayout MinColumnSpacing="8" MinRowSpacing="8" />
                 </ItemsView.Layout>
+                <!--<ItemsView.ItemTransitionProvider>
+                    <LinedFlowLayoutItemCollectionTransitionProvider />
+                </ItemsView.ItemTransitionProvider>-->
             </ItemsView>
 
             <winUiCommunity:PagerControl

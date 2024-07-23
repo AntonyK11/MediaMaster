@@ -1,18 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using System.Net.Cache;
-using System.Runtime.InteropServices.WindowsRuntime;
 using BookmarksManager;
 using BookmarksManager.Chrome;
 using BookmarksManager.Firefox;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FaviconFetcher;
 using Interop.UIAutomationClient;
 using MediaMaster.Extensions;
 using MediaMaster.Helpers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using TreeScope = Interop.UIAutomationClient.TreeScope;
 
 
 namespace MediaMaster.Services;
@@ -28,11 +24,13 @@ public class BrowserData
     public required string BookmarkFormat { get; set; }
     public required bool IsInLocalAppData { get; set; }
     public required bool HasProfiles { get; set; }
+
+    public required string TabEndingString { get; set; }
 }
 
 public partial class BrowserTab : ObservableObject
 {
-    [ObservableProperty] private string _browser;
+    [ObservableProperty] private BrowserData _browser;
     [ObservableProperty] private ImageSource _icon;
     [ObservableProperty] private string _domain;
     [ObservableProperty] private string _title;
@@ -103,7 +101,7 @@ public class BrowserService
         var found = false;
         var title = "";
         Uri? url = null;
-        BrowserTab? tab = ActiveBrowserTabs.FirstOrDefault(t => t.Browser == browser.Name);
+        BrowserTab? tab = ActiveBrowserTabs.FirstOrDefault(t => t.Browser.Name == browser.Name);
 
         await Task.Run(() =>
         {
@@ -173,7 +171,7 @@ public class BrowserService
                         {
                             if (result!.IsWebsite())
                             {
-                                result = result.Replace("://www.", "://");
+                                result = result!.Replace("://www.", "://");
                                 if (Uri.IsWellFormedUriString(result, UriKind.Absolute))
                                 {
                                     url = new Uri(result);
@@ -192,12 +190,6 @@ public class BrowserService
                             }
 
                             found = true;
-
-                            if (!process.HasExited)
-                            {
-                                _browsersWindowTitle[browser.Name] = process.MainWindowTitle;
-                            }
-
                             break;
                         }
                     }
@@ -206,24 +198,28 @@ public class BrowserService
                         // Catch any exceptions
                     }
                 }
-
-                _browsersWindowTitle.Remove(browser.Name);
             }
         });
 
         if (found)
         {
+            _browsersWindowTitle[browser.Name] = title;
+
             if (url != null)
             {
                 if (tab == null)
                 {
-                    tab = new BrowserTab { Browser = browser.Name };
+                    tab = new BrowserTab { Browser = browser };
                     ActiveBrowserTabs.Add(tab);
+                }
+
+                if (tab.Title != title)
+                {
+                    tab.Title = title;
                 }
 
                 if (tab.Url != url)
                 {
-                    tab.Title = title;
                     tab.Url = url;
 
                     if (tab.Domain != tab.Url.Host)
@@ -246,6 +242,7 @@ public class BrowserService
         else if (tab != null)
         {
             ActiveBrowserTabs.Remove(tab);
+            _browsersWindowTitle.Remove(browser.Name);
         }
 
         return tab;

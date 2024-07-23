@@ -9,10 +9,8 @@ public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaVideoDuration";
 
-    public override void Initialize(Media? media)
+    public override void UpdateControl(Media? media, bool isCompact)
     {
-        base.Initialize(media);
-
         if (Text == null || media == null) return;
         var duration = GetVideoDuration(media.Uri);
         if (duration == null) return;
@@ -21,9 +19,9 @@ public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
         Text.Text = nonNullDuration.ToString();
     }
 
-    public override bool ShowInfo(Media? media)
+    public override bool ShowInfo(Media? media, bool isCompact)
     {
-        return media == null || GetVideoDuration(media.Uri) != null;
+        return media == null || (!isCompact && GetVideoDuration(media.Uri) != null);
     }
 
     public static TimeSpan? GetVideoDuration(string filePath)

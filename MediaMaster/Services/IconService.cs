@@ -31,20 +31,37 @@ public class MyCancellationTokenSource : CancellationTokenSource
 
 public static class IconService
 {
-    private static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
-    private static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
+    public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
+    public static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
 
 
     public static MyCancellationTokenSource? AddImage(string? path, ImageMode imageMode, int width, int height, Microsoft.UI.Xaml.Controls.Image image)
     {
-        image.Source = null;
         if (path == null) return null;
 
         var tokenSource = new MyCancellationTokenSource();
-        Task.Factory.StartNew(() => AddImageAsync(path, imageMode, width, height, tokenSource, image), tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        StartSTATask(() => AddImageAsync(path, imageMode, width, height, tokenSource, image));
         return tokenSource;
     }
 
+    public static Task<T> StartSTATask<T>(Func<T> func)
+    {
+        var tcs = new TaskCompletionSource<T>();
+        Thread thread = new(() =>
+        {
+            try
+            {
+                tcs.SetResult(func());
+            }
+            catch (Exception e)
+            {
+                tcs.SetException(e);
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        return tcs.Task;
+    }
     private static async Task AddImageAsync(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource cts, Microsoft.UI.Xaml.Controls.Image image)
     {
         using (cts)
@@ -59,14 +76,16 @@ public static class IconService
                 }
 
                 await SetWebsiteIcon(path, width, height, cts, image);
-                
+
             }
             else if (File.Exists(path))
             {
                 if (imageMode == ImageMode.IconAndThumbnail)
                 {
-                    await SetFileIcon(path, ImageMode.IconOnly, width, height, cts, image);
-                    await SetFileIcon(path, ImageMode.ThumbnailOnly, width, height, cts, image);
+                    await Task.WhenAll(
+                        SetFileIcon(path, ImageMode.IconOnly, width, height, cts, image),
+                        SetFileIcon(path, ImageMode.IconAndThumbnail, width, height, cts, image)
+                        );
                 }
                 else
                 {
@@ -131,23 +150,17 @@ public static class IconService
     {
         if (cts.Token.IsCancellationRequested) return;
 
-        SIIGBF options = imageMode switch
-        {
-            ImageMode.IconOnly => SIIGBF.IconOnly,
-            _ => 0
-        };
+        SIIGBF options = SIIGBF.BiggerSizeOk;
 
-        ImageSource? icon = null;
-
-        if (imageMode != ImageMode.ThumbnailOnly)
+        switch (imageMode)
         {
-            icon = await GetThumbnail(path, width, height, options | SIIGBF.InCacheOnly);
+            case ImageMode.IconOnly:
+                options |= SIIGBF.IconOnly;
+                break;
         }
 
-        if (icon == null)
-        {
-            icon = await GetThumbnail(path, width, height, options);
-        }
+        _ = App.DispatcherQueue.EnqueueAsync(() => image.Source = null);
+        ImageSource? icon = await GetThumbnail(path, width, height, options);
 
         if (cts.Token.IsCancellationRequested) return;
 
