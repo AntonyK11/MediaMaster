@@ -48,24 +48,6 @@ public partial class TitleBarViewModel : ObservableObject
             var hWnd = App.MainWindow.GetWindowHandle();
             var hMenu = GetSystemMenu(hWnd, false);
 
-
-            //var darkBackgroundBrush = Color.FromArgb(44, 44, 44);
-            //var lightBackgroundBrush = Color.FromArgb(249, 249, 249);
-
-            //var darkForegroundBrush = Color.FromArgb(255, 255, 255);
-            //var lightForegroundBrush = Color.FromArgb(0, 0, 0);
-
-            //HBRUSH blueBrush = PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(darkBackgroundBrush));
-
-            //var info = new MENUINFO
-            //{
-            //    cbSize = (uint)Marshal.SizeOf(typeof(MENUINFO)),
-            //    fMask = MENUINFO_MASK.MIM_BACKGROUND,
-            //    hbrBack = blueBrush,
-            //};
-
-            //PInvoke.SetMenuInfo(hMenu, in info);
-
             SetMenuItemInfo(hMenu, 0xF120);
             SetMenuItemInfo(hMenu, 0xF010);
             SetMenuItemInfo(hMenu, 0xF000);
@@ -211,7 +193,7 @@ public partial class TitleBarViewModel : ObservableObject
     ///     enabled/disabled.
     /// </summary>
     /// <param name="pos"> The position of the mouse cursor. </param>
-    private static unsafe void ShowMenu(Point pos)
+    private static void ShowMenu(Point pos)
     {
         if (App.MainWindow == null) return;
 
@@ -225,31 +207,6 @@ public partial class TitleBarViewModel : ObservableObject
         SetMenuItemInfo(hMenu, 0xF030);
         SetMenuItemInfo(hMenu, 0, true);
         SetMenuItemInfo(hMenu, 0xF060);
-
-        //var darkBackgroundBrush = Color.FromArgb(44, 44, 44);
-        //var lightBackgroundBrush = Color.FromArgb(249, 249, 249);
-
-        //var darkForegroundBrush = Color.FromArgb(255, 255, 255);
-        //var lightForegroundBrush = Color.FromArgb(0, 0, 0);
-
-        //HBRUSH blueBrush = PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(darkBackgroundBrush));
-
-        //var info = new MENUINFO
-        //{
-        //    cbSize = (uint)Marshal.SizeOf(typeof(MENUINFO)),
-        //    fMask = MENUINFO_MASK.MIM_BACKGROUND,
-        //    hbrBack = blueBrush,
-        //};
-
-        //PInvoke.SetMenuInfo(hMenu, in info);
-
-        //SetMenuItemInfo(hMenu, 0xF120);
-        //SetMenuItemInfo(hMenu, 0xF010);
-        //SetMenuItemInfo(hMenu, 0xF000);
-        //SetMenuItemInfo(hMenu, 0xF020);
-        //SetMenuItemInfo(hMenu, 0xF030);
-        //SetMenuItemInfo(hMenu, 0);
-        //SetMenuItemInfo(hMenu, 0xF060);
 
         if (App.MainWindow.WindowState == WindowState.Normal)
         {
@@ -278,7 +235,7 @@ public partial class TitleBarViewModel : ObservableObject
         }
     }
 
-    internal static unsafe void SetMenuItemInfo(IntPtr hMenu, uint item, bool separator = false)
+    internal static void SetMenuItemInfo(IntPtr hMenu, uint item, bool separator = false)
     {
         if (separator)
         {

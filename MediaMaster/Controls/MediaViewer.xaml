@@ -244,24 +244,21 @@
                 ImageMode="{x:Bind ImageMode, Mode=OneWay}"
                 MediaPath="{x:Bind Media.Uri, FallbackValue=null, Mode=OneWay}" />
 
-            <RelativePanel
-                Width="80"
-                Height="32"
+            <StackPanel
                 Margin="16"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
+                Orientation="Horizontal"
                 Visibility="{x:Bind IsCompact, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, ConverterParameter=True}">
+
                 <ToggleButton
                     x:Name="ArchiveToggleButton"
                     Width="32"
                     Height="32"
-                    Padding="0"
-                    Canvas.ZIndex="1"
                     Checked="ArchiveToggleButton_OnChecked"
                     IsChecked="{x:Bind Media.IsArchived, Mode=OneWay, FallbackValue=False}"
                     PointerEntered="ArchiveToggleButton_OnPointerEntered"
                     PointerExited="ArchiveToggleButton_OnPointerExited"
-                    RelativePanel.LeftOf="FavoriteToggleButton"
                     Template="{StaticResource ToggleButtonControlTemplate}"
                     Unchecked="ArchiveToggleButton_OnUnchecked">
                     <Grid
@@ -280,33 +277,6 @@
                             <PathIcon Data="{StaticResource PackageIcon}" Foreground="Black" />
                         </Viewbox>
                     </Grid>
-                    <!--<animations:Implicit.ShowAnimations>
-                        <animations:TranslationAnimation
-                            From="0, 17, 0"
-                            To="0"
-                            Duration="0:0:0.6">
-                            <animations:Vector3KeyFrame Key="0.1" Value="0, 17, 0" />
-                        </animations:TranslationAnimation>
-                        <animations:OpacityAnimation
-                            From="0"
-                            To="1"
-                            Duration="0:0:0.6">
-                            <animations:ScalarKeyFrame Key="0.1" Value="0" />
-                        </animations:OpacityAnimation>
-                    </animations:Implicit.ShowAnimations>
-                    <animations:Implicit.HideAnimations>
-                        <animations:TranslationAnimation
-                            From="0"
-                            To="0, 17, 0"
-                            Duration="0:0:0.5" />
-                        <animations:OpacityAnimation
-                            From="1"
-                            To="0"
-                            Duration="0:0:0.5" />
-                    </animations:Implicit.HideAnimations>
-                    <animations:Implicit.Animations>
-                        <animations:OffsetAnimation Duration="0:0:0.6" />
-                    </animations:Implicit.Animations>-->
                 </ToggleButton>
 
                 <ToggleButton
@@ -314,13 +284,11 @@
                     Width="32"
                     Height="32"
                     Margin="16,0,0,0"
-                    Padding="0"
                     HorizontalAlignment="Right"
                     Checked="FavoriteToggleButton_OnChecked"
                     IsChecked="{x:Bind Media.IsFavorite, Mode=OneWay, FallbackValue=False}"
                     PointerEntered="FavoriteToggleButton_OnPointerEntered"
                     PointerExited="FavoriteToggleButton_OnPointerExited"
-                    RelativePanel.AlignRightWithPanel="True"
                     Template="{StaticResource ToggleButtonControlTemplate}"
                     Unchecked="FavoriteToggleButton_OnUnchecked">
                     <Grid
@@ -341,32 +309,8 @@
                             <FontIconSource Foreground="Black" Glyph="&#xE734;" />
                         </IconSourceElement>
                     </Grid>
-                    <!--<animations:Implicit.ShowAnimations>
-                        <animations:TranslationAnimation
-                            From="0, 17, 0"
-                            To="0"
-                            Duration="0:0:0.5" />
-                        <animations:OpacityAnimation
-                            From="0"
-                            To="1"
-                            Duration="0:0:0.5" />
-                    </animations:Implicit.ShowAnimations>
-                    <animations:Implicit.HideAnimations>
-                        <animations:TranslationAnimation
-                            From="0"
-                            To="0, 17, 0"
-                            Duration="0:0:0.6">
-                            <animations:Vector3KeyFrame Key="0.1" Value="0" />
-                        </animations:TranslationAnimation>
-                        <animations:OpacityAnimation
-                            From="1"
-                            To="0"
-                            Duration="0:0:0.6">
-                            <animations:ScalarKeyFrame Key="0.1" Value="1" />
-                        </animations:OpacityAnimation>
-                    </animations:Implicit.HideAnimations>-->
                 </ToggleButton>
-            </RelativePanel>
+            </StackPanel>
         </Grid>
 
         <ScrollView x:Name="ScrollView" Grid.Row="1">
