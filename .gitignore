@@ -362,3 +362,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+/MediaMaster/Assets/old
+/MediaMaster/NativeMethods.txt
+/MediaMaster/NativeMethods.json
+/.gitignore

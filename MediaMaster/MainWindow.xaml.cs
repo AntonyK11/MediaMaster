@@ -5,7 +5,6 @@ using WinUIEx;
 using H.NotifyIcon.EfficiencyMode;
 using static MediaMaster.Services.WindowsNativeValues;
 using static MediaMaster.Services.WindowsApiService;
-using System.Runtime.InteropServices;
 
 namespace MediaMaster;
 
@@ -20,6 +19,7 @@ public sealed partial class MainWindow
         ExtendsContentIntoTitleBar = true;
 
         Closed += MainWindow_Closed;
+        MinHeight = 48 + 9;
 
         InitializeTheme();
     }
@@ -68,27 +68,24 @@ public sealed partial class MainWindow
         // https://stackoverflow.com/questions/53000291/how-to-smooth-ugly-jitter-flicker-jumping-when-resizing-windows-especially-drag
         // https://github.com/microsoft/microsoft-ui-xaml/issues/5148
         var hWnd = this.GetWindowHandle();
-        Margins margins = new() { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 };
-        _ = DwmExtendFrameIntoClientArea(hWnd, ref margins);
 
-        WindowCompositionAttributeData winCompAttrData = new()
-        {
-            Attribute = WindowCompositionAttribute.AccentPolicy,
-            Data = Marshal.UnsafeAddrOfPinnedArrayElement([(int)AccentState.AccentEnableHostBackdrop], 0),
-            SizeOfData = sizeof(int)
-        };
+        Margins margins = new() { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 };
+        DwmExtendFrameIntoClientArea(hWnd, ref margins);
+
+        DwmWindowAttribute attribute = (Environment.OSVersion.Version.Build < 22523)
+            ? DwmWindowAttribute.SystemBackdropTypeDeprecated // Undocumented Backdrop attribute
+            : DwmWindowAttribute.DwmWindowAttribute;
+        var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)WindowsNativeValues.DwSystemBackdropType.MainWindow;
+        DwmSetWindowAttribute(hWnd, attribute, ref attributeValue, sizeof(int));
 
         if (theme == ElementTheme.Dark)
         {
-            winCompAttrData.Attribute = WindowCompositionAttribute.UseDarkModeColors;
+            attributeValue = 1;
         }
-        _ = SetWindowCompositionAttribute(hWnd, ref winCompAttrData);
-
-        var attribute = (Environment.OSVersion.Version.Build < 22523) ? DwmWindowAttribute.SystemBackdropTypeDeprecated : DwmWindowAttribute.SystemBackdropType;
-        var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)DwSystemBackdropType.MainWindow;
-        _ = DwmSetWindowAttribute(hWnd, attribute, ref attributeValue, sizeof(int));
-
-        attributeValue = theme == ElementTheme.Dark ? 1 : 0;
-        _ = DwmSetWindowAttribute(hWnd, DwmWindowAttribute.UseImmersiveDarkMode, ref attributeValue, sizeof(int));
+        else
+        {
+            attributeValue = 0;
+        }
+        DwmSetWindowAttribute(hWnd, DwmWindowAttribute.UseImmersiveDarkMode, ref attributeValue, sizeof(int));
     }
 }

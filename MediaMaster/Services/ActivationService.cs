@@ -36,7 +36,8 @@ public class ActivationService : IActivationService
 
         App.GetService<ITranslationService>().LanguageChanged += async (_, _) => await ResetContextMenu();
 
-        FlyoutService.Initialize();
+        App.Flyout = new FlyoutWindow();
+        App.GetService<TrayIconService>().SetInTray();
     }
 
     public async Task<string?> HandleActivationAsync(AppActivationArguments? activationArgs = null)

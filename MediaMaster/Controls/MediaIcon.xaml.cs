@@ -110,6 +110,32 @@ public sealed partial class MediaIcon
         set => SetValue(DelayLoadingProperty, value);
     }
 
+    public static readonly DependencyProperty IconMarginProperty
+        = DependencyProperty.Register(
+            nameof(IconMargin),
+            typeof(Thickness),
+            typeof(MediaViewer),
+            new PropertyMetadata(new Thickness(0, 0, 0, 0)));
+
+    public Thickness IconMargin
+    {
+        get => (Thickness)GetValue(IconMarginProperty);
+        set => SetValue(IconMarginProperty, value);
+    }
+
+    public static readonly DependencyProperty IconHeightProperty
+        = DependencyProperty.Register(
+            nameof(IconHeight),
+            typeof(double),
+            typeof(MediaViewer),
+            new PropertyMetadata(0));
+
+    public double IconHeight
+    {
+        get => (double)GetValue(IconHeightProperty);
+        set => SetValue(IconHeightProperty, value);
+    }
+
     public Microsoft.UI.Xaml.Controls.Image IconImage => Image;
 
     public MediaIcon()
@@ -171,13 +197,13 @@ public sealed partial class MediaIcon
     {
         var path = MediaPath;
 
+        if (Image.Source != null)
+        {
+            Image.Source = null;
+        }
+
         if (DelayLoading)
         {
-            if (Image.Source != null)
-            {
-                Image.Source = null;
-            }
-
             await Task.WhenAny(
                 Task.Delay(500),
                 _task.Task);
@@ -196,6 +222,6 @@ public sealed partial class MediaIcon
             _tokenSource?.Cancel();
         }
 
-        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)(ActualHeight + Margin.Left + Margin.Right), (int)(ActualHeight + Margin.Top + Margin.Bottom), Image);
+        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)(IconHeight), (int)(IconHeight), Image);
     }
 }

@@ -1,22 +1,52 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Windows.Foundation;
+using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase.Models;
 using Windows.Storage;
+using CommunityToolkit.WinUI;
 using Microsoft.Extensions.Logging;
 
 namespace MediaMaster.DataBase;
 
+[Flags]
+public enum MediaChangeFlags
+{
+    MediaAdded = 0x00000,
+    MediaRemoved = 0x00001,
+    MediaChanged = 0x00002,
+    
+    NameChanged = 0x00010,
+    UriChanged = 0x00100,
+    DescriptionChanged = 0x01000,
+    TagsChanged = 0x10000,
+}
+
+public struct MediaChangeArgs(MediaChangeFlags flags, Media media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+{
+    public MediaChangeFlags Flags = flags;
+    public Media Media = media;
+    public ICollection<Tag>? TagsAdded = tagsAdded;
+    public ICollection<Tag>? TagsRemoved = tagsRemoved;
+}
+
 public class MediaDbContext : DbContext
 {
+    public static Tag? FileTag;
+    public static Tag? WebsiteTag;
+    public static Tag? FavoriteTag;
+    public static Tag? ArchivedTag;
+
+    public static event TypedEventHandler<object?, MediaChangeArgs>? MediaChanged;
+
+    //public static event TypedEventHandler<object, >? TagAdded;
+    //public static event TypedEventHandler<object, >? TagRemoved;
+    //public static event TypedEventHandler<object, >? TagChanged;
+
     public DbSet<Media> Medias { get; init; }
     public DbSet<Tag> Tags { get; init; }
 
     public DbSet<MediaTag> MediaTags { get; init; }
     public DbSet<TagTag> TagTags { get; init; }
 
-    public static Tag? FileTag;
-    public static Tag? WebsiteTag;
-    public static Tag? FavoriteTag;
-    public static Tag? ArchivedTag;
 
     private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
     //private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
@@ -123,46 +153,11 @@ public class MediaDbContext : DbContext
         ArchivedTag = archivedTag;
 
         await SaveChangesAsync();
-
-        //for (var i = 0; i < 10; i++)
-        //{
-        //    Tag media = this.CreateProxy<Tag>(t =>
-        //    {
-        //        t.Name = "Media";
-        //        foreach (Tag tag in Tags)
-        //        {
-        //            t.Children.Add(tag);
-        //        }
-        //    });
-        //    Tags.Add(media);
-        //    await SaveChangesAsync();
-        //}
     }
 
-    //public void AddTag(string name, IEnumerable<Tag> parents)
-    //{
-    //    Tag tag = this.CreateProxy<Tag>(t =>
-    //    {
-    //        t.Name = name;
-    //        foreach (Tag tag in parents)
-    //        {
-    //            t.Parents.Add(tag);
-    //        }
-    //    });
-    //    Tags.Add(tag);
-    //}
-
-    //public void AddMedia(string name, string path, IEnumerable<Tag> tags)
-    //{
-    //    Media media = this.CreateProxy<Media>(m =>
-    //    {
-    //        m.Name = name;
-    //        m.Uri = path;
-    //        foreach (Tag tag in tags)
-    //        {
-    //            m.Tags.Add(tag);
-    //        }
-    //    });
-    //    Medias.Add(media);
-    //}
+    public static void InvokeMediaChange(MediaChangeFlags flags, Media media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+    {
+        var args = new MediaChangeArgs(flags, media, tagsAdded, tagsRemoved);
+        App.DispatcherQueue.EnqueueAsync(() => MediaChanged?.Invoke(null, args));
+    }
 }

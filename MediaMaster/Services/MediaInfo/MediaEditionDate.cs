@@ -1,4 +1,4 @@
-﻿using MediaMaster.DataBase.Models;
+﻿using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using Microsoft.UI.Xaml.Controls;
 
@@ -8,16 +8,16 @@ public class MediaEditionDate(StackPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaEditionDate";
 
-    public override void UpdateControl(Media? media, bool isCompact)
+    public override void UpdateControlContent()
     {
-        if (Text == null || media == null) return;
+        if (Text == null || Media == null) return;
 
-        var modified = media.Modified.ToLocalTime();
+        var modified = Media.Modified.ToLocalTime();
         var date = modified;
 
-        if (!media.Uri.IsWebsite())
+        if (!Media.Uri.IsWebsite())
         {
-            date = File.GetLastWriteTime(media.Uri);
+            date = File.GetLastWriteTime(Media.Uri);
         }
         if (modified > date)
         {
@@ -25,6 +25,13 @@ public class MediaEditionDate(StackPanel parent) : MediaInfoTextBase(parent)
         }
 
         Text.Text = $"{date.ToLongDateString()} {date.ToShortTimeString()} | {date.GetTimeDifference()}";
+    }
+
+    public override void MediaChanged(MediaChangeArgs args)
+    {
+        if (Media == null || args.Media.MediaId != Media.MediaId) return;
+        Media = args.Media;
+        UpdateControlContent();
     }
 }
 

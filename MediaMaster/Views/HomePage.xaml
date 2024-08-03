@@ -13,6 +13,7 @@
     xmlns:views="using:MediaMaster.Views"
     xmlns:winUiCommunity="using:WinUICommunity"
     NavigationCacheMode="Disabled"
+    SizeChanged="HomePage_OnSizeChanged"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -48,16 +49,14 @@
 
         <DataTemplate x:Key="MediaTemplate" x:DataType="models:Media">
             <ItemContainer
-                Width="184"
+                x:Name="hi"
                 Height="222"
                 DataContext="{x:Bind}"
-                Tapped="ItemContainer_Tapped">
-                <!--<StackPanel Orientation="Vertical">
-                    <customControls:MediaIcon
-                        x:Phase="1"
-                        LoadIcon="False"
-                        MediaPath="{x:Bind Uri}" />
-                </StackPanel>-->
+                PointerEntered="element_PointerEntered"
+                PointerExited="element_PointerExited"
+                PointerPressed="element_PointerPressed"
+                Tapped="element_PointerReleased">
+
                 <customControls:MediaViewer
                     ForceUpdate="False"
                     IconHeight="76"
@@ -68,31 +67,36 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid Padding="{StaticResource NavigationViewPageContentMargin}">
+    <Grid
+        x:Name="ContentGrid"
+        Padding="{StaticResource NavigationViewPageContentMargin}"
+        HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition
+                x:Name="ContentColumn"
+                Width="*"
+                MinWidth="150" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition
+                x:Name="PaneColumn"
+                Width="350"
+                MinWidth="150" />
         </Grid.ColumnDefinitions>
+
+        <controls:GridSplitter
+            x:Name="ContentSizer"
+            Grid.Column="1"
+            CornerRadius="8, 0, 0, 0"
+            ResizeBehavior="PreviousAndNext" />
 
         <customControls:MediaViewer
             x:Name="MediaViewer"
             Grid.Column="2"
-            MinWidth="200"
-            MaxWidth="600"
             CornerRadius="0, 8, 0, 0"
             DelayIconLoading="False"
             IconMargin="16"
             ImageMode="ThumbnailOnly" />
 
-
-        <controls:ContentSizer
-            x:Name="ContentSizer"
-            Grid.Column="1"
-            CornerRadius="8, 0, 0, 0"
-            IsDragInverted="True"
-            TargetControl="{x:Bind MediaViewer}"
-            Visibility="{x:Bind MediaViewer.Visibility, Mode=OneWay}" />
 
 
         <Grid
@@ -240,14 +244,15 @@
             <ItemsView
                 x:Name="MediaItemsView"
                 Grid.Row="4"
+                Padding="0,2,17,0"
                 ItemTemplate="{StaticResource MediaTemplate}"
                 SelectionMode="Extended">
                 <ItemsView.Layout>
-                    <UniformGridLayout MinColumnSpacing="8" MinRowSpacing="8" />
+                    <UniformGridLayout
+                        ItemsStretch="Fill"
+                        MinColumnSpacing="8"
+                        MinRowSpacing="8" />
                 </ItemsView.Layout>
-                <!--<ItemsView.ItemTransitionProvider>
-                    <LinedFlowLayoutItemCollectionTransitionProvider />
-                </ItemsView.ItemTransitionProvider>-->
             </ItemsView>
 
             <winUiCommunity:PagerControl
@@ -262,161 +267,7 @@
                 Grid.Row="7"
                 ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />
 
-            <!--<table:TableView
-            x:Name="MediasDataGrid"
-            Grid.Row="1"
-            Grid.Column="0"
-            Margin="16"
-            SelectionMode="Extended">
-            <table:TableView.Columns>
-                <table:TableViewTextColumn
-                    Binding="{Binding Path=MediaId}"
-                    Header="Media Id"
-                    IsReadOnly="True" />
-                <table:TableViewTextColumn Binding="{Binding Path=Name}" Header="Name" />
-                <table:TableViewTextColumn Binding="{Binding Path=Extension, Converter={StaticResource ExtensionToStringConverter}}" Header="Extensions" />
-                <table:TableViewTextColumn Binding="{Binding Path=Extension.Categories, Converter={StaticResource EnumerableToStringConverter}}" Header="Categories" />
-            </table:TableView.Columns>
-        </table:TableView>
 
-        <table:TableView
-            x:Name="ExtensionsDataGrid"
-            Grid.Row="1"
-            Grid.Column="1"
-            Margin="16"
-            SelectionMode="Extended">
-            <table:TableView.Columns>
-                <table:TableViewTextColumn
-                    Binding="{Binding Path=ExtensionId}"
-                    Header="Extension Id"
-                    IsReadOnly="True" />
-                <table:TableViewTextColumn Binding="{Binding Path=Name}" Header="Name" />
-                <table:TableViewTextColumn Binding="{Binding Path=Categories, Converter={StaticResource EnumerableToStringConverter}}" Header="Categories" />
-            </table:TableView.Columns>
-        </table:TableView>-->
         </Grid>
-        <!--<Grid
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        ColumnSpacing="20"
-        RowSpacing="20">
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-
-
-        -->
-        <!--<RepeatButton Click="DecrementButton_Click">
-    -
-    </RepeatButton>
-
-    <TextBlock x:Name="DisplayTextBlock" Width="100" Text="0" TextAlignment="Center" />
-
-    <RepeatButton Click="IncrementButton_Click">
-    +
-    </RepeatButton>-->
-        <!--
-
-        <TextBox
-            x:Name="TitleInputBox"
-            Grid.Row="0"
-            Grid.Column="1"
-            HorizontalAlignment="Stretch"
-            PlaceholderText="Title" />
-        <Button
-            Grid.Row="1"
-            Grid.Column="1"
-            HorizontalAlignment="Center"
-            Click="AddData"
-            Content="Add" />
-
-        <Button
-            Grid.Row="2"
-            Grid.Column="1"
-            HorizontalAlignment="Center"
-            Click="RemoveData"
-            Content="Clear" />
-
-        <Button
-            Grid.Row="3"
-            Grid.Column="1"
-            HorizontalAlignment="Center"
-            Click="Button_Click"
-            Content="Refresh" />
-        -->
-        <!--<ListView
-    x:Name="MediasList"
-    Grid.Row="4"
-    Height="300"
-    IncrementalLoadingThreshold="1"
-    IncrementalLoadingTrigger="Edge"
-    SelectionChanged="SelectionChanged">
-    <ListView.ItemTemplate>
-    <DataTemplate>
-    <TextBlock Text="{Binding Name}" />
-    </DataTemplate>
-    </ListView.ItemTemplate>
-    </ListView>-->
-
-
-        <!--<controls:DataGrid
-            x:Name="MediasDataGrid"
-            Grid.Row="4"
-            Grid.Column="0"
-            AutoGenerateColumns="False">
-            <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn
-                    Binding="{Binding Path=MediaId}"
-                    Header="Media Id"
-                    IsReadOnly="True" />
-                <controls:DataGridTextColumn Binding="{Binding Path=Name}" Header="Name" />
-                <controls:DataGridTextColumn Binding="{Binding Path=Extension, Converter={StaticResource ExtensionToStringConverter}}" Header="Extensions" />
-                <controls:DataGridTextColumn Binding="{Binding Path=Extension.Categories, Converter={StaticResource EnumerableToStringConverter}}" Header="Categories" />
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>
-
-        <controls:DataGrid
-            x:Name="CategoriesDataGrid"
-            Grid.Row="4"
-            Grid.Column="1"
-            AutoGenerateColumns="False">
-            <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn
-                    Binding="{Binding Path=CategoryId}"
-                    Header="Category Id"
-                    IsReadOnly="True" />
-                <controls:DataGridTextColumn Binding="{Binding Path=Name}" Header="Name" />
-                <controls:DataGridTextColumn Binding="{Binding Path=Extensions, Converter={StaticResource EnumerableToStringConverter}}" Header="Extensions" />
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>
-
-        <controls:DataGrid
-            x:Name="ExtensionsDataGrid"
-            Grid.Row="4"
-            Grid.Column="2"
-            AutoGenerateColumns="False">
-            <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn
-                    Binding="{Binding Path=ExtensionId}"
-                    Header="Extension Id"
-                    IsReadOnly="True" />
-                <controls:DataGridTextColumn Binding="{Binding Path=Name}" Header="Name" />
-                <controls:DataGridTextColumn Binding="{Binding Path=Categories, Converter={StaticResource EnumerableToStringConverter}}" Header="Categories" />
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>-->
-        <!--
-
-    </Grid>-->
     </Grid>
 </Page>

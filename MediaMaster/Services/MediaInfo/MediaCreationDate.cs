@@ -1,5 +1,4 @@
 ﻿using MediaMaster.DataBase.Models;
-using MediaMaster.Extensions;
 using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
@@ -8,10 +7,10 @@ public class MediaCreationDate(StackPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaCreationDate";
 
-    public override void UpdateControl(Media? media, bool isCompact)
+    public override void UpdateControlContent()
     {
-        if (Text == null || media == null || !File.Exists(media.Uri)) return;
-        var date = File.GetCreationTime(media.Uri);
+        if (Text == null || Media == null || !File.Exists(Media.Uri)) return;
+        var date = File.GetCreationTime(Media.Uri);
         Text.Text = $"{date.ToLongDateString()} {date.ToShortTimeString()}";
     }
 

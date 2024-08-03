@@ -5,9 +5,9 @@ using WinUIEx;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Views.Flyout;
 using Windows.Foundation;
-using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using CommunityToolkit.WinUI;
 
 namespace MediaMaster;
 

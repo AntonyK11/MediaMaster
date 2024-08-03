@@ -1,4 +1,5 @@
-﻿using MediaMaster.Controls;
+﻿using EFCore.BulkExtensions;
+using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -66,19 +67,17 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
     {
         if (Media == null || args.OldText == args.NewText) return;
 
+        UpdateMediaProperty(Media, args.NewText);
+        Media.Modified = DateTime.UtcNow;
+
         await using (var database = new MediaDbContext())
         {
-            var media = await database.Medias.FindAsync(Media.MediaId);
-
-            if (media == null) return;
-
-            UpdateMediaProperty(ref media, args.NewText);
-            media.Modified = DateTime.UtcNow;
-
-            await database.SaveChangesAsync();
+            await database.BulkUpdateAsync([Media]);
         }
+
+        InvokeMediaChange(Media);
     }
 
-    public virtual void UpdateMediaProperty(ref Media media, string text) { }
+    public virtual void UpdateMediaProperty(Media media, string text) { }
 }
 

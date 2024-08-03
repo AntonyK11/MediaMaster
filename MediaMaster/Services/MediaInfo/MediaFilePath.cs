@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using MediaMaster.Controls;
+using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
 using Microsoft.UI.Xaml.Controls;
@@ -13,10 +14,10 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaFilePath";
 
-    public override void UpdateControl(Media? media, bool isCompact)
+    public override void UpdateControlContent()
     {
-        if (EditableTextBlock == null || media == null) return;
-        EditableTextBlock.Text = media.Uri;
+        if (EditableTextBlock == null || Media == null) return;
+        EditableTextBlock.Text = Media.Uri;
     }
 
     public override EditableTextBlock GetEditableTextBlock()
@@ -60,7 +61,7 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
         }
     }
 
-    public override void UpdateMediaProperty(ref Media media, string text)
+    public override void UpdateMediaProperty(Media media, string text)
     {
         media.Uri = text;
     }
@@ -68,6 +69,19 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
     public override bool ShowInfo(Media? media, bool isCompact)
     {
         return media == null || !(isCompact || media.Uri.IsWebsite());
+    }
+
+    public override void InvokeMediaChange(Media media)
+    {
+        if (Media == null) return;
+        MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Media);
+    }
+
+    public override void MediaChanged(MediaChangeArgs args)
+    {
+        if (Media == null || args.Media.MediaId != Media.MediaId || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        Media = args.Media;
+        UpdateControlContent();
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using MediaMaster.DataBase.Models;
+﻿using MediaMaster.DataBase;
+using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
@@ -9,10 +10,10 @@ public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaVideoDuration";
 
-    public override void UpdateControl(Media? media, bool isCompact)
+    public override void UpdateControlContent()
     {
-        if (Text == null || media == null) return;
-        var duration = GetVideoDuration(media.Uri);
+        if (Text == null || Media == null) return;
+        var duration = GetVideoDuration(Media.Uri);
         if (duration == null) return;
         var nonNullDuration = (TimeSpan)duration;
         nonNullDuration = new TimeSpan(nonNullDuration.Days, nonNullDuration.Hours, nonNullDuration.Minutes, nonNullDuration.Seconds);
@@ -33,6 +34,19 @@ public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
             if (t == null) return null;
             return TimeSpan.FromTicks((long)t);
         }
+    }
+
+    public override void InvokeMediaChange(Media media)
+    {
+        if (Media == null) return;
+        MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Media);
+    }
+
+    public override void MediaChanged(MediaChangeArgs args)
+    {
+        if (Media == null || args.Media.MediaId != Media.MediaId || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        Media = args.Media;
+        UpdateControlContent();
     }
 }
 

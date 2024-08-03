@@ -2,10 +2,9 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
-using Windows.UI.Core;
+using CommunityToolkit.WinUI;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml;
-using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
 
 namespace MediaMaster.Controls;

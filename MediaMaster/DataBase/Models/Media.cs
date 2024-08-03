@@ -20,4 +20,8 @@ public class Media : IHasTimestamps
     public virtual DateTime Added { get; set; } = DateTime.UtcNow;
 
     public virtual ICollection<Tag> Tags { get; } = [];
+
+    public virtual bool IsArchived { get; set; } = false;
+
+    public virtual bool IsFavorite { get; set; } = false;
 }

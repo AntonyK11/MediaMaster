@@ -40,28 +40,10 @@ public static class IconService
         if (path == null) return null;
 
         var tokenSource = new MyCancellationTokenSource();
-        StartSTATask(() => AddImageAsync(path, imageMode, width, height, tokenSource, image));
+        STATask.StartSTATask(() => AddImageAsync(path, imageMode, width, height, tokenSource, image));
         return tokenSource;
     }
 
-    public static Task<T> StartSTATask<T>(Func<T> func)
-    {
-        var tcs = new TaskCompletionSource<T>();
-        Thread thread = new(() =>
-        {
-            try
-            {
-                tcs.SetResult(func());
-            }
-            catch (Exception e)
-            {
-                tcs.SetException(e);
-            }
-        });
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        return tcs.Task;
-    }
     private static async Task AddImageAsync(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource cts, Microsoft.UI.Xaml.Controls.Image image)
     {
         using (cts)
@@ -158,8 +140,7 @@ public static class IconService
                 options |= SIIGBF.IconOnly;
                 break;
         }
-
-        _ = App.DispatcherQueue.EnqueueAsync(() => image.Source = null);
+        
         ImageSource? icon = await GetThumbnail(path, width, height, options);
 
         if (cts.Token.IsCancellationRequested) return;

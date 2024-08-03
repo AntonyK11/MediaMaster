@@ -8,13 +8,13 @@ public class MediaWebUrl(StackPanel parent) : MediaInfoTextBlockBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaWebUrl";
 
-    public override void UpdateControl(Media? media, bool isCompact)
+    public override void UpdateControlContent()
     {
-        if (EditableTextBlock == null || media == null) return;
-        EditableTextBlock.Text = media.Uri;
+        if (EditableTextBlock == null || Media == null) return;
+        EditableTextBlock.Text = Media.Uri;
     }
 
-    public override void UpdateMediaProperty(ref Media media, string text)
+    public override void UpdateMediaProperty(Media media, string text)
     {
         media.Uri = text;
     }

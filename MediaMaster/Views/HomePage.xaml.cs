@@ -1,9 +1,11 @@
+using System.Numerics;
 using Microsoft.UI.Xaml;
 using MediaMaster.DataBase;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using BookmarksManager;
 using MediaMaster.DataBase.Models;
+using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 
@@ -35,48 +37,58 @@ public sealed partial class HomePage : Page
         TeachingService.Configure(2, TeachingTip2);
         TeachingService.Configure(3, TeachingTip3);
 
-        //var media = new Media 
-        //{ 
-        //    Name = "Raptor_Dimorphism",
-        //    Uri = @"C:\Users\Antony\Downloads\ovisetup.exe"
-        //};
-
-        //for (int i = 0;  i < 50; i++)
-        //{
-        //    var tag = new Tag
-        //    {
-        //        Name = $"hello {i}"
-        //    };
-        //    media.Tags.Add(tag);
-        //}
-
-        //MediaViewer.Media = media;
-
-        //_collection = new(DataBase.Medias.Local);
-        //DataBase.Medias.Local.CollectionChanged += (_, args) =>
-        //{
-        //    if (args.Action == NotifyCollectionChangedAction.Remove)
-        //    {
-        //        _collection.Remove((DbEntities.Media)args.OldItems[0]!);
-        //    }
-        //    else
-        //    {
-        //        _collection.Add((DbEntities.Media)args.NewItems[0]!);
-        //    }
-        //};
-
-        //MediasDataGrid.ItemsSource = DataBase.Medias.Local.ToObservableCollection();
-        //CategoriesDataGrid.ItemsSource = DataBase.Categories.Local.ToObservableCollection();
-        //ExtensionsDataGrid.ItemsSource = DataBase.Extensions.Local.ToObservableCollection();
-
         ContentSizer.ManipulationStarted += ContentSizer_ManipulationStarted;
         ContentSizer.ManipulationCompleted += ContentSizer_ManipulationCompleted;
         ContentSizer.PointerEntered += ContentSizer_PointerEntered;
         ContentSizer.PointerExited += ContentSizer_PointerExited;
     }
 
-    private bool _isDragging = false;
-    private bool _isHover = false;
+    private SpringVector3NaturalMotionAnimation? _springAnimation;
+
+    private void CreateOrUpdateSpringAnimation(float finalValue)
+    {
+        if (_springAnimation == null)
+        {
+            _springAnimation = App.MainWindow!.Compositor.CreateSpringVector3Animation();
+            _springAnimation.Target = "Translation";
+            _springAnimation.Period = TimeSpan.FromMilliseconds(32);
+        }
+
+        _springAnimation.FinalValue = new Vector3(0, finalValue, 0);
+    }
+
+    private void element_PointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        CreateOrUpdateSpringAnimation(-2);
+
+        ((FrameworkElement)sender).StartAnimation(_springAnimation);
+    }
+
+    private void element_PointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        CreateOrUpdateSpringAnimation(0);
+
+        ((FrameworkElement)sender).StartAnimation(_springAnimation);
+    }
+
+    private void element_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        CreateOrUpdateSpringAnimation(0);
+
+        ((FrameworkElement)sender).StartAnimation(_springAnimation);
+    }
+
+    private void element_PointerReleased(object sender, TappedRoutedEventArgs tappedRoutedEventArgs)
+    {
+        CreateOrUpdateSpringAnimation(-2);
+
+        ((FrameworkElement)sender).StartAnimation(_springAnimation);
+
+        MediaViewer.Media = ((Media)((FrameworkElement)sender).DataContext);
+    }
+
+    private bool _isDragging;
+    private bool _isHover;
 
     private void ContentSizer_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
@@ -165,19 +177,17 @@ public sealed partial class HomePage : Page
         }
     }
 
-    private async void Button_Click(object sender, RoutedEventArgs e)
+    private void HomePage_OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-         //await DataBase.SetupMediaCategories();
-    }
-
-    private void ItemContainer_Tapped(object sender, TappedRoutedEventArgs e)
-    {
-        //((ItemContainer)sender).IsSelected = true;
-        MediaViewer.Media = ((Media)((FrameworkElement)sender).DataContext);
+        if (ContentColumn.ActualWidth == ContentColumn.MinWidth && e.NewSize.Width > ContentColumn.MinWidth + PaneColumn.MinWidth + ContentGrid.Padding.Left + ContentGrid.Padding.Right)
+        {
+            var newWidth = PaneColumn.Width.Value + e.NewSize.Width - e.PreviousSize.Width;
+            PaneColumn.Width = new GridLength(newWidth < PaneColumn.MinWidth ? PaneColumn.MinWidth : newWidth, GridUnitType.Pixel);
+        }
     }
 }
 
-class BookmarksTemplateSelector : DataTemplateSelector
+internal class BookmarksTemplateSelector : DataTemplateSelector
 {
     public DataTemplate BookmarkFolder { get; set; }
     public DataTemplate BookmarkLink { get; set; }

@@ -1,6 +1,7 @@
-﻿using Windows.Foundation;
+﻿using System.Runtime.InteropServices;
+using Windows.Foundation;
 using Windows.Graphics;
-using Windows.UI;
+using Windows.Win32;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
@@ -11,6 +12,9 @@ using Microsoft.UI.Xaml.Media;
 using WinUIEx;
 using Microsoft.UI.Xaml.Controls;
 using MediaMaster.Services;
+using Point = Windows.Foundation.Point;
+using static MediaMaster.Services.WindowsApiService;
+using static MediaMaster.Services.WindowsNativeValues;
 
 namespace MediaMaster.Controls;
 
@@ -40,6 +44,38 @@ public partial class TitleBarViewModel : ObservableObject
         {
             App.MainWindow.ExtendsContentIntoTitleBar = true;
             App.MainWindow.Activated += MainWindow_Activated;
+
+            var hWnd = App.MainWindow.GetWindowHandle();
+            var hMenu = GetSystemMenu(hWnd, false);
+
+
+            //var darkBackgroundBrush = Color.FromArgb(44, 44, 44);
+            //var lightBackgroundBrush = Color.FromArgb(249, 249, 249);
+
+            //var darkForegroundBrush = Color.FromArgb(255, 255, 255);
+            //var lightForegroundBrush = Color.FromArgb(0, 0, 0);
+
+            //HBRUSH blueBrush = PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(darkBackgroundBrush));
+
+            //var info = new MENUINFO
+            //{
+            //    cbSize = (uint)Marshal.SizeOf(typeof(MENUINFO)),
+            //    fMask = MENUINFO_MASK.MIM_BACKGROUND,
+            //    hbrBack = blueBrush,
+            //};
+
+            //PInvoke.SetMenuInfo(hMenu, in info);
+
+            SetMenuItemInfo(hMenu, 0xF120);
+            SetMenuItemInfo(hMenu, 0xF010);
+            SetMenuItemInfo(hMenu, 0xF000);
+            SetMenuItemInfo(hMenu, 0xF020);
+            SetMenuItemInfo(hMenu, 0xF030);
+            SetMenuItemInfo(hMenu, 0, true);
+            SetMenuItemInfo(hMenu, 0xF060);
+
+            App.GetService<TrayIconService>().UpdateMenuBackground(hMenu);
+            App.GetService<TrayIconService>().hMenus.Add(hMenu);
         }
 
         _titleBar = titleBar;
@@ -51,23 +87,23 @@ public partial class TitleBarViewModel : ObservableObject
 
     public void UpdateTitleBar(ElementTheme actualTheme)
     {
-        _ = WindowsApiService.FlushMenuThemes();
-        _ = WindowsApiService.SetPreferredAppMode(actualTheme == ElementTheme.Dark
-            ? WindowsNativeValues.PreferredAppMode.ForceDark
-            : WindowsNativeValues.PreferredAppMode.ForceLight);
+        _ = FlushMenuThemes();
+        _ = SetPreferredAppMode(actualTheme == ElementTheme.Dark
+            ? PreferredAppMode.ForceDark
+            : PreferredAppMode.ForceLight);
 
         ResourceDictionary? themeColor = _titleBar.Resources.ThemeDictionaries[actualTheme.ToString()] as ResourceDictionary;
 
         if (themeColor == null || TitleBar == null) return;
 
-        TitleBar.ButtonBackgroundColor = (Color)themeColor["TitleBarButtonBackgroundColor"];
-        TitleBar.ButtonForegroundColor = (Color)themeColor["TitleBarButtonForegroundColor"];
-        TitleBar.ButtonHoverBackgroundColor = (Color)themeColor["TitleBarButtonHoverBackgroundColor"];
-        TitleBar.ButtonHoverForegroundColor = (Color)themeColor["TitleBarButtonHoverForegroundColor"];
-        TitleBar.ButtonInactiveBackgroundColor = (Color)themeColor["TitleBarButtonInactiveBackgroundColor"];
-        TitleBar.ButtonInactiveForegroundColor = (Color)themeColor["TitleBarButtonInactiveForegroundColor"];
-        TitleBar.ButtonPressedBackgroundColor = (Color)themeColor["TitleBarButtonPressedBackgroundColor"];
-        TitleBar.ButtonPressedForegroundColor = (Color)themeColor["TitleBarButtonPressedForegroundColor"];
+        TitleBar.ButtonBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonBackgroundColor"];
+        TitleBar.ButtonForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonForegroundColor"];
+        TitleBar.ButtonHoverBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonHoverBackgroundColor"];
+        TitleBar.ButtonHoverForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonHoverForegroundColor"];
+        TitleBar.ButtonInactiveBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonInactiveBackgroundColor"];
+        TitleBar.ButtonInactiveForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonInactiveForegroundColor"];
+        TitleBar.ButtonPressedBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonPressedBackgroundColor"];
+        TitleBar.ButtonPressedForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonPressedForegroundColor"];
     }
 
     public void SetLeftMargin(double margin)
@@ -175,37 +211,137 @@ public partial class TitleBarViewModel : ObservableObject
     ///     enabled/disabled.
     /// </summary>
     /// <param name="pos"> The position of the mouse cursor. </param>
-    private static void ShowMenu(Point pos)
+    private static unsafe void ShowMenu(Point pos)
     {
         if (App.MainWindow == null) return;
 
         var hWnd = App.MainWindow.GetWindowHandle();
-        var hMenu = WindowsApiService.GetSystemMenu(hWnd, false);
+        var hMenu = GetSystemMenu(hWnd, false);
+
+        SetMenuItemInfo(hMenu, 0xF120);
+        SetMenuItemInfo(hMenu, 0xF010);
+        SetMenuItemInfo(hMenu, 0xF000);
+        SetMenuItemInfo(hMenu, 0xF020);
+        SetMenuItemInfo(hMenu, 0xF030);
+        SetMenuItemInfo(hMenu, 0, true);
+        SetMenuItemInfo(hMenu, 0xF060);
+
+        //var darkBackgroundBrush = Color.FromArgb(44, 44, 44);
+        //var lightBackgroundBrush = Color.FromArgb(249, 249, 249);
+
+        //var darkForegroundBrush = Color.FromArgb(255, 255, 255);
+        //var lightForegroundBrush = Color.FromArgb(0, 0, 0);
+
+        //HBRUSH blueBrush = PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(darkBackgroundBrush));
+
+        //var info = new MENUINFO
+        //{
+        //    cbSize = (uint)Marshal.SizeOf(typeof(MENUINFO)),
+        //    fMask = MENUINFO_MASK.MIM_BACKGROUND,
+        //    hbrBack = blueBrush,
+        //};
+
+        //PInvoke.SetMenuInfo(hMenu, in info);
+
+        //SetMenuItemInfo(hMenu, 0xF120);
+        //SetMenuItemInfo(hMenu, 0xF010);
+        //SetMenuItemInfo(hMenu, 0xF000);
+        //SetMenuItemInfo(hMenu, 0xF020);
+        //SetMenuItemInfo(hMenu, 0xF030);
+        //SetMenuItemInfo(hMenu, 0);
+        //SetMenuItemInfo(hMenu, 0xF060);
 
         if (App.MainWindow.WindowState == WindowState.Normal)
         {
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF120, 0x0001); // Restore Disabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF010, 0x0000); // Move Enabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF000, 0x0000); // Size Enabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF020, 0x0000); // Minimize Enabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF030, 0x0000); // Maximize Enabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF060, 0x0000); // Close Enabled
+            _ = EnableMenuItem(hMenu, 0xF120, MENU_ITEM_FLAGS.MF_GRAYED); // Restore Disabled
+            _ = EnableMenuItem(hMenu, 0xF010, MENU_ITEM_FLAGS.MF_ENABLED); // Move Enabled
+            _ = EnableMenuItem(hMenu, 0xF000, MENU_ITEM_FLAGS.MF_ENABLED); // Size Enabled
+            _ = EnableMenuItem(hMenu, 0xF020, MENU_ITEM_FLAGS.MF_ENABLED); // Minimize Enabled
+            _ = EnableMenuItem(hMenu, 0xF030, MENU_ITEM_FLAGS.MF_ENABLED); // Maximize Enabled
+            _ = EnableMenuItem(hMenu, 0xF060, MENU_ITEM_FLAGS.MF_ENABLED); // Close Enabled
         }
         else
         {
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF120, 0x0000); // Restore Enabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF010, 0x0001); // Move Disabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF000, 0x0001); // Size Disabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF020, 0x0000); // Minimize Enabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF030, 0x0001); // Maximize Disabled
-            _ = WindowsApiService.EnableMenuItem(hMenu, 0xF060, 0x0000); // Close Enabled
+            _ = EnableMenuItem(hMenu, 0xF120, MENU_ITEM_FLAGS.MF_ENABLED); // Restore Enabled
+            _ = EnableMenuItem(hMenu, 0xF010, MENU_ITEM_FLAGS.MF_GRAYED); // Move Disabled
+            _ = EnableMenuItem(hMenu, 0xF000, MENU_ITEM_FLAGS.MF_GRAYED); // Size Disabled
+            _ = EnableMenuItem(hMenu, 0xF020, MENU_ITEM_FLAGS.MF_ENABLED); // Minimize Enabled
+            _ = EnableMenuItem(hMenu, 0xF030, MENU_ITEM_FLAGS.MF_GRAYED); // Maximize Disabled
+            _ = EnableMenuItem(hMenu, 0xF060, MENU_ITEM_FLAGS.MF_ENABLED); // Close Enabled
         }
 
-        _ = WindowsApiService.SendMessage(hWnd, WindowsNativeValues.WM_INITMENU, hMenu, IntPtr.Zero);
-        var cmd = WindowsApiService.TrackPopupMenu(hMenu, WindowsNativeValues.TPM_RETURNCMD, (int)pos.X, (int)pos.Y, 0, hWnd, IntPtr.Zero);
+        _ = SendMessage(hWnd, WM_INITMENU, hMenu, IntPtr.Zero);
+        int cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)pos.X, (int)pos.Y, 0, hWnd, IntPtr.Zero);
         if (cmd > 0)
         {
-            _ = WindowsApiService.SendMessage(hWnd, WindowsNativeValues.WM_SYSCOMMAND, cmd, IntPtr.Zero);
+            _ = SendMessage(hWnd, WM_SYSCOMMAND, cmd, IntPtr.Zero);
         }
+    }
+
+    internal static unsafe void SetMenuItemInfo(IntPtr hMenu, uint item, bool separator = false)
+    {
+        if (separator)
+        {
+            TrayIconService.ODM_DATA odmd = new()
+            {
+                text = "",
+                hBitmap = IntPtr.Zero,
+                hasIcon = true
+            };
+            var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
+            Marshal.StructureToPtr(odmd, pODMD, false);
+            ModifyMenu(hMenu, item, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW | MENU_ITEM_FLAGS.MF_SEPARATOR, item, pODMD);
+            return;
+        }
+
+        var mif = new MENUITEMINFOW
+        {
+            cbSize = (uint)Marshal.SizeOf(typeof(MENUITEMINFOW)),
+            fMask = MENU_ITEM_MASK.MIIM_TYPE,
+            fType = MENU_ITEM_TYPE.MFT_BITMAP,
+            dwTypeData = new IntPtr()
+        };
+        // First call to get the length of the string
+        GetMenuItemInfo(hMenu, item, false, ref mif);
+        mif.cch += 1;
+        var ptr = Marshal.AllocHGlobal((int)mif.cch * sizeof(char));
+        mif.dwTypeData = ptr;
+        // Second call to get the actual string
+        GetMenuItemInfo(hMenu, item, false, ref mif);
+
+        if (mif.fType == MENU_ITEM_TYPE.MFT_STRING && !separator)
+        {
+            var text = Marshal.PtrToStringUni(mif.dwTypeData);
+
+            TrayIconService.ODM_DATA odmd = new()
+            {
+                text = text,
+                hBitmap = mif.hbmpItem,
+                hasIcon = true
+            };
+            var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
+            Marshal.StructureToPtr(odmd, pODMD, false);
+
+            ModifyMenu(hMenu, item, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW, item, pODMD);
+        }
+        else
+        {
+            var itemInfo1 = new MENUITEMINFOW
+            {
+                cbSize = (uint)Marshal.SizeOf(typeof(MENUITEMINFOW)),
+                fMask = MENU_ITEM_MASK.MIIM_TYPE,
+                fType = MENU_ITEM_TYPE.MFT_OWNERDRAW
+            };
+            WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo1);
+        }
+        Marshal.FreeHGlobal(ptr);
+
+        var itemInfo = new MENUITEMINFOW
+        {
+            cbSize = (uint)Marshal.SizeOf(typeof(MENUITEMINFOW)),
+            fMask = MENU_ITEM_MASK.MIIM_BITMAP, 
+            hbmpItem = IntPtr.Zero
+        };
+        WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo);
     }
 }

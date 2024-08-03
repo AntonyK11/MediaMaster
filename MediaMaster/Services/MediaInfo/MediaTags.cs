@@ -16,10 +16,10 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 
     public override string TranslationKey { get; set; } = "MediaTags";
 
-    public override void UpdateControl(Media? media, bool isCompact)
+    public override void UpdateControl(bool isCompact)
     {
         if (TagView == null) return;
-        TagView.MediaId = media?.MediaId;
+        TagView.MediaId = Media?.MediaId;
         TagView.AddTagButton = !isCompact;
         if (isCompact)
         {
@@ -74,7 +74,7 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 
     public override bool ShowInfo(Media? media, bool isCompact)
     {
-        return true;
+        return media == null | !isCompact;
     }
 
     public override void Show(bool isCompact)
@@ -93,45 +93,71 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
         }
     }
 
-    private async void SaveSelectedTags(IEnumerable<Tag> selectedTags)
+    private async void SaveSelectedTags(ICollection<Tag> selectedTags)
     {
-        if (TagView == null) return;
-
         await using (MediaDbContext dataBase = new())
         {
-            if (TagView.MediaId != null)
+            if (Media != null)
             {
-                var trackedMedia = await dataBase.Medias.Include(m => m.Tags).FirstOrDefaultAsync(m => m.MediaId == TagView.MediaId);
+                Media = await dataBase.Medias.Include(m => m.Tags).FirstOrDefaultAsync(m => m.MediaId == Media.MediaId);
 
-                if (trackedMedia != null)
+                if (Media != null)
                 {
-                    HashSet<int> currentTagIds = trackedMedia.Tags.Select(t => t.TagId).ToHashSet();
+                    HashSet<int> currentTagIds = Media.Tags.Select(t => t.TagId).ToHashSet();
                     HashSet<int> selectedTagIds = selectedTags.Select(t => t.TagId).ToHashSet();
 
-                    List<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToList();
-                    List<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToList();
+                    List<int> tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToList();
+                    List<int> tagIdsToRemove = currentTagIds.Except(selectedTagIds).ToList();
 
-                    if (tagsToAdd.Count != 0 || tagsToRemove.Count != 0)
+                    if (tagIdsToAdd.Count != 0 || tagIdsToRemove.Count != 0)
                     {
                         // Bulk add new tags
-                        if (tagsToAdd.Count != 0)
+                        if (tagIdsToAdd.Count != 0)
                         {
-                            List<MediaTag> newMediaTags = tagsToAdd.Select(tagId => new MediaTag { MediaId = trackedMedia.MediaId, TagId = tagId }).ToList();
+                            List<MediaTag> newMediaTags = tagIdsToAdd.Select(tagId => new MediaTag { MediaId = Media.MediaId, TagId = tagId }).ToList();
                             await dataBase.BulkInsertAsync(newMediaTags);
                         }
 
                         // Bulk remove old tags
-                        if (tagsToRemove.Count != 0)
+                        if (tagIdsToRemove.Count != 0)
                         {
                             List<MediaTag> mediaTagsToRemove = await dataBase.MediaTags
-                                .Where(mt => mt.MediaId == trackedMedia.MediaId && tagsToRemove.Contains(mt.TagId))
+                                .Where(mt => mt.MediaId == Media.MediaId && tagIdsToRemove.Contains(mt.TagId))
                                 .ToListAsync();
                             await dataBase.BulkDeleteAsync(mediaTagsToRemove);
                         }
 
-                        trackedMedia.Modified = DateTime.UtcNow;
+                        if (MediaDbContext.ArchivedTag != null)
+                        {
+                            if (tagIdsToAdd.Contains(MediaDbContext.ArchivedTag.TagId))
+                            {
+                                Media.IsArchived = true;
+                            }
+                            else if (tagIdsToRemove.Contains(MediaDbContext.ArchivedTag.TagId))
+                            {
+                                Media.IsArchived = false;
+                            }
+                        }
+
+                        if (MediaDbContext.FavoriteTag != null)
+                        {
+                            if (tagIdsToAdd.Contains(MediaDbContext.FavoriteTag.TagId))
+                            {
+                                Media.IsFavorite = true;
+                            }
+                            else if (tagIdsToRemove.Contains(MediaDbContext.FavoriteTag.TagId))
+                            {
+                                Media.IsFavorite = false;
+                            }
+                        }
+
+                        Media.Modified = DateTime.UtcNow;
                         await dataBase.SaveChangesAsync();
                     }
+
+                    ICollection<Tag> tagsToAdd = selectedTags.Where(tag => tagIdsToAdd.Contains(tag.TagId)).ToList();
+                    ICollection<Tag> tagsToRemove = Media.Tags.Where(tag => tagIdsToRemove.Contains(tag.TagId)).ToList();
+                    MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsToAdd, tagsToRemove);
                 }
             }
         }

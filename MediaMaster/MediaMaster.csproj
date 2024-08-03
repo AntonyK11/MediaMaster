@@ -42,11 +42,12 @@
 		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 
-		<WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
+		<WindowsSdkPackageVersion>10.0.22621.37-preview</WindowsSdkPackageVersion>
 		<!--<PublishAot>true</PublishAot>-->
 		<!--<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
-		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>-->
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>-->
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' != 'Debug'">
@@ -74,6 +75,7 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.0.240109" />
 		<PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="8.0.4" />
 		<PackageReference Include="FaviconFetcher" Version="1.4.0" />
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.0" />
@@ -86,6 +88,11 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.2.0" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Text.Json" Version="8.0.4" />
@@ -96,7 +103,7 @@
 		<PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
 		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.9.0" />
 		<PackageReference Include="WinUIEx" Version="2.3.4" />
-<!--<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.0-prerelease.240602.1" />-->
+		<!--<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.0-prerelease.240722.1" />-->
 	</ItemGroup>
 
   <ItemGroup>
@@ -148,18 +155,30 @@
 	  <Content Include="Assets\Browsers\vivaldi.svg">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+
+		<Content Include="Assets\RestoreDark.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\RestoreLight.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\MinimizeDark.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\MinimizeLight.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\MaximizeDark.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\MaximizeLight.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\CloseDark.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\CloseLight.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <CustomAdditionalCompileInputs Remove="Controls\TipIcon.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Controls\TipIcon.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Resource Remove="Controls\TipIcon.xaml" />
-	</ItemGroup>		
-
 </Project>

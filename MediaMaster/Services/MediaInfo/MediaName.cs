@@ -1,4 +1,5 @@
-﻿using MediaMaster.Controls;
+﻿using EFCore.BulkExtensions;
+using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml;
@@ -16,13 +17,13 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
 
     public override string TranslationKey { get; set; } = "";
 
-    public override void UpdateControl(Media? media, bool isCompact)
+    public override void UpdateControlContent()
     {
         if (EditableTextBlock == null) return;
-        EditableTextBlock.Text = media?.Name ?? "No Media Found";
-        if (media != null)
+        EditableTextBlock.Text = Media?.Name ?? "No Media Found";
+        if (Media != null)
         {
-            SetMediaExtensionIcon(media);
+            SetMediaExtensionIcon(Media);
         }
     }
 
@@ -50,7 +51,8 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
 
         MediaExtensionIcon = new Image
         {
-            MinWidth = 24
+            Width = 24,
+            Height = 24
         };
         Border.Child = MediaExtensionIcon;
 
@@ -88,17 +90,15 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
     {
         if (Media == null || args.OldText == args.NewText) return;
 
+        Media.Name = args.NewText;
+        Media.Modified = DateTime.UtcNow;
+
         await using (var database = new MediaDbContext())
         {
-            var media = await database.Medias.FindAsync(Media.MediaId);
-
-            if (media == null) return;
-
-            media.Name = args.NewText;
-            media.Modified = DateTime.UtcNow;
-
-            await database.SaveChangesAsync();
+            await database.BulkUpdateAsync([Media]);
         }
+
+        InvokeMediaChange(Media);
     }
 
     private void SetMediaExtensionIcon(Media media)
@@ -113,6 +113,19 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
             MediaExtensionIcon.Source = null;
             _tokenSource = IconService.AddImage(media.Uri, ImageMode.IconOnly, 24, 24, MediaExtensionIcon);
         }
+    }
+
+    public override void InvokeMediaChange(Media media)
+    {
+        if (Media == null) return;
+        MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.NameChanged, Media);
+    }
+
+    public override void MediaChanged(MediaChangeArgs args)
+    {
+        if (Media == null || args.Media.MediaId != Media.MediaId || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
+        Media = args.Media;
+        UpdateControlContent();
     }
 }
 

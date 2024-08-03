@@ -1,23 +1,26 @@
-﻿using Windows.UI.Text;
+﻿using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
-using MediaMaster.Interfaces.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using WinUICommunity;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public abstract class MediaInfoControlBase(StackPanel parent)
+public abstract class MediaInfoControlBase
 {
     public Media? Media;
-    public StackPanel Parent = parent;
+    public StackPanel Parent;
     public bool FirstShown = true;
     public TextBlock? Title;
 
     public bool IsVisible;
 
     public abstract string TranslationKey { get; set; }
+
+    protected MediaInfoControlBase(StackPanel parent)
+    {
+        Parent = parent;
+        MediaDbContext.MediaChanged += (_, args) => MediaChanged(args);
+    }
 
     public virtual void Initialize(Media? media, bool isCompact)
     {
@@ -36,7 +39,7 @@ public abstract class MediaInfoControlBase(StackPanel parent)
                 Show(isCompact);
             }
             Media = media;
-            UpdateControl(media, isCompact);
+            UpdateControl(isCompact);
         }
         else if (IsVisible)
         {
@@ -45,7 +48,12 @@ public abstract class MediaInfoControlBase(StackPanel parent)
         }
     }
 
-    public abstract void UpdateControl(Media? media, bool isCompact);
+    public virtual void UpdateControl(bool isCompact)
+    {
+        UpdateControlContent();
+    }
+
+    public virtual void UpdateControlContent() { }
 
     public virtual TextBlock GetTitle()
     {
@@ -68,5 +76,9 @@ public abstract class MediaInfoControlBase(StackPanel parent)
     public abstract void Show(bool isCompact);
 
     public abstract void Hide();
+
+    public virtual void InvokeMediaChange(Media media) { }
+
+    public virtual void MediaChanged(MediaChangeArgs args) { }
 }
 
