@@ -159,6 +159,7 @@ public sealed partial class MediaViewer : UserControl
         MediaDbContext.MediaChanged += (_, args) =>
         {
             if (Media == null || args.Media.MediaId != Media.MediaId || !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
+            if (args.Media.IsArchived == Media.IsArchived || args.Media.IsFavorite == Media.IsFavorite) return;
             SetValue(MediaProperty, args.Media);
         };
     }

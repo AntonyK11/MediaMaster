@@ -128,7 +128,7 @@ public sealed partial class MediaIcon
             nameof(IconHeight),
             typeof(double),
             typeof(MediaViewer),
-            new PropertyMetadata(0));
+            new PropertyMetadata(0.0));
 
     public double IconHeight
     {

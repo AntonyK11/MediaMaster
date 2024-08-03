@@ -51,6 +51,7 @@
             <ItemContainer
                 x:Name="hi"
                 Height="222"
+                MaxWidth="350"
                 DataContext="{x:Bind}"
                 PointerEntered="element_PointerEntered"
                 PointerExited="element_PointerExited"

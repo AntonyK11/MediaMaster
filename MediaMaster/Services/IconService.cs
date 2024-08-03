@@ -109,17 +109,20 @@ public static class IconService
         if (icon == null || cts.Token.IsCancellationRequested) return;
 
         ImageSource? source = null;
-        await App.DispatcherQueue.EnqueueAsync(async () =>
+        if (icon.Size.Width != 0 && icon.Size.Height != 0)
         {
-            var bitmap = new WriteableBitmap(icon.ToSKBitmap().Width, icon.ToSKBitmap().Height);
-            await using (Stream stream = bitmap.PixelBuffer.AsStream())
+            await App.DispatcherQueue.EnqueueAsync(async () =>
             {
-                stream.Write(icon.Bytes);
-            }
+                var bitmap = new WriteableBitmap(icon.Size.Width, icon.Size.Height);
+                await using (Stream stream = bitmap.PixelBuffer.AsStream())
+                {
+                    stream.Write(icon.Bytes);
+                }
 
-            icon.Dispose();
-            source = bitmap;
-        });
+                icon.Dispose();
+                source = bitmap;
+            });
+        }
 
         if (!cts.Token.IsCancellationRequested && source != null)
         {
