@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Interop.UIAutomationClient;
 using MediaMaster.Extensions;
 using MediaMaster.Helpers;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 

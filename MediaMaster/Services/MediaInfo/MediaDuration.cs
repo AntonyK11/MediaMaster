@@ -39,12 +39,12 @@ public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
     public override void InvokeMediaChange(Media media)
     {
         if (Media == null) return;
-        MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Media);
+        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Media);
     }
 
-    public override void MediaChanged(MediaChangeArgs args)
+    public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        if (Media == null || args.Media.MediaId != Media.MediaId || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        if (Media == null || args.Media.MediaId != Media.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
         Media = args.Media;
         UpdateControlContent();
     }

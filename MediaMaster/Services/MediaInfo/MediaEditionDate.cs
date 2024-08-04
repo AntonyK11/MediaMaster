@@ -27,7 +27,7 @@ public class MediaEditionDate(StackPanel parent) : MediaInfoTextBase(parent)
         Text.Text = $"{date.ToLongDateString()} {date.ToShortTimeString()} | {date.GetTimeDifference()}";
     }
 
-    public override void MediaChanged(MediaChangeArgs args)
+    public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
         if (Media == null || args.Media.MediaId != Media.MediaId) return;
         Media = args.Media;

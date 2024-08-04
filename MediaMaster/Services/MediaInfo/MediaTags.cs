@@ -62,6 +62,37 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 
         TagView.SelectTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
         TagView.RemoveTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
+
+        MediaDbContext.MediaChanged += async (sender, args) =>
+        {
+            if (args.Media.MediaId != TagView.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
+            var currentTagIds = TagView.Tags.Select(t => t.TagId).ToList();
+
+            if (args.TagsAdded != null)
+            {
+                foreach (var tag in args.TagsAdded)
+                {
+                    if (!currentTagIds.Contains(tag.TagId))
+                    {
+                        TagView.Tags.Add(tag);
+                    }
+                }
+            }
+
+            if (args.TagsRemoved != null)
+            {
+                foreach (var tag in args.TagsRemoved)
+                {
+                    var existingTag = TagView.Tags.FirstOrDefault(t => t.TagId == tag.TagId);
+                    if (existingTag != null)
+                    {
+                        TagView.Tags.Remove(existingTag);
+                    }
+                }
+            }
+
+            await TagView.UpdateItemSource(TagView.Tags);
+        };
     }
 
     public override void SetupTranslations()
@@ -157,7 +188,7 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 
                     ICollection<Tag> tagsToAdd = selectedTags.Where(tag => tagIdsToAdd.Contains(tag.TagId)).ToList();
                     ICollection<Tag> tagsToRemove = Media.Tags.Where(tag => tagIdsToRemove.Contains(tag.TagId)).ToList();
-                    MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsToAdd, tagsToRemove);
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsToAdd, tagsToRemove);
                 }
             }
         }

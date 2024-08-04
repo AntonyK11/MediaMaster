@@ -128,7 +128,7 @@ public sealed partial class MediaIcon
             nameof(IconHeight),
             typeof(double),
             typeof(MediaViewer),
-            new PropertyMetadata(0.0));
+            new PropertyMetadata(double.NaN));
 
     public double IconHeight
     {
@@ -222,6 +222,6 @@ public sealed partial class MediaIcon
             _tokenSource?.Cancel();
         }
 
-        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)(IconHeight), (int)(IconHeight), Image);
+        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)ActualWidth, (int)ActualHeight, Image);
     }
 }

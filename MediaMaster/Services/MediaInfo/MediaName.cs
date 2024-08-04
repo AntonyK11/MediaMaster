@@ -118,12 +118,12 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
     public override void InvokeMediaChange(Media media)
     {
         if (Media == null) return;
-        MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.NameChanged, Media);
+        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.NameChanged, Media);
     }
 
-    public override void MediaChanged(MediaChangeArgs args)
+    public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        if (Media == null || args.Media.MediaId != Media.MediaId || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
+        if (Media == null || args.Media.MediaId != Media.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
         Media = args.Media;
         UpdateControlContent();
     }

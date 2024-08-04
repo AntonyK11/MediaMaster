@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using WinUIEx;
 using MediaMaster.Interfaces.Services;
-using Microsoft.IdentityModel.Tokens;
+using MediaMaster.Extensions;
 using Microsoft.UI.Xaml.Controls;
 using WinUIEx.Messaging;
 using static MediaMaster.Services.WindowsApiService;

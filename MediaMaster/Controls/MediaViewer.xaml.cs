@@ -156,11 +156,14 @@ public sealed partial class MediaViewer : UserControl
         _mediaInfoService = new MediaInfoService(StackPanel);
         _mediaInfoService.SetMedia(null, IsCompact);
 
-        MediaDbContext.MediaChanged += (_, args) =>
+        MediaDbContext.MediaChanged += (sender, args) =>
         {
-            if (Media == null || args.Media.MediaId != Media.MediaId || !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
-            if (args.Media.IsArchived == Media.IsArchived || args.Media.IsFavorite == Media.IsFavorite) return;
-            SetValue(MediaProperty, args.Media);
+            if (Media == null || args.Media.MediaId != Media.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
+            Media.IsArchived = args.Media.IsArchived;
+            Media.IsFavorite = args.Media.IsFavorite;
+
+            ArchiveToggleButton.IsChecked = Media.IsArchived;
+            FavoriteToggleButton.IsChecked = Media.IsFavorite;
         };
     }
 
@@ -242,7 +245,7 @@ public sealed partial class MediaViewer : UserControl
                 await database.BulkInsertAsync([mediaTag]);
             }
 
-            MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsAdded: [MediaDbContext.FavoriteTag]);
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsAdded: [MediaDbContext.FavoriteTag]);
         }
     }
 
@@ -273,7 +276,7 @@ public sealed partial class MediaViewer : UserControl
                 }
             }
 
-            MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsRemoved: [MediaDbContext.FavoriteTag]);
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsRemoved: [MediaDbContext.FavoriteTag]);
         }
     }
 
@@ -318,7 +321,7 @@ public sealed partial class MediaViewer : UserControl
                 }
             }
 
-            MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsRemoved: [MediaDbContext.ArchivedTag]);
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsRemoved: [MediaDbContext.ArchivedTag]);
         }
     }
 
@@ -347,7 +350,7 @@ public sealed partial class MediaViewer : UserControl
                 await database.BulkInsertAsync([mediaTag]);
             }
 
-            MediaDbContext.InvokeMediaChange(MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsAdded: [MediaDbContext.ArchivedTag]);
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Media, tagsAdded: [MediaDbContext.ArchivedTag]);
         }
     }
 

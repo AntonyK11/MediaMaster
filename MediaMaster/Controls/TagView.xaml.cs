@@ -113,37 +113,6 @@ public sealed partial class TagView : UserControl
 
         CustomItemsView.SelectItemsInvoked += (_, _) => TagsSelected();
         CustomItemsView.RemoveItemsInvoked += (_, tagObjectId) => TagRemoved((int)tagObjectId);
-
-        MediaDbContext.MediaChanged += async (_, args) =>
-        {
-            if (args.Media.MediaId != MediaId || !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
-            var currentTagIds = Tags.Select(t => t.TagId).ToList();
-
-            if (args.TagsAdded != null)
-            {
-                foreach (var tag in args.TagsAdded)
-                {
-                    if (!currentTagIds.Contains(tag.TagId))
-                    {
-                        Tags.Add(tag);
-                    }
-                }
-            }
-
-            if (args.TagsRemoved != null)
-            {
-                foreach (var tag in args.TagsRemoved)
-                {
-                    var existingTag = Tags.FirstOrDefault(t => t.TagId == tag.TagId);
-                    if (existingTag != null)
-                    {
-                        Tags.Remove(existingTag);
-                    }
-                }
-            }
-
-            await UpdateItemSource(Tags);
-        };
     }
 
     private async void TagsSelected()

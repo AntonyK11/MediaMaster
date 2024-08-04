@@ -155,9 +155,9 @@ public class MediaDbContext : DbContext
         await SaveChangesAsync();
     }
 
-    public static void InvokeMediaChange(MediaChangeFlags flags, Media media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+    public static void InvokeMediaChange(object?  sender, MediaChangeFlags flags, Media media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
     {
         var args = new MediaChangeArgs(flags, media, tagsAdded, tagsRemoved);
-        App.DispatcherQueue.EnqueueAsync(() => MediaChanged?.Invoke(null, args));
+        App.DispatcherQueue.EnqueueAsync(() => MediaChanged?.Invoke(sender, args));
     }
 }

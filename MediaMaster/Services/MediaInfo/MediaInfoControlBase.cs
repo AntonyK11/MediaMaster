@@ -19,7 +19,7 @@ public abstract class MediaInfoControlBase
     protected MediaInfoControlBase(StackPanel parent)
     {
         Parent = parent;
-        MediaDbContext.MediaChanged += (_, args) => MediaChanged(args);
+        MediaDbContext.MediaChanged += MediaChanged;
     }
 
     public virtual void Initialize(Media? media, bool isCompact)
@@ -79,6 +79,6 @@ public abstract class MediaInfoControlBase
 
     public virtual void InvokeMediaChange(Media media) { }
 
-    public virtual void MediaChanged(MediaChangeArgs args) { }
+    public virtual void MediaChanged(object?  sender, MediaChangeArgs args) { }
 }
 

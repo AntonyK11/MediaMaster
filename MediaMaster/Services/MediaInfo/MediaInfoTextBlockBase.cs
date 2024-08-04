@@ -2,7 +2,7 @@
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
-using Microsoft.IdentityModel.Tokens;
+using MediaMaster.Extensions;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;

@@ -2,8 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using MediaMaster.Extensions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.DataBase.Models;
