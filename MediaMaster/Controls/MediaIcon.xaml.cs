@@ -6,22 +6,32 @@ namespace MediaMaster.Controls;
 
 public sealed partial class MediaIcon
 {
-    public static readonly DependencyProperty? MediaPathProperty
+    public static readonly DependencyProperty? UrisProperty
         = DependencyProperty.Register(
-            nameof(MediaPath),
-            typeof(string),
+            nameof(Uris),
+            typeof(ICollection<string>),
             typeof(MediaIcon),
             new PropertyMetadata(null));
 
     private MyCancellationTokenSource? _tokenSource;
     private TaskCompletionSource<int> _task = new();
 
-    public string? MediaPath
+    public ICollection<string> Uris
     {
-        get => (string?)GetValue(MediaPathProperty);
+        get
+        {
+            var uris = (ICollection<string>?)GetValue(UrisProperty);
+            if (uris == null)
+            {
+                uris = [];
+                SetValue(UrisProperty, uris);
+            }
+
+            return uris;
+        }
         set
         {
-            SetValue(MediaPathProperty, value);
+            SetValue(UrisProperty, value);
             _task.SetResult(0);
             _task = new TaskCompletionSource<int>();
             SetIconAsync();
@@ -161,11 +171,11 @@ public sealed partial class MediaIcon
 
     public void Open()
     {
-        if (MediaPath != null)
+        if (Uris.Count == 1)
         {
             try
             {
-                ProcessStartInfo startInfo = new(MediaPath)
+                ProcessStartInfo startInfo = new(Uris.First())
                 {
                     UseShellExecute = true
                 };
@@ -181,11 +191,11 @@ public sealed partial class MediaIcon
 
     public void OpenFolder()
     {
-        if (MediaPath != null && File.Exists(MediaPath))
+        if (Uris.Count == 1 && File.Exists(Uris.First()))
         {
             ProcessStartInfo startInfo = new()
             {
-                Arguments = $"/select, \"{MediaPath}\"",
+                Arguments = $"/select, \"{Uris}\"",
                 FileName = "explorer.exe"
             };
 
@@ -195,7 +205,13 @@ public sealed partial class MediaIcon
 
     private async void SetIconAsync()
     {
-        var path = MediaPath;
+        if (Uris.Count != 1)
+        {
+            Image.Source = IconService.DefaultIcon;
+            return;
+        }
+
+        var uri = Uris.First();
 
         if (Image.Source != null)
         {
@@ -209,7 +225,7 @@ public sealed partial class MediaIcon
                 _task.Task);
         }
 
-        if (path == MediaPath)
+        if (uri == Uris.First())
         {
             SetIcon();
         }
@@ -222,6 +238,6 @@ public sealed partial class MediaIcon
             _tokenSource?.Cancel();
         }
 
-        _tokenSource = IconService.AddImage(MediaPath, ImageMode, (int)ActualWidth, (int)ActualHeight, Image);
+        _tokenSource = IconService.AddImage(Uris.First(), ImageMode, (int)ActualWidth, (int)ActualHeight, Image);
     }
 }

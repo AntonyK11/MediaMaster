@@ -31,11 +31,11 @@ internal class MediaInfoService
         MediaInfoControls.Add(mediaInfoControl);
     }
 
-    public void SetMedia(Media? media, bool isCompact)
+    public void SetMedia(ICollection<Media> medias, bool isCompact)
     {
         foreach (var mediaInfoControl in MediaInfoControls)
         {
-            mediaInfoControl.Initialize(media, isCompact);
+            mediaInfoControl.Initialize(medias, isCompact);
         }
     }
 }

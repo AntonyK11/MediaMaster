@@ -1,29 +1,46 @@
-using MediaMaster.ViewModels;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
-using MediaMaster.DataBase;
+using MediaMaster.Interfaces.Services;
+using MediaMaster.Services;
+using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Views;
 
 public sealed partial class CategoriesPage
 {
-    public CategoriesViewModel ViewModel { get; }
+    private ITeachingService TeachingService { get; }
+
+    private BrowserService BrowserService { get; }
 
     public CategoriesPage()
     {
-        ViewModel = App.GetService<CategoriesViewModel>();
+        TeachingService = App.GetService<ITeachingService>();
+        BrowserService = App.GetService<BrowserService>();
 
-        InitializeComponent();
+        this.InitializeComponent();
+
+        TeachingService.Configure(1, TeachingTip1);
+        TeachingService.Configure(2, TeachingTip2);
+        TeachingService.Configure(3, TeachingTip3);
+    }
+
+    private async void GetActiveTabs(object sender, RoutedEventArgs e)
+    {
+        await BrowserService.FindActiveTabs();
+    }
+
+    private async void GetBookmarks(object sender, RoutedEventArgs e)
+    {
+        BookmarksTree.ItemsSource = await BrowserService.GetBookmarks();
     }
 }
 
-//class CategoriesTemplateSelector : DataTemplateSelector
-//{
-//    public DataTemplate CategoryTemplate { get; set; }
-//    public DataTemplate ExtensionTemplate { get; set; }
+internal class BookmarksTemplateSelector : DataTemplateSelector
+{
+    public DataTemplate BookmarkFolder { get; set; }
+    public DataTemplate BookmarkLink { get; set; }
 
-//    protected override DataTemplate SelectTemplateCore(object item)
-//    {
-//        return item is Category ? CategoryTemplate : ExtensionTemplate;
-//    }
-//}
+    protected override DataTemplate SelectTemplateCore(object item)
+    {
+        return item is BookmarksManager.BookmarkFolder ? BookmarkFolder : BookmarkLink;
+    }
+}

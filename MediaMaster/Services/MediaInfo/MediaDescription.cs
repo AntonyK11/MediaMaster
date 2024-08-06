@@ -10,8 +10,15 @@ public class MediaDescription(StackPanel parent) : MediaInfoTextBlockBase(parent
 
     public override void UpdateControlContent()
     {
-        if (EditableTextBlock == null || Media == null) return;
-        EditableTextBlock.Text = Media.Description;
+        if (EditableTextBlock == null || Medias.Count == 0) return;
+        var description = Medias.First().Description;
+
+        if (Medias.Any(media => media.Description != description))
+        {
+            EditableTextBlock.Text = "";
+            return;
+        }
+        EditableTextBlock.Text = description;
     }
 
     public override void UpdateMediaProperty(Media media, string text)
@@ -19,16 +26,17 @@ public class MediaDescription(StackPanel parent) : MediaInfoTextBlockBase(parent
         media.Description = text;
     }
 
-    public override void InvokeMediaChange(Media media)
+    public override void InvokeMediaChange()
     {
-        if (Media == null) return;
-        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.DescriptionChanged, Media);
+        if (Medias.Count != 0) return;
+        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.DescriptionChanged, Medias);
     }
 
     public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        if (Media == null || args.Media.MediaId != Media.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.DescriptionChanged)) return;
-        Media = args.Media;
+        var mediaIds = Medias.Select(m => m.MediaId).ToList();
+        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.DescriptionChanged)) return;
+        Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }
 }

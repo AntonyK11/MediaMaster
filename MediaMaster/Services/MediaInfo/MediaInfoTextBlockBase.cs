@@ -14,7 +14,7 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
     public EditableTextBlock? EditableTextBlock;
     public StackPanel? StackPanel;
 
-    public override void Setup(bool isCompact)
+    public override void Setup()
     {
         StackPanel = new StackPanel
         {
@@ -47,7 +47,7 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
         return editableTextBlock;
     }
 
-    public override void Show(bool isCompact)
+    public override void Show()
     {
         if (StackPanel != null)
         {
@@ -65,19 +65,22 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
 
     public virtual async void UpdateMedia(TextConfirmedArgs args)
     {
-        if (Media == null || args.OldText == args.NewText) return;
+        if (Medias.Count == 0 || args.OldText == args.NewText) return;
 
-        UpdateMediaProperty(Media, args.NewText);
-        Media.Modified = DateTime.UtcNow;
+        foreach (var media in Medias)
+        {
+            UpdateMediaProperty(media, args.NewText);
+            media.Modified = DateTime.UtcNow;
+        }
 
         await using (var database = new MediaDbContext())
         {
-            await database.BulkUpdateAsync([Media]);
+            await database.BulkUpdateAsync(Medias);
         }
 
-        InvokeMediaChange(Media);
+        InvokeMediaChange();
     }
 
-    public virtual void UpdateMediaProperty(Media media, string text) { }
+    public virtual void UpdateMediaProperty(Media medias, string text) { }
 }
 

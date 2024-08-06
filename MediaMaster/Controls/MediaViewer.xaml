@@ -242,7 +242,7 @@
                 IconHeight="{x:Bind IconHeight, Mode=OneWay}"
                 IconMargin="{x:Bind IconMargin, Mode=OneWay}"
                 ImageMode="{x:Bind ImageMode, Mode=OneWay}"
-                MediaPath="{x:Bind Media.Uri, FallbackValue=null, Mode=OneWay}" />
+                Uris="{x:Bind Medias, Mode=OneWay, Converter={StaticResource MediasToPathsConverter}}" />
 
             <StackPanel
                 Margin="16"
@@ -256,7 +256,6 @@
                     Width="32"
                     Height="32"
                     Checked="ArchiveToggleButton_OnChecked"
-                    IsChecked="{x:Bind Media.IsArchived, Mode=OneWay, FallbackValue=False}"
                     PointerEntered="ArchiveToggleButton_OnPointerEntered"
                     PointerExited="ArchiveToggleButton_OnPointerExited"
                     Template="{StaticResource ToggleButtonControlTemplate}"
@@ -286,7 +285,6 @@
                     Margin="16,0,0,0"
                     HorizontalAlignment="Right"
                     Checked="FavoriteToggleButton_OnChecked"
-                    IsChecked="{x:Bind Media.IsFavorite, Mode=OneWay, FallbackValue=False}"
                     PointerEntered="FavoriteToggleButton_OnPointerEntered"
                     PointerExited="FavoriteToggleButton_OnPointerExited"
                     Template="{StaticResource ToggleButtonControlTemplate}"

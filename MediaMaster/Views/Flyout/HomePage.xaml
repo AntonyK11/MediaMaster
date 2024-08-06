@@ -27,8 +27,8 @@
                         CanOpen="False"
                         ContextMenu="False"
                         LoadIcon="False"
-                        MediaPath="{x:Bind Url, Mode=OneWay}"
-                        ToolTipService.ToolTip="{x:Bind Domain, Mode=OneWay}" />
+                        ToolTipService.ToolTip="{x:Bind Domain, Mode=OneWay}"
+                        Uris="{x:Bind Url, Mode=OneWay, Converter={StaticResource UriToListOfStringConverter}}" />
                     <TextBlock
                         Grid.Column="1"
                         VerticalAlignment="Center"

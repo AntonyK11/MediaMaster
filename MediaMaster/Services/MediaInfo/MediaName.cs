@@ -19,21 +19,49 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
 
     public override void UpdateControlContent()
     {
-        if (EditableTextBlock == null) return;
-        EditableTextBlock.Text = Media?.Name ?? "No Media Found";
-        if (Media != null)
+        if (EditableTextBlock == null || MediaExtensionIcon == null) return;
+
+        EditableTextBlock.EditOnDoubleClick = true;
+        EditableTextBlock.EditOnClick = true;
+        MediaExtensionIcon.Source = null;
+
+        switch (Medias.Count)
         {
-            SetMediaExtensionIcon(Media);
+            case 1:
+            {
+                SetMediaExtensionIcon(Medias.First());
+                EditableTextBlock.Text = Medias.First().Name;
+                break;
+            }
+            case 0:
+            {
+                EditableTextBlock.Text = "No Media Selected";
+                EditableTextBlock.EditOnDoubleClick = false;
+                EditableTextBlock.EditOnClick = false;
+                break;
+            }
+            default:
+            {
+                var text = Medias.First().Name;
+                if (Medias.Any(media => media.Name != text))
+                {
+                    text = "Multiple Media Selected";
+                }
+
+                EditableTextBlock.Text = text;
+                break;
+            }
         }
     }
 
-    public override void Setup(bool isCompact)
+    public override void Setup()
     {
         Grid = new Grid
         {
             MinHeight = 24,
             HorizontalAlignment = HorizontalAlignment.Center,
             ColumnSpacing = 12,
+            Margin = new Thickness(0, 0, 0, 16),
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = GridLength.Auto},
@@ -68,9 +96,14 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
         Parent.Children.Add(Grid);
     }
 
+    public override bool ShowInfo(ICollection<Media> medias)
+    {
+        return medias.Count == 0 || !IsCompact;
+    }
+
     public override void SetupTranslations() { }
 
-    public override void Show(bool isCompact)
+    public override void Show()
     {
         if (Grid != null)
         {
@@ -88,17 +121,20 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
 
     public virtual async void UpdateMedia(TextConfirmedArgs args)
     {
-        if (Media == null || args.OldText == args.NewText) return;
+        if (Medias.Count == 0 || args.OldText == args.NewText) return;
 
-        Media.Name = args.NewText;
-        Media.Modified = DateTime.UtcNow;
+        foreach (var media in Medias)
+        {
+            media.Name = args.NewText;
+            media.Modified = DateTime.UtcNow;
+        }
 
         await using (var database = new MediaDbContext())
         {
-            await database.BulkUpdateAsync([Media]);
+            await database.BulkUpdateAsync(Medias);
         }
 
-        InvokeMediaChange(Media);
+        InvokeMediaChange();
     }
 
     private void SetMediaExtensionIcon(Media media)
@@ -115,16 +151,17 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
         }
     }
 
-    public override void InvokeMediaChange(Media media)
+    public override void InvokeMediaChange()
     {
-        if (Media == null) return;
-        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.NameChanged, Media);
+        if (Medias.Count == 0) return;
+        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.NameChanged, Medias);
     }
 
     public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        if (Media == null || args.Media.MediaId != Media.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
-        Media = args.Media;
+        var mediaIds = Medias.Select(m => m.MediaId).ToList();
+        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
+        Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }
 }

@@ -16,8 +16,8 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
 
     public override void UpdateControlContent()
     {
-        if (EditableTextBlock == null || Media == null) return;
-        EditableTextBlock.Text = Media.Uri;
+        if (EditableTextBlock == null) return;
+        EditableTextBlock.Text = Medias.FirstOrDefault()?.Uri ?? "";
     }
 
     public override EditableTextBlock GetEditableTextBlock()
@@ -37,6 +37,7 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
     {
         if (EditableTextBlock == null) return;
 
+        // Cannot use System.Windows.Forms.OpenFileDialog because it makes the app crash if the window is closed after the dialog in certain situations
         using (CommonOpenFileDialog dialog = new())
         {
             dialog.InitialDirectory = Path.GetDirectoryName(EditableTextBlock.Text);
@@ -45,7 +46,6 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
             dialog.EnsurePathExists = true;
 
             // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
-            // Cannot use System.Windows.Forms.OpenFileDialog because it makes the app crash if the window is closed after the dialog in certain situations
             FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fi != null && App.MainWindow != null)
             {
@@ -66,21 +66,22 @@ public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
         media.Uri = text;
     }
 
-    public override bool ShowInfo(Media? media, bool isCompact)
+    public override bool ShowInfo(ICollection<Media> medias)
     {
-        return media == null || !(isCompact || media.Uri.IsWebsite());
+        return medias.Count == 0 || !(IsCompact || medias.Count != 1 || medias.First().Uri.IsWebsite());
     }
 
-    public override void InvokeMediaChange(Media media)
+    public override void InvokeMediaChange()
     {
-        if (Media == null) return;
-        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Media);
+        if (Medias.Count == 0) return;
+        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Medias);
     }
 
     public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        if (Media == null || args.Media.MediaId != Media.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
-        Media = args.Media;
+        var mediaIds = Medias.Select(m => m.MediaId).ToList();
+        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }
 }

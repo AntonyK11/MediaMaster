@@ -68,21 +68,30 @@ public sealed partial class TagView : UserControl
     
     public static readonly DependencyProperty MediaIdProperty
         = DependencyProperty.Register(
-            nameof(MediaId),
-            typeof(int?),
+            nameof(MediaIds),
+            typeof(ICollection<int>),
             typeof(TagView),
             new PropertyMetadata(null));
 
-    public int? MediaId
+    public ICollection<int> MediaIds
     {
-        get => (int?)GetValue(MediaIdProperty);
+        get
+        {
+            var mediaIds = (ICollection<int>?)GetValue(MediaIdProperty);
+            if (mediaIds == null)
+            {
+                mediaIds = [];
+                SetValue(MediaIdProperty, mediaIds);
+            }
+            return mediaIds;
+        }
         set
         {
             SetValue(MediaIdProperty, value);
             _ = UpdateItemSource();
         }
     }
-    
+
     public static readonly DependencyProperty TagIdProperty
         = DependencyProperty.Register(
             nameof(TagId),
@@ -118,7 +127,7 @@ public sealed partial class TagView : UserControl
     private async void TagsSelected()
     {
         List<int> tagIds = Tags.Select(t => t.TagId).ToList();
-        (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : [], MediaId == null);
+        (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : [], MediaIds.Count == 0);
 
         if (selectTagsDialog != null)
         {
@@ -141,7 +150,7 @@ public sealed partial class TagView : UserControl
 
         if (tag == null) return;
 
-        if (MediaId == null || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
+        if (MediaIds.Count == 0 || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
         {
             var tagToRemove = Tags.FirstOrDefault(t => t.TagId == tag.TagId);
             if (tagToRemove == null) return;
@@ -203,9 +212,15 @@ public sealed partial class TagView : UserControl
         {
             await using (MediaDbContext dataBase = new())
             {
-                if (MediaId != null)
+                if (MediaIds.Count != 0)
                 {
-                    Tags = dataBase.Medias.Select(m => new { m.MediaId, m.Tags }).FirstOrDefault(m => m.MediaId == MediaId)?.Tags.ToList() ?? [];
+                    Tags = await dataBase.Medias
+                        .Where(m => MediaIds.Contains(m.MediaId))
+                        .SelectMany(m => m.Tags)
+                        .GroupBy(t => t)
+                        .Where(g => g.Count() == MediaIds.Count)
+                        .Select(g => g.Key)
+                        .ToListAsync();
                 }
                 else if (TagId != null)
                 {
@@ -259,7 +274,7 @@ public sealed partial class TagView : UserControl
 
         if (tag == null) return;
 
-        if (MediaId == null || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
+        if (MediaIds.Count == 0 || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
         {
             sender.Visibility = Visibility.Visible;
         }
@@ -275,7 +290,7 @@ public sealed partial class TagView : UserControl
         var tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
 
         if (tag == null) return;
-        if (MediaId == null || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
+        if (MediaIds.Count == 0 || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
         {
             ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Visible;
         }

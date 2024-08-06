@@ -5,18 +5,27 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaNameCompact(StackPanel parent) : MediaInfoTextBase(parent)
+public class MediaNameCompact(StackPanel parent) : MediaInfoControlBase(parent)
 {
     public override string TranslationKey { get; set; } = "";
+    public TextBlock? Text;
 
     public override void UpdateControlContent()
     {
-        if (Text == null || Media == null) return;
-        Text.Text = Media.Name;
-        Text.SetValue(ToolTipService.ToolTipProperty, Media.Name);
+        if (Text == null) return;
+
+        if (Medias.Count != 0)
+        {
+            Text.Text = Medias.First().Name;
+            Text.SetValue(ToolTipService.ToolTipProperty, Medias.First().Name);
+        }
+        else
+        {
+            Text.Text = "No Media Selected";
+        }
     }
 
-    public override void Setup(bool isCompact)
+    public override void Setup()
     {
         Text = new TextBlock
         {
@@ -27,21 +36,38 @@ public class MediaNameCompact(StackPanel parent) : MediaInfoTextBase(parent)
         Parent.Children.Add(Text);
     }
 
-    public override bool ShowInfo(Media? media, bool isCompact)
+    public override void Show()
     {
-        return media == null || isCompact;
+        if (Text != null)
+        {
+            Text.Visibility = Visibility.Visible;
+        }
     }
 
-    public override void InvokeMediaChange(Media media)
+    public override void Hide()
     {
-        if (Media == null) return;
-        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.NameChanged, Media);
+        if (Text != null)
+        {
+            Text.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    public override bool ShowInfo(ICollection<Media> medias)
+    {
+        return IsCompact;
+    }
+
+    public override void InvokeMediaChange()
+    {
+        if (Medias.Count == 0) return;
+        MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.NameChanged, Medias);
     }
 
     public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        if (Media == null || args.Media.MediaId != Media.MediaId || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
-        Media = args.Media;
+        var mediaIds = Medias.Select(m => m.MediaId).ToList();
+        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
+        Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }
 }

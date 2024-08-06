@@ -7,48 +7,51 @@ namespace MediaMaster.Services.MediaInfo;
 
 public abstract class MediaInfoControlBase
 {
-    public Media? Media;
+    public ICollection<Media> Medias = [];
     public StackPanel Parent;
     public bool FirstShown = true;
+    public bool IsCompact;
     public TextBlock? Title;
 
-    public bool IsVisible;
+    public bool IsVisible = true;
 
     public abstract string TranslationKey { get; set; }
 
     protected MediaInfoControlBase(StackPanel parent)
     {
         Parent = parent;
-        MediaDbContext.MediaChanged += MediaChanged;
+        MediaDbContext.MediasChanged += MediaChanged;
     }
 
-    public virtual void Initialize(Media? media, bool isCompact)
+    public virtual void Initialize(ICollection<Media> medias, bool isCompact)
     {
+        IsCompact = isCompact;
         if (FirstShown)
         {
-            FirstShown = false;
-            Setup(isCompact);
+            Setup();
             SetupTranslations();
         }
 
-        if (ShowInfo(media, isCompact))
+        if (ShowInfo(medias))
         {
-            if (!IsVisible)
+            if (!IsVisible || FirstShown)
             {
                 IsVisible = true;
-                Show(isCompact);
+                Show();
             }
-            Media = media;
-            UpdateControl(isCompact);
+            Medias = medias;
+            UpdateControl();
         }
         else if (IsVisible)
         {
             IsVisible = false;
             Hide();
         }
+
+        FirstShown = false;
     }
 
-    public virtual void UpdateControl(bool isCompact)
+    public virtual void UpdateControl()
     {
         UpdateControlContent();
     }
@@ -64,20 +67,20 @@ public abstract class MediaInfoControlBase
         return textBlock;
     }
 
-    public virtual bool ShowInfo(Media? media, bool isCompact)
+    public virtual bool ShowInfo(ICollection<Media> medias)
     {
-        return media == null || !isCompact;
+        return medias.Count == 0 || !IsCompact;
     }
     
-    public abstract void Setup(bool isCompact);
+    public abstract void Setup();
 
-    public abstract void SetupTranslations();
+    public virtual void SetupTranslations() { }
 
-    public abstract void Show(bool isCompact);
+    public abstract void Show();
 
     public abstract void Hide();
 
-    public virtual void InvokeMediaChange(Media media) { }
+    public virtual void InvokeMediaChange() { }
 
     public virtual void MediaChanged(object?  sender, MediaChangeArgs args) { }
 }

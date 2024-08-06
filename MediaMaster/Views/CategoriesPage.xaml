@@ -3,58 +3,204 @@
     x:Class="MediaMaster.Views.CategoriesPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:bookmarksManager="using:BookmarksManager"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:MediaMaster.DataBase"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="using:MediaMaster.Views"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!--<DataTemplate x:Key="CategoryTemplate" x:DataType="local:Category">
+        <DataTemplate x:Key="BookmarkFolder" x:DataType="bookmarksManager:BookmarkFolder">
             <TreeViewItem
                 AllowDrop="False"
-                AutomationProperties.Name="{x:Bind Name}"
+                AutomationProperties.Name="{x:Bind Title}"
                 CanDrag="False"
-                ItemsSource="{x:Bind Extensions}">
+                ItemsSource="{x:Bind}">
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="0,0,10,0" />
-                    <TextBlock Text="{x:Bind Name}" />
+                    <TextBlock Margin="0,0,10,0" Text="{x:Bind Title}" />
                 </StackPanel>
             </TreeViewItem>
         </DataTemplate>
 
-        <DataTemplate x:Key="ExtensionTemplate" x:DataType="local:Extension">
+        <DataTemplate x:Key="BookmarkLink" x:DataType="bookmarksManager:BookmarkLink">
             <TreeViewItem
                 AllowDrop="False"
-                AutomationProperties.Name="{x:Bind Name}"
+                AutomationProperties.Name="{x:Bind Title}"
                 CanDrag="False">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="0,0,10,0" />
-                    <TextBlock Text="{x:Bind Name}" />
+                    <TextBlock Margin="0,0,10,0" Text="{x:Bind Title}" />
+                    <TextBlock Text="{x:Bind Url}" />
                 </StackPanel>
             </TreeViewItem>
         </DataTemplate>
 
-        <views:CategoriesTemplateSelector
-            x:Key="CategoriesTemplateSelector"
-            CategoryTemplate="{StaticResource CategoryTemplate}"
-            ExtensionTemplate="{StaticResource ExtensionTemplate}" />-->
+        <views:BookmarksTemplateSelector
+            x:Key="BookmarksTemplateSelector"
+            BookmarkFolder="{StaticResource BookmarkFolder}"
+            BookmarkLink="{StaticResource BookmarkLink}" />
     </Page.Resources>
 
-    <ScrollViewer Padding="{StaticResource NavigationViewPageContentMargin}" VerticalScrollBarVisibility="Auto">
-        <Grid>
+    <Grid
+        x:Name="ContentGrid"
+        Padding="{StaticResource NavigationViewPageContentMargin}"
+        HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition
+                x:Name="ContentColumn"
+                Width="*"
+                MinWidth="150" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition
+                x:Name="PaneColumn"
+                Width="350"
+                MinWidth="150" />
+        </Grid.ColumnDefinitions>
+
+        <Grid
+            Grid.Column="0"
+            ColumnSpacing="20"
+            RowSpacing="20">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!--<TreeView
-                AllowDrop="False"
-                CanDragItems="False"
-                ItemTemplateSelector="{StaticResource CategoriesTemplateSelector}"
-                ItemsSource="{x:Bind ViewModel.dataBaseService.Categories}" />-->
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <Button
+                    x:Name="ActiveTabButton"
+                    Click="GetActiveTabs"
+                    Content="Find Active Tabs" />
+                <Button
+                    x:Name="BookmarkButton"
+                    Click="GetBookmarks"
+                    Content="Get Bookmarks" />
+                <Button
+                    x:Name="Button1"
+                    Click="{x:Bind TeachingService.PrevStep}"
+                    Content="Previous TeachingTip" />
+                <Button
+                    x:Name="Button2"
+                    Click="{x:Bind TeachingService.NextStep}"
+                    Content="Next TeachingTip" />
+                <Button
+                    x:Name="Button3"
+                    Click="{x:Bind TeachingService.Reset}"
+                    Content="Reset TeachingService" />
+
+
+                <TeachingTip
+                    x:Name="TeachingTip1"
+                    Title="THis is a teaching tip"
+                    Subtitle="This is the first step"
+                    Target="{x:Bind Button1}">
+                    <TeachingTip.IconSource>
+                        <SymbolIconSource Symbol="Home" />
+                    </TeachingTip.IconSource>
+                    <TeachingTip.Content>
+                        <Grid Margin="0,16,0,0" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.PrevStep}"
+                                Content="Previous" />
+                            <Button
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.NextStep}"
+                                Content="Next" />
+                        </Grid>
+                    </TeachingTip.Content>
+                </TeachingTip>
+
+                <TeachingTip
+                    x:Name="TeachingTip2"
+                    Title="THis is a teaching tip"
+                    Subtitle="This is the second step"
+                    Target="{x:Bind Button2}">
+                    <TeachingTip.IconSource>
+                        <SymbolIconSource Symbol="Bullets" />
+                    </TeachingTip.IconSource>
+                    <TeachingTip.Content>
+                        <Grid Margin="0,16,0,0" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.PrevStep}"
+                                Content="Previous" />
+                            <Button
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.NextStep}"
+                                Content="Next" />
+                        </Grid>
+                    </TeachingTip.Content>
+                </TeachingTip>
+
+                <TeachingTip
+                    x:Name="TeachingTip3"
+                    Title="THis is a teaching tip"
+                    Subtitle="This is the third step"
+                    Target="{x:Bind Button3}">
+                    <TeachingTip.IconSource>
+                        <SymbolIconSource Symbol="Help" />
+                    </TeachingTip.IconSource>
+                    <TeachingTip.Content>
+                        <Grid Margin="0,16,0,0" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.PrevStep}"
+                                Content="Previous" />
+                            <Button
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Click="{x:Bind TeachingService.NextStep}"
+                                Content="Next" />
+                        </Grid>
+                    </TeachingTip.Content>
+                </TeachingTip>
+            </StackPanel>
+
+            <TextBlock Grid.Row="2">Active Tabs</TextBlock>
+
+            <ListView
+                x:Name="TabsList"
+                Grid.Row="3"
+                IncrementalLoadingThreshold="1"
+                IncrementalLoadingTrigger="Edge" />
+
+
+            <TextBlock Grid.Row="6">Browsers Bookmarks</TextBlock>
+
+            <TreeView
+                x:Name="BookmarksTree"
+                Grid.Row="7"
+                ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />
+
 
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </Page>

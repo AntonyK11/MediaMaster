@@ -20,10 +20,11 @@ public enum MediaChangeFlags
     TagsChanged = 0x10000,
 }
 
-public struct MediaChangeArgs(MediaChangeFlags flags, Media media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+public struct MediaChangeArgs(MediaChangeFlags flags, ICollection<Media> media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
 {
     public MediaChangeFlags Flags = flags;
-    public Media Media = media;
+    public HashSet<int> MediaIds = media.Select(m => m.MediaId).ToHashSet();
+    public ICollection<Media> Medias = media;
     public ICollection<Tag>? TagsAdded = tagsAdded;
     public ICollection<Tag>? TagsRemoved = tagsRemoved;
 }
@@ -35,7 +36,7 @@ public class MediaDbContext : DbContext
     public static Tag? FavoriteTag;
     public static Tag? ArchivedTag;
 
-    public static event TypedEventHandler<object?, MediaChangeArgs>? MediaChanged;
+    public static event TypedEventHandler<object?, MediaChangeArgs>? MediasChanged;
 
     //public static event TypedEventHandler<object, >? TagAdded;
     //public static event TypedEventHandler<object, >? TagRemoved;
@@ -155,9 +156,9 @@ public class MediaDbContext : DbContext
         await SaveChangesAsync();
     }
 
-    public static void InvokeMediaChange(object?  sender, MediaChangeFlags flags, Media media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+    public static void InvokeMediaChange(object?  sender, MediaChangeFlags flags, ICollection<Media> media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
     {
         var args = new MediaChangeArgs(flags, media, tagsAdded, tagsRemoved);
-        App.DispatcherQueue.EnqueueAsync(() => MediaChanged?.Invoke(sender, args));
+        App.DispatcherQueue.EnqueueAsync(() => MediasChanged?.Invoke(sender, args));
     }
 }

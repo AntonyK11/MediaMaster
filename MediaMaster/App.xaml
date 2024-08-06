@@ -40,6 +40,10 @@
 
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
+            <helpers:BoolToSelectionModeConverter x:Key="BoolToSelectionModeConverter" />
+
+            <helpers:MediasToPathsConverter x:Key="MediasToPathsConverter" />
+            <helpers:UriToListOfStringConverter x:Key="UriToListOfStringConverter" />
             <!--  Other app resources here  -->
         </ResourceDictionary>
     </Application.Resources>

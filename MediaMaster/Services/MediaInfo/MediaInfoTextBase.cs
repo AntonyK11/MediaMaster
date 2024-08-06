@@ -10,7 +10,7 @@ public abstract class MediaInfoTextBase(StackPanel parent) : MediaInfoControlBas
     public TextBlock? Text;
     public StackPanel? StackPanel;
 
-    public override void Setup(bool isCompact)
+    public override void Setup()
     {
         StackPanel = new StackPanel
         {
@@ -28,7 +28,7 @@ public abstract class MediaInfoTextBase(StackPanel parent) : MediaInfoControlBas
         Parent.Children.Add(StackPanel);
     }
 
-    public override void Show(bool isCompact)
+    public override void Show()
     {
         if (StackPanel != null)
         {
