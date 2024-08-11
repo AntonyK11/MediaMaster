@@ -12,9 +12,9 @@
 
     <Grid>
         <controls:TitleBarControl x:Name="AppTitleBar" l:Uids.Uid="AppTitleBar">
-            <controls:TitleBarControl.Icon>
-                <BitmapIconSource ShowAsMonochrome="False" UriSource="/Assets/WindowIcon.ico" />
-            </controls:TitleBarControl.Icon>
+            <controls:TitleBarControl.IconPath>
+                <BitmapImage UriSource="/Assets/WindowIcon.ico" />
+            </controls:TitleBarControl.IconPath>
         </controls:TitleBarControl>
 
         <NavigationView

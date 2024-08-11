@@ -1,6 +1,8 @@
 using MediaMaster.Interfaces.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace MediaMaster.Controls;
 
@@ -34,28 +36,27 @@ public sealed partial class TitleBarControl
         set => SetValue(SubtitleProperty, value);
     }
 
-    public static readonly DependencyProperty IconProperty
+    public static readonly DependencyProperty IconPathProperty
     = DependencyProperty.Register(
-        nameof(Icon),
-        typeof(IconSource),
+        nameof(IconPath),
+        typeof(string),
         typeof(TitleBarControl),
         new PropertyMetadata(null));
 
-    public IconSource? Icon
+    public BitmapImage? IconPath
     {
-        get => (IconSource)GetValue(IconProperty);
+        get => (BitmapImage?)GetValue(IconPathProperty);
         set 
         {
-            SetValue(IconProperty, value);
+            SetValue(IconPathProperty, value);
 
             if (value != null)
             {
-                var icon = value.CreateIconElement();
-                AppIconElement.Child = icon;
+                AppIconElement.Source = value;
 
                 if (App.MainWindow != null)
                 {
-                    App.MainWindow.AppWindow.SetIcon(icon.BaseUri.AbsolutePath);
+                    App.MainWindow.AppWindow.SetIcon(value.UriSource.AbsoluteUri);
                 }
             }
         }
@@ -75,7 +76,7 @@ public sealed partial class TitleBarControl
         ViewModel.UpdateTitleBar(themeSelectorService.ActualTheme);
 
         AppIconElement.PointerPressed += ViewModel.AppIcon_LeftClick;
-        AppIconElement.RightTapped += TitleBarViewModel.AppIcon_RightClick;
+        AppIconElement.RightTapped += ViewModel.AppIcon_RightClick;
         AppIconElement.DoubleTapped += (_, _) => App.MainWindow?.Close();
 
         if (App.MainWindow != null)

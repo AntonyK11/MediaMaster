@@ -43,6 +43,11 @@
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 
 		<WindowsSdkPackageVersion>10.0.22621.39</WindowsSdkPackageVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+		<Optimize>true</Optimize>
+
 		<!--<PublishAot>true</PublishAot>-->
 		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
@@ -51,10 +56,6 @@
 		<SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
 		<!--<EnableTrimAnalyzer>true</EnableTrimAnalyzer>-->
 		<!--<TrimmerSingleWarn>false</TrimmerSingleWarn>-->
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)' != 'Debug'">
-		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Label="MultilingualAppToolkit">

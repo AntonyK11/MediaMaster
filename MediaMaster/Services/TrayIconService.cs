@@ -553,6 +553,8 @@ internal class TrayIconService
 
     ~TrayIconService()
     {
+        RemoveFromTray();
+
         if (hFontMenu != IntPtr.Zero)
         {
             DeleteObject(hFontMenu);

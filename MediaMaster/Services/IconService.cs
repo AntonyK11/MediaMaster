@@ -46,9 +46,9 @@ public readonly struct CachedIcon
 
 public static class IconService
 {
-    public static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
-    public static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
-    public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
+    public static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
+    public static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
+    public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
 
     public static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> ThumbnailCache = [];
     public static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> IconCache = [];

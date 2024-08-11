@@ -22,11 +22,12 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <BitmapIcon
-                Grid.Row="1"
-                Height="48"
-                ShowAsMonochrome="False"
-                UriSource="/Assets/WindowIcon.ico" />
+            <Image Grid.Row="1" Height="96">
+                <Image.Source>
+                    <BitmapImage UriSource="/Assets/WindowIcon.ico" />
+                </Image.Source>
+            </Image>
+
             <ProgressRing
                 Grid.Row="2"
                 Width="48"

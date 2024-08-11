@@ -133,7 +133,7 @@ public partial class TitleBarViewModel : ObservableObject
             rects.Add(GetRect(togglePaneButtonGrid, scale));
         }
 
-        var titleBarIcon = _titleBar.FindDescendants().OfType<Viewbox>().FirstOrDefault(x => x.Name is "AppIconElement");
+        var titleBarIcon = _titleBar.FindDescendants().OfType<Image>().FirstOrDefault(x => x.Name is "AppIconElement");
         if (titleBarIcon != null)
         {
             rects.Add(GetRect(titleBarIcon, scale));
@@ -176,15 +176,17 @@ public partial class TitleBarViewModel : ObservableObject
 
         GeneralTransform ttv = ((UIElement) sender).TransformToVisual(App.MainWindow!.Content);
         Point screenCords = ttv.TransformPoint(new Point(0, 0));
-        Point menuPos = new(AppWindow.Position.X + screenCords.X * scaleAdjustment,
-            AppWindow.Position.Y + _titleBar.ActualHeight * scaleAdjustment);
+        Point menuPos = new(AppWindow.Position.X + screenCords.X * scaleAdjustment, AppWindow.Position.Y + _titleBar.ActualHeight * scaleAdjustment);
         ShowMenu(menuPos);
     }
 
-    public static void AppIcon_RightClick(object sender, RightTappedRoutedEventArgs args)
+    public void AppIcon_RightClick(object sender, RightTappedRoutedEventArgs args)
     {
-        var pos = args.GetPosition((UIElement)sender);
-        ShowMenu(new Point(pos.X, pos.X));
+        if (AppWindow == null) return;
+
+        var pos = args.GetPosition(App.MainWindow!.Content);
+        Point menuPos = new(AppWindow.Position.X + pos.X, AppWindow.Position.Y + pos.Y);
+        ShowMenu(menuPos);
     }
 
     /// <summary>
@@ -228,7 +230,7 @@ public partial class TitleBarViewModel : ObservableObject
         }
 
         _ = SendMessage(hWnd, WM_INITMENU, hMenu, IntPtr.Zero);
-        int cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)pos.X, (int)pos.Y, 0, hWnd, IntPtr.Zero);
+        int cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)pos.X + 9, (int)pos.Y + 2, 0, hWnd, IntPtr.Zero);
         if (cmd > 0)
         {
             _ = SendMessage(hWnd, WM_SYSCOMMAND, cmd, IntPtr.Zero);

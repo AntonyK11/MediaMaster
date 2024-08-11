@@ -58,12 +58,13 @@ public sealed partial class HomePage
 
         Debug.WriteLine("Adding files");
         DateTime time = DateTime.Now;
-        await MediaService.AddMediaAsync(items.Select(i => i.Path));
 
         foreach (IStorageItem? item in items)
         {
             Debug.WriteLine(item.Path);
         }
+
+        await Task.Run(() => MediaService.AddMediaAsync(items.Select(i => i.Path)));
         Debug.WriteLine(DateTime.Now - time);
     }
 
