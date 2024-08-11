@@ -270,16 +270,19 @@ public partial class TitleBarViewModel : ObservableObject
         {
             var text = Marshal.PtrToStringUni(mif.dwTypeData);
 
-            TrayIconService.ODM_DATA odmd = new()
+            if (text != null)
             {
-                text = text,
-                hBitmap = mif.hbmpItem,
-                hasIcon = true
-            };
-            var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
-            Marshal.StructureToPtr(odmd, pODMD, false);
+                TrayIconService.ODM_DATA odmd = new()
+                {
+                    text = text,
+                    hBitmap = mif.hbmpItem,
+                    hasIcon = true
+                };
+                var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
+                Marshal.StructureToPtr(odmd, pODMD, false);
 
-            ModifyMenu(hMenu, item, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW, item, pODMD);
+                ModifyMenu(hMenu, item, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW, item, pODMD);
+            }
         }
         else
         {

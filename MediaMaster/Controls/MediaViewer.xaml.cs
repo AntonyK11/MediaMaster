@@ -39,18 +39,28 @@ public sealed partial class MediaViewer : UserControl
             //Visibility = value != null ? Visibility.Visible : Visibility.Collapsed;
 
             ICollection<Media> updatedMedias = value;
-            if (ForceUpdate && value.Count != 0)
+            if (value.Count != 0)
             {
-                updatedMedias = [];
-                using (var database = new MediaDbContext())
+                ArchiveToggleButton.IsEnabled = true;
+                FavoriteToggleButton.IsEnabled = true;
+                if (ForceUpdate)
                 {
-                    var mediaIds = value.Select(m => m.MediaId).ToHashSet();
-                    var foundMedias = database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToList();
-                    foreach (var foundMedia in foundMedias)
+                    updatedMedias = [];
+                    using (var database = new MediaDbContext())
                     {
-                        updatedMedias.Add(foundMedia);
+                        var mediaIds = value.Select(m => m.MediaId).ToHashSet();
+                        var foundMedias = database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToList();
+                        foreach (var foundMedia in foundMedias)
+                        {
+                            updatedMedias.Add(foundMedia);
+                        }
                     }
                 }
+            }
+            else
+            {
+                ArchiveToggleButton.IsEnabled = false;
+                FavoriteToggleButton.IsEnabled = false;
             }
             SetValue(MediasProperty, updatedMedias);
             _mediaInfoService.SetMedia(updatedMedias, IsCompact);

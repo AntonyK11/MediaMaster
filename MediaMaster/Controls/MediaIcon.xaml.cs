@@ -1,3 +1,5 @@
+using CommunityToolkit.WinUI;
+using MediaMaster.Extensions;
 using Microsoft.UI.Xaml;
 using MediaMaster.Services;
 using Microsoft.UI.Input;
@@ -35,6 +37,32 @@ public sealed partial class MediaIcon
             _task.SetResult(0);
             _task = new TaskCompletionSource<int>();
             SetIconAsync();
+
+            OpenFileFlyout.Visibility = Visibility.Collapsed;
+            OpenFolderFlyout.Visibility = Visibility.Collapsed;
+            OpenWebPageFlyout.Visibility = Visibility.Collapsed;
+
+            if (Uris.Count != 0)
+            {
+                if (ContextMenu)
+                {
+                    VisualStateManager.GoToState(this, "ShowFlyout", true);
+                }
+
+                if (Uris.First().IsWebsite())
+                {
+                    OpenWebPageFlyout.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    OpenFileFlyout.Visibility = Visibility.Visible;
+                    OpenFolderFlyout.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                VisualStateManager.GoToState(this, "HideFlyout", true);
+            }
         }
     }
 
@@ -80,7 +108,19 @@ public sealed partial class MediaIcon
     public bool ContextMenu
     {
         get => (bool)GetValue(ContextMenuProperty);
-        set => SetValue(ContextMenuProperty, value);
+        set
+        {
+            SetValue(ContextMenuProperty, value);
+
+            if (value)
+            {
+                VisualStateManager.GoToState(this, "ShowFlyout", true);
+            }
+            else
+            {
+                VisualStateManager.GoToState(this, "HideFlyout", true);
+            }
+        }
     }
 
     public static readonly DependencyProperty CanOpenProperty
@@ -96,14 +136,7 @@ public sealed partial class MediaIcon
         set
         {
             SetValue(CanOpenProperty, value);
-            if (value)
-            {
-                ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
-            }
-            else
-            {
-                ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
-            }
+            ProtectedCursor = InputSystemCursor.Create(value ? InputSystemCursorShape.Hand : InputSystemCursorShape.Arrow);
         }
     }
 
@@ -195,7 +228,7 @@ public sealed partial class MediaIcon
         {
             ProcessStartInfo startInfo = new()
             {
-                Arguments = $"/select, \"{Uris}\"",
+                Arguments = $"/select, \"{Uris.First()}\"",
                 FileName = "explorer.exe"
             };
 
@@ -207,11 +240,18 @@ public sealed partial class MediaIcon
     {
         if (Uris.Count != 1)
         {
-            Image.Source = IconService.DefaultIcon;
+            Image.Source = IconService.GetDefaultIcon(null);
             return;
         }
 
         var uri = Uris.First();
+
+        var icon = await IconService.GetIconAsync(uri, ImageMode | ImageMode.CacheOnly, (int)ActualWidth, (int)ActualHeight);
+        if (icon != null)
+        {
+            _ = App.DispatcherQueue.EnqueueAsync(() => Image.Source = icon);
+            return;
+        }
 
         if (Image.Source != null)
         {
@@ -227,17 +267,18 @@ public sealed partial class MediaIcon
 
         if (uri == Uris.First())
         {
-            SetIcon();
-        }
-    }
+            if (_tokenSource is { IsDisposed: false })
+            {
+                try
+                {
+                    await _tokenSource.CancelAsync();
+                }
+                catch (ObjectDisposedException) { }
+            }
 
-    private void SetIcon()
-    {
-        if (_tokenSource is { IsDisposed: false })
-        {
-            _tokenSource?.Cancel();
-        }
+            _tokenSource = new MyCancellationTokenSource();
 
-        _tokenSource = IconService.AddImage(Uris.First(), ImageMode, (int)ActualWidth, (int)ActualHeight, Image);
+            IconService.SetIcon(Uris.First(), ImageMode, (int)ActualWidth, (int)ActualHeight, Image, _tokenSource);
+        }
     }
 }

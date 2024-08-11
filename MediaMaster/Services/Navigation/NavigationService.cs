@@ -62,7 +62,7 @@ public abstract class NavigationService(IPageService pageService) : INavigationS
         var vmBeforeNavigation = _frame.GetPageViewModel();
         var navigated = _frame.Navigate(pageType, parameter);
 
-        if (!navigated) return navigated;
+        if (!navigated) return false;
 
         _lastParameterUsed = parameter;
         if (vmBeforeNavigation is INavigationAware navigationAware)
@@ -70,7 +70,7 @@ public abstract class NavigationService(IPageService pageService) : INavigationS
             navigationAware.OnNavigatedFrom();
         }
 
-        return navigated;
+        return true;
 
     }
 

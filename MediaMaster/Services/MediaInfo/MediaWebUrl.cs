@@ -22,7 +22,7 @@ public class MediaWebUrl(StackPanel parent) : MediaInfoTextBlockBase(parent)
 
     public override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count == 0 || !(IsCompact || medias.Count != 1 || !medias.First().Uri.IsWebsite());
+        return medias.Count != 0 && !(IsCompact || medias.Count != 1 || !medias.First().Uri.IsWebsite());
     }
 
     public override void MediaChanged(object? sender, MediaChangeArgs args)

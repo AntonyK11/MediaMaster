@@ -179,4 +179,10 @@ public static partial class WindowsApiService
     [LibraryImport("USER32.dll", EntryPoint = "SetMenuItemInfoW", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool SetMenuItemInfo(IntPtr hmenu, uint item, [MarshalAs(UnmanagedType.Bool)] bool fByPositon, in MENUITEMINFOW lpmii);
+
+    [LibraryImport("OLE32.dll")]
+    internal static partial HResult OleInitialize();
+
+    [LibraryImport("OLE32.dll")]
+    internal static partial void OleUninitialize();
 }

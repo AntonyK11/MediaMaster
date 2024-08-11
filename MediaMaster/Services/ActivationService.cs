@@ -160,7 +160,7 @@ public class ActivationService : IActivationService
                 DateTime time = DateTime.Now;
                 Debug.WriteLine("Adding files");
                 var files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
-                await MediaService.AddMediaAsync(files);
+                await Task.Run(() => MediaService.AddMediaAsync(files));
                 Debug.WriteLine(filesValue);
                 Debug.WriteLine(DateTime.Now - time);
             }

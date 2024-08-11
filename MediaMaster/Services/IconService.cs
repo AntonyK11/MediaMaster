@@ -1,84 +1,168 @@
-﻿using System.Net.Cache;
+﻿using System.Collections.Concurrent;
+using System.Net.Cache;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices;
 using CommunityToolkit.WinUI;
 using static MediaMaster.Services.WindowsNativeValues;
 using static MediaMaster.Services.WindowsApiService;
 using static MediaMaster.Services.WindowsNativeInterfaces;
-using Microsoft.UI.Xaml.Media;
 using System.Runtime.InteropServices.WindowsRuntime;
 using FaviconFetcher;
 using MediaMaster.Extensions;
+using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services;
 
-public enum ImageMode
+[Flags]
+public enum ImageMode : uint
 {
-    IconOnly,
-    IconAndThumbnail,
-    ThumbnailOnly
+    IconOnly = 0x1,
+    IconAndThumbnail = 0x2,
+    ThumbnailOnly = 0x4,
+    CacheOnly = 0x08
 }
 
-public class MyCancellationTokenSource : CancellationTokenSource
+public partial class MyCancellationTokenSource : CancellationTokenSource
 {
     public bool IsDisposed { get; private set; }
     protected override void Dispose(bool disposing)
     {
+        IsDisposed = true;
         base.Dispose(disposing);
+    }
+
+    ~MyCancellationTokenSource()
+    {
         IsDisposed = true;
     }
 }
 
+public readonly struct CachedIcon
+{
+    public BitmapSource Icon { get; init; }
+    public int RequestedWidth { get; init; }
+    public int RequestedHeight { get; init; }
+}
+
 public static class IconService
 {
-    public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
+    public static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
     public static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
+    public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/SplashScreen.scale-200.png"));
+
+    public static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> ThumbnailCache = [];
+    public static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> IconCache = [];
 
 
-    public static MyCancellationTokenSource? AddImage(string? path, ImageMode imageMode, int width, int height, Microsoft.UI.Xaml.Controls.Image image)
+    public static void ClearCache()
+    {
+        ThumbnailCache.Clear();
+        IconCache.Clear();
+    }
+
+    public static async Task<BitmapSource?> GetIcon(string? path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
     {
         if (path == null) return null;
 
-        var tokenSource = new MyCancellationTokenSource();
-        STATask.StartSTATask(() => AddImageAsync(path, imageMode, width, height, tokenSource, image));
-        return tokenSource;
+        return await STATask.StartSTATask(async () =>
+        {
+            using (cts)
+            {
+                var icon = await GetIconAsync(path, imageMode, width, height, cts);
+                return icon == null && !imageMode.HasFlag(ImageMode.CacheOnly) ? GetDefaultIcon(path) : icon;
+            }
+        });
     }
 
-    private static async Task AddImageAsync(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource cts, Microsoft.UI.Xaml.Controls.Image image)
+    public static async void SetIcon(string? path, ImageMode imageMode, int width, int height, Image image, MyCancellationTokenSource cts)
     {
+        if (path == null) return;
         using (cts)
         {
-            if (cts.Token.IsCancellationRequested) return;
-
-            if (path.IsWebsite())
+            if (imageMode.HasFlag(ImageMode.IconAndThumbnail))
             {
-                if (imageMode != ImageMode.ThumbnailOnly)
+                await STATask.StartSTATask(async () =>
                 {
-                    await App.DispatcherQueue.EnqueueAsync(() => image.Source = WebsiteIcon);
-                }
+                    var icon = await GetIconAsync(path, ImageMode.IconOnly, width, height, cts);
 
-                await SetWebsiteIcon(path, width, height, cts, image);
-
+                    if (cts.IsDisposed || cts.IsCancellationRequested) return;
+                    await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon);
+                });
             }
-            else if (File.Exists(path))
+
+            await STATask.StartSTATask(async () =>
             {
-                if (imageMode == ImageMode.IconAndThumbnail)
+                var icon = await GetIconAsync(path, imageMode, width, height, cts);
+
+                if (cts.IsDisposed || cts.IsCancellationRequested) return;
+                await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon);
+            });
+        }
+    }
+
+    public static BitmapSource GetDefaultIcon(string? path)
+    {
+        if (path?.IsWebsite() is true)
+        {
+            return WebsiteIcon;
+        }
+
+        if (File.Exists(path))
+        {
+            return FileIcon;
+        }
+
+        return DefaultIcon;
+        
+    }
+
+    public static async Task<BitmapSource?> GetIconAsync(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
+    {
+        if (cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested)) return null;
+        ICollection<CachedIcon>? cachedIconCollection;
+        if (imageMode.HasFlag(ImageMode.IconOnly))
+        {
+            IconCache.TryGetValue(path, out cachedIconCollection);
+        }
+        else
+        {
+            ThumbnailCache.TryGetValue(path, out cachedIconCollection);
+        }
+
+        if (cachedIconCollection != null)
+        {
+            foreach (var cachedIcon in cachedIconCollection)
+            {
+                if (width < height)
                 {
-                    await Task.WhenAll(
-                        SetFileIcon(path, ImageMode.IconOnly, width, height, cts, image),
-                        SetFileIcon(path, ImageMode.IconAndThumbnail, width, height, cts, image)
-                        );
+                    if (width == cachedIcon.RequestedWidth)
+                    {
+                        return cachedIcon.Icon;
+                    }
                 }
                 else
                 {
-                    await SetFileIcon(path, imageMode, width, height, cts, image);
+                    if (height == cachedIcon.RequestedHeight)
+                    {
+                        return cachedIcon.Icon;
+                    }
                 }
             }
-            else
-            {
-                await App.DispatcherQueue.EnqueueAsync(() => image.Source = DefaultIcon);
-            }
         }
+
+        if (imageMode.HasFlag(ImageMode.CacheOnly)) return null;
+
+        if (path.IsWebsite())
+        {
+            return await SetWebsiteIcon(path, width, height, cts);
+        }
+
+        if (File.Exists(path))
+        {
+            return await SetFileIcon(path, imageMode, width, height, cts);
+        }
+
+        return null;
     }
 
     private static readonly HttpSource Source = new()
@@ -87,10 +171,8 @@ public static class IconService
     };
     private static Fetcher? _fetcher;
 
-    private static async Task SetWebsiteIcon(string path, int width, int height, MyCancellationTokenSource cts, Microsoft.UI.Xaml.Controls.Image image)
+    private static async Task<BitmapSource?> SetWebsiteIcon(string path, int width, int height, MyCancellationTokenSource? cts = null)
     {
-        if (cts.Token.IsCancellationRequested) return;
-
         Uri url = new(path);
         IconImage? icon = null;
         FetchOptions options = new()
@@ -106,9 +188,9 @@ public static class IconService
         {
             // ignore all exceptions
         }
-        if (icon == null || cts.Token.IsCancellationRequested) return;
+        if (icon == null || (cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested))) return null;
 
-        ImageSource? source = null;
+        BitmapSource? source = null;
         if (icon.Size.Width != 0 && icon.Size.Height != 0)
         {
             await App.DispatcherQueue.EnqueueAsync(async () =>
@@ -124,38 +206,61 @@ public static class IconService
             });
         }
 
-        if (!cts.Token.IsCancellationRequested && source != null)
+        if ((cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested)) || source == null)
         {
-            await App.DispatcherQueue.EnqueueAsync(() => image.Source = source);
+            return null;
         }
-        
+
+        if (!ThumbnailCache.TryGetValue(path, out var cachedIconCollection))
+        {
+            cachedIconCollection = [];
+            ThumbnailCache[path] = cachedIconCollection;
+        }
+        cachedIconCollection.Add(new CachedIcon { Icon = source, RequestedWidth = width, RequestedHeight = height });
+        return source;
     }
 
-    private static async Task SetFileIcon(string path, ImageMode imageMode, int width, int height, CancellationTokenSource cts, Microsoft.UI.Xaml.Controls.Image image)
+    private static async Task<BitmapSource?> SetFileIcon(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
     {
-        if (cts.Token.IsCancellationRequested) return;
+        SIIGBF options = 0;
 
-        SIIGBF options = SIIGBF.BiggerSizeOk;
 
-        switch (imageMode)
+        if (imageMode.HasFlag(ImageMode.IconOnly))
         {
-            case ImageMode.IconOnly:
-                options |= SIIGBF.IconOnly;
-                break;
+            options |= SIIGBF.IconOnly;
         }
-        
-        ImageSource? icon = await GetThumbnail(path, width, height, options);
 
-        if (cts.Token.IsCancellationRequested) return;
+        BitmapSource? icon = await GetThumbnail(path, width, height, options);
 
-        if (icon != null)
+        if ((cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested)) || icon == null)
         {
-            await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon);
+            return null;
         }
+
+        if (imageMode.HasFlag(ImageMode.IconOnly))
+        {
+            if (!IconCache.TryGetValue(path, out var cachedIconCollection))
+            {
+                cachedIconCollection = [];
+                IconCache[path] = cachedIconCollection;
+            }
+            cachedIconCollection.Add(new CachedIcon { Icon = icon, RequestedWidth = width, RequestedHeight = height });
+        }
+        else
+        {
+            if (!ThumbnailCache.TryGetValue(path, out var cachedIconCollection))
+            {
+                cachedIconCollection = [];
+                ThumbnailCache[path] = cachedIconCollection;
+            }
+            cachedIconCollection.Add(new CachedIcon { Icon = icon, RequestedWidth = width, RequestedHeight = height });
+        }
+
+        return icon;
     }
 
     // https://github.com/rlv-dan/ShellThumbs/blob/master/ShellThumbs.cs#L64-L104
-    public static async Task<ImageSource?> GetThumbnail(string fileName, int width, int height, SIIGBF options)
+    public static async Task<BitmapSource?> GetThumbnail(string fileName, int width, int height, SIIGBF options)
     {
         var hBitmap = GetHBitmap(fileName, width, height, options);
         if (hBitmap != IntPtr.Zero)
@@ -177,7 +282,7 @@ public static class IconService
         {
             Size nativeSize = new(width, height);
 
-            HResult hr = (nativeShellItem as IShellItemImageFactory).GetImage(nativeSize, options, out var hBitmap);
+            HResult hr = ((IShellItemImageFactory)nativeShellItem).GetImage(nativeSize, options, out var hBitmap);
             if (hr == HResult.Ok)
             {
                 return hBitmap;

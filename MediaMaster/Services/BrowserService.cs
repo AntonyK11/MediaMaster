@@ -12,19 +12,19 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace MediaMaster.Services;
 
-public class BrowserData
+public struct BrowserData
 {
-    public required string Name { get; set; }
-    public required string Icon { get; set; }
-    public required string ProfilesDirectory { get; set; }
-    public required string ProcessName { get; set; }
+    public string Name { get; set; }
+    public string Icon { get; set; }
+    public string ProfilesDirectory { get; set; }
+    public string ProcessName { get; set; }
     public string? PackageId { get; set; }
-    public required bool IsOnlyPackaged { get; set; }
-    public required string BookmarkFormat { get; set; }
-    public required bool IsInLocalAppData { get; set; }
-    public required bool HasProfiles { get; set; }
+    public bool IsOnlyPackaged { get; set; }
+    public string BookmarkFormat { get; set; }
+    public bool IsInLocalAppData { get; set; }
+    public bool HasProfiles { get; set; }
 
-    public required string TabEndingString { get; set; }
+    public string TabEndingString { get; set; }
 }
 
 public partial class BrowserTab : ObservableObject
@@ -83,7 +83,7 @@ public class BrowserService
             {
                 try
                 {
-                    tab = await ProcessBrowserInstances(browserData, false);
+                    tab = await ProcessBrowserInstances((BrowserData)browserData, false);
                 }
                 catch (Exception)
                 {

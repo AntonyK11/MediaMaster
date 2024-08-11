@@ -19,7 +19,7 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
     public override void UpdateControl()
     {
         if (TagView == null) return;
-        TagView.MediaIds = Medias.Select(m => m.MediaId).ToList();
+        TagView.MediaIds = Medias.Select(m => m.MediaId).ToHashSet();
         TagView.AddTagButton = !IsCompact;
         if (IsCompact)
         {
@@ -105,7 +105,7 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
 
     public override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count == 0 || !IsCompact;
+        return medias.Count != 0 && !IsCompact;
     }
 
     public override void Show()

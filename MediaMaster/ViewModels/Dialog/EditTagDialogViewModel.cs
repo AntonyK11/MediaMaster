@@ -1,8 +1,8 @@
 ﻿using Windows.UI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MediaMaster.DataBase.Models;
-using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
+using ColorHelper = Microsoft.UI.ColorHelper;
 
 namespace MediaMaster.ViewModels.Dialog;
 

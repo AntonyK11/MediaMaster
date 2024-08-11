@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
@@ -6,10 +7,10 @@ using MediaMaster.ViewModels;
 using MediaMaster.Views;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using H.NotifyIcon;
 using Windows.Storage;
 using System.Text.Json;
 using MediaMaster.Services.Navigation;
+using Microsoft.UI.Xaml.Controls;
 
 
 namespace MediaMaster;
@@ -37,10 +38,11 @@ public partial class App : Application
 
     public static FlyoutWindow? Flyout;
 
-    public static TaskbarIcon? TrayIcon;
-
     public static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
+    // Used to support dynamic language for trimming
+    [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(ContentDialog))]
+    [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(MenuFlyoutItem))]
     public App()
     {
         InitializeComponent();
@@ -55,7 +57,7 @@ public partial class App : Application
                 services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
                 services.AddSingleton<ITranslationService, TranslationService>();
                 services.AddSingleton<SettingsService>();
-                services.AddTransient<MainNavigationViewService>();
+                services.AddSingleton<MainNavigationViewService>();
 
                 services.AddSingleton<IActivationService, ActivationService>();
                 services.AddSingleton<IPageService, PageService>();
@@ -68,7 +70,7 @@ public partial class App : Application
                 // Views and ViewModels
                 services.AddSingleton<ShellViewModel>();
                 services.AddSingleton<ShellPage>();
-                services.AddSingleton<HomePage>();
+                services.AddTransient<HomePage>();
                 services.AddSingleton<CategoriesPage>();
                 services.AddSingleton<CategoriesViewModel>();
                 services.AddTransient<SettingsViewModel>();
@@ -105,11 +107,11 @@ public partial class App : Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        // TODO: Remove
-        if (await WinUI3XamlPreview.Preview.IsXamlPreviewLaunched())
-        {
-            return;
-        }
+        //// TODO: Remove
+        //if (await WinUI3XamlPreview.Preview.IsXamlPreviewLaunched())
+        //{
+        //    return;
+        //}
         base.OnLaunched(args);
 
         await GetService<IActivationService>().ActivateAsync();
@@ -122,7 +124,6 @@ public partial class App : Application
 
     public static void Shutdown()
     {
-        FlyoutService.Dispose();
         ((App)Current).Exit();
         Environment.Exit(0);
     }

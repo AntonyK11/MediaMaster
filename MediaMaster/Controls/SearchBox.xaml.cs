@@ -105,7 +105,7 @@ public class ViewModel : IIncrementalSource<Tag>
 
 }
 
-public class CustomButton : Button
+public partial class CustomButton : Button
 {
     public CustomButton()
     {

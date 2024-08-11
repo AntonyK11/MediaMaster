@@ -25,27 +25,11 @@
             IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
 
-            <NavigationView.AutoSuggestBox>
-                <AutoSuggestBox x:Name="search" QueryIcon="Find" />
-            </NavigationView.AutoSuggestBox>
-
             <NavigationView.MenuItems>
                 <NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.HomePage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
                     <NavigationViewItem.Icon>
                         <SymbolIcon Symbol="Home" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem
-                            Content="Create new"
-                            Icon="NewFolder"
-                            Tag="SamplePage5"
-                            ToolTipService.ToolTip="Create new" />
-                        <NavigationViewItem
-                            Content="Upload file"
-                            Icon="OpenLocal"
-                            Tag="SamplePage6"
-                            ToolTipService.ToolTip="Upload file" />
-                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.CategoriesPage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
                     <NavigationViewItem.Icon>

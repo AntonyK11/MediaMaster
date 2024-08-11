@@ -19,7 +19,7 @@ public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
 
     public override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count == 0 || !(IsCompact || GetDuration(medias).IsNullOrEmpty());
+        return medias.Count != 0 && !(IsCompact || GetDuration(medias).IsNullOrEmpty());
     }
 
     public string GetDuration(ICollection<Media> medias)

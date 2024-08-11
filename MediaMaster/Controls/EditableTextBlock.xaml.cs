@@ -275,7 +275,7 @@ public sealed partial class EditableTextBlock : UserControl
     }
 }
 
-public class ConfirmButton : Button
+public partial class ConfirmButton : Button
 {
     public ConfirmButton()
     {

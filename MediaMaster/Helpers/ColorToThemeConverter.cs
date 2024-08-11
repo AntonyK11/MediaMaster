@@ -9,7 +9,7 @@ namespace MediaMaster.Helpers;
 /// <summary>
 ///     Converts a <see cref="Color" /> value to a <see cref="ElementTheme" /> value.
 /// </summary>
-public sealed class ColorToThemeConverter : IValueConverter
+public sealed partial class ColorToThemeConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 

@@ -16,7 +16,6 @@
                 <ResourceDictionary Source="/Styles/Thickness.xaml" />
                 <ResourceDictionary Source="/Styles/TextBlock.xaml" />
                 <ResourceDictionary Source="/Styles/Spacing.xaml" />
-                <ResourceDictionary Source="/Views/TrayIconResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
@@ -44,6 +43,8 @@
 
             <helpers:MediasToPathsConverter x:Key="MediasToPathsConverter" />
             <helpers:UriToListOfStringConverter x:Key="UriToListOfStringConverter" />
+            <helpers:GetTopCornerRadiusConverter x:Key="GetTopCornerRadiusConverter" />
+
             <!--  Other app resources here  -->
         </ResourceDictionary>
     </Application.Resources>

@@ -1,4 +1,5 @@
-﻿using EFCore.BulkExtensions;
+﻿using CommunityToolkit.WinUI;
+using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -137,17 +138,19 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
         InvokeMediaChange();
     }
 
-    private void SetMediaExtensionIcon(Media media)
+    private async void SetMediaExtensionIcon(Media media)
     {
         if (MediaExtensionIcon != null)
         {
             if (_tokenSource is { IsDisposed: false })
             {
-                _tokenSource?.Cancel();
+                await _tokenSource.CancelAsync();
             }
+            _tokenSource = new MyCancellationTokenSource();
 
             MediaExtensionIcon.Source = null;
-            _tokenSource = IconService.AddImage(media.Uri, ImageMode.IconOnly, 24, 24, MediaExtensionIcon);
+            var icon = await IconService.GetIcon(media.Uri, ImageMode.IconOnly, 24, 24, _tokenSource);
+            _ = App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon);
         }
     }
 

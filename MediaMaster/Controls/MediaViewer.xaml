@@ -217,12 +217,20 @@
         </ControlTemplate>
     </UserControl.Resources>
 
-    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="{x:Bind CornerRadius, Mode=OneWay}">
+    <Grid
+        Background="{ThemeResource LayerFillColorDefaultBrush}"
+        BackgroundSizing="OuterBorderEdge"
+        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        BorderThickness="1"
+        CornerRadius="{x:Bind CornerRadius, Mode=OneWay}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="{ThemeResource LayerOnMicaBaseAltFillColorTertiary}">
+        <Grid
+            Grid.Row="0"
+            Background="{ThemeResource LayerOnMicaBaseAltFillColorTertiary}"
+            CornerRadius="{x:Bind CornerRadius, Mode=OneWay, Converter={StaticResource GetTopCornerRadiusConverter}}">
 
             <Border Margin="4" winUi:UIElementExtensions.ClipToBounds="True">
                 <Image
@@ -231,7 +239,11 @@
                     winUi:VisualExtensions.Scale="2.5"
                     Source="{x:Bind MediaIcon.IconImage.Source, Mode=OneWay}" />
             </Border>
-            <Border Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}" Visibility="{x:Bind MediaIcon.IconImage.Source, Mode=OneWay, Converter={StaticResource NullToVisibilityConverterInverted}}" />
+
+            <Border
+                Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+                CornerRadius="{x:Bind CornerRadius, Mode=OneWay, Converter={StaticResource GetTopCornerRadiusConverter}}"
+                Visibility="{x:Bind MediaIcon.IconImage.Source, Mode=OneWay, Converter={StaticResource NullToVisibilityConverterInverted}}" />
 
             <local:MediaIcon
                 x:Name="MediaIcon"

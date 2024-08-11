@@ -15,7 +15,7 @@ public partial class SettingsViewModel : ObservableObject
 
     public readonly ICommand SwitchThemeCommand;
 
-    [ObservableProperty] private List<LanguageItem> _availableLanguages;
+    [ObservableProperty] private ICollection<LanguageItem> _availableLanguages;
 
     [ObservableProperty] private bool _canOpenOnWindowsStartup;
 
@@ -42,14 +42,13 @@ public partial class SettingsViewModel : ObservableObject
 
         var currentLanguage = _translationService.GetCurrentLanguage();
 
-        SelectedLanguage = new LanguageItem(currentLanguage,
-            $"{nameof(MainWindow)}_{currentLanguage}");
+        SelectedLanguage = new LanguageItem(currentLanguage, $"{nameof(MainWindow)}_{currentLanguage}");
 
         SwitchThemeCommand = new RelayCommand<ElementTheme>(
-            async param =>
+            param =>
             {
-                await themeSelectorService.SetThemeAsync(param);
                 ElementTheme = themeSelectorService.Theme;
+                themeSelectorService.SetThemeAsync(param);
             });
 
         _ = DetectOpenFilesAtStartupAsync();
@@ -58,16 +57,14 @@ public partial class SettingsViewModel : ObservableObject
     private static string GetVersionDescription()
     {
         PackageVersion packageVersion = Package.Current.Id.Version;
-        Version version = new(packageVersion.Major, packageVersion.Minor, packageVersion.Build,
-            packageVersion.Revision);
+        Version version = new(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
 
-        return
-            $"{"AppDisplayName".GetLocalizedString()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision} {AppDomain.CurrentDomain.BaseDirectory}";
+        return $"{"AppDisplayName".GetLocalizedString()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision} {AppDomain.CurrentDomain.BaseDirectory}";
     }
 
     public async void SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems.FirstOrDefault() is not LanguageItem languageItem)
+        if (e.AddedItems.FirstOrDefault() is not LanguageItem languageItem || _translationService.GetCurrentLanguage() == languageItem.Language)
         {
             return;
         }

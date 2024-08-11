@@ -22,7 +22,7 @@ public sealed partial class SettingsPage
     private void AdjustComboBoxWidth()
     {
         var maxWidth = ViewModel.AvailableLanguages
-            .Select(x => x.UidKey.GetLocalizedString())
+            .Select(l => l.UidKey.GetLocalizedString())
             .Max(item =>
             {
                 TextBlock textBlock = new TextBlock

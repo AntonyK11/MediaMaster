@@ -6,7 +6,7 @@ namespace MediaMaster.Helpers;
 /// <summary>
 ///     Converts a null value to a <see cref="bool" /> value.
 /// </summary>
-public sealed class NullToBooleanConverter : IValueConverter
+public sealed partial class NullToBooleanConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 

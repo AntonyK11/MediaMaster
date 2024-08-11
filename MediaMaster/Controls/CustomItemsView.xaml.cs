@@ -32,7 +32,7 @@ public class ItemsComparer : IComparer
     }
 }
 
-internal class ItemTemplateSelector : DataTemplateSelector
+internal partial class ItemTemplateSelector : DataTemplateSelector
 {
     public DataTemplate ItemTemplate { get; set; } = null!;
     public DataTemplate AddItemTemplate { get; set; } = null!;

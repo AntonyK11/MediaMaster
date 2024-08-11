@@ -7,7 +7,7 @@ namespace MediaMaster.Helpers;
 /// <summary>
 ///     Converts a <see cref="TagPermissions" /> value to a <see cref="Visibility" /> value.
 /// </summary>
-public sealed class TagPermissionsToVisibilityConverter : IValueConverter
+public sealed partial class TagPermissionsToVisibilityConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 

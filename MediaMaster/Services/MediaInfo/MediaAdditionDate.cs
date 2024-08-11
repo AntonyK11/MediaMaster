@@ -16,7 +16,7 @@ public class MediaAdditionDate(StackPanel parent) : MediaInfoTextBase(parent)
 
     public override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count == 0 || !(IsCompact || GetDate(medias).IsNullOrEmpty());
+        return medias.Count != 0 && !(IsCompact || GetDate(medias).IsNullOrEmpty());
     }
 
     public static string GetDate(ICollection<Media> medias)

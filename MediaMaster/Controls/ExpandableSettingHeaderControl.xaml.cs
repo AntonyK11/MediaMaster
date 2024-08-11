@@ -17,7 +17,7 @@ public sealed partial class ExpandableSettingHeaderControl
             nameof(Title),
             typeof(string),
             typeof(ExpandableSettingHeaderControl),
-            new(
+            new PropertyMetadata(
                 string.Empty,
                 (d, e) => { AutomationProperties.SetName(d, (string)e.NewValue); }));
 
@@ -33,7 +33,7 @@ public sealed partial class ExpandableSettingHeaderControl
             nameof(Description),
             typeof(string),
             typeof(ExpandableSettingHeaderControl),
-            new(
+            new PropertyMetadata(
                 string.Empty,
                 (d, e) => { AutomationProperties.SetHelpText(d, (string)e.NewValue); }));
 
@@ -48,7 +48,7 @@ public sealed partial class ExpandableSettingHeaderControl
             nameof(Icon),
             typeof(IconElement),
             typeof(ExpandableSettingHeaderControl),
-            new(null));
+            new PropertyMetadata(null));
 
     public IconElement Icon
     {

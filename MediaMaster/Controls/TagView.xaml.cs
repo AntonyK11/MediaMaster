@@ -69,15 +69,15 @@ public sealed partial class TagView : UserControl
     public static readonly DependencyProperty MediaIdProperty
         = DependencyProperty.Register(
             nameof(MediaIds),
-            typeof(ICollection<int>),
+            typeof(HashSet<int>),
             typeof(TagView),
             new PropertyMetadata(null));
 
-    public ICollection<int> MediaIds
+    public HashSet<int> MediaIds
     {
         get
         {
-            var mediaIds = (ICollection<int>?)GetValue(MediaIdProperty);
+            var mediaIds = (HashSet<int>?)GetValue(MediaIdProperty);
             if (mediaIds == null)
             {
                 mediaIds = [];

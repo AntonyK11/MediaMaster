@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Controls;
 
-internal class CustomItemContainer : ItemContainer
+internal partial class CustomItemContainer : ItemContainer
 {
     public static readonly DependencyProperty DeleteButtonVisibilityProperty
         = DependencyProperty.Register(

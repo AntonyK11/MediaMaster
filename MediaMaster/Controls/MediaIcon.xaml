@@ -11,6 +11,24 @@
         Padding="{x:Bind IconMargin, Mode=OneWay}"
         Background="Transparent"
         CornerRadius="8">
+        <Border.ContextFlyout>
+            <MenuFlyout x:Name="MenuFlyout">
+                <MenuFlyoutItem x:Name="OpenFileFlyout" Text="Open file" />
+                <MenuFlyoutItem x:Name="OpenFolderFlyout" Text="Open file in explorer" />
+                <MenuFlyoutItem x:Name="OpenWebPageFlyout" Text="Open web page" />
+            </MenuFlyout>
+        </Border.ContextFlyout>
+
+        <Border.Resources>
+
+            <Style x:Key="MenuFlyoutPresenterShowItem" TargetType="MenuFlyoutPresenter">
+                <Setter Property="Visibility" Value="Visible" />
+            </Style>
+            <Style x:Key="MenuFlyoutPresenterHideItem" TargetType="MenuFlyoutPresenter">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Style>
+
+        </Border.Resources>
         <Grid Height="{x:Bind IconHeight, Mode=OneWay}">
             <ProgressRing
                 x:Name="ProgressRing"
@@ -22,12 +40,21 @@
                 Margin="{x:Bind Padding, Mode=OneWay}"
                 Visibility="{x:Bind Image.Source, Converter={StaticResource NullToVisibilityConverterInverted}, Mode=OneWay}" />
         </Grid>
-        <Border.ContextFlyout>
-            <MenuFlyout x:Name="MenuFlyout" x:Load="{x:Bind ContextMenu, Mode=OneWay}">
-                <MenuFlyoutItem x:Name="OpenFileFlyout" Text="Open file" />
-                <MenuFlyoutItem x:Name="OpenFolderFlyout" Text="Open file in explorer" />
-                <MenuFlyoutItem x:Name="OpenWebPageFlyout" Text="Open web page" />
-            </MenuFlyout>
-        </Border.ContextFlyout>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ShowFlyoutGroup">
+                <VisualState x:Name="ShowFlyout">
+                    <VisualState.Setters>
+                        <Setter Target="MenuFlyout.MenuFlyoutPresenterStyle" Value="{ThemeResource MenuFlyoutPresenterShowItem}" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="HideFlyout">
+                    <VisualState.Setters>
+                        <Setter Target="MenuFlyout.MenuFlyoutPresenterStyle" Value="{ThemeResource MenuFlyoutPresenterHideItem}" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Border>
 </UserControl>

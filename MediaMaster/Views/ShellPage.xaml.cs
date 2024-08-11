@@ -1,7 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
 using MediaMaster.ViewModels;
-using MediaMaster.Controls;
-using Microsoft.UI.Windowing;
 
 namespace MediaMaster.Views;
 

@@ -17,7 +17,7 @@ public sealed partial class ExpandableSettingControl
             nameof(Title),
             typeof(string),
             typeof(ExpandableSettingControl),
-            new(string.Empty));
+            new PropertyMetadata(string.Empty));
 
     public string Title
     {
@@ -30,7 +30,7 @@ public sealed partial class ExpandableSettingControl
             nameof(Description),
             typeof(string),
             typeof(ExpandableSettingControl),
-            new(string.Empty));
+            new PropertyMetadata(string.Empty));
 
     public string Description
     {
@@ -43,7 +43,7 @@ public sealed partial class ExpandableSettingControl
             nameof(Icon),
             typeof(IconElement),
             typeof(ExpandableSettingControl),
-            new(null));
+            new PropertyMetadata(null));
 
     public IconElement Icon
     {
@@ -56,7 +56,7 @@ public sealed partial class ExpandableSettingControl
             nameof(ExpandableContent),
             typeof(FrameworkElement),
             typeof(ExpandableSettingControl),
-            new(null));
+            new PropertyMetadata(null));
 
     public FrameworkElement ExpandableContent
     {
@@ -69,7 +69,7 @@ public sealed partial class ExpandableSettingControl
             nameof(IsExpanded),
             typeof(bool),
             typeof(ExpandableSettingControl),
-            new(false));
+            new PropertyMetadata(false));
 
     public bool IsExpanded
     {

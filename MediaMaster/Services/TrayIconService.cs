@@ -98,7 +98,6 @@ internal class TrayIconService
 
     IntPtr hFontMenu = IntPtr.Zero;
     int m_SizeBitmap = 11;
-    int m_WidthVerticalText = 0;
 
     private IntPtr hIcon;
     WindowMessageMonitor? monitor;
@@ -285,7 +284,7 @@ internal class TrayIconService
         IntPtr hMenu = CreatePopupMenu();
 
         AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_STRING, 1, "Show window");
-        AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_SEPARATOR, 0, null);
+        AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_SEPARATOR, 0, "");
         AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_STRING, 2, "Exit");
 
         ODM_DATA odmd = new()
@@ -388,7 +387,7 @@ internal class TrayIconService
                     IntPtr hBrush;
                     IntPtr hBrushOld;
 
-                    var menu_hwnd = FindWindow("#32768", null);
+                    var menu_hwnd = FindWindow("#32768", "");
                     var preference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
                     DwmSetWindowAttribute(menu_hwnd, DwmWindowAttribute.WindowCornerPreference, ref preference, sizeof(uint));
 
@@ -591,7 +590,7 @@ internal class TrayIconService
 
         if (!sMessage.IsNullOrEmpty())
         {
-            nid.szTip = sMessage;
+            nid.szTip = sMessage!;
             nid.uFlags |= NOTIFY_ICON_DATA_FLAGS.NIF_TIP;
         }
         if (hIcon != IntPtr.Zero)
@@ -613,8 +612,8 @@ internal class TrayIconService
         }
         else
         {
-            nid.szInfo = null;
-            nid.szInfoTitle = null;
+            nid.szInfo = "";
+            nid.szInfoTitle = "";
         }
 
         //nid.cbSize = (uint)sizeof(NOTIFYICONDATAW);

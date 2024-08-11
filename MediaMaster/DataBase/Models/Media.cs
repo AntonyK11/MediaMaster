@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MediaMaster.DataBase.Models;
 
 [Index(nameof(Uri), IsUnique = true)]
+[Index(nameof(Name))]
 public class Media : IHasTimestamps
 {
     [Key]

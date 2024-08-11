@@ -147,7 +147,7 @@ public sealed partial class FlyoutWindow
     }
 }
 
-internal class ContentFrame : Frame
+internal partial class ContentFrame : Frame
 {
     public static readonly DependencyProperty PosYProperty
         = DependencyProperty.Register(

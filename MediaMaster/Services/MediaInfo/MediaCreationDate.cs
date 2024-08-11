@@ -17,7 +17,7 @@ public class MediaCreationDate(StackPanel parent) : MediaInfoTextBase(parent)
 
     public override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count == 0 || !(IsCompact || GetDate(medias).IsNullOrEmpty());
+        return medias.Count != 0 && !(IsCompact || GetDate(medias).IsNullOrEmpty());
     }
 
     public static string GetDate(ICollection<Media> medias)
@@ -25,12 +25,15 @@ public class MediaCreationDate(StackPanel parent) : MediaInfoTextBase(parent)
         if (medias.Count == 0) return "";
 
         var text = GetDate(medias.First());
+        if (text == null) return "";
 
         return medias.Any(media => GetDate(media) != text) ? "" : text;
     }
 
-    public static string GetDate(Media media)
+    public static string? GetDate(Media media)
     {
+        if (media.Uri.IsWebsite()) return null;
+
         var date = File.GetCreationTime(media.Uri);
         return $"{date.ToLongDateString()} {date.ToShortTimeString()}";
     }

@@ -10,9 +10,9 @@ namespace MediaMaster.DataBase;
 [Flags]
 public enum MediaChangeFlags
 {
-    MediaAdded = 0x00000,
-    MediaRemoved = 0x00001,
-    MediaChanged = 0x00002,
+    MediaAdded = 0x00001,
+    MediaRemoved = 0x00002,
+    MediaChanged = 0x00004,
     
     NameChanged = 0x00010,
     UriChanged = 0x00100,
@@ -29,7 +29,7 @@ public struct MediaChangeArgs(MediaChangeFlags flags, ICollection<Media> media, 
     public ICollection<Tag>? TagsRemoved = tagsRemoved;
 }
 
-public class MediaDbContext : DbContext
+public partial class MediaDbContext : DbContext
 {
     public static Tag? FileTag;
     public static Tag? WebsiteTag;
@@ -62,7 +62,7 @@ public class MediaDbContext : DbContext
 
         optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
 
-        //optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -101,7 +101,7 @@ public class MediaDbContext : DbContext
         //ChangeTracker.StateChanged += Timestamps.UpdateTimestamps;
         //ChangeTracker.Tracked += Timestamps.UpdateTimestamps;
 
-        ICollection<Tag> tags = Tags.AsNoTracking().ToList();
+        ICollection<Tag> tags = Tags.ToList();
 
         if (tags.FirstOrDefault(t => t.Name == "File") is not { } fileTag)
         {

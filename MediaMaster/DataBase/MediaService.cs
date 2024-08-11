@@ -10,7 +10,7 @@ using System.Linq;
 using HtmlAgilityPack;
 
 
-public class MediaService
+public static class MediaService
 {
     private static bool _isRunning;
 
@@ -45,13 +45,13 @@ public class MediaService
 
             await using (MediaDbContext dataBase = new())
             {
-                IDictionary<string, Tag> tags = await dataBase.Tags.AsNoTracking().Select(t => new Tag{ TagId = t.TagId, Name = t.Name }).GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
-                IDictionary<string, int> medias = await dataBase.Medias.AsNoTracking().Select(m => new { m.MediaId, FilePath = m.Uri }).ToDictionaryAsync(m => m.FilePath, m => m.MediaId);
+                var tags = await dataBase.Tags.Select(t => new Tag{ TagId = t.TagId, Name = t.Name }).GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
+                var medias = dataBase.Medias.Select(m => m.Uri).ToHashSet();
 
                 ICollection<Tag> newTags = [];
                 ICollection<Media> newMedias = [];
 
-                mediaNameUris = mediaNameUris.Where(p => !medias.ContainsKey(p.Value)).ToList();
+                mediaNameUris = mediaNameUris.Where(p => !medias.Contains(p.Value)).ToList();
 
                 foreach (var mediaNameUri in mediaNameUris)
                 {
@@ -60,7 +60,7 @@ public class MediaService
 
                 await dataBase.BulkInsertAsync(newMedias, new BulkConfig { SetOutputIdentity = true });
                 await dataBase.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
-                
+
                 var mediaTags = newMedias.SelectMany(media => media.Tags.Select(tag => new MediaTag
                 {
                     MediaId = media.MediaId,
@@ -81,7 +81,18 @@ public class MediaService
                 Debug.WriteLine($"Tags: {newTags.Count}");
                 Debug.WriteLine($"MediaTags: {mediaTags.Count}");
                 Debug.WriteLine($"MediaTags: {tagTags.Count}");
+
+                MediaDbContext.InvokeMediaChange(null, MediaChangeFlags.MediaAdded, newMedias);
+
+                tags.Clear();
+                medias.Clear();
+                newTags.Clear();
+                newMedias.Clear();
+                mediaTags.Clear();
             }
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
         catch (Exception e)
         {

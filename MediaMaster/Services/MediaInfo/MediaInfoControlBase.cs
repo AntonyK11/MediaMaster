@@ -69,7 +69,7 @@ public abstract class MediaInfoControlBase
 
     public virtual bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count == 0 || !IsCompact;
+        return medias.Count != 0 && !IsCompact;
     }
     
     public abstract void Setup();

@@ -162,7 +162,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             }
             else
             {
-                trackedTag = await dataBase.Tags.Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == CurrentTag.TagId);
+                trackedTag = await dataBase.Tags.AsTracking().Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == CurrentTag.TagId);
             }
 
             if (trackedTag != null)
