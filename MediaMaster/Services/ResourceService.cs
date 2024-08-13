@@ -26,7 +26,7 @@ public static class ResourceService
             }
 
             StorageFile resourceFile = await LoadResourcesFileFromAppResource(resourceFilePath);
-            _ = await resourceFile.CopyAsync(folder);
+            await resourceFile.CopyAsync(folder);
         }
     }
 

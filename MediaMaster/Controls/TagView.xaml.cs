@@ -88,7 +88,7 @@ public sealed partial class TagView : UserControl
         set
         {
             SetValue(MediaIdProperty, value);
-            _ = UpdateItemSource();
+            UpdateItemSource().ConfigureAwait(false);
         }
     }
 
@@ -105,7 +105,7 @@ public sealed partial class TagView : UserControl
         set
         {
             SetValue(TagIdProperty, value);
-            _ = UpdateItemSource(refreshAll: true);
+            UpdateItemSource(refreshAll: true).ConfigureAwait(false);
         }
     }
     
@@ -118,7 +118,7 @@ public sealed partial class TagView : UserControl
     {
         InitializeComponent();
         CustomItemsView.Comparer = TagsComparer.Instance;
-        _ = UpdateItemSource();
+        UpdateItemSource().ConfigureAwait(false);
 
         CustomItemsView.SelectItemsInvoked += (_, _) => TagsSelected();
         CustomItemsView.RemoveItemsInvoked += (_, tagObjectId) => TagRemoved((int)tagObjectId);

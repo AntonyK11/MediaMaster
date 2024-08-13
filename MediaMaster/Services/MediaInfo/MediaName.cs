@@ -150,7 +150,7 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
 
             MediaExtensionIcon.Source = null;
             var icon = await IconService.GetIcon(media.Uri, ImageMode.IconOnly, 24, 24, _tokenSource);
-            _ = App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon);
+            _ = App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon).ConfigureAwait(false);
         }
     }
 

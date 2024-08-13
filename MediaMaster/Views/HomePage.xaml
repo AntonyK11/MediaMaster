@@ -65,24 +65,97 @@
                 Spacing="8">
                 <TextBox />
 
-                <Grid>
+                <Grid ColumnSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
+
+                    <DropDownButton Grid.Column="1" BorderThickness="0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <IconSourceElement>
+                                <FontIconSource Glyph="&#xE8CB;" />
+                            </IconSourceElement>
+                            <TextBlock>Sort</TextBlock>
+                        </StackPanel>
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <RadioMenuFlyoutItem
+                                    Click="SortBy_MenuFlyoutItem_OnClick"
+                                    GroupName="SortByGroup"
+                                    IsChecked="True"
+                                    Tag="Name"
+                                    Text="Name" />
+                                <RadioMenuFlyoutItem
+                                    Click="SortBy_MenuFlyoutItem_OnClick"
+                                    GroupName="SortByGroup"
+                                    Tag="Modified"
+                                    Text="Date modified" />
+                                <RadioMenuFlyoutItem
+                                    Click="SortBy_MenuFlyoutItem_OnClick"
+                                    GroupName="SortByGroup"
+                                    Tag="Added"
+                                    Text="Date added" />
+                                <RadioMenuFlyoutItem
+                                    Click="SortBy_MenuFlyoutItem_OnClick"
+                                    GroupName="SortByGroup"
+                                    Tag="Archived"
+                                    Text="Archived" />
+                                <RadioMenuFlyoutItem
+                                    Click="SortBy_MenuFlyoutItem_OnClick"
+                                    GroupName="SortByGroup"
+                                    Tag="Favorite"
+                                    Text="Favorite" />
+                                <MenuFlyoutSeparator />
+                                <RadioMenuFlyoutItem
+                                    Click="SortOrder_MenuFlyoutItem_OnClick"
+                                    GroupName="SortOrderGroup"
+                                    IsChecked="True"
+                                    Tag="Ascending"
+                                    Text="Ascending" />
+                                <RadioMenuFlyoutItem
+                                    Click="SortOrder_MenuFlyoutItem_OnClick"
+                                    GroupName="SortOrderGroup"
+                                    Tag="Descending"
+                                    Text="Descending" />
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                        <!--<DropDownButton.Resources>
+                            <StaticResource x:Key="ButtonBackground" ResourceKey="SubtleFillColorTransparentBrush" />
+                            <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush" />
+                            <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="SubtleFillColorTertiaryBrush" />
+                            <StaticResource x:Key="ButtonBackgroundDisabled" ResourceKey="SubtleFillColorDisabledBrush" />
+                        </DropDownButton.Resources>-->
+                    </DropDownButton>
+
+                    <!--<ToggleButton Grid.Column="2" ToolTipService.ToolTip="Sort descending">
+                        <IconSourceElement>
+                            <FontIconSource Glyph="&#xE8CB;" />
+                        </IconSourceElement>
+                    </ToggleButton>-->
 
                     <ToggleButton
                         x:Name="MultiSelectButton"
-                        Grid.Column="1"
+                        Grid.Column="3"
+                        BorderThickness="0"
                         ToolTipService.ToolTip="Enable MultiSelect">
                         <IconSourceElement>
                             <FontIconSource Glyph="&#xE762;" />
                         </IconSourceElement>
+                        <!--<ToggleButton.Resources>
+                            <StaticResource x:Key="ToggleButtonBackground" ResourceKey="SubtleFillColorTransparentBrush" />
+                            <StaticResource x:Key="ToggleButtonBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush" />
+                            <StaticResource x:Key="ToggleButtonBackgroundPressed" ResourceKey="SubtleFillColorTertiaryBrush" />
+                            <StaticResource x:Key="ToggleButtonBackgroundDisabled" ResourceKey="SubtleFillColorDisabledBrush" />
+                        </ToggleButton.Resources>-->
                     </ToggleButton>
                 </Grid>
             </StackPanel>
 
             <customControls:MediaItemsView
+                x:Name="MediaItemsView"
                 Grid.Row="1"
                 SelectionChanged="MediaItemsView_OnSelectionChanged"
                 SelectionMode="{x:Bind MultiSelectButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToSelectionModeConverter}}" />

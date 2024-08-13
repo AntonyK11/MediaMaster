@@ -80,7 +80,7 @@
             TextTrimming="CharacterEllipsis"
             TextWrapping="NoWrap" />
 
-        <TextBlock
+        <!--<TextBlock
             x:Name="SubtitleText"
             Grid.Column="2"
             MinWidth="48"
@@ -92,7 +92,7 @@
             Style="{StaticResource CaptionTextBlockStyle}"
             Text="{x:Bind Subtitle, Mode=OneWay}"
             TextTrimming="CharacterEllipsis"
-            TextWrapping="NoWrap" />
+            TextWrapping="NoWrap" />-->
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="WindowActivationGroup">
@@ -100,7 +100,7 @@
                 <VisualState x:Name="WindowDeactivated">
                     <VisualState.Setters>
                         <Setter Target="TitleText.Foreground" Value="{ThemeResource TitleBarDeactivatedForegroundBrush}" />
-                        <Setter Target="SubtitleText.Foreground" Value="{ThemeResource SubtitleBarDeactivatedForegroundBrush}" />
+                        <!--<Setter Target="SubtitleText.Foreground" Value="{ThemeResource SubtitleBarDeactivatedForegroundBrush}" />-->
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

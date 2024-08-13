@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.UI.Xaml;
 using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml.Controls;
@@ -30,5 +31,26 @@ public sealed partial class HomePage : Page
     private void MediaItemsView_OnSelectionChanged(object sender, ICollection<Media> args)
     {
         MediaViewer.Medias = args;
+    }
+
+    private void SortBy_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        var index = (string)((FrameworkElement)sender).Tag;
+
+        KeyValuePair<bool, Expression<Func<Media, object>>> function = index switch
+        {
+            "Modified" => new (false, m => m.Modified),
+            "Added" => new(true, m => m.Added),
+            "Archived" => new(false, m => m.IsArchived),
+            "Favorite" => new(false, m => m.IsFavorite),
+            _ => new(true, m => m.Name)
+        };
+
+        MediaItemsView.SortFunction = function;
+    }
+
+    private void SortOrder_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        MediaItemsView.SortAscending = (string)((FrameworkElement)sender).Tag == "Ascending";
     }
 }

@@ -67,17 +67,13 @@ public sealed partial class TitleBarControl
         InitializeComponent();
 
         ViewModel = new TitleBarViewModel(this);
-
+         
         Loaded += (_, _) => ViewModel.SetDragRegionTitleBar();
         SizeChanged += (_, _) => ViewModel.SetDragRegionTitleBar();
         IThemeSelectorService themeSelectorService = App.GetService<IThemeSelectorService>();
 
         themeSelectorService.ThemeChanged += (_, theme) => ViewModel.UpdateTitleBar(theme);
         ViewModel.UpdateTitleBar(themeSelectorService.ActualTheme);
-
-        AppIconElement.PointerPressed += ViewModel.AppIcon_LeftClick;
-        AppIconElement.RightTapped += ViewModel.AppIcon_RightClick;
-        AppIconElement.DoubleTapped += (_, _) => App.MainWindow?.Close();
 
         if (App.MainWindow != null)
         {
@@ -88,6 +84,13 @@ public sealed partial class TitleBarControl
         }
 
         RegisterPropertyChangedCallback(TitleProperty, Callback);
+
+        Loaded += (_, _) =>
+        {
+            AppIconElement.PointerPressed += ViewModel.AppIcon_LeftClick;
+            AppIconElement.RightTapped += ViewModel.AppIcon_RightClick;
+            AppIconElement.DoubleTapped += (_, _) => App.MainWindow?.Close();
+        };
     }
 
     private void Callback(DependencyObject sender, DependencyProperty dp)

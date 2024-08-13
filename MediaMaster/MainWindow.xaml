@@ -19,20 +19,27 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Image Grid.Row="1" Height="96">
-                <Image.Source>
-                    <BitmapImage UriSource="/Assets/WindowIcon.ico" />
-                </Image.Source>
-            </Image>
+            <Image
+                Grid.Row="1"
+                Height="96"
+                Source="/Assets/WindowIcon.ico" />
 
-            <ProgressRing
+            <TextBlock
                 Grid.Row="2"
-                Width="48"
-                Height="48"
-                IsActive="True" />
+                HorizontalAlignment="Center"
+                FontSize="20"
+                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                LineHeight="32">
+                <Run FontWeight="SemiBold" Text="MediaMaster" />
+                <!--<Run FontWeight="SemiLight" Text="Beta" />-->
+            </TextBlock>
+
+            <ProgressRing Grid.Row="3" IsIndeterminate="True" />
+
         </Grid>
     </Window.Content>
 

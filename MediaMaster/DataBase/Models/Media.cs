@@ -5,6 +5,10 @@ namespace MediaMaster.DataBase.Models;
 
 [Index(nameof(Uri), IsUnique = true)]
 [Index(nameof(Name))]
+[Index(nameof(Modified))]
+[Index(nameof(Added))]
+[Index(nameof(IsArchived))]
+[Index(nameof(IsFavorite))]
 public class Media : IHasTimestamps
 {
     [Key]

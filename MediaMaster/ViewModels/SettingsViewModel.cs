@@ -51,7 +51,7 @@ public partial class SettingsViewModel : ObservableObject
                 themeSelectorService.SetThemeAsync(param);
             });
 
-        _ = DetectOpenFilesAtStartupAsync();
+        DetectOpenFilesAtStartupAsync().ConfigureAwait(false);
     }
 
     private static string GetVersionDescription()

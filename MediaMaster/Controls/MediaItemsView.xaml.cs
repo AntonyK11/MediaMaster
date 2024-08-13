@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 using System.Numerics;
 using Windows.Foundation;
 using CommunityToolkit.WinUI.Collections;
@@ -53,6 +54,40 @@ public sealed partial class MediaItemsView : UserControl
     }
 
     private int _pageSize = 250;
+    
+    /// <summary>
+    ///     The sort function for the media collection.
+    /// </summary>
+    /// <remarks>
+    ///     The key is a boolean that indicates if the collection should be sorted in ascending order.
+    ///     If the key is false the SortAscending will be inverted.
+    ///     The value is an expression that indicates the property to sort by.
+    ///  </remarks>
+    
+    // if the key is false the SortAscending will be inverted
+    private KeyValuePair<bool, Expression<Func<Media, object>>> _sortFunction = new(true, m => m.Name);
+
+    public KeyValuePair<bool, Expression<Func<Media, object>>> SortFunction
+    {
+        get => _sortFunction;
+        set
+        {
+            _sortFunction = value;
+            SetupMediaCollection().ConfigureAwait(false);
+        }
+    }
+
+    private bool _sortAscending = true;
+
+    public bool SortAscending
+    {
+        get => _sortAscending;
+        set
+        {
+            _sortAscending = value;
+            SetupMediaCollection().ConfigureAwait(false);
+        }
+    }
 
     public async void SetupMediaCollection(object sender, RoutedEventArgs routedEventArgs)
     {
@@ -83,7 +118,9 @@ public sealed partial class MediaItemsView : UserControl
                 var itemNumber = await database.Medias.CountAsync();
                 pageCount = (int)Math.Round((double)itemNumber / _pageSize, MidpointRounding.ToPositiveInfinity);
 
-                medias = await database.Medias.OrderBy(m => m.Name).Skip(currentPageIndex * _pageSize).Take(_pageSize).ToListAsync();
+                IQueryable<Media> mediaQuery = database.Medias;
+                mediaQuery = SortMedias(mediaQuery);
+                medias = await mediaQuery.Skip(currentPageIndex * _pageSize).Take(_pageSize).ToListAsync();
             }
         });
 
@@ -95,6 +132,11 @@ public sealed partial class MediaItemsView : UserControl
         {
             SetupIcons(medias);
         }
+    }
+
+    public IQueryable<Media> SortMedias(IQueryable<Media> medias)
+    {
+        return SortAscending ^ SortFunction.Key ? medias.OrderByDescending(SortFunction.Value) : medias.OrderBy(SortFunction.Value);
     }
 
     private MyCancellationTokenSource? _tokenSource;
