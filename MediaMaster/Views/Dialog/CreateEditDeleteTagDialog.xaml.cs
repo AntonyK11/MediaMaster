@@ -32,7 +32,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         }
         else if (tagParam != null)
         {
-            TagView.UpdateItemSource(tagParam.Parents).ConfigureAwait(false);
+            _ = TagView.UpdateItemSource(tagParam.Parents);
         }
 
         if (tagParam == null)

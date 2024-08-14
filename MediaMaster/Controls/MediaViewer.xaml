@@ -3,6 +3,7 @@
     x:Class="MediaMaster.Controls.MediaViewer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MediaMaster.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -324,11 +325,11 @@
         </Grid>
 
         <ScrollView x:Name="ScrollView" Grid.Row="1">
-            <StackPanel x:Name="StackPanel" Margin="16" />
+            <controls:DockPanel x:Name="DockPanel" Margin="16" />
         </ScrollView>
 
-        <StackPanel
-            x:Name="StackPanelCompact"
+        <controls:DockPanel
+            x:Name="DockPanelCompact"
             Grid.Row="1"
             Margin="16"
             Visibility="Collapsed" />

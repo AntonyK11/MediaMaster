@@ -1,4 +1,5 @@
-﻿using EFCore.BulkExtensions;
+﻿using CommunityToolkit.WinUI.Controls;
+using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -9,7 +10,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
+public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
 {
     public TagView? TagView;
     public StackPanel? StackPanel;
@@ -31,10 +32,10 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
         }
         else
         {
-            TagView.Layout = new FlowLayout
+            TagView.Layout = new WrapLayout
             {
-                MinColumnSpacing = 4,
-                MinRowSpacing = 4
+                HorizontalSpacing = 4,
+                VerticalSpacing = 4
             };
         }
 
@@ -50,6 +51,8 @@ public class MediaTags(StackPanel parent) : MediaInfoControlBase(parent)
         {
             Spacing = 10
         };
+        StackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+
         Title = GetTitle();
         TagView = new TagView
         {

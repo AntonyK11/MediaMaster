@@ -46,19 +46,16 @@ public readonly struct CachedIcon
 
 public static class IconService
 {
-    public static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
-    public static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
-    public static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
+    private static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
+    private static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
+    private static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
 
-    public static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> ThumbnailCache = [];
-    public static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> IconCache = [];
+    private static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> ThumbnailCache = [];
+    private static readonly ConcurrentQueue<string> ThumbnailCacheKeys = [];
+    private static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> IconCache = [];
+    private static readonly ConcurrentQueue<string> IconCacheKeys = [];
 
-
-    public static void ClearCache()
-    {
-        ThumbnailCache.Clear();
-        IconCache.Clear();
-    }
+    private const int CacheLength = 2001;
 
     public static async Task<BitmapSource?> GetIcon(string? path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
     {
@@ -68,7 +65,7 @@ public static class IconService
         {
             using (cts)
             {
-                var icon = await GetIconAsync(path, imageMode, width, height, cts);
+                var icon = await GetIconAsync(path, imageMode, width, height, cts).ConfigureAwait(false);
                 return icon == null && !imageMode.HasFlag(ImageMode.CacheOnly) ? GetDefaultIcon(path) : icon;
             }
         });
@@ -83,10 +80,10 @@ public static class IconService
             {
                 await STATask.StartSTATask(async () =>
                 {
-                    var icon = await GetIconAsync(path, ImageMode.IconOnly, width, height, cts);
+                    var icon = await GetIconAsync(path, ImageMode.IconOnly, width, height, cts).ConfigureAwait(false);
 
                     if (cts.IsDisposed || cts.IsCancellationRequested) return;
-                    await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon);
+                    await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon).ConfigureAwait(false);
                 });
             }
 
@@ -95,7 +92,7 @@ public static class IconService
                 var icon = await GetIconAsync(path, imageMode, width, height, cts);
 
                 if (cts.IsDisposed || cts.IsCancellationRequested) return;
-                await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon);
+                await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon).ConfigureAwait(false);
             });
         }
     }
@@ -119,14 +116,10 @@ public static class IconService
     public static async Task<BitmapSource?> GetIconAsync(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
     {
         if (cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested)) return null;
-        ICollection<CachedIcon>? cachedIconCollection;
+        ThumbnailCache.TryGetValue(path, out var cachedIconCollection);
         if (imageMode.HasFlag(ImageMode.IconOnly))
         {
             IconCache.TryGetValue(path, out cachedIconCollection);
-        }
-        else
-        {
-            ThumbnailCache.TryGetValue(path, out cachedIconCollection);
         }
 
         if (cachedIconCollection != null)
@@ -215,6 +208,12 @@ public static class IconService
         {
             cachedIconCollection = [];
             ThumbnailCache[path] = cachedIconCollection;
+            ThumbnailCacheKeys.Enqueue(path);
+
+            if (ThumbnailCache.Count > CacheLength &&  ThumbnailCacheKeys.TryDequeue(out var item))
+            {
+                ThumbnailCache.Remove(item, out _);
+            }
         }
         cachedIconCollection.Add(new CachedIcon { Icon = source, RequestedWidth = width, RequestedHeight = height });
         return source;
@@ -243,6 +242,12 @@ public static class IconService
             {
                 cachedIconCollection = [];
                 IconCache[path] = cachedIconCollection;
+                IconCacheKeys.Enqueue(path);
+
+                if (IconCache.Count > CacheLength && IconCacheKeys.TryDequeue(out var item))
+                {
+                    IconCache.Remove(item, out _);
+                }
             }
             cachedIconCollection.Add(new CachedIcon { Icon = icon, RequestedWidth = width, RequestedHeight = height });
         }
@@ -252,6 +257,12 @@ public static class IconService
             {
                 cachedIconCollection = [];
                 ThumbnailCache[path] = cachedIconCollection;
+                ThumbnailCacheKeys.Enqueue(path);
+
+                if (ThumbnailCache.Count > CacheLength && ThumbnailCacheKeys.TryDequeue(out var item))
+                {
+                    ThumbnailCache.Remove(item, out _);
+                }
             }
             cachedIconCollection.Add(new CachedIcon { Icon = icon, RequestedWidth = width, RequestedHeight = height });
         }

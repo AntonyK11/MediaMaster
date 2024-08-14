@@ -1,16 +1,16 @@
 ﻿using System.Reflection;
+using CommunityToolkit.WinUI.Controls;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using WinUIEx;
 using HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaFilePath(StackPanel parent) : MediaInfoTextBlockBase(parent)
+public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaFilePath";
 

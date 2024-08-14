@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI.Controls;
 using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
@@ -8,7 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
+public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
 {
     public Image? MediaExtensionIcon;
     public EditableTextBlock? EditableTextBlock;
@@ -61,6 +62,7 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
         {
             MinHeight = 24,
             HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Top,
             ColumnSpacing = 12,
             Margin = new Thickness(0, 0, 0, 16),
             ColumnDefinitions =
@@ -69,6 +71,7 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star)}
             }
         };
+        Grid.SetValue(DockPanel.DockProperty, Dock.Top);
 
         Border = new Border
         {
@@ -150,7 +153,7 @@ public class MediaName(StackPanel parent) : MediaInfoControlBase(parent)
 
             MediaExtensionIcon.Source = null;
             var icon = await IconService.GetIcon(media.Uri, ImageMode.IconOnly, 24, 24, _tokenSource);
-            _ = App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon).ConfigureAwait(false);
+            await App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon);
         }
     }
 

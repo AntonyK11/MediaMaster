@@ -1,4 +1,5 @@
-﻿using EFCore.BulkExtensions;
+﻿using CommunityToolkit.WinUI.Controls;
+using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
@@ -9,7 +10,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoControlBase(parent)
+public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoControlBase(parent)
 {
     public EditableTextBlock? EditableTextBlock;
     public StackPanel? StackPanel;
@@ -20,6 +21,8 @@ public abstract class MediaInfoTextBlockBase(StackPanel parent) : MediaInfoContr
         {
             Spacing = 4
         };
+        StackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+
         Title = GetTitle();
         EditableTextBlock = GetEditableTextBlock();
         StackPanel.Children.Add(Title);

@@ -76,6 +76,7 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.0.240109" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
@@ -97,7 +98,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />		
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240807006-preview1" />		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Text.Json" Version="8.0.4" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />

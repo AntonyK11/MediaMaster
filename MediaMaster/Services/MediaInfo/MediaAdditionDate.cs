@@ -1,10 +1,10 @@
-﻿using MediaMaster.DataBase.Models;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaAdditionDate(StackPanel parent) : MediaInfoTextBase(parent)
+public class MediaAdditionDate(DockPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaAdditionDate";
 

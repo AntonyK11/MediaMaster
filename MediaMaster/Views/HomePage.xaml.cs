@@ -14,9 +14,13 @@ namespace MediaMaster.Views;
 /// </summary>
 public sealed partial class HomePage : Page
 {
+    private string _textBoxText = "";
+
     public HomePage()
     {
         this.InitializeComponent();
+
+        MediaItemsView.FilterFunctions.Add(m => m.Name.Contains(_textBoxText));
     }
 
     private void HomePage_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -52,5 +56,11 @@ public sealed partial class HomePage : Page
     private void SortOrder_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
     {
         MediaItemsView.SortAscending = (string)((FrameworkElement)sender).Tag == "Ascending";
+    }
+
+    private async void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        _textBoxText = TextBox.Text;
+        await MediaItemsView.SetupMediaCollection();
     }
 }

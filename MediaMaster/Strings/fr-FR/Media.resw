@@ -141,4 +141,7 @@
   <data name="MediaWebUrl_Title.Text" xml:space="preserve">
     <value>Url Web</value>
   </data>
+  <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
 </root>

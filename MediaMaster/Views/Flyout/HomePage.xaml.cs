@@ -64,7 +64,7 @@ public sealed partial class HomePage
             Debug.WriteLine(item.Path);
         }
 
-        await Task.Run(() => MediaService.AddMediaAsync(items.Select(i => i.Path)));
+        await Task.Run(() => MediaService.AddMediaAsync(items.Select(i => i.Path)).ConfigureAwait(false));
         Debug.WriteLine(DateTime.Now - time);
     }
 

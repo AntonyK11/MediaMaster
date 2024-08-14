@@ -1,5 +1,5 @@
-﻿using MediaMaster.DataBase.Models;
-using Microsoft.UI.Xaml.Controls;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.DataBase.Models;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -7,7 +7,7 @@ internal class MediaInfoService
 {
     public readonly ICollection<MediaInfoControlBase> MediaInfoControls = [];
 
-    public MediaInfoService(StackPanel parent)
+    public MediaInfoService(DockPanel parent)
     {
         Register(new MediaName(parent));
         Register(new MediaNameCompact(parent));
@@ -19,6 +19,7 @@ internal class MediaInfoService
         Register(new MediaAdditionDate(parent));
         Register(new MediaEditionDate(parent));
         Register(new MediaTags(parent));
+        Register(new MediaDelete(parent));
     }
 
     private void Register(MediaInfoControlBase mediaInfoControl)

@@ -83,7 +83,7 @@ public class BrowserService
             {
                 try
                 {
-                    tab = await ProcessBrowserInstances((BrowserData)browserData, false);
+                    tab = await ProcessBrowserInstances((BrowserData)browserData, false).ConfigureAwait(false);
                 }
                 catch (Exception)
                 {
@@ -288,7 +288,7 @@ public class BrowserService
 
             foreach (BrowserData browser in BrowserData)
             {
-                folder.Add(await GetBrowserBookmarks(browser));
+                folder.Add(await GetBrowserBookmarks(browser).ConfigureAwait(false));
             }
 
             return folder;

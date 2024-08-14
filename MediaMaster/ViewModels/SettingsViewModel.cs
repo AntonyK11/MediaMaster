@@ -47,11 +47,11 @@ public partial class SettingsViewModel : ObservableObject
         SwitchThemeCommand = new RelayCommand<ElementTheme>(
             param =>
             {
-                ElementTheme = themeSelectorService.Theme;
+                ElementTheme = param;
                 themeSelectorService.SetThemeAsync(param);
             });
 
-        DetectOpenFilesAtStartupAsync().ConfigureAwait(false);
+        _ = DetectOpenFilesAtStartupAsync();
     }
 
     private static string GetVersionDescription()

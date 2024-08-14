@@ -1,10 +1,10 @@
-﻿using MediaMaster.DataBase;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaDescription(StackPanel parent) : MediaInfoTextBlockBase(parent)
+public class MediaDescription(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaDescription";
 

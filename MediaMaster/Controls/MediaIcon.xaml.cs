@@ -249,7 +249,7 @@ public sealed partial class MediaIcon
         var icon = await IconService.GetIconAsync(uri, ImageMode | ImageMode.CacheOnly, (int)ActualWidth, (int)ActualHeight);
         if (icon != null)
         {
-            _ = App.DispatcherQueue.EnqueueAsync(() => Image.Source = icon).ConfigureAwait(false);
+            await App.DispatcherQueue.EnqueueAsync(() => Image.Source = icon);
             return;
         }
 

@@ -73,9 +73,11 @@ public sealed partial class MediaItemsView : UserControl
         set
         {
             _sortFunction = value;
-            SetupMediaCollection().ConfigureAwait(false);
+            _ = SetupMediaCollection();
         }
     }
+
+    public ICollection<Expression<Func<Media, bool>>> FilterFunctions = [];
 
     private bool _sortAscending = true;
 
@@ -85,7 +87,7 @@ public sealed partial class MediaItemsView : UserControl
         set
         {
             _sortAscending = value;
-            SetupMediaCollection().ConfigureAwait(false);
+            _ = SetupMediaCollection();
         }
     }
 
@@ -104,7 +106,6 @@ public sealed partial class MediaItemsView : UserControl
 
     public async Task SetupMediaCollection()
     {
-        IconService.ClearCache();
         await Task.Yield();
 
         var currentPageIndex = PagerControl.SelectedPageIndex;
@@ -115,12 +116,13 @@ public sealed partial class MediaItemsView : UserControl
         {
             await using (var database = new MediaDbContext())
             {
-                var itemNumber = await database.Medias.CountAsync();
+                var itemNumber = await database.Medias.CountAsync().ConfigureAwait(false);
                 pageCount = (int)Math.Round((double)itemNumber / _pageSize, MidpointRounding.ToPositiveInfinity);
 
                 IQueryable<Media> mediaQuery = database.Medias;
                 mediaQuery = SortMedias(mediaQuery);
-                medias = await mediaQuery.Skip(currentPageIndex * _pageSize).Take(_pageSize).ToListAsync();
+                mediaQuery = FilterMedias(mediaQuery);
+                medias = await mediaQuery.Skip(currentPageIndex * _pageSize).Take(_pageSize).ToListAsync().ConfigureAwait(false);
             }
         });
 
@@ -137,6 +139,11 @@ public sealed partial class MediaItemsView : UserControl
     public IQueryable<Media> SortMedias(IQueryable<Media> medias)
     {
         return SortAscending ^ SortFunction.Key ? medias.OrderByDescending(SortFunction.Value) : medias.OrderBy(SortFunction.Value);
+    }
+
+    public IQueryable<Media> FilterMedias(IQueryable<Media> medias)
+    {
+        return FilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
     }
 
     private MyCancellationTokenSource? _tokenSource;
@@ -164,7 +171,7 @@ public sealed partial class MediaItemsView : UserControl
                     tasks.Add(IconService.GetIconAsync(media.Uri, ImageMode.IconAndThumbnail, 128, 128, cts));
                 }
 
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         });
     }

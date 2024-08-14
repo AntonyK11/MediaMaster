@@ -114,17 +114,17 @@ public sealed partial class MediaViewer : UserControl
             if (value)
             {
                 ScrollView.Visibility = Visibility.Collapsed;
-                StackPanelCompact.Visibility = Visibility.Visible;
+                DockPanelCompact.Visibility = Visibility.Visible;
                 ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
-                _mediaInfoService = new MediaInfoService(StackPanelCompact);
+                _mediaInfoService = new MediaInfoService(DockPanelCompact);
                 _mediaInfoService.SetMedia([], value);
             }
             else
             {
                 ScrollView.Visibility = Visibility.Visible;
-                StackPanelCompact.Visibility = Visibility.Collapsed;
+                DockPanelCompact.Visibility = Visibility.Collapsed;
                 ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
-                _mediaInfoService = new MediaInfoService(StackPanel);
+                _mediaInfoService = new MediaInfoService(DockPanel);
                 _mediaInfoService.SetMedia([], value);
             }
         }
@@ -189,7 +189,7 @@ public sealed partial class MediaViewer : UserControl
     {
         InitializeComponent();
 
-        _mediaInfoService = new MediaInfoService(StackPanel);
+        _mediaInfoService = new MediaInfoService(DockPanel);
         _mediaInfoService.SetMedia([], IsCompact);
 
         MediaDbContext.MediasChanged += (sender, args) =>

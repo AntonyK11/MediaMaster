@@ -1,11 +1,12 @@
-﻿using MediaMaster.DataBase;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaNameCompact(StackPanel parent) : MediaInfoControlBase(parent)
+public class MediaNameCompact(DockPanel parent) : MediaInfoControlBase(parent)
 {
     public override string TranslationKey { get; set; } = "";
     public TextBlock? Text;
@@ -33,6 +34,8 @@ public class MediaNameCompact(StackPanel parent) : MediaInfoControlBase(parent)
             TextWrapping = TextWrapping.WrapWholeWords,
             MaxLines = 2
         };
+        Text.SetValue(DockPanel.DockProperty, Dock.Top);
+
         Parent.Children.Add(Text);
     }
 

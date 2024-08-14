@@ -1,11 +1,11 @@
-﻿using MediaMaster.DataBase;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaWebUrl(StackPanel parent) : MediaInfoTextBlockBase(parent)
+public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaWebUrl";
 

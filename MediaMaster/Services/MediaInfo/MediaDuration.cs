@@ -1,13 +1,13 @@
-﻿using MediaMaster.DataBase;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaDuration(StackPanel parent) : MediaInfoTextBase(parent)
+public class MediaDuration(DockPanel parent) : MediaInfoTextBase(parent)
 {
     public override string TranslationKey { get; set; } = "MediaDuration";
 

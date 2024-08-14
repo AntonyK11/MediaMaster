@@ -144,4 +144,20 @@
   <data name="MediaWebUrl_Title.Text" xml:space="preserve">
     <value>Web Url</value>
   </data>
+  <data name="MediaDelete_Button.Content" xml:space="preserve">
+    <value>Delete Media(s)</value>
+  </data>
+  <data name="DeleteDialog.Content" xml:space="preserve">
+    <value>Are you sure you want to delete this(theses) media(s)?
+This action is permanent and cannot be undone.</value>
+  </data>
+  <data name="DeleteDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteDialog.Title" xml:space="preserve">
+    <value>Delete Media(s)</value>
+  </data>
+  <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

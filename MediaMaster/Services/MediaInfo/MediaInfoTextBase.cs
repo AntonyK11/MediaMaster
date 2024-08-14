@@ -1,11 +1,12 @@
-﻿using MediaMaster.Extensions;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.Extensions;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public abstract class MediaInfoTextBase(StackPanel parent) : MediaInfoControlBase(parent)
+public abstract class MediaInfoTextBase(DockPanel parent) : MediaInfoControlBase(parent)
 {
     public TextBlock? Text;
     public StackPanel? StackPanel;
@@ -16,6 +17,8 @@ public abstract class MediaInfoTextBase(StackPanel parent) : MediaInfoControlBas
         {
             Spacing = 4
         };
+        StackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+
         Title = GetTitle();
         Text = new TextBlock
         {

@@ -1,4 +1,5 @@
-﻿using MediaMaster.DataBase;
+﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.DataBase;
 using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -8,7 +9,7 @@ namespace MediaMaster.Services.MediaInfo;
 public abstract class MediaInfoControlBase
 {
     public ICollection<Media> Medias = [];
-    public StackPanel Parent;
+    public readonly DockPanel Parent;
     public bool FirstShown = true;
     public bool IsCompact;
     public TextBlock? Title;
@@ -17,7 +18,7 @@ public abstract class MediaInfoControlBase
 
     public abstract string TranslationKey { get; set; }
 
-    protected MediaInfoControlBase(StackPanel parent)
+    protected MediaInfoControlBase(DockPanel parent)
     {
         Parent = parent;
         MediaDbContext.MediasChanged += MediaChanged;
@@ -26,29 +27,32 @@ public abstract class MediaInfoControlBase
     public virtual void Initialize(ICollection<Media> medias, bool isCompact)
     {
         IsCompact = isCompact;
-        if (FirstShown)
-        {
-            Setup();
-            SetupTranslations();
-        }
-
         if (ShowInfo(medias))
         {
-            if (!IsVisible || FirstShown)
+            if (FirstShown)
+            {
+                Setup();
+                SetupTranslations();
+
+                IsVisible = false;
+                Hide();
+            }
+
+            if (!IsVisible)
             {
                 IsVisible = true;
                 Show();
             }
             Medias = medias;
             UpdateControl();
+
+            FirstShown = false;
         }
-        else if (IsVisible)
+        else if (IsVisible && !FirstShown)
         {
             IsVisible = false;
             Hide();
         }
-
-        FirstShown = false;
     }
 
     public virtual void UpdateControl()

@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuiToolkit="using:CommunityToolkit.WinUI.Controls"
     Width="400"
     mc:Ignorable="d">
 
@@ -99,7 +100,7 @@
             IsEnabled="{x:Bind ViewModel.CanChangeParents, Mode=OneWay}">
 
             <controls:TagView.Layout>
-                <FlowLayout MinColumnSpacing="4" MinRowSpacing="4" />
+                <winuiToolkit:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
             </controls:TagView.Layout>
 
         </controls:TagView>
