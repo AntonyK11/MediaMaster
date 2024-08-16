@@ -1,7 +1,5 @@
-using Microsoft.UI.Xaml;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Views;
 

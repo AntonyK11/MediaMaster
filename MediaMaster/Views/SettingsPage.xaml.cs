@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml.Controls;
 using MediaMaster.ViewModels;
 using WinUI3Localizer;
 using Windows.Foundation;

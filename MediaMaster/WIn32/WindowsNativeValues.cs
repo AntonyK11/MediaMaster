@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 
-namespace MediaMaster.Services;
+namespace MediaMaster.WIn32;
 
 public static class WindowsNativeValues
 {
@@ -638,7 +638,6 @@ public static class WindowsNativeValues
         internal nuint itemData;
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCode("Microsoft.Windows.CsWin32", "0.3.106+a37a0b4b70")]
     internal enum ODA_FLAGS : uint
     {
         ODA_DRAWENTIRE = 1U,
@@ -869,5 +868,14 @@ public static class WindowsNativeValues
         MFS_UNCHECKED = 0x00000000,
         MFS_UNHILITE = 0x00000000,
         MFS_DEFAULT = 0x00001000,
+    }
+}
+
+internal static class InlineArrayIndexerExtensions
+{
+    internal static ReadOnlySpan<char> SliceAtNull(this ReadOnlySpan<char> value)
+    {
+        var length = value.IndexOf('\0');
+        return length < 0 ? value : value[..length];
     }
 }

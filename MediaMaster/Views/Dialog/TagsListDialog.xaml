@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="MediaMaster.Views.Dialog.SelectTagsDialog"
+    x:Class="MediaMaster.Views.Dialog.TagsListDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -52,7 +52,6 @@
             x:Name="ListView"
             Grid.Row="1"
             ItemTemplate="{StaticResource TagListViewTemplate}"
-            SelectionChanged="ListView_OnSelectionChanged"
-            SelectionMode="Multiple" />
+            SelectionChanged="ListView_OnSelectionChanged" />
     </Grid>
 </Page>

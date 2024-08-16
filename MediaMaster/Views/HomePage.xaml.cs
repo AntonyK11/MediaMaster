@@ -1,11 +1,5 @@
 using System.Linq.Expressions;
-using Microsoft.UI.Xaml;
-using MediaMaster.DataBase.Models;
-using Microsoft.UI.Xaml.Controls;
-
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using MediaMaster.Views.Dialog;
 
 namespace MediaMaster.Views;
 
@@ -39,9 +33,9 @@ public sealed partial class HomePage : Page
 
     private void SortBy_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
     {
-        var index = (string)((FrameworkElement)sender).Tag;
+        var tag = (string)((FrameworkElement)sender).Tag;
 
-        KeyValuePair<bool, Expression<Func<Media, object>>> function = index switch
+        KeyValuePair<bool, Expression<Func<Media, object>>> function = tag switch
         {
             "Modified" => new (false, m => m.Modified),
             "Added" => new(true, m => m.Added),
@@ -62,5 +56,48 @@ public sealed partial class HomePage : Page
     {
         _textBoxText = TextBox.Text;
         await MediaItemsView.SetupMediaCollection();
+    }
+
+    private void Selection_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        var tag = (string)((FrameworkElement)sender).Tag;
+
+        switch (tag)
+        {
+            case "All":
+                MediaItemsView.SelectAll();
+                break;
+            case "Clear":
+                MediaItemsView.ClearSelection();
+                break;
+        }
+
+    }
+
+    private async void MenuBar_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        var tag = (string)((FrameworkElement)sender).Tag;
+
+        switch (tag)
+        {
+            case "Import_Bookmarks":
+                // TODO
+                break;
+            case "New_Media":
+                // TODO
+                break;
+            case "New_Tag":
+                await CreateEditDeleteTagDialog.ShowDialogAsync();
+                break;
+            case "Manage_Tags":
+                await TagsListDialog.ShowDialogAsync();
+                break;
+            case "Manage_Extensions":
+                // TODO
+                break;
+            case "About":
+                // TODO
+                break;
+        }
     }
 }

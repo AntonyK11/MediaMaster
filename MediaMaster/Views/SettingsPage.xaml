@@ -9,6 +9,7 @@
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:services="using:MediaMaster.Interfaces.Services"
+    xmlns:winUi="using:CommunityToolkit.WinUI"
     Background="Transparent"
     NavigationCacheMode="Disabled"
     mc:Ignorable="d">
@@ -25,121 +26,128 @@
     Toggled="ToggleSwitch_Toggled" />
 
     </StackPanel>-->
-    <ScrollViewer Padding="{StaticResource NavigationViewPageContentMargin}" VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="{StaticResource XSmallSpacing}">
-            <StackPanel.ChildrenTransitions>
-                <RepositionThemeTransition IsStaggeringEnabled="False" />
-            </StackPanel.ChildrenTransitions>
 
-            <TextBlock
-                Margin="{StaticResource XXSmallBottomMargin}"
-                l:Uids.Uid="Settings_Appearance"
-                Style="{ThemeResource BodyStrongTextBlockStyle}" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <controls:ExpandableSettingControl l:Uids.Uid="Settings_Theme">
-                <controls:ExpandableSettingControl.Icon>
-                    <FontIcon Glyph="&#xE790;" />
-                </controls:ExpandableSettingControl.Icon>
+        <TextBlock
+            Grid.Row="0"
+            Margin="34,24,0,30"
+            VerticalAlignment="Stretch"
+            l:Uids.Uid="/Settings/Title"
+            FontSize="28"
+            FontWeight="SemiBold" />
 
-                <controls:ExpandableSettingControl.ExpandableContent>
-                    <StackPanel Margin="{StaticResource LargeLeftMargin}">
-                        <RadioButton
-                            Margin="{StaticResource XSmallBottomMargin}"
-                            l:Uids.Uid="Settings_Theme_Light"
-                            Command="{x:Bind ViewModel.SwitchThemeCommand}"
-                            FontSize="15"
-                            GroupName="AppTheme"
-                            IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}">
-                            <RadioButton.CommandParameter>
-                                <ElementTheme>Light</ElementTheme>
-                            </RadioButton.CommandParameter>
-                        </RadioButton>
-                        <RadioButton
-                            Margin="{StaticResource XSmallBottomMargin}"
-                            l:Uids.Uid="Settings_Theme_Dark"
-                            Command="{x:Bind ViewModel.SwitchThemeCommand}"
-                            FontSize="15"
-                            GroupName="AppTheme"
-                            IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}">
-                            <RadioButton.CommandParameter>
-                                <ElementTheme>Dark</ElementTheme>
-                            </RadioButton.CommandParameter>
-                        </RadioButton>
-                        <RadioButton
-                            Margin="{StaticResource XSmallBottomMargin}"
-                            l:Uids.Uid="Settings_Theme_Default"
-                            Command="{x:Bind ViewModel.SwitchThemeCommand}"
-                            FontSize="15"
-                            GroupName="AppTheme"
-                            IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Default, Mode=OneWay}">
-                            <RadioButton.CommandParameter>
-                                <ElementTheme>Default</ElementTheme>
-                            </RadioButton.CommandParameter>
-                        </RadioButton>
-                    </StackPanel>
-                </controls:ExpandableSettingControl.ExpandableContent>
-            </controls:ExpandableSettingControl>
+        <ScrollView Grid.Row="1" Padding="34,0">
+            <StackPanel Spacing="{StaticResource XSmallSpacing}">
+                <StackPanel.ChildrenTransitions>
+                    <RepositionThemeTransition IsStaggeringEnabled="False" />
+                </StackPanel.ChildrenTransitions>
 
-            <controls:ExpandableSettingControl Title="App" Description="Helloooooooo oooooooo oooooo ooooo ooooooo ooooooo oooooo ooooo ooooo">
-                <controls:ExpandableSettingControl.Icon>
-                    <FontIcon Glyph="&#xF2B7;" />
-                </controls:ExpandableSettingControl.Icon>
+                <TextBlock
+                    Margin="0,0,0,4"
+                    l:Uids.Uid="/Settings/Appearance"
+                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                <controls:ExpandableSettingControl.SettingActionableElement>
-                    <ComboBox
-                        x:Name="ComboBox"
-                        ItemsSource="{x:Bind ViewModel.AvailableLanguages, Mode=OneWay}"
-                        SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        SelectionChanged="{x:Bind ViewModel.SelectionChanged, Mode=OneWay}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="services:LanguageItem">
-                                <TextBlock l:Uids.Uid="{x:Bind UidKey}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                </controls:ExpandableSettingControl.SettingActionableElement>
-            </controls:ExpandableSettingControl>
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/Theme" Icon="{winUi:FontIcon Glyph=&#xE790;}">
+                    <controls:ExpandableSettingControl.ExpandableContent>
+                        <StackPanel Margin="{StaticResource LargeLeftMargin}">
+                            <RadioButton
+                                Margin="{StaticResource XSmallBottomMargin}"
+                                l:Uids.Uid="/Settings/Theme_Light"
+                                Command="{x:Bind ViewModel.SwitchThemeCommand}"
+                                FontSize="15"
+                                GroupName="AppTheme"
+                                IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}">
+                                <RadioButton.CommandParameter>
+                                    <ElementTheme>Light</ElementTheme>
+                                </RadioButton.CommandParameter>
+                            </RadioButton>
+                            <RadioButton
+                                Margin="{StaticResource XSmallBottomMargin}"
+                                l:Uids.Uid="/Settings/Theme_Dark"
+                                Command="{x:Bind ViewModel.SwitchThemeCommand}"
+                                FontSize="15"
+                                GroupName="AppTheme"
+                                IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}">
+                                <RadioButton.CommandParameter>
+                                    <ElementTheme>Dark</ElementTheme>
+                                </RadioButton.CommandParameter>
+                            </RadioButton>
+                            <RadioButton
+                                Margin="{StaticResource XSmallBottomMargin}"
+                                l:Uids.Uid="/Settings/Theme_Default"
+                                Command="{x:Bind ViewModel.SwitchThemeCommand}"
+                                FontSize="15"
+                                GroupName="AppTheme"
+                                IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Default, Mode=OneWay}">
+                                <RadioButton.CommandParameter>
+                                    <ElementTheme>Default</ElementTheme>
+                                </RadioButton.CommandParameter>
+                            </RadioButton>
+                        </StackPanel>
+                    </controls:ExpandableSettingControl.ExpandableContent>
+                </controls:ExpandableSettingControl>
 
-            <controls:ExpandableSettingControl Title="SettingsOpenInLogin" HorizontalAlignment="Stretch">
-                <controls:ExpandableSettingControl.Icon>
-                    <FontIcon Glyph="&#xE7E8;" />
-                </controls:ExpandableSettingControl.Icon>
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/Language" Icon="{winUi:FontIcon Glyph=&#xF2B7;}">
+                    <controls:ExpandableSettingControl.SettingActionableElement>
+                        <ComboBox
+                            x:Name="ComboBox"
+                            ItemsSource="{x:Bind ViewModel.AvailableLanguages, Mode=OneWay}"
+                            SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectionChanged="{x:Bind ViewModel.SelectionChanged, Mode=OneWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="services:LanguageItem">
+                                    <TextBlock l:Uids.Uid="{x:Bind UidKey}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </controls:ExpandableSettingControl.SettingActionableElement>
+                </controls:ExpandableSettingControl>
 
-                <controls:ExpandableSettingControl.SettingActionableElement>
-                    <ToggleSwitch
-                        IsEnabled="{x:Bind ViewModel.CanOpenOnWindowsStartup, Mode=OneWay}"
-                        IsOn="{x:Bind ViewModel.OpenOnWindowsStartup, Mode=TwoWay}"
-                        Toggled="{x:Bind ViewModel.OpenOnWindowsStartupCommand, Mode=OneWay}" />
-                </controls:ExpandableSettingControl.SettingActionableElement>
-            </controls:ExpandableSettingControl>
+                <TextBlock
+                    Margin="0,8,0,4"
+                    l:Uids.Uid="/Settings/Misc"
+                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-            <controls:ExpandableSettingControl Title="SettingsLeaveAppRunning" HorizontalAlignment="Stretch">
-                <controls:ExpandableSettingControl.Icon>
-                    <FontIcon Glyph="&#xE8E6;" />
-                </controls:ExpandableSettingControl.Icon>
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/ShowExtensions" Icon="{winUi:FontIcon Glyph=&#xE8E6;}">
+                    <controls:ExpandableSettingControl.SettingActionableElement>
+                        <ToggleSwitch l:Uids.Uid="/Settings/ToggleSwitch" IsOn="{x:Bind Settings.ShowExtensions, Mode=TwoWay}" />
+                    </controls:ExpandableSettingControl.SettingActionableElement>
+                </controls:ExpandableSettingControl>
 
-                <controls:ExpandableSettingControl.SettingActionableElement>
-                    <ToggleSwitch IsOn="{x:Bind Settings.LeaveAppRunning, Mode=TwoWay}" />
-                </controls:ExpandableSettingControl.SettingActionableElement>
-            </controls:ExpandableSettingControl>
+                <TextBlock
+                    Margin="0,8,0,4"
+                    l:Uids.Uid="/Settings/Advanced"
+                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-            <controls:ExpandableSettingControl Title="SettingsShowExtensions" HorizontalAlignment="Stretch">
-                <controls:ExpandableSettingControl.Icon>
-                    <FontIcon Glyph="&#xE8E6;" />
-                </controls:ExpandableSettingControl.Icon>
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/OpenOnWindowsStartup" Icon="{winUi:FontIcon Glyph=&#xE7E8;}">
+                    <controls:ExpandableSettingControl.SettingActionableElement>
+                        <ToggleSwitch
+                            l:Uids.Uid="/Settings/ToggleSwitch"
+                            IsEnabled="{x:Bind ViewModel.CanOpenOnWindowsStartup, Mode=OneWay}"
+                            IsOn="{x:Bind ViewModel.OpenOnWindowsStartup, Mode=TwoWay}"
+                            Toggled="{x:Bind ViewModel.OpenOnWindowsStartupCommand, Mode=OneWay}" />
+                    </controls:ExpandableSettingControl.SettingActionableElement>
+                </controls:ExpandableSettingControl>
 
-                <controls:ExpandableSettingControl.SettingActionableElement>
-                    <ToggleSwitch IsOn="{x:Bind Settings.ShowExtensions, Mode=TwoWay}" />
-                </controls:ExpandableSettingControl.SettingActionableElement>
-            </controls:ExpandableSettingControl>
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/LeaveAppRunning" Icon="{winUi:FontIcon Glyph=&#xE8E6;}">
+                    <controls:ExpandableSettingControl.SettingActionableElement>
+                        <ToggleSwitch l:Uids.Uid="/Settings/ToggleSwitch" IsOn="{x:Bind Settings.LeaveAppRunning, Mode=TwoWay}" />
+                    </controls:ExpandableSettingControl.SettingActionableElement>
+                </controls:ExpandableSettingControl>
 
-            <TextBlock l:Uids.Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                <TextBlock l:Uids.Uid="/Settings/About" Style="{ThemeResource SubtitleTextBlockStyle}" />
 
-            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
+                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
 
-            <HyperlinkButton Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" l:Uids.Uid="SettingsPage_PrivacyTermsLink" />
+                <HyperlinkButton Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" l:Uids.Uid="/Settings/PrivacyTermsLink" />
 
-            <Button l:Uids.Uid="SettingsPage_PrivacyTermsLink" Style="{StaticResource AccentButtonStyle}" />
-        </StackPanel>
-    </ScrollViewer>
+                <Button l:Uids.Uid="/Settings/PrivacyTermsLink" Style="{StaticResource AccentButtonStyle}" />
+            </StackPanel>
+        </ScrollView>
+    </Grid>
 </Page>

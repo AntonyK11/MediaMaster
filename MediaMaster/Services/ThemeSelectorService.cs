@@ -3,7 +3,6 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using CommunityToolkit.WinUI;
 using MediaMaster.Interfaces.Services;
-using Microsoft.UI.Xaml;
 
 namespace MediaMaster.Services;
 
@@ -109,7 +108,6 @@ public class ThemeSelectorService : IThemeSelectorService
     /// <summary>
     ///     Invokes the theme changed event.
     /// </summary>
-    /// <param name="actualTheme"> The actual theme to be used (Dark or Light). </param>
     private void OnThemeChange()
     {
         App.DispatcherQueue.EnqueueAsync(() => ThemeChanged?.Invoke(this, ActualTheme));

@@ -1,6 +1,5 @@
 ﻿using Windows.UI;
 using CommunityToolkit.Mvvm.ComponentModel;
-using MediaMaster.DataBase.Models;
 using Microsoft.UI.Xaml.Media;
 using ColorHelper = Microsoft.UI.ColorHelper;
 
@@ -30,7 +29,7 @@ public partial class EditTagDialogViewModel : ObservableObject
 
     public Color Color
     {
-        get { return _color; }
+        get => _color; 
         set
         {
             _color = value;
@@ -42,7 +41,7 @@ public partial class EditTagDialogViewModel : ObservableObject
     private TagPermissions _permissions;
     public TagPermissions Permissions
     {
-        get { return _permissions; }
+        get => _permissions;
         set
         {
             _permissions = value;

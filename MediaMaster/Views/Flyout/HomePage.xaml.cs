@@ -1,6 +1,5 @@
 using MediaMaster.DataBase;
 using MediaMaster.Services;
-using Microsoft.UI.Xaml;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 
@@ -70,7 +69,9 @@ public sealed partial class HomePage
 
     private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
-        var tab = (BrowserTab)TabsList.SelectedItem;
+        var tab = (BrowserTab?)TabsList.SelectedItem;
+        if (tab == null) return;
+
         var title = tab.Title;
         var tabEndingString = tab.Browser.TabEndingString;
         if (title.EndsWith(tabEndingString))

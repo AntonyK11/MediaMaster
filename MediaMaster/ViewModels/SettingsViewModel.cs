@@ -3,8 +3,6 @@ using Windows.ApplicationModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaMaster.Interfaces.Services;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
 
 namespace MediaMaster.ViewModels;
@@ -37,12 +35,12 @@ public partial class SettingsViewModel : ObservableObject
         IEnumerable<string> availableLanguages = _translationService.GetAvailableLanguages();
 
         AvailableLanguages = availableLanguages
-            .Select(x => new LanguageItem(x, $"{nameof(MainWindow)}_{x}"))
+            .Select(language => new LanguageItem(language, $"/Settings/{language}"))
             .ToList();
 
         var currentLanguage = _translationService.GetCurrentLanguage();
 
-        SelectedLanguage = new LanguageItem(currentLanguage, $"{nameof(MainWindow)}_{currentLanguage}");
+        SelectedLanguage = new LanguageItem(currentLanguage, $"/Settings/{currentLanguage}");
 
         SwitchThemeCommand = new RelayCommand<ElementTheme>(
             param =>

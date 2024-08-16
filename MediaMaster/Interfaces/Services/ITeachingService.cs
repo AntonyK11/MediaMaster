@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
-
-namespace MediaMaster.Interfaces.Services;
+﻿namespace MediaMaster.Interfaces.Services;
 
 /// <summary>
 ///     Service responsible for managing the teaching tips.

@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -13,22 +14,21 @@
         CornerRadius="8">
         <Border.ContextFlyout>
             <MenuFlyout x:Name="MenuFlyout">
-                <MenuFlyoutItem x:Name="OpenFileFlyout" Text="Open file" />
-                <MenuFlyoutItem x:Name="OpenFolderFlyout" Text="Open file in explorer" />
-                <MenuFlyoutItem x:Name="OpenWebPageFlyout" Text="Open web page" />
+                <MenuFlyoutItem x:Name="OpenFileFlyout" l:Uids.Uid="/Media/OpenFile_MenuFlyoutItem" />
+                <MenuFlyoutItem x:Name="OpenFolderFlyout" l:Uids.Uid="/Media/OpenFileInExplorer_MenuFlyoutItem" />
+                <MenuFlyoutItem x:Name="OpenWebPageFlyout" l:Uids.Uid="/Media/OpenWebPage_MenuFlyoutItem" />
             </MenuFlyout>
         </Border.ContextFlyout>
 
         <Border.Resources>
-
             <Style x:Key="MenuFlyoutPresenterShowItem" TargetType="MenuFlyoutPresenter">
                 <Setter Property="Visibility" Value="Visible" />
             </Style>
             <Style x:Key="MenuFlyoutPresenterHideItem" TargetType="MenuFlyoutPresenter">
                 <Setter Property="Visibility" Value="Collapsed" />
             </Style>
-
         </Border.Resources>
+
         <Grid Height="{x:Bind IconHeight, Mode=OneWay}">
             <ProgressRing
                 x:Name="ProgressRing"

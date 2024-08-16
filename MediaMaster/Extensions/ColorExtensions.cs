@@ -2,7 +2,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using MediaMaster.Interfaces.Services;
-using Microsoft.UI.Xaml;
 
 namespace MediaMaster.Extensions;
 

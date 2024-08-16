@@ -127,21 +127,55 @@
     <value>Étiquettes</value>
   </data>
   <data name="MediaAdditionDate_Title.Text" xml:space="preserve">
-    <value>Date Ajouté</value>
+    <value>Date ajouté</value>
   </data>
   <data name="MediaCreationDate_Title.Text" xml:space="preserve">
-    <value>Date Créé</value>
+    <value>Date créé</value>
   </data>
   <data name="MediaEditionDate_Title.Text" xml:space="preserve">
-    <value>Date Édité</value>
+    <value>Date édité</value>
   </data>
   <data name="MediaDuration_Title.Text" xml:space="preserve">
     <value>Durée</value>
   </data>
   <data name="MediaWebUrl_Title.Text" xml:space="preserve">
-    <value>Url Web</value>
+    <value>Url web</value>
   </data>
   <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
+  </data>
+  <data name="DeleteDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="DeleteDialog.Title" xml:space="preserve">
+    <value>Supprimer un/des média(s)</value>
+  </data>
+  <data name="MediaDelete_Button.Content" xml:space="preserve">
+    <value>Supprimer un/des média(s)</value>
+  </data>
+  <data name="MediaFilePath_Title.Text" xml:space="preserve">
+    <value>Chemin du fichier</value>
+  </data>
+  <data name="DeleteDialog.Content" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ce(s) média(s) ?
+Cette action est permanente et ne peut être annulée.</value>
+  </data>
+  <data name="OpenWebPage_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Ouvrir la page web</value>
+  </data>
+  <data name="OpenFileInExplorer_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Ouvrir le fichier dans l'explorateur de fichiers</value>
+  </data>
+  <data name="OpenFile_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Ouvrir le fichier</value>
+  </data>
+  <data name="NoMediaSelected" xml:space="preserve">
+    <value>Aucun média sélectionné</value>
+  </data>
+  <data name="MultipleMediasSelected" xml:space="preserve">
+    <value>Plusieurs médias sélectionnés</value>
+  </data>
+  <data name="MediaName_TextBlock.PlaceholderText" xml:space="preserve">
+    <value>Nom du média</value>
   </data>
 </root>

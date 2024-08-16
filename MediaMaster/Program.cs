@@ -1,7 +1,5 @@
-﻿global using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using WinRT;
 using Microsoft.Windows.AppLifecycle;
 using CommunityToolkit.WinUI;

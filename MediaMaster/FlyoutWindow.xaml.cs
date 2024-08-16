@@ -1,11 +1,9 @@
 ﻿using MediaMaster.Interfaces.Services;
 using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
 using WinUIEx;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Views.Flyout;
 using Windows.Foundation;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using CommunityToolkit.WinUI;
 

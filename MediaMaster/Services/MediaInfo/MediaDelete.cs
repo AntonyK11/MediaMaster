@@ -1,11 +1,8 @@
 ﻿using CommunityToolkit.WinUI.Controls;
 using EFCore.BulkExtensions;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;

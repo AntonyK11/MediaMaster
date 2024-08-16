@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.WinUI.Controls;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions; 
 
 namespace MediaMaster.Services.MediaInfo;

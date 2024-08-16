@@ -7,159 +7,256 @@
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:customControls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winUi="using:CommunityToolkit.WinUI"
     NavigationCacheMode="Enabled"
     SizeChanged="HomePage_OnSizeChanged"
     mc:Ignorable="d">
 
-    <Grid
-        x:Name="ContentGrid"
-        Padding="8"
-        HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition
-                x:Name="ContentColumn"
-                Width="*"
-                MinWidth="150" />
-            <ColumnDefinition Width="12" />
-            <ColumnDefinition
-                x:Name="PaneColumn"
-                Width="350"
-                MinWidth="150" />
-        </Grid.ColumnDefinitions>
+    <Grid Margin="8,8,8,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <Grid Grid.Column="0" RowSpacing="12">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <Border
+            Grid.Row="0"
+            Margin="0,0,0,8"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            BackgroundSizing="OuterBorderEdge"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+            <MenuBar>
+                <MenuBarItem l:Uids.Uid="/Home/File_MenuBarItem">
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/ImportBookmarks_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="Import_Bookmarks" />
+                </MenuBarItem>
+                <MenuBarItem l:Uids.Uid="/Home/Edit_MenuBarItem">
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/NewMedia_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="New_Media" />
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/NewTag_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="New_Tag" />
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/ManageTags_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="Manage_Tags" />
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/ManageExtensions_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="Manage_Extensions" />
+                </MenuBarItem>
 
-            <StackPanel
-                Grid.Row="0"
-                Padding="6"
-                Background="{ThemeResource LayerFillColorDefaultBrush}"
-                BackgroundSizing="OuterBorderEdge"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
+                <MenuBarItem l:Uids.Uid="/Home/Help_MenuBarItem">
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/About_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="About" />
+                </MenuBarItem>
+            </MenuBar>
+        </Border>
+
+        <Grid
+            x:Name="ContentGrid"
+            Grid.Row="1"
+            HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    x:Name="ContentColumn"
+                    Width="*"
+                    MinWidth="150" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition
+                    x:Name="PaneColumn"
+                    Width="350"
+                    MinWidth="150" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel
+                    Grid.Row="0"
+                    Padding="6"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                    BackgroundSizing="OuterBorderEdge"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Spacing="8">
+
+                    <TextBox x:Name="TextBox" TextChanged="TextBox_OnTextChanged" />
+
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <DropDownButton Grid.Column="1" BorderThickness="0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8CB;" />
+                                <TextBlock l:Uids.Uid="/Home/Sort_DropDownButton" />
+                            </StackPanel>
+                            <DropDownButton.Flyout>
+                                <MenuFlyout Placement="Bottom">
+                                    <RadioMenuFlyoutItem
+                                        l:Uids.Uid="/Home/Name_SortMenuFlyoutItem"
+                                        Click="SortBy_MenuFlyoutItem_OnClick"
+                                        GroupName="SortByGroup"
+                                        IsChecked="True"
+                                        Tag="Name" />
+                                    <RadioMenuFlyoutItem
+                                        l:Uids.Uid="/Home/DateModified_SortMenuFlyoutItem"
+                                        Click="SortBy_MenuFlyoutItem_OnClick"
+                                        GroupName="SortByGroup"
+                                        Tag="Modified" />
+                                    <RadioMenuFlyoutItem
+                                        l:Uids.Uid="/Home/DateAdded_SortMenuFlyoutItem"
+                                        Click="SortBy_MenuFlyoutItem_OnClick"
+                                        GroupName="SortByGroup"
+                                        Tag="Added" />
+                                    <RadioMenuFlyoutItem
+                                        l:Uids.Uid="/Home/Archived_SortMenuFlyoutItem"
+                                        Click="SortBy_MenuFlyoutItem_OnClick"
+                                        GroupName="SortByGroup"
+                                        Tag="Archived" />
+                                    <RadioMenuFlyoutItem
+                                        l:Uids.Uid="/Home/Favorite_SortMenuFlyoutItem"
+                                        Click="SortBy_MenuFlyoutItem_OnClick"
+                                        GroupName="SortByGroup"
+                                        Tag="Favorite" />
+                                    <MenuFlyoutSeparator />
+                                    <RadioMenuFlyoutItem
+                                        l:Uids.Uid="/Home/Ascending_SortMenuFlyoutItem"
+                                        Click="SortOrder_MenuFlyoutItem_OnClick"
+                                        GroupName="SortOrderGroup"
+                                        IsChecked="True"
+                                        Tag="Ascending" />
+                                    <RadioMenuFlyoutItem
+                                        l:Uids.Uid="/Home/Descending_SortMenuFlyoutItem"
+                                        Click="SortOrder_MenuFlyoutItem_OnClick"
+                                        GroupName="SortOrderGroup"
+                                        Tag="Descending" />
+                                </MenuFlyout>
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
+
+                        <DropDownButton
+                            Grid.Column="2"
+                            BorderThickness="0"
+                            Content="{winUi:FontIcon Glyph=&#xE8B3;}">
+                            <DropDownButton.Flyout>
+                                <MenuFlyout Placement="Bottom">
+                                    <MenuFlyoutItem
+                                        l:Uids.Uid="/Home/SelectAll_SelectionMenuFlyoutItem"
+                                        Click="Selection_MenuFlyoutItem_OnClick"
+                                        Icon="{winUi:FontIcon Glyph=&#xE8A9;}"
+                                        IsEnabled="{x:Bind MediaItemsView.CanSelectAll, Mode=OneWay}"
+                                        Tag="All">
+                                        <MenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="A" Modifiers="Control" />
+                                        </MenuFlyoutItem.KeyboardAccelerators>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem
+                                        l:Uids.Uid="/Home/ClearSelection_SelectionMenuFlyoutItem"
+                                        Click="Selection_MenuFlyoutItem_OnClick"
+                                        Icon="{winUi:FontIcon Glyph=&#xE8E6;}"
+                                        IsEnabled="{x:Bind MediaItemsView.CanDeselectAll, Mode=OneWay}"
+                                        KeyboardAcceleratorTextOverride=""
+                                        Tag="Clear">
+                                        <MenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="A" Modifiers="Control" />
+                                        </MenuFlyoutItem.KeyboardAccelerators>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
+
+                        <ToggleButton
+                            x:Name="MultiSelectButton"
+                            Grid.Column="3"
+                            l:Uids.Uid="/Home/MultiSelectButton"
+                            BorderThickness="0"
+                            Content="{winUi:FontIcon Glyph=&#xE762;}" />
+                    </Grid>
+                </StackPanel>
+
+                <customControls:MediaItemsView
+                    x:Name="MediaItemsView"
+                    Grid.Row="1"
+                    SelectionChanged="MediaItemsView_OnSelectionChanged"
+                    SelectionMode="{x:Bind MultiSelectButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToSelectionModeConverter}}" />
+            </Grid>
+
+            <controls:GridSplitter
+                Grid.Column="1"
+                Width="10"
+                Padding="0"
+                HorizontalAlignment="Right"
+                CornerRadius="4"
+                ResizeBehavior="PreviousAndNext">
+                <controls:GridSplitter.Resources>
+                    <StaticResource x:Key="SizerBaseBackgroundPointerOver" ResourceKey="ControlAltFillColorTransparentBrush" />
+                    <StaticResource x:Key="SizerBaseBackgroundPressed" ResourceKey="ControlAltFillColorTransparentBrush" />
+                    <StaticResource x:Key="SizerBaseBackgroundDisabled" ResourceKey="ControlAltFillColorTransparentBrush" />
+                </controls:GridSplitter.Resources>
+            </controls:GridSplitter>
+
+            <customControls:MediaViewer
+                x:Name="MediaViewer"
+                Grid.Column="2"
                 CornerRadius="8"
-                Spacing="8">
-                <TextBox x:Name="TextBox" TextChanged="TextBox_OnTextChanged" />
-
-                <Grid ColumnSpacing="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <DropDownButton Grid.Column="1" BorderThickness="0">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <IconSourceElement>
-                                <FontIconSource Glyph="&#xE8CB;" />
-                            </IconSourceElement>
-                            <TextBlock>Sort</TextBlock>
-                        </StackPanel>
-                        <DropDownButton.Flyout>
-                            <MenuFlyout Placement="Bottom">
-                                <RadioMenuFlyoutItem
-                                    Click="SortBy_MenuFlyoutItem_OnClick"
-                                    GroupName="SortByGroup"
-                                    IsChecked="True"
-                                    Tag="Name"
-                                    Text="Name" />
-                                <RadioMenuFlyoutItem
-                                    Click="SortBy_MenuFlyoutItem_OnClick"
-                                    GroupName="SortByGroup"
-                                    Tag="Modified"
-                                    Text="Date modified" />
-                                <RadioMenuFlyoutItem
-                                    Click="SortBy_MenuFlyoutItem_OnClick"
-                                    GroupName="SortByGroup"
-                                    Tag="Added"
-                                    Text="Date added" />
-                                <RadioMenuFlyoutItem
-                                    Click="SortBy_MenuFlyoutItem_OnClick"
-                                    GroupName="SortByGroup"
-                                    Tag="Archived"
-                                    Text="Archived" />
-                                <RadioMenuFlyoutItem
-                                    Click="SortBy_MenuFlyoutItem_OnClick"
-                                    GroupName="SortByGroup"
-                                    Tag="Favorite"
-                                    Text="Favorite" />
-                                <MenuFlyoutSeparator />
-                                <RadioMenuFlyoutItem
-                                    Click="SortOrder_MenuFlyoutItem_OnClick"
-                                    GroupName="SortOrderGroup"
-                                    IsChecked="True"
-                                    Tag="Ascending"
-                                    Text="Ascending" />
-                                <RadioMenuFlyoutItem
-                                    Click="SortOrder_MenuFlyoutItem_OnClick"
-                                    GroupName="SortOrderGroup"
-                                    Tag="Descending"
-                                    Text="Descending" />
-                            </MenuFlyout>
-                        </DropDownButton.Flyout>
-                        <!--<DropDownButton.Resources>
-                            <StaticResource x:Key="ButtonBackground" ResourceKey="SubtleFillColorTransparentBrush" />
-                            <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush" />
-                            <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="SubtleFillColorTertiaryBrush" />
-                            <StaticResource x:Key="ButtonBackgroundDisabled" ResourceKey="SubtleFillColorDisabledBrush" />
-                        </DropDownButton.Resources>-->
-                    </DropDownButton>
-
-                    <!--<ToggleButton Grid.Column="2" ToolTipService.ToolTip="Sort descending">
-                        <IconSourceElement>
-                            <FontIconSource Glyph="&#xE8CB;" />
-                        </IconSourceElement>
-                    </ToggleButton>-->
-
-                    <ToggleButton
-                        x:Name="MultiSelectButton"
-                        Grid.Column="3"
-                        BorderThickness="0"
-                        ToolTipService.ToolTip="Enable MultiSelect">
-                        <IconSourceElement>
-                            <FontIconSource Glyph="&#xE762;" />
-                        </IconSourceElement>
-                        <!--<ToggleButton.Resources>
-                            <StaticResource x:Key="ToggleButtonBackground" ResourceKey="SubtleFillColorTransparentBrush" />
-                            <StaticResource x:Key="ToggleButtonBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush" />
-                            <StaticResource x:Key="ToggleButtonBackgroundPressed" ResourceKey="SubtleFillColorTertiaryBrush" />
-                            <StaticResource x:Key="ToggleButtonBackgroundDisabled" ResourceKey="SubtleFillColorDisabledBrush" />
-                        </ToggleButton.Resources>-->
-                    </ToggleButton>
-                </Grid>
-            </StackPanel>
-
-            <customControls:MediaItemsView
-                x:Name="MediaItemsView"
-                Grid.Row="1"
-                SelectionChanged="MediaItemsView_OnSelectionChanged"
-                SelectionMode="{x:Bind MultiSelectButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToSelectionModeConverter}}" />
+                DelayIconLoading="False"
+                IconMargin="16"
+                ImageMode="ThumbnailOnly" />
         </Grid>
+        <StackPanel
+            Grid.Row="2"
+            Height="32"
+            Margin="8,0,0,0"
+            Orientation="Horizontal"
+            Spacing="8">
+            <TextBlock
+                VerticalAlignment="Center"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind MediaItemsView.MediasCount, Mode=OneWay}" />
 
-        <customControls:MediaViewer
-            x:Name="MediaViewer"
-            Grid.Column="2"
-            CornerRadius="8"
-            DelayIconLoading="False"
-            IconMargin="16"
-            ImageMode="ThumbnailOnly" />
+            <TextBlock
+                VerticalAlignment="Center"
+                l:Uids.Uid="/Home/MediasCount"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 
-        <controls:GridSplitter
-            Grid.Column="2"
-            Width="10"
-            HorizontalAlignment="Right"
-            CornerRadius="4"
-            ResizeBehavior="PreviousAndNext">
-            <controls:GridSplitter.Resources>
-                <StaticResource x:Key="SizerBaseBackgroundPointerOver" ResourceKey="ControlAltFillColorTransparentBrush" />
-                <StaticResource x:Key="SizerBaseBackgroundPressed" ResourceKey="ControlAltFillColorTransparentBrush" />
-                <StaticResource x:Key="SizerBaseBackgroundDisabled" ResourceKey="ControlAltFillColorTransparentBrush" />
-            </controls:GridSplitter.Resources>
-        </controls:GridSplitter>
+            <Border
+                Width="1"
+                Height="18"
+                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                Visibility="{x:Bind MediaItemsView.MediasSelectedCount, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+
+            <TextBlock
+                VerticalAlignment="Center"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind MediaItemsView.MediasSelectedCount, Mode=OneWay}"
+                Visibility="{x:Bind MediaItemsView.MediasSelectedCount, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+
+            <TextBlock
+                VerticalAlignment="Center"
+                l:Uids.Uid="/Home/SelectedMediasCount"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Visibility="{x:Bind MediaItemsView.MediasSelectedCount, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+        </StackPanel>
     </Grid>
 </Page>

@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.WinUI.Controls;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;

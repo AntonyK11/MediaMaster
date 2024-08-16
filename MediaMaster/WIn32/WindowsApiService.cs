@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
-using static MediaMaster.Services.WindowsNativeValues;
-using static MediaMaster.Services.WindowsNativeInterfaces;
+using static MediaMaster.WIn32.WindowsNativeValues;
+using static MediaMaster.WIn32.WindowsNativeInterfaces;
 
-namespace MediaMaster.Services;
+namespace MediaMaster.WIn32;
 
 /// <summary>
 ///     Provides access to Windows API functions.
@@ -23,11 +23,11 @@ public static partial class WindowsApiService
     internal static partial IntPtr GetSystemMenu(IntPtr hWnd, [MarshalAs(UnmanagedType.Bool)] bool bRevert);
 
     [LibraryImport("user32.dll")]
-    internal static partial int TrackPopupMenu(IntPtr hMenu, WindowsNativeValues.TRACK_POPUP_MENU_FLAGS uFlags, int x, int y, int nReserved, IntPtr hWnd, IntPtr prcRect);
+    internal static partial int TrackPopupMenu(IntPtr hMenu, TRACK_POPUP_MENU_FLAGS uFlags, int x, int y, int nReserved, IntPtr hWnd, IntPtr prcRect);
 
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool EnableMenuItem(IntPtr hMenu, uint uIdEnableItem, WindowsNativeValues.MENU_ITEM_FLAGS uEnable);
+    internal static partial bool EnableMenuItem(IntPtr hMenu, uint uIdEnableItem, MENU_ITEM_FLAGS uEnable);
 
     [LibraryImport("dwmapi.dll")]
     internal static partial int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref Margins pMarInset);
@@ -76,14 +76,14 @@ public static partial class WindowsApiService
     internal static extern Status GdiplusStartup(ref UIntPtr token, in GdiplusStartupInput input, ref GdiplusStartupOutput output);
 
     [LibraryImport("USER32.dll", EntryPoint = "LoadImageW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
-    internal static partial IntPtr LoadImage(IntPtr hInst, string name, WindowsNativeValues.GDI_IMAGE_TYPE type, int cx, int cy, WindowsNativeValues.IMAGE_FLAGS fuLoad);
+    internal static partial IntPtr LoadImage(IntPtr hInst, string name, GDI_IMAGE_TYPE type, int cx, int cy, IMAGE_FLAGS fuLoad);
 
     [LibraryImport("GDI32.dll", EntryPoint = "CreateFontW", StringMarshalling = StringMarshalling.Utf16)]
     internal static partial IntPtr CreateFont(int cHeight, int cWidth, int cEscapement, int cOrientation, int cWeight, uint bItalic, uint bUnderline, uint bStrikeOut, uint iCharSet, uint iOutPrecision, uint iClipPrecision, uint iQuality, uint iPitchAndFamily, string pszFaceName);
 
     [LibraryImport("USER32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool SetMenuInfo(IntPtr param0, in WindowsNativeValues.MENUINFO param1);
+    internal static partial bool SetMenuInfo(IntPtr param0, in MENUINFO param1);
 
     [LibraryImport("gdiplus.dll", StringMarshalling = StringMarshalling.Utf16)]
     internal static unsafe partial Status GdipCreateBitmapFromFile(string filename, ref IntPtr* bitmap);
@@ -109,11 +109,11 @@ public static partial class WindowsApiService
 
     [LibraryImport("USER32.dll", EntryPoint = "AppendMenuW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool AppendMenu(IntPtr hMenu, WindowsNativeValues.MENU_ITEM_FLAGS uFlags, nuint uIDNewItem, string lpNewItem);
+    internal static partial bool AppendMenu(IntPtr hMenu, MENU_ITEM_FLAGS uFlags, nuint uIDNewItem, string lpNewItem);
 
     [LibraryImport("USER32.dll", EntryPoint = "ModifyMenuW", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool ModifyMenu(IntPtr hMnu, uint uPosition, WindowsNativeValues.MENU_ITEM_FLAGS uFlags, nuint uIDNewItem, IntPtr lpNewItem);
+    internal static partial bool ModifyMenu(IntPtr hMnu, uint uPosition, MENU_ITEM_FLAGS uFlags, nuint uIDNewItem, IntPtr lpNewItem);
 
     [DllImport("USER32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

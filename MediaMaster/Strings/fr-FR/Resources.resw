@@ -120,45 +120,6 @@
   <data name="AppDescription" xml:space="preserve">
     <value>Minecraft Mod Launcher fr</value>
   </data>
-  <data name="Shell_Main.Content" xml:space="preserve">
-    <value>Main fr</value>
-  </data>
-  <data name="Settings_Appearance.Text" xml:space="preserve">
-    <value>Appearance fr</value>
-  </data>
-  <data name="Settings_Theme.Title" xml:space="preserve">
-    <value>App Theme fr</value>
-  </data>
-  <data name="Settings_Theme_Light.Content" xml:space="preserve">
-    <value>Light fr</value>
-  </data>
-  <data name="Settings_Theme_Dark.Content" xml:space="preserve">
-    <value>Dark fr</value>
-  </data>
-  <data name="Settings_Theme_Default.Content" xml:space="preserve">
-    <value>Default fr</value>
-  </data>
-  <data name="Settings_About.Text" xml:space="preserve">
-    <value>About this application fr</value>
-  </data>
-  <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>TODO: Replace with your app description. fr</value>
-  </data>
-  <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>Privacy Statement fr</value>
-  </data>
-  <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
-    <value>https://YourPrivacyUrlGoesHere/ fr</value>
-  </data>
-  <data name="Settings_Theme.Description" xml:space="preserve">
-    <value>Select which app theme to display fr</value>
-  </data>
-  <data name="MainWindow_en-US.Text" xml:space="preserve">
-    <value>English</value>
-  </data>
-  <data name="MainWindow_fr-FR.Text" xml:space="preserve">
-    <value>Français</value>
-  </data>
   <data name="edit_toast_button" xml:space="preserve">
     <value>Éditer</value>
   </data>
@@ -180,7 +141,16 @@
   <data name="AppTitleBar.Subtitle" xml:space="preserve">
     <value>Béta</value>
   </data>
-  <data name="AppTitleBar.Title" xml:space="preserve">
-    <value>MediaMaster</value>
+  <data name="ShellPage_MediasNavigationItem.Content" xml:space="preserve">
+    <value>Liste des Médias</value>
+  </data>
+  <data name="ShellPage_SettingsNavigationItem.Content" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="ShowWindow" xml:space="preserve">
+    <value>Afficher la fenêtre</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Fermer</value>
   </data>
 </root>

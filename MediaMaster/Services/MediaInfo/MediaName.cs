@@ -3,9 +3,7 @@ using CommunityToolkit.WinUI.Controls;
 using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -36,8 +34,8 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
                 break;
             }
             case 0:
-            {
-                EditableTextBlock.Text = "No Media Selected";
+            { 
+                EditableTextBlock.Text = "/Media/NoMediaSelected".GetLocalizedString();
                 EditableTextBlock.EditOnDoubleClick = false;
                 EditableTextBlock.EditOnClick = false;
                 break;
@@ -47,9 +45,11 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
                 var text = Medias.First().Name;
                 if (Medias.Any(media => media.Name != text))
                 {
-                    text = "Multiple Media Selected";
+                    EditableTextBlock.Text = "/Media/MultipleMediasSelected".GetLocalizedString();
+                    break;
                 }
 
+                Uids.SetUid(EditableTextBlock, "");
                 EditableTextBlock.Text = text;
                 break;
             }
@@ -88,10 +88,8 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
         };
         Border.Child = MediaExtensionIcon;
 
-        EditableTextBlock = new EditableTextBlock
-        {
-            PlaceholderText = "Media Name"
-        };
+        EditableTextBlock = new EditableTextBlock();
+        Uids.SetUid(EditableTextBlock, "MediaName_TextBlock");
         EditableTextBlock.SetValue(Grid.ColumnProperty, 1);
         EditableTextBlock.TextConfirmed += (_, args) => UpdateMedia(args);
 
@@ -153,7 +151,11 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
 
             MediaExtensionIcon.Source = null;
             var icon = await IconService.GetIcon(media.Uri, ImageMode.IconOnly, 24, 24, _tokenSource);
-            await App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon);
+
+            if (Medias.Count == 1)
+            {
+                await App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon);
+            }
         }
     }
 

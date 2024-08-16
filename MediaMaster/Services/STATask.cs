@@ -1,4 +1,4 @@
-﻿using static MediaMaster.Services.WindowsApiService;
+﻿using static MediaMaster.WIn32.WindowsApiService;
 
 namespace MediaMaster.Services;
 

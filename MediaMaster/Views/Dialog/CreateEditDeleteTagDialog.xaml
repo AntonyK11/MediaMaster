@@ -19,11 +19,10 @@
             Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
         <TextBox
             l:Uids.Uid="/Tag/Shorthand_TextBox"
-            Header="Shorthand_TextBox.Header"
             IsEnabled="{x:Bind ViewModel.CanChangeShortHand, Mode=OneWay}"
             Text="{x:Bind ViewModel.Shorthand, Mode=TwoWay}" />
         <StackPanel Spacing="8">
-            <TextBlock Text="Aliases" />
+            <TextBlock l:Uids.Uid="/Tag/Aliases_TextBlock" />
             <controls:EditableListView
                 x:Name="AliasesListView"
                 Height="200"

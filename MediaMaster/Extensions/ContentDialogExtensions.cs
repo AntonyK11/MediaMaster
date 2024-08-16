@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
-
-namespace MediaMaster.Extensions;
+﻿namespace MediaMaster.Extensions;
 
 public static class ContentDialogExtensions
 {

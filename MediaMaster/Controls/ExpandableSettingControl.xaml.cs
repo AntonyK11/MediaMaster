@@ -1,6 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using DependencyPropertyGenerator;
 using Microsoft.UI.Xaml.Automation;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Markup;
 
 namespace MediaMaster.Controls;
@@ -8,74 +7,15 @@ namespace MediaMaster.Controls;
 // from https://github.com/veler/DevToys/blob/main/src/dev/impl/DevToys/UI/Controls/ExpandableSettingControl.xaml.cs
 
 [ContentProperty(Name = nameof(SettingActionableElement))]
+[DependencyProperty("Title", typeof(string), DefaultValue = "")]
+[DependencyProperty("Description", typeof(string), DefaultValue = "")]
+[DependencyProperty("Icon", typeof(IconElement))]
+[DependencyProperty("ExpandableContent", typeof(FrameworkElement))]
+[DependencyProperty("IsExpanded", typeof(bool), DefaultValue = false)]
+
 public sealed partial class ExpandableSettingControl
 {
     public FrameworkElement? SettingActionableElement { get; set; }
-
-    public static readonly DependencyProperty TitleProperty
-        = DependencyProperty.Register(
-            nameof(Title),
-            typeof(string),
-            typeof(ExpandableSettingControl),
-            new PropertyMetadata(string.Empty));
-
-    public string Title
-    {
-        get => (string)GetValue(TitleProperty);
-        set => SetValue(TitleProperty, value);
-    }
-
-    public static readonly DependencyProperty DescriptionProperty
-        = DependencyProperty.Register(
-            nameof(Description),
-            typeof(string),
-            typeof(ExpandableSettingControl),
-            new PropertyMetadata(string.Empty));
-
-    public string Description
-    {
-        get => (string)GetValue(DescriptionProperty);
-        set => SetValue(DescriptionProperty, value);
-    }
-
-    public static readonly DependencyProperty IconProperty
-        = DependencyProperty.Register(
-            nameof(Icon),
-            typeof(IconElement),
-            typeof(ExpandableSettingControl),
-            new PropertyMetadata(null));
-
-    public IconElement Icon
-    {
-        get => (IconElement)GetValue(IconProperty);
-        set => SetValue(IconProperty, value);
-    }
-
-    public static readonly DependencyProperty ExpandableContentProperty
-        = DependencyProperty.Register(
-            nameof(ExpandableContent),
-            typeof(FrameworkElement),
-            typeof(ExpandableSettingControl),
-            new PropertyMetadata(null));
-
-    public FrameworkElement ExpandableContent
-    {
-        get => (FrameworkElement)GetValue(ExpandableContentProperty);
-        set => SetValue(ExpandableContentProperty, value);
-    }
-
-    public static readonly DependencyProperty IsExpandedProperty
-        = DependencyProperty.Register(
-            nameof(IsExpanded),
-            typeof(bool),
-            typeof(ExpandableSettingControl),
-            new PropertyMetadata(false));
-
-    public bool IsExpanded
-    {
-        get => (bool)GetValue(IsExpandedProperty);
-        set => SetValue(IsExpandedProperty, value);
-    }
 
     public ExpandableSettingControl()
     {

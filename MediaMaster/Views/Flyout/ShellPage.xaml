@@ -166,7 +166,6 @@
             </Viewbox>
         </Button>
         <Button
-            x:Name="NavigationBackButton"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             l:Uids.Uid="NavigationBackButton"

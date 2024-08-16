@@ -1,8 +1,7 @@
 ﻿using CommunityToolkit.WinUI.Controls;
+using MediaMaster.Controls;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -22,7 +21,7 @@ public class MediaNameCompact(DockPanel parent) : MediaInfoControlBase(parent)
         }
         else
         {
-            Text.Text = "No Media Selected";
+            Text.Text = "/Media/NoMediaSelected".GetLocalizedString();
         }
     }
 

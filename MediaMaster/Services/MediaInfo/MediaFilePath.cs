@@ -2,7 +2,6 @@
 using CommunityToolkit.WinUI.Controls;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using WinUIEx;

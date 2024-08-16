@@ -1,17 +1,14 @@
 using CommunityToolkit.WinUI.Collections;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
-public sealed partial class SelectTagsDialog : Page
+public sealed partial class TagsListDialog : Page
 {
     public ICollection<Tag> Tags { get; private set; } = [];
     public ICollection<Tag> SelectedTags { get; private set; } = [];
@@ -23,10 +20,12 @@ public sealed partial class SelectTagsDialog : Page
     private AdvancedCollectionView? _advancedCollectionView;
     private bool _watchForSelectionChange = true;
 
-    public SelectTagsDialog(ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
+    public TagsListDialog(HashSet<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
         bool showExtensionsAndWebsites = true)
     {
         InitializeComponent();
+
+        ListView.SelectionMode = selectedTags == null ? ListViewSelectionMode.None : ListViewSelectionMode.Multiple;
 
         _showExtensionsAndWebsites = showExtensionsAndWebsites;
         _tagsToExclude = tagsToExclude ?? [];
@@ -34,19 +33,13 @@ public sealed partial class SelectTagsDialog : Page
         UpdateItemSource(selectedTags);
     }
 
-    private async void UpdateItemSource(ICollection<int>? selectedTags = null)
+    private async void UpdateItemSource(HashSet<int>? selectedTags = null)
     {
-        await SetupTags(selectedTags ?? SelectedTags.Select(t => t.TagId).ToList());
-
-        if (_advancedCollectionView != null)
-        {
-            SelectTags(_advancedCollectionView.OfType<Tag>().ToList(), SelectedTags);
-        }
-
+        await SetupTags(selectedTags ?? SelectedTags.Select(t => t.TagId).ToHashSet());
         TextBox_TextChanged(null, null);
     }
 
-    private async Task SetupTags(ICollection<int> selectedTags)
+    private async Task SetupTags(HashSet<int> selectedTags)
     {
         _watchForSelectionChange = false;
         await using (var database = new MediaDbContext())
@@ -62,17 +55,45 @@ public sealed partial class SelectTagsDialog : Page
 
         _watchForSelectionChange = true;
     }
-
-    private void SelectTags(IList<Tag> tags, ICollection<Tag> selectedTags)
+    
+    private void TextBox_TextChanged(object? sender, TextChangedEventArgs? args)
     {
         _watchForSelectionChange = false;
 
-        var selectedTagIds = selectedTags.Select(t => t.TagId).ToHashSet();
+        var splitText = TextBox.Text.Trim().Split(" ");
+        if (_advancedCollectionView != null)
+        {
+            using (_advancedCollectionView.DeferRefresh())
+            {
+                _advancedCollectionView.Filter = x =>
+                {
+                    if (x is Tag tag)
+                    {
+                        return splitText.All(key =>
+                            tag.Name.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
+                            tag.Shorthand.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
+                            tag.Aliases.Any(a => a.Contains(key, StringComparison.CurrentCultureIgnoreCase)));
+                    }
+
+                    return false;
+                };
+            }
+
+            SelectTags(_advancedCollectionView.OfType<Tag>().ToList(), SelectedTags.Select(t => t.TagId).ToHashSet());
+        }
+
+        _watchForSelectionChange = true;
+    }
+
+    private void SelectTags(IList<Tag> tags, ICollection<int> selectedTags)
+    {
+        _watchForSelectionChange = false;
+
         var selectedIndexes = new List<int>();
 
         for (var i = 0; i < tags.Count; i++)
         {
-            if (selectedTagIds.Contains(tags[i].TagId))
+            if (selectedTags.Contains(tags[i].TagId))
             {
                 selectedIndexes.Add(i);
             }
@@ -105,39 +126,12 @@ public sealed partial class SelectTagsDialog : Page
             {
                 continue;
             }
-            
+
             ranges.Add(new ItemIndexRange(start, (uint)(current - start + 1)));
             start = next;
         }
         ranges.Add(new ItemIndexRange(start, (uint)(indexes.Last() - start + 1)));
         return ranges;
-    }
-    
-    private void TextBox_TextChanged(object? sender, TextChangedEventArgs? args)
-    {
-        _watchForSelectionChange = false;
-
-        var splitText = TextBox.Text.Trim().Split(" ");
-        if (_advancedCollectionView != null)
-        {
-            using (_advancedCollectionView.DeferRefresh())
-            {
-                _advancedCollectionView.Filter = x =>
-                {
-                    if (x is Tag tag)
-                    {
-                        return splitText.All(key =>
-                            tag.Name.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
-                            tag.Shorthand.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
-                            tag.Aliases.Any(a => a.Contains(key, StringComparison.CurrentCultureIgnoreCase)));
-                    }
-
-                    return false;
-                };
-            }
-        }
-
-        _watchForSelectionChange = true;
     }
 
     private void ListView_OnSelectionChanged(object sender, SelectionChangedEventArgs args)
@@ -191,19 +185,21 @@ public sealed partial class SelectTagsDialog : Page
         }
     }
 
-    public static async Task<(ContentDialogResult, SelectTagsDialog?)> ShowDialogAsync(
-        ICollection<int>? selectedTags = null, ICollection<int>? tagsToExclude = null, bool showExtensionsAndWebsites = true)
+    public static async Task<(ContentDialogResult, TagsListDialog?)> ShowDialogAsync(
+        HashSet<int>? selectedTags = null, ICollection<int>? tagsToExclude = null, bool showExtensionsAndWebsites = true)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 
-        var selectTagsDialog = new SelectTagsDialog(selectedTags, tagsToExclude, showExtensionsAndWebsites);
+        var selectTagsDialog = new TagsListDialog(selectedTags, tagsToExclude, showExtensionsAndWebsites);
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,
             DefaultButton = ContentDialogButton.Primary,
             Content = selectTagsDialog
         };
-        Uids.SetUid(dialog, "/Tag/SelectDialog");
+
+        Uids.SetUid(dialog, selectedTags == null ? "/Tag/ManageDialog" : "/Tag/SelectDialog");
+
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
 

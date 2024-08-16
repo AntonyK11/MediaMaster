@@ -1,5 +1,4 @@
 ﻿using MediaMaster.Interfaces.Services;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services;
 
@@ -10,7 +9,7 @@ public class TeachingService : ITeachingService
 {
     private readonly Dictionary<int, TeachingTip> _teachingTips = [];
 
-    private int _teachingStep = 0;
+    private int _teachingStep;
 
     public void NextStep()
     {

@@ -1,23 +1,10 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using DependencyPropertyGenerator;
 
 namespace MediaMaster.Controls;
 
+[DependencyProperty("Text", typeof(string))]
 public sealed partial class TipIcon : UserControl
 {
-    public static readonly DependencyProperty TextProperty
-        = DependencyProperty.Register(
-            nameof(Text),
-            typeof(string),
-            typeof(EditableTextBlock),
-            new PropertyMetadata(""));
-
-    public string Text
-    {
-        get => (string)GetValue(TextProperty);
-        set => SetValue(TextProperty, value);
-    }
-
     public TipIcon()
     {
         this.InitializeComponent();

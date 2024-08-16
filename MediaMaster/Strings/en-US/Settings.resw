@@ -117,98 +117,73 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ColorPicker_CancelButton.Content" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="Theme.Description" xml:space="preserve">
+    <value>Select application theme</value>
   </data>
-  <data name="ColorPicker_ConfirmButton.Text" xml:space="preserve">
-    <value>Confirmer</value>
+  <data name="Appearance.Text" xml:space="preserve">
+    <value>Appearance</value>
   </data>
-  <data name="ColorPicker_ConfirmButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Cette couleur n'a peut-être pas assez de contraste</value>
+  <data name="Theme.Title" xml:space="preserve">
+    <value>App Theme</value>
   </data>
-  <data name="CreateDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="Theme_Light.Content" xml:space="preserve">
+    <value>Light</value>
   </data>
-  <data name="CreateDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Créer</value>
+  <data name="Theme_Dark.Content" xml:space="preserve">
+    <value>Dark</value>
   </data>
-  <data name="CreateDialog.Title" xml:space="preserve">
-    <value>Créer une étiquette</value>
+  <data name="Theme_Default.Content" xml:space="preserve">
+    <value>Default</value>
   </data>
-  <data name="DeleteDialog.Content" xml:space="preserve">
-    <value>Êtes-vous sûr de vouloir supprimer cette étiquette ?
-Cette action est permanente et ne peut être annulée.</value>
+  <data name="About.Text" xml:space="preserve">
+    <value>About this application</value>
   </data>
-  <data name="DeleteDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="AboutDescription.Text" xml:space="preserve">
+    <value>TODO: Replace with your app description.</value>
   </data>
-  <data name="DeleteDialog.Title" xml:space="preserve">
-    <value>Supprimer l'étiquette</value>
+  <data name="PrivacyTermsLink.Content" xml:space="preserve">
+    <value>Open On Windows Startup</value>
   </data>
-  <data name="EditDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="PrivacyTermsLink.NavigateUri" xml:space="preserve">
+    <value>https://YourPrivacyUrlGoesHere/</value>
   </data>
-  <data name="EditDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Sauvegarder</value>
+  <data name="en-US.Text" xml:space="preserve">
+    <value>English</value>
   </data>
-  <data name="EditDialog.SecondaryButtonText" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="fr-FR.Text" xml:space="preserve">
+    <value>Français</value>
   </data>
-  <data name="EditDialog.Title" xml:space="preserve">
-    <value>Éditer l'étiquette</value>
+  <data name="Title.Text" xml:space="preserve">
+    <value>Settings</value>
   </data>
-  <data name="Flyout_Delete.Text" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="Language.Title" xml:space="preserve">
+    <value>Language</value>
   </data>
-  <data name="Flyout_Duplicate.Text" xml:space="preserve">
-    <value>Dupliquer</value>
+  <data name="Language.Description" xml:space="preserve">
+    <value>Select application language</value>
   </data>
-  <data name="Flyout_Edit.Text" xml:space="preserve">
-    <value>Éditer</value>
+  <data name="Misc.Text" xml:space="preserve">
+    <value>Miscellaneous</value>
   </data>
-  <data name="Flyout_Remove.Text" xml:space="preserve">
-    <value>Enlever</value>
+  <data name="Advanced.Text" xml:space="preserve">
+    <value>Advanced</value>
   </data>
-  <data name="Name_TextBox.Header" xml:space="preserve">
-    <value>Nom</value>
+  <data name="ShowExtensions.Title" xml:space="preserve">
+    <value>Show extensions</value>
   </data>
-  <data name="SelectDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="OpenOnWindowsStartup.Title" xml:space="preserve">
+    <value>Open MediaMaster on Windows startup</value>
   </data>
-  <data name="SelectDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Selectionner</value>
+  <data name="LeaveAppRunning.Title" xml:space="preserve">
+    <value>Leave the application running in the background when closed</value>
   </data>
-  <data name="SelectDialog.SecondaryButtonText" xml:space="preserve">
-    <value>Nouvelle étiquette</value>
+  <data name="OpenOnWindowsStartup.Description" xml:space="preserve">
+    <value>The application will open in the background if the parameter below has been checked</value>
   </data>
-  <data name="SelectDialog.Title" xml:space="preserve">
-    <value>Selectionner une étiquette</value>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>On</value>
   </data>
-  <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
-  <data name="Aliases_TextBlock.Text" xml:space="preserve">
-    <value>Alias</value>
-  </data>
-  <data name="Shorthand_TextBox.Header" xml:space="preserve">
-    <value>Abréviation</value>
-  </data>
-  <data name="ItemView_ScrollForwardButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Défiler à droite</value>
-  </data>
-  <data name="ItemView_ScrollBackButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Défiler à gauche</value>
-  </data>
-  <data name="ManageDialog.SecondaryButtonText" xml:space="preserve">
-    <value>Nouvelle étiquette</value>
-  </data>
-  <data name="ManageDialog.Title" xml:space="preserve">
-    <value>Gérer les étiquettes</value>
-  </data>
-  <data name="ManageDialog.CloseButtonText" xml:space="preserve">
-    <value>Fermer</value>
-  </data>
-  <data name="EditableListView_EditableTextBlock.PlaceholderText" xml:space="preserve">
-    <value>Ajouter un nouvel élément</value>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Off</value>
   </data>
 </root>

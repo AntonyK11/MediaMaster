@@ -1,5 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using MediaMaster.Interfaces.Services;
+﻿using MediaMaster.Interfaces.Services;
 
 namespace MediaMaster.Services.Navigation;
 

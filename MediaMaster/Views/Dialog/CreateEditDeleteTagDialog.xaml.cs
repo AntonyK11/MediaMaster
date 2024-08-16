@@ -1,13 +1,10 @@
 using System.Drawing;
 using EFCore.BulkExtensions;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.ViewModels.Dialog;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
@@ -37,10 +34,11 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
         if (tagParam == null)
         {
-            ViewModel.Color = new Windows.UI.Color();
+            var emptyColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);
+            ViewModel.Color = emptyColor;
             return;
         }
-         
+        
         AliasesListView.Strings = tagParam.Aliases;
         ViewModel.Name = tagParam.Name;
         ViewModel.Shorthand = tagParam.Shorthand;
@@ -173,7 +171,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 trackedTag.FirstParentReferenceName = TagView.GetItemSource().MinBy(t => t.Name)?.GetReferenceName() ?? "";
 
                 trackedTag.Color = ViewModel.Color.ToSystemColor();
-                trackedTag.Aliases = AliasesListView.Strings?.ToList() ?? [];
+                trackedTag.Aliases = AliasesListView.Strings.ToList();
 
                 if (CurrentTag == null)
                 {

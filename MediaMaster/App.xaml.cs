@@ -6,12 +6,9 @@ using MediaMaster.Services;
 using MediaMaster.ViewModels;
 using MediaMaster.Views;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Windows.Storage;
 using System.Text.Json;
 using MediaMaster.Services.Navigation;
-using Microsoft.UI.Xaml.Controls;
-
 
 namespace MediaMaster;
 
@@ -72,7 +69,6 @@ public partial class App : Application
                 services.AddSingleton<ShellPage>();
                 services.AddTransient<HomePage>();
                 services.AddSingleton<CategoriesPage>();
-                services.AddSingleton<CategoriesViewModel>();
                 services.AddTransient<SettingsViewModel>();
                 services.AddTransient<SettingsPage>();
 
@@ -83,6 +79,7 @@ public partial class App : Application
                 services.AddSingleton<ViewModels.Flyout.HomeViewModel>();
 
                 services.AddSingleton<TrayIconService>();
+                services.AddSingleton<InAppNotificationService>();
             }).Build();
 
         GetService<IAppNotificationService>().Initialize();

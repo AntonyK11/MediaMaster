@@ -3,15 +3,20 @@
     x:Class="MediaMaster.Views.ShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:controls="using:MediaMaster.Controls"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:MediaMaster.Helpers"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winUi="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
     <Grid>
-        <controls:TitleBarControl x:Name="AppTitleBar" l:Uids.Uid="AppTitleBar">
+        <controls:TitleBarControl x:Name="AppTitleBar" Title="MediaMaster">
             <controls:TitleBarControl.IconPath>
                 <BitmapImage UriSource="/Assets/WindowIcon.ico" />
             </controls:TitleBarControl.IconPath>
@@ -19,27 +24,70 @@
 
         <NavigationView
             x:Name="NavView"
+            AlwaysShowHeader="False"
             Canvas.ZIndex="0"
             DisplayModeChanged="OnDisplayModeChanged"
-            Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay, FallbackValue='Default Title'}"
+            Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay, FallbackValue=''}"
             IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
 
             <NavigationView.MenuItems>
-                <NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.HomePage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Home" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.CategoriesPage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="MediaMaster.Views.HomePage"
+                    l:Uids.Uid="ShellPage_MediasNavigationItem"
+                    Icon="{winUi:FontIcon Glyph=&#xE80F;}" />
+                <!--<NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.CategoriesPage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
                     <NavigationViewItem.Icon>
                         <SymbolIcon Symbol="Bullets" />
                     </NavigationViewItem.Icon>
-                </NavigationViewItem>
+                </NavigationViewItem>-->
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame" IsTabStop="False" />
-
         </NavigationView>
+
+        <InfoBar
+            x:Name="InfoBar"
+            MaxWidth="480"
+            Margin="24"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom">
+            <interactivity:Interaction.Behaviors>
+                <behaviors:StackedNotificationsBehavior x:Name="NotificationQueue" />
+
+                <core:DataTriggerBehavior
+                    Binding="{x:Bind InfoBar.IsOpen, Mode=OneWay}"
+                    ComparisonCondition="Equal"
+                    Value="True">
+                    <behaviors:StartAnimationAction Animation="{x:Bind ShowAnimationSet}" />
+                </core:DataTriggerBehavior>
+            </interactivity:Interaction.Behaviors>
+            <InfoBar.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Light">
+                            <SolidColorBrush x:Key="InfoBarInformationalSeverityBackgroundBrush" Color="#FFd3e7f7" />
+                            <SolidColorBrush x:Key="InfoBarInformationalSeverityIconBackground" Color="#FF0063b1" />
+                        </ResourceDictionary>
+                        <ResourceDictionary x:Key="Default">
+                            <SolidColorBrush x:Key="InfoBarInformationalSeverityBackgroundBrush" Color="#FF34424d" />
+                            <SolidColorBrush x:Key="InfoBarInformationalSeverityIconBackground" Color="#FF5fb2f2" />
+                        </ResourceDictionary>
+                        <ResourceDictionary x:Key="HighContrast">
+                            <SolidColorBrush x:Key="InfoBarInformationalSeverityBackgroundBrush" Color="#FF34424d" />
+                        </ResourceDictionary>
+                    </ResourceDictionary.ThemeDictionaries>
+                </ResourceDictionary>
+            </InfoBar.Resources>
+
+            <animations:Explicit.Animations>
+                <animations:AnimationSet x:Name="ShowAnimationSet">
+                    <animations:AnimationScope EasingMode="EaseOut" Duration="0:0:1">
+                        <animations:OpacityAnimation From="0" To="1" />
+                    </animations:AnimationScope>
+                </animations:AnimationSet>
+            </animations:Explicit.Animations>
+
+        </InfoBar>
     </Grid>
 </Page>

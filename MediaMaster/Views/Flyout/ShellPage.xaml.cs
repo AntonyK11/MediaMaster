@@ -1,7 +1,5 @@
-using Microsoft.UI.Xaml;
 using MediaMaster.Services.Navigation;
 using MediaMaster.ViewModels.Flyout;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Views.Flyout;
 

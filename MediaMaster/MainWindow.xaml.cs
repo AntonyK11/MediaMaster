@@ -1,10 +1,9 @@
-using Microsoft.UI.Xaml;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using WinUIEx;
 using H.NotifyIcon.EfficiencyMode;
-using static MediaMaster.Services.WindowsNativeValues;
-using static MediaMaster.Services.WindowsApiService;
+using static MediaMaster.WIn32.WindowsNativeValues;
+using static MediaMaster.WIn32.WindowsApiService;
 
 namespace MediaMaster;
 
@@ -75,7 +74,7 @@ public sealed partial class MainWindow
         DwmWindowAttribute attribute = (Environment.OSVersion.Version.Build < 22523)
             ? DwmWindowAttribute.SystemBackdropTypeDeprecated // Undocumented Backdrop attribute
             : DwmWindowAttribute.DwmWindowAttribute;
-        var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)WindowsNativeValues.DwSystemBackdropType.MainWindow;
+        var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)DwSystemBackdropType.MainWindow;
         DwmSetWindowAttribute(hWnd, attribute, ref attributeValue, sizeof(int));
 
         if (theme == ElementTheme.Dark)

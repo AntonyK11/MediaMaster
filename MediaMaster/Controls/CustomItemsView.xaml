@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <ControlTemplate x:Key="HorizontalNextTemplate" TargetType="local:CustomButton">
+        <ControlTemplate x:Key="HorizontalNextTemplate" TargetType="Button">
             <Border
                 x:Name="Root"
                 Background="{ThemeResource FlipViewNextPreviousButtonBackground}"
@@ -80,7 +80,7 @@
             </Border>
         </ControlTemplate>
 
-        <ControlTemplate x:Key="HorizontalPreviousTemplate" TargetType="local:CustomButton">
+        <ControlTemplate x:Key="HorizontalPreviousTemplate" TargetType="Button">
             <Border
                 x:Name="Root"
                 Background="{ThemeResource FlipViewNextPreviousButtonBackground}"
@@ -390,24 +390,24 @@
             </ItemsView.ItemTransitionProvider>
         </ItemsView>
 
-        <local:CustomButton
+        <Button
             x:Name="ScrollBackBtn"
             Width="16"
             Height="22"
             Margin="0"
-            l:Uids.Uid="CustomItemsView_ScrollBackButton"
+            l:Uids.Uid="ItemView_ScrollBackButton"
             Click="ScrollBackBtn_Click"
             CornerRadius="4"
             IsTabStop="False"
             Template="{StaticResource HorizontalPreviousTemplate}"
             Visibility="Collapsed" />
-        <local:CustomButton
+        <Button
             x:Name="ScrollForwardBtn"
             Width="16"
             Height="22"
             Margin="0"
             HorizontalAlignment="Right"
-            l:Uids.Uid="CustomItemsView_ScrollForwardButton"
+            l:Uids.Uid="ItemView_ScrollForwardButton"
             Click="ScrollForwardBtn_Click"
             CornerRadius="4"
             IsTabStop="False"

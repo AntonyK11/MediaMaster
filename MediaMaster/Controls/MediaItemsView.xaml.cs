@@ -1,37 +1,23 @@
-using System.Collections.ObjectModel;
 using System.Linq.Expressions;
-using System.Numerics;
 using Windows.Foundation;
-using CommunityToolkit.WinUI.Collections;
 using MediaMaster.DataBase;
-using Microsoft.UI.Composition;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
 using CommunityToolkit.WinUI;
-using MediaMaster.DataBase.Models;
+using DependencyPropertyGenerator;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.Controls;
 
+[DependencyProperty("SelectionMode", typeof(ItemsViewSelectionMode), DefaultValue = ItemsViewSelectionMode.Multiple)]
+[DependencyProperty("CanSelectAll", typeof(bool), DefaultValue = true, IsReadOnly = false)]
+[DependencyProperty("CanDeselectAll", typeof(bool), DefaultValue = true, IsReadOnly = true)]
+[DependencyProperty("MediasCount", typeof(int), DefaultValue = 0, IsReadOnly = true)]
+[DependencyProperty("MediasSelectedCount", typeof(int), DefaultValue = 0, IsReadOnly = true)]
 public sealed partial class MediaItemsView : UserControl
 {
-    public static readonly DependencyProperty SelectionModeProperty
-        = DependencyProperty.Register(
-            nameof(SelectionModeProperty),
-            typeof(ItemsViewSelectionMode),
-            typeof(MediaItemsView),
-            new PropertyMetadata(ItemsViewSelectionMode.Multiple));
-
-    public ItemsViewSelectionMode SelectionMode
-    {
-        get => (ItemsViewSelectionMode)GetValue(SelectionModeProperty);
-        set => SetValue(SelectionModeProperty, value);
-    }
-
     public event TypedEventHandler<object, ICollection<Media>>? SelectionChanged;
 
     public MediaItemsView()
@@ -110,7 +96,7 @@ public sealed partial class MediaItemsView : UserControl
 
         var currentPageIndex = PagerControl.SelectedPageIndex;
         var pageCount = 1;
-        ICollection<Media> medias = [];
+        List<Media> medias = [];
 
         await Task.Run(async () =>
         {
@@ -127,8 +113,19 @@ public sealed partial class MediaItemsView : UserControl
         });
 
         PagerControl.NumberOfPages = pageCount > 0 ? pageCount : 1;
+
+        var selectedMedias = MediaItemsViewControl.SelectedItems.OfType<Media>().Select(m => m.MediaId).ToHashSet();
         MediaItemsViewControl.ItemsSource = medias;
+        foreach (var media in medias.Where(media => selectedMedias.Contains(media.MediaId)))
+        {
+            MediaItemsViewControl.Select(medias.IndexOf(media));
+        }
+
+        MediasCount = medias.Count;
+        MediasSelectedCount = MediaItemsViewControl.SelectedItems.Count;
+
         MediaItemsViewControl.ScrollView.ScrollTo(0, 0);
+        SetupSelectionPermissions();
 
         if (medias.Count != 0)
         {
@@ -179,6 +176,28 @@ public sealed partial class MediaItemsView : UserControl
     private void MediaItemsView_OnSelectionChanged(ItemsView sender, ItemsViewSelectionChangedEventArgs args)
     {
         App.DispatcherQueue.EnqueueAsync(() => SelectionChanged?.Invoke(this, MediaItemsViewControl.SelectedItems.OfType<Media>().ToList()));
+        SetupSelectionPermissions();
+    }
+
+    private void SetupSelectionPermissions()
+    {
+        var count = MediaItemsViewControl.SelectedItems.Count;
+        if (count == 0)
+        {
+            CanSelectAll = true;
+            CanDeselectAll = false;
+        }
+        else if (count == _pageSize || count == ((ICollection<Media>)MediaItemsViewControl.ItemsSource).Count)
+        {
+            CanSelectAll = false;
+            CanDeselectAll = true;
+        }
+        else
+        {
+            CanSelectAll = true;
+            CanDeselectAll = true;
+        }
+        MediasSelectedCount = count;
     }
 
     private void MediaItemsView_OnProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
@@ -186,14 +205,24 @@ public sealed partial class MediaItemsView : UserControl
         if (args is { Modifiers: VirtualKeyModifiers.Control, Key: VirtualKey.A })
         {
             args.Handled = true;
-            var oldSelectionCount = MediaItemsViewControl.SelectedItems.Count;
-            MediaItemsViewControl.SelectAll();
-            var newSelectionCount = MediaItemsViewControl.SelectedItems.Count;
-
-            if (oldSelectionCount == newSelectionCount)
-            {
-                MediaItemsViewControl.DeselectAll();
-            }
+            SelectAll();
         }
+    }
+
+    public void SelectAll()
+    {
+        var oldSelectionCount = MediaItemsViewControl.SelectedItems.Count;
+        MediaItemsViewControl.SelectAll();
+        var newSelectionCount = MediaItemsViewControl.SelectedItems.Count;
+
+        if (oldSelectionCount == newSelectionCount)
+        {
+            ClearSelection();
+        }
+    }
+
+    public void ClearSelection()
+    {
+        MediaItemsViewControl.DeselectAll();
     }
 }

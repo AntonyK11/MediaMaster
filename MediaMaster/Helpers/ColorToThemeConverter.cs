@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 

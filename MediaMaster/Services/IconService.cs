@@ -3,13 +3,12 @@ using System.Net.Cache;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices;
 using CommunityToolkit.WinUI;
-using static MediaMaster.Services.WindowsNativeValues;
-using static MediaMaster.Services.WindowsApiService;
-using static MediaMaster.Services.WindowsNativeInterfaces;
+using static MediaMaster.WIn32.WindowsNativeValues;
+using static MediaMaster.WIn32.WindowsApiService;
+using static MediaMaster.WIn32.WindowsNativeInterfaces;
 using System.Runtime.InteropServices.WindowsRuntime;
 using FaviconFetcher;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services;
 

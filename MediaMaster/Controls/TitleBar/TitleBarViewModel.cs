@@ -1,20 +1,18 @@
 ﻿using System.Runtime.InteropServices;
 using Windows.Foundation;
 using Windows.Graphics;
-using Windows.Win32;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using WinUIEx;
-using Microsoft.UI.Xaml.Controls;
 using MediaMaster.Services;
 using Point = Windows.Foundation.Point;
-using static MediaMaster.Services.WindowsApiService;
-using static MediaMaster.Services.WindowsNativeValues;
+using static MediaMaster.WIn32.WindowsApiService;
+using static MediaMaster.WIn32.WindowsNativeValues;
+using WindowsApiService = MediaMaster.WIn32.WindowsApiService;
 
 namespace MediaMaster.Controls;
 

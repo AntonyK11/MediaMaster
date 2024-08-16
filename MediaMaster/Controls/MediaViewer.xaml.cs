@@ -1,72 +1,56 @@
 using System.Numerics;
+using DependencyPropertyGenerator;
 using EFCore.BulkExtensions;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
 using MediaMaster.Services;
 using MediaMaster.Services.MediaInfo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Input;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
 
+[DependencyProperty("Medias", typeof(ICollection<Media>), DefaultValueExpression = "new List<Media>()")]
+[DependencyProperty("IconHeight", typeof(int), DefaultValue = 300)]
+[DependencyProperty("IsCompact", typeof(bool), DefaultValue = false)]
+[DependencyProperty("ForceUpdate", typeof(bool), DefaultValue = true)]
+[DependencyProperty("ImageMode", typeof(ImageMode), DefaultValue = ImageMode.IconAndThumbnail)]
+[DependencyProperty("DelayIconLoading", typeof(bool), DefaultValue = true)]
+[DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
 public sealed partial class MediaViewer : UserControl
 {
-    public static readonly DependencyProperty? MediasProperty
-        = DependencyProperty.Register(
-            nameof(Medias),
-            typeof(ICollection<Media>),
-            typeof(MediaViewer),
-            new PropertyMetadata(null));
-
-    public ICollection<Media> Medias
+    partial void OnMediasChanged(ICollection<Media> newValue)
     {
-        get
-        {
-            var medias = (ICollection<Media>?)GetValue(MediasProperty);
-            if (medias == null)
-            {
-                medias = [];
-                SetValue(MediasProperty, medias);
-            }
-            return medias;
-        }
-        set
-        {
-            //Visibility = value != null ? Visibility.Visible : Visibility.Collapsed;
+        //Visibility = value != null ? Visibility.Visible : Visibility.Collapsed;
 
-            ICollection<Media> updatedMedias = value;
-            if (value.Count != 0)
+        ICollection<Media> updatedMedias = newValue;
+        if (newValue.Count != 0)
+        {
+            ArchiveToggleButton.IsEnabled = true;
+            FavoriteToggleButton.IsEnabled = true;
+            if (ForceUpdate)
             {
-                ArchiveToggleButton.IsEnabled = true;
-                FavoriteToggleButton.IsEnabled = true;
-                if (ForceUpdate)
+                updatedMedias = [];
+                using (var database = new MediaDbContext())
                 {
-                    updatedMedias = [];
-                    using (var database = new MediaDbContext())
+                    var mediaIds = newValue.Select(m => m.MediaId).ToHashSet();
+                    var foundMedias = database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToList();
+                    foreach (var foundMedia in foundMedias)
                     {
-                        var mediaIds = value.Select(m => m.MediaId).ToHashSet();
-                        var foundMedias = database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToList();
-                        foreach (var foundMedia in foundMedias)
-                        {
-                            updatedMedias.Add(foundMedia);
-                        }
+                        updatedMedias.Add(foundMedia);
                     }
                 }
             }
-            else
-            {
-                ArchiveToggleButton.IsEnabled = false;
-                FavoriteToggleButton.IsEnabled = false;
-            }
-            SetValue(MediasProperty, updatedMedias);
-            _mediaInfoService.SetMedia(updatedMedias, IsCompact);
-
-            SetupToggleButtons(updatedMedias);
         }
+        else
+        {
+            ArchiveToggleButton.IsEnabled = false;
+            FavoriteToggleButton.IsEnabled = false;
+        }
+        _mediaInfoService.SetMedia(updatedMedias, IsCompact);
+
+        SetupToggleButtons(updatedMedias);
     }
 
     public Media? Media
@@ -85,101 +69,24 @@ public sealed partial class MediaViewer : UserControl
         }
     }
 
-    public static readonly DependencyProperty IconHeightProperty
-        = DependencyProperty.Register(
-            nameof(IconHeight),
-            typeof(int),
-            typeof(MediaViewer),
-            new PropertyMetadata(300));
-
-    public int IconHeight
+    partial void OnIsCompactChanged(bool newValue)
     {
-        get => (int)GetValue(IconHeightProperty);
-        set => SetValue(IconHeightProperty, value);
-    }
-
-    public static readonly DependencyProperty IsCompactProperty
-        = DependencyProperty.Register(
-            nameof(IsCompact),
-            typeof(bool),
-            typeof(MediaViewer),
-            new PropertyMetadata(false));
-
-    public bool IsCompact
-    {
-        get => (bool)GetValue(IsCompactProperty);
-        set
+        if (newValue)
         {
-            SetValue(IsCompactProperty, value);
-            if (value)
-            {
-                ScrollView.Visibility = Visibility.Collapsed;
-                DockPanelCompact.Visibility = Visibility.Visible;
-                ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
-                _mediaInfoService = new MediaInfoService(DockPanelCompact);
-                _mediaInfoService.SetMedia([], value);
-            }
-            else
-            {
-                ScrollView.Visibility = Visibility.Visible;
-                DockPanelCompact.Visibility = Visibility.Collapsed;
-                ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
-                _mediaInfoService = new MediaInfoService(DockPanel);
-                _mediaInfoService.SetMedia([], value);
-            }
+            ScrollView.Visibility = Visibility.Collapsed;
+            DockPanelCompact.Visibility = Visibility.Visible;
+            ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
+            _mediaInfoService = new MediaInfoService(DockPanelCompact);
+            _mediaInfoService.SetMedia([], newValue);
         }
-    }
-
-    public static readonly DependencyProperty ForceUpdateProperty
-        = DependencyProperty.Register(
-            nameof(ForceUpdate),
-            typeof(bool),
-            typeof(MediaViewer),
-            new PropertyMetadata(true));
-
-    public bool ForceUpdate
-    {
-        get => (bool)GetValue(ForceUpdateProperty);
-        set => SetValue(ForceUpdateProperty, value);
-    }
-
-    public static readonly DependencyProperty? ImageModeProperty
-        = DependencyProperty.Register(
-            nameof(ImageMode),
-            typeof(ImageMode),
-            typeof(MediaIcon),
-            new PropertyMetadata(ImageMode.IconAndThumbnail));
-
-    public ImageMode ImageMode
-    {
-        get => (ImageMode)GetValue(ImageModeProperty);
-        set => SetValue(ImageModeProperty, value);
-    }
-
-    public static readonly DependencyProperty DelayIconLoadingProperty
-        = DependencyProperty.Register(
-            nameof(DelayIconLoading),
-            typeof(bool),
-            typeof(MediaViewer),
-            new PropertyMetadata(true));
-
-    public bool DelayIconLoading
-    {
-        get => (bool)GetValue(DelayIconLoadingProperty);
-        set => SetValue(DelayIconLoadingProperty, value);
-    }
-
-    public static readonly DependencyProperty IconMarginProperty
-        = DependencyProperty.Register(
-            nameof(IconMargin),
-            typeof(Thickness),
-            typeof(MediaViewer),
-            new PropertyMetadata(new Thickness(0, 0, 0, 0)));
-
-    public Thickness IconMargin
-    {
-        get => (Thickness)GetValue(IconMarginProperty);
-        set => SetValue(IconMarginProperty, value);
+        else
+        {
+            ScrollView.Visibility = Visibility.Visible;
+            DockPanelCompact.Visibility = Visibility.Collapsed;
+            ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
+            _mediaInfoService = new MediaInfoService(DockPanel);
+            _mediaInfoService.SetMedia([], newValue);
+        }
     }
 
     private MediaInfoService _mediaInfoService;

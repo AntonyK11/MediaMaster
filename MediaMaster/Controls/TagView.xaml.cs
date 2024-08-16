@@ -1,114 +1,32 @@
 using System.Collections;
-using System.Collections.ObjectModel;
 using Windows.Foundation;
+using DependencyPropertyGenerator;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
 using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Controls;
 
+[DependencyProperty("SelectionMode", typeof(ItemsViewSelectionMode), DefaultValue = ItemsViewSelectionMode.None)]
+[DependencyProperty("AddTagButton", typeof(bool), DefaultValue = true)]
+[DependencyProperty("ShowScrollButtons", typeof(bool), DefaultValue = true)]
+[DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
+[DependencyProperty("MediaIds", typeof(HashSet<int>), DefaultValueExpression = "new HashSet<int>()")]
+[DependencyProperty("TagId", typeof(int?))]
 
 public sealed partial class TagView : UserControl
 {
-    public static readonly DependencyProperty SelectionModeProperty
-        = DependencyProperty.Register(
-            nameof(SelectionMode),
-            typeof(ItemsViewSelectionMode),
-            typeof(TagView),
-            new PropertyMetadata(ItemsViewSelectionMode.None));
-
-    public ItemsViewSelectionMode SelectionMode
+    async partial void OnMediaIdsChanged()
     {
-        get => (ItemsViewSelectionMode)GetValue(SelectionModeProperty);
-        set => SetValue(SelectionModeProperty, value);
-    }
-    
-    public static readonly DependencyProperty AddTagButtonProperty
-        = DependencyProperty.Register(
-            nameof(AddTagButton),
-            typeof(bool),
-            typeof(TagView),
-            new PropertyMetadata(true));
-
-    public bool AddTagButton
-    {
-        get => (bool)GetValue(AddTagButtonProperty);
-        set => SetValue(AddTagButtonProperty, value);
-    }
-    
-    public static readonly DependencyProperty ShowScrollButtonsProperty
-        = DependencyProperty.Register(
-            nameof(ShowScrollButtons),
-            typeof(bool),
-            typeof(TagView),
-            new PropertyMetadata(true));
-
-    public bool ShowScrollButtons
-    {
-        get => (bool)GetValue(ShowScrollButtonsProperty);
-        set => SetValue(ShowScrollButtonsProperty, value);
-    }
-    
-    public static readonly DependencyProperty LayoutProperty
-        = DependencyProperty.Register(
-            nameof(Layout),
-            typeof(Layout),
-            typeof(TagView),
-            new PropertyMetadata(new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }));
-
-    public Layout Layout
-    {
-        get => (Layout)GetValue(LayoutProperty);
-        set => SetValue(LayoutProperty, value);
-    }
-    
-    public static readonly DependencyProperty MediaIdProperty
-        = DependencyProperty.Register(
-            nameof(MediaIds),
-            typeof(HashSet<int>),
-            typeof(TagView),
-            new PropertyMetadata(null));
-
-    public HashSet<int> MediaIds
-    {
-        get
-        {
-            var mediaIds = (HashSet<int>?)GetValue(MediaIdProperty);
-            if (mediaIds == null)
-            {
-                mediaIds = [];
-                SetValue(MediaIdProperty, mediaIds);
-            }
-            return mediaIds;
-        }
-        set
-        {
-            SetValue(MediaIdProperty, value);
-            _ = UpdateItemSource();
-        }
+        await UpdateItemSource();
     }
 
-    public static readonly DependencyProperty TagIdProperty
-        = DependencyProperty.Register(
-            nameof(TagId),
-            typeof(int?),
-            typeof(TagView),
-            new PropertyMetadata(null));
-
-    public int? TagId
+    async partial void OnTagIdChanged()
     {
-        get => (int?)GetValue(TagIdProperty);
-        set
-        {
-            SetValue(TagIdProperty, value);
-            _ = UpdateItemSource(refreshAll: true);
-        }
+        await UpdateItemSource(refreshAll: true);
     }
-    
+
     public event TypedEventHandler<object, Tag>? RemoveTagsInvoked;
     public event TypedEventHandler<object, ICollection<int>>? SelectTagsInvoked;
 
@@ -126,18 +44,18 @@ public sealed partial class TagView : UserControl
 
     private async void TagsSelected()
     {
-        List<int> tagIds = Tags.Select(t => t.TagId).ToList();
-        (ContentDialogResult result, SelectTagsDialog? selectTagsDialog) = await SelectTagsDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : [], MediaIds.Count == 0);
+        HashSet<int> tagIds = Tags.Select(t => t.TagId).ToHashSet();
+        (ContentDialogResult result, TagsListDialog? tagsListDialog) = await TagsListDialog.ShowDialogAsync(tagIds, TagId != null ? [(int)TagId] : [], MediaIds.Count == 0);
 
-        if (selectTagsDialog != null)
+        if (tagsListDialog != null)
         {
             if (result == ContentDialogResult.Primary)
             {
-                await UpdateItemSource(selectTagsDialog.SelectedTags);
+                await UpdateItemSource(tagsListDialog.SelectedTags);
             }
             else
             {
-                await UpdateItemSource(selectTagsDialog.Tags.Where(t => tagIds.Contains(t.TagId)).ToList());
+                await UpdateItemSource(tagsListDialog.Tags.Where(t => tagIds.Contains(t.TagId)).ToList());
             }
         }
 

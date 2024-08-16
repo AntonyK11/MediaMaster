@@ -1,8 +1,4 @@
-﻿using CommunityToolkit.WinUI.Converters;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-
-namespace MediaMaster.Helpers;
+﻿using CommunityToolkit.WinUI.Converters;namespace MediaMaster.Helpers;
 
 /// <summary>
 ///     Converts a null value to a <see cref="Visibility" /> value.

@@ -117,98 +117,73 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ColorPicker_CancelButton.Content" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="_Empty[1]" xml:space="preserve">
+    <value></value>
   </data>
-  <data name="ColorPicker_ConfirmButton.Text" xml:space="preserve">
-    <value>Confirmer</value>
+  <data name="SelectedMediasCount.Text" xml:space="preserve">
+    <value>media(s) selected</value>
   </data>
-  <data name="ColorPicker_ConfirmButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Cette couleur n'a peut-être pas assez de contraste</value>
+  <data name="MediasCount.Text" xml:space="preserve">
+    <value>medias</value>
   </data>
-  <data name="CreateDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="ImportBookmarks_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Import bookmarks</value>
   </data>
-  <data name="CreateDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Créer</value>
+  <data name="NewMedia_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>New media</value>
   </data>
-  <data name="CreateDialog.Title" xml:space="preserve">
-    <value>Créer une étiquette</value>
+  <data name="NewTag_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>New tag</value>
   </data>
-  <data name="DeleteDialog.Content" xml:space="preserve">
-    <value>Êtes-vous sûr de vouloir supprimer cette étiquette ?
-Cette action est permanente et ne peut être annulée.</value>
+  <data name="ManageTags_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Manage tags</value>
   </data>
-  <data name="DeleteDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="ManageExtensions_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Manage file extensions</value>
   </data>
-  <data name="DeleteDialog.Title" xml:space="preserve">
-    <value>Supprimer l'étiquette</value>
+  <data name="About_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>About</value>
   </data>
-  <data name="EditDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="Edit_MenuBarItem.Title" xml:space="preserve">
+    <value>Edit</value>
   </data>
-  <data name="EditDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Sauvegarder</value>
+  <data name="File_MenuBarItem.Title" xml:space="preserve">
+    <value>File</value>
   </data>
-  <data name="EditDialog.SecondaryButtonText" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="Help_MenuBarItem.Title" xml:space="preserve">
+    <value>Help</value>
   </data>
-  <data name="EditDialog.Title" xml:space="preserve">
-    <value>Éditer l'étiquette</value>
+  <data name="Sort_DropDownButton.Text" xml:space="preserve">
+    <value>Sort</value>
   </data>
-  <data name="Flyout_Delete.Text" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="Name_SortMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Name</value>
   </data>
-  <data name="Flyout_Duplicate.Text" xml:space="preserve">
-    <value>Dupliquer</value>
+  <data name="Descending_SortMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Descending</value>
   </data>
-  <data name="Flyout_Edit.Text" xml:space="preserve">
-    <value>Éditer</value>
+  <data name="Ascending_SortMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Ascending</value>
   </data>
-  <data name="Flyout_Remove.Text" xml:space="preserve">
-    <value>Enlever</value>
+  <data name="Favorite_SortMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Favorite</value>
   </data>
-  <data name="Name_TextBox.Header" xml:space="preserve">
-    <value>Nom</value>
+  <data name="Archived_SortMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Archived</value>
   </data>
-  <data name="SelectDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
+  <data name="DateAdded_SortMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Date added</value>
   </data>
-  <data name="SelectDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Selectionner</value>
+  <data name="DateModified_SortMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Date modified</value>
   </data>
-  <data name="SelectDialog.SecondaryButtonText" xml:space="preserve">
-    <value>Nouvelle étiquette</value>
+  <data name="SelectAll_SelectionMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Select all</value>
   </data>
-  <data name="SelectDialog.Title" xml:space="preserve">
-    <value>Selectionner une étiquette</value>
+  <data name="ClearSelection_SelectionMenuFlyoutItem.Text" xml:space="preserve">
+    <value>Clear selection</value>
   </data>
-  <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
-  <data name="Aliases_TextBlock.Text" xml:space="preserve">
-    <value>Alias</value>
-  </data>
-  <data name="Shorthand_TextBox.Header" xml:space="preserve">
-    <value>Abréviation</value>
-  </data>
-  <data name="ItemView_ScrollForwardButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Défiler à droite</value>
-  </data>
-  <data name="ItemView_ScrollBackButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Défiler à gauche</value>
-  </data>
-  <data name="ManageDialog.SecondaryButtonText" xml:space="preserve">
-    <value>Nouvelle étiquette</value>
-  </data>
-  <data name="ManageDialog.Title" xml:space="preserve">
-    <value>Gérer les étiquettes</value>
-  </data>
-  <data name="ManageDialog.CloseButtonText" xml:space="preserve">
-    <value>Fermer</value>
-  </data>
-  <data name="EditableListView_EditableTextBlock.PlaceholderText" xml:space="preserve">
-    <value>Ajouter un nouvel élément</value>
+  <data name="MultiSelectButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Enable multiple selection</value>
   </data>
 </root>

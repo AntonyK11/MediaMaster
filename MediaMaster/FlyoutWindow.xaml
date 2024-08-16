@@ -31,6 +31,6 @@
             </ic:DataTriggerBehavior>
         </i:Interaction.Behaviors>
 
-        <flyout:ShellPage x:Name="FlyoutShellPage" />
+        <flyout:ShellPage />
     </mediaMaster:ContentFrame>
 </winuiex:WindowEx>

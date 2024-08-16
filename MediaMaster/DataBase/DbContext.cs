@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase.Models;
 using Windows.Storage;
 using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI.Behaviors;
+using MediaMaster.Services;
 using Microsoft.Extensions.Logging;
 
 namespace MediaMaster.DataBase;
@@ -160,5 +162,25 @@ public partial class MediaDbContext : DbContext
     {
         var args = new MediaChangeArgs(flags, media, tagsAdded, tagsRemoved);
         App.DispatcherQueue.EnqueueAsync(() => MediasChanged?.Invoke(sender, args));
+
+        if (flags.HasFlag(MediaChangeFlags.MediaAdded) || flags.HasFlag(MediaChangeFlags.MediaRemoved))
+        {
+            var notification = new Notification()
+            {
+                Title = $"Notification {DateTimeOffset.Now}",
+                Duration = TimeSpan.FromSeconds(5)
+            };
+
+            if (flags.HasFlag(MediaChangeFlags.MediaAdded))
+            {
+                notification.Message = $"{media.Count} Media(s) Added";
+            }
+            else if (flags.HasFlag(MediaChangeFlags.MediaRemoved))
+            {
+                notification.Message = $"{media.Count} Media(s) Removed";
+            }
+
+            App.GetService<InAppNotificationService>().SendNotification(notification);
+        }
     }
 }

@@ -1,17 +1,17 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
-using Microsoft.UI.Xaml;
 using WinUIEx;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml.Controls;
+using WinUI3Localizer;
 using WinUIEx.Messaging;
-using static MediaMaster.Services.WindowsApiService;
-using static MediaMaster.Services.WindowsNativeValues;
+using static MediaMaster.WIn32.WindowsApiService;
+using static MediaMaster.WIn32.WindowsNativeValues;
 
 
 namespace MediaMaster.Services;
 
+// https://github.com/castorix/WinUI3_NotifyIcon/blob/master/MainWindow.xaml.cs
 internal class TrayIconService
 {
     public static int LOWORD(int n)
@@ -59,25 +59,25 @@ internal class TrayIconService
     public const int CLIP_CHARACTER_PRECIS = 1;
     public const int CLIP_STROKE_PRECIS = 2;
     public const int CLIP_MASK = 0xf;
-    public const int CLIP_LH_ANGLES = (1 << 4);
-    public const int CLIP_TT_ALWAYS = (2 << 4);
-    public const int CLIP_DFA_DISABLE = (4 << 4);
-    public const int CLIP_EMBEDDED = (8 << 4);
+    public const int CLIP_LH_ANGLES = 1 << 4;
+    public const int CLIP_TT_ALWAYS = 2 << 4;
+    public const int CLIP_DFA_DISABLE = 4 << 4;
+    public const int CLIP_EMBEDDED = 8 << 4;
 
     public const int ANSI_CHARSET = 0;
     public const int DEFAULT_CHARSET = 1;
     public const int SYMBOL_CHARSET = 2;
 
         /* Font Families */
-    public const int FF_DONTCARE = (0 << 4);  /* Don't care or don't know. */
-    public const int FF_ROMAN = (1 << 4);  /* Variable stroke width, serifed. */
+    public const int FF_DONTCARE = 0;  /* Don't care or don't know. */
+    public const int FF_ROMAN = 1 << 4;  /* Variable stroke width, serifed. */
     /* Times Roman, Century Schoolbook, etc. */
-    public const int FF_SWISS = (2 << 4);  /* Variable stroke width, sans-serifed. */
+    public const int FF_SWISS = 2 << 4;  /* Variable stroke width, sans-serifed. */
     /* Helvetica, Swiss, etc. */
-    public const int FF_MODERN = (3 << 4);  /* Constant stroke width, serifed or sans-serifed. */
+    public const int FF_MODERN = 3 << 4;  /* Constant stroke width, serifed or sans-serifed. */
     /* Pica, Elite, Courier, etc. */
-    public const int FF_SCRIPT = (4 << 4);  /* Cursive, etc. */
-    public const int FF_DECORATIVE = (5 << 4);  /* Old English, etc. */
+    public const int FF_SCRIPT = 4 << 4;  /* Cursive, etc. */
+    public const int FF_DECORATIVE = 5 << 4;  /* Old English, etc. */
 
     public const int WM_USER = 0x0400;
     public const int WM_TRAYMOUSEMESSAGE = WM_USER + 1024;
@@ -96,7 +96,7 @@ internal class TrayIconService
     public const int WM_DRAWITEM = 0x002B;
     public const int WM_MEASUREITEM = 0x002C;
 
-    IntPtr hFontMenu = IntPtr.Zero;
+    IntPtr hFontMenu;
     int m_SizeBitmap = 11;
 
     private IntPtr hIcon;
@@ -146,8 +146,8 @@ internal class TrayIconService
         window.Hide();
         MessageWindow = window.GetWindowHandle();
 
-        _darkBackgroundHBrush = CreateSolidBrush((IntPtr)ColorTranslator.ToWin32(_darkBackgroundColor));
-        _lightBackgroundHBrush = CreateSolidBrush((IntPtr)ColorTranslator.ToWin32(_lightBackgroundColor));
+        _darkBackgroundHBrush = CreateSolidBrush(ColorTranslator.ToWin32(_darkBackgroundColor));
+        _lightBackgroundHBrush = CreateSolidBrush(ColorTranslator.ToWin32(_lightBackgroundColor));
 
         GdiplusStartupInput input = new()
         {
@@ -157,7 +157,7 @@ internal class TrayIconService
         };
         GdiplusStartupOutput output = new();
 
-        Status nStatus = GdiplusStartup(ref m_initToken, in input, ref output);
+        GdiplusStartup(ref m_initToken, in input, ref output);
 
         TaskbarRestartMessageId = RegisterWindowMessage("TaskbarCreated");
 
@@ -269,27 +269,27 @@ internal class TrayIconService
 
     public void SetInTray()
     {
-        TrayMessage(MessageWindow, "Right-Click for options", hIcon, IntPtr.Zero,
+        TrayMessage(MessageWindow, "MediaMaster", hIcon, IntPtr.Zero,
             NOTIFY_ICON_MESSAGE.NIM_ADD, NOTIFY_ICON_INFOTIP_FLAGS.NIIF_NONE, null, null, 0);
     }
 
     public void RemoveFromTray()
     {
-        TrayMessage(MessageWindow, "Right-Click for options", hIcon, IntPtr.Zero,
+        TrayMessage(MessageWindow, null, IntPtr.Zero, IntPtr.Zero,
             NOTIFY_ICON_MESSAGE.NIM_DELETE, NOTIFY_ICON_INFOTIP_FLAGS.NIIF_NONE, null, null, 0);
     }
 
     public IntPtr CreateMenu()
     {
-        IntPtr hMenu = CreatePopupMenu();
+        var hMenu = CreatePopupMenu();
 
-        AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_STRING, 1, "Show window");
+        AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_STRING, 1, "ShowWindow");
         AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_SEPARATOR, 0, "");
         AppendMenu(hMenu, MENU_ITEM_FLAGS.MF_STRING, 2, "Exit");
 
         ODM_DATA odmd = new()
         {
-            text = "Show window",
+            text = "ShowWindow",
             hBitmap = IntPtr.Zero
         };
         var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
@@ -430,20 +430,20 @@ internal class TrayIconService
                     rcBack.left += 2;
                     rcBack.right -= 2;
 
-                    if ((dis.itemState & ODS_FLAGS.ODS_SELECTED) != 0 && (dis.itemState & ODS_FLAGS.ODS_GRAYED) == 0)
+                    if (dis.itemState.HasFlag(ODS_FLAGS.ODS_SELECTED) && !dis.itemState.HasFlag(ODS_FLAGS.ODS_GRAYED))
                     {
-                        hPen = CreatePen(PEN_STYLE.PS_SOLID, 1, (IntPtr)ColorTranslator.ToWin32(BackgroundBrushPointerOver));
+                        hPen = CreatePen(PEN_STYLE.PS_SOLID, 1, ColorTranslator.ToWin32(BackgroundBrushPointerOver));
                         hPenOld = SelectObject(dis.hDC, hPen);
 
-                        hBrush = CreateSolidBrush((IntPtr)ColorTranslator.ToWin32(BackgroundBrushPointerOver));
+                        hBrush = CreateSolidBrush(ColorTranslator.ToWin32(BackgroundBrushPointerOver));
                         hBrushOld = SelectObject(dis.hDC, hBrush);
                     }
                     else
                     {
-                        hPen = CreatePen(PEN_STYLE.PS_SOLID, 1, (IntPtr)ColorTranslator.ToWin32(BackgroundColor));
+                        hPen = CreatePen(PEN_STYLE.PS_SOLID, 1, ColorTranslator.ToWin32(BackgroundColor));
                         hPenOld = SelectObject(dis.hDC, hPen);
 
-                        hBrush = CreateSolidBrush((IntPtr)ColorTranslator.ToWin32(BackgroundColor));
+                        hBrush = CreateSolidBrush(ColorTranslator.ToWin32(BackgroundColor));
                         hBrushOld = SelectObject(dis.hDC, hBrush);
                     }
                     RoundRect(dis.hDC, rcBack.left, rcBack.top, rcBack.right, rcBack.bottom, 8, 8);
@@ -458,18 +458,18 @@ internal class TrayIconService
                     {
                         SelectObject(dis.hDC, hFontMenu);
                     }
-                    SetBkMode(dis.hDC, BACKGROUND_MODE.TRANSPARENT);
+                    _ = SetBkMode(dis.hDC, BACKGROUND_MODE.TRANSPARENT);
 
 
                     if (odmd.text != "")
                     {
-                        if ((dis.itemState & ODS_FLAGS.ODS_GRAYED) != 0)
+                        if (dis.itemState.HasFlag(ODS_FLAGS.ODS_GRAYED))
                         {
-                            SetTextColor(dis.hDC, (IntPtr)ColorTranslator.ToWin32(ForegroundBrushDisabled));
+                            SetTextColor(dis.hDC, ColorTranslator.ToWin32(ForegroundBrushDisabled));
                         }
                         else
                         {
-                            SetTextColor(dis.hDC, (IntPtr)ColorTranslator.ToWin32(ForegroundBrush));
+                            SetTextColor(dis.hDC, ColorTranslator.ToWin32(ForegroundBrush));
                         }
 
                         RECT rcText = dis.rcItem;
@@ -478,11 +478,15 @@ internal class TrayIconService
                             rcText.left += 27;
                         }
                         rcText.left += 14;
-                        DrawText(dis.hDC, odmd.text.Replace("\t", "       "), -1, ref rcText, DRAW_TEXT_FORMAT.DT_SINGLELINE | DRAW_TEXT_FORMAT.DT_VCENTER);
+                        
+                        var text = odmd.text.Replace("\t", "       ");
+                        var translatedText = text.GetLocalizedString();
+                        
+                        DrawText(dis.hDC, translatedText.IsNullOrEmpty() ? text : translatedText, -1, ref rcText, DRAW_TEXT_FORMAT.DT_SINGLELINE | DRAW_TEXT_FORMAT.DT_VCENTER);
                     }
                     else
                     {
-                        hPen = CreatePen(PEN_STYLE.PS_SOLID, 1, (IntPtr)ColorTranslator.ToWin32(DividerStrokeBrush));
+                        hPen = CreatePen(PEN_STYLE.PS_SOLID, 1, ColorTranslator.ToWin32(DividerStrokeBrush));
                         hPenOld = SelectObject(dis.hDC, hPen);
                         MoveToEx(dis.hDC, dis.rcItem.left, dis.rcItem.top + (dis.rcItem.bottom - dis.rcItem.top) / 2, out _);
                         LineTo(dis.hDC, dis.rcItem.right, dis.rcItem.top + (dis.rcItem.bottom - dis.rcItem.top) / 2);
@@ -502,7 +506,7 @@ internal class TrayIconService
                             _ => 0
                         };
 
-                        if ((dis.itemState & ODS_FLAGS.ODS_GRAYED) != 0)
+                        if (dis.itemState.HasFlag(ODS_FLAGS.ODS_GRAYED))
                         {
                             index += 1;
                         }
@@ -535,8 +539,11 @@ internal class TrayIconService
                     }
                     else
                     {
+                        var text = odmd.text;
+                        var translatedText = text.GetLocalizedString();
+                        
                         mis.itemHeight = 32;
-                        var tb = new TextBlock { Text = odmd.text, FontSize = 14 };
+                        var tb = new TextBlock { Text = translatedText.IsNullOrEmpty() ? text : translatedText, FontSize = 14 };
                         tb.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
                         var width = tb.DesiredSize.Width + 13;
                         if (odmd.hBitmap != IntPtr.Zero)

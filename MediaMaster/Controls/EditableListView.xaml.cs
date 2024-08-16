@@ -1,8 +1,6 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DependencyPropertyGenerator;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Controls;
 
@@ -11,23 +9,12 @@ public partial class StringValue : ObservableObject
     [ObservableProperty] public string _value = "";
 }
 
+[DependencyProperty("ItemsSource", typeof(ObservableCollection<StringValue>), DefaultValueExpression = "new ObservableCollection<StringValue>()")]
 public sealed partial class EditableListView : UserControl
 {
-    public static readonly DependencyProperty ItemsSourceProperty
-        = DependencyProperty.Register(
-            nameof(ItemsSource),
-            typeof(ObservableCollection<StringValue>),
-            typeof(EditableListView),
-            new PropertyMetadata(null));
-
-    public ObservableCollection<StringValue> ItemsSource
+    partial void OnItemsSourceChanged()
     {
-        get => (ObservableCollection<StringValue>)GetValue(ItemsSourceProperty);
-        set
-        {
-            SetValue(ItemsSourceProperty, value);
-            SetupEmptyStringValue();
-        }
+        SetupEmptyStringValue();
     }
 
     public ICollection<string> Strings

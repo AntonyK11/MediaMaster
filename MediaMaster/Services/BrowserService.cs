@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using BookmarksManager;
+﻿using BookmarksManager;
 using BookmarksManager.Chrome;
 using BookmarksManager.Firefox;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -128,7 +127,7 @@ public class BrowserService
 
             if (browser.Name is "Opera GX")
             {
-                var tempHWND = WindowsApiService.GetForegroundWindow();
+                var tempHWND = WIn32.WindowsApiService.GetForegroundWindow();
                 List<Process> processesList = processes.ToList();
                 if (processesList.FirstOrDefault(p => p.MainWindowHandle == tempHWND) is { } foregroundProcess)
                 {
@@ -153,7 +152,7 @@ public class BrowserService
 
             foreach (var process in processes)
             {
-                if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero && WindowsApiService.IsWindow(process.MainWindowHandle))
+                if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero && WIn32.WindowsApiService.IsWindow(process.MainWindowHandle))
                 {
                     if (cache && process.MainWindowTitle == windowTitle && tab != null)
                     {

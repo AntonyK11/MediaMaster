@@ -1,12 +1,10 @@
 using System.Collections;
-using System.Collections.ObjectModel;
 using System.Numerics;
 using Windows.Foundation;
 using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Collections;
+using DependencyPropertyGenerator;
 using Microsoft.UI.Input;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
@@ -43,128 +41,47 @@ internal partial class ItemTemplateSelector : DataTemplateSelector
     }
 }
 
+[DependencyProperty("ItemsSource", typeof(ObservableCollection<object>), DefaultValueExpression = "new ObservableCollection<object>()")]
+[DependencyProperty("Comparer", typeof(IComparer))]
+[DependencyProperty("SelectionMode", typeof(ItemsViewSelectionMode), DefaultValue = ItemsViewSelectionMode.None)]
+[DependencyProperty("AddItemButton", typeof(bool), DefaultValue = true)]
+[DependencyProperty("ShowScrollButtons", typeof(bool), DefaultValue = true)]
+[DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
+[DependencyProperty("ItemTemplate", typeof(DataTemplate))]
 public sealed partial class CustomItemsView
 {
-    public static readonly DependencyProperty ItemsSourceProperty
-        = DependencyProperty.Register(
-            nameof(ItemsSource),
-            typeof(ObservableCollection<object>),
-            typeof(CustomItemsView),
-            new PropertyMetadata(null));
-    
-    public ObservableCollection<object> ItemsSource
+    partial void OnItemsSourceChanged(ObservableCollection<object> newValue)
     {
-        get => (ObservableCollection<object>)GetValue(ItemsSourceProperty);
-        set
+        HandleAddItemButton();
+
+        var advancedCollectionView = new AdvancedCollectionView(newValue);
+        advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, Comparer));
+        ItemsView.ItemsSource = advancedCollectionView;
+    }
+
+    partial void OnComparerChanged(IComparer? newValue)
+    {
+        var advancedCollectionView = new AdvancedCollectionView(ItemsSource);
+        advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, newValue));
+        ItemsView.ItemsSource = advancedCollectionView;
+    }
+
+    partial void OnAddItemButtonChanged()
+    {
+        HandleAddItemButton();
+    }
+
+    partial void OnShowScrollButtonsChanged(bool newValue)
+    {
+        if (newValue)
         {
-            SetValue(ItemsSourceProperty, value);
-            HandleAddItemButton();
-
-            var advancedCollectionView = new AdvancedCollectionView(value);
-            advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, Comparer));
-            ItemsView.ItemsSource = advancedCollectionView;
+            UpdateScrollButtonsVisibility();
         }
-    }
-
-    public static readonly DependencyProperty ComparerProperty
-        = DependencyProperty.Register(
-            nameof(Comparer),
-            typeof(IComparer),
-            typeof(CustomItemsView),
-            new PropertyMetadata(null));
-
-    public IComparer? Comparer
-    {
-        get => (IComparer?)GetValue(ComparerProperty);
-        set
+        else
         {
-            SetValue(ComparerProperty, value);
-
-            var advancedCollectionView = new AdvancedCollectionView(ItemsSource);
-            advancedCollectionView.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, value));
-            ItemsView.ItemsSource = advancedCollectionView;
+            ScrollBackBtn.Visibility = Visibility.Collapsed;
+            ScrollForwardBtn.Visibility = Visibility.Collapsed;
         }
-    }
-
-    public static readonly DependencyProperty SelectionModeProperty
-        = DependencyProperty.Register(
-            nameof(SelectionMode),
-            typeof(ItemsViewSelectionMode),
-            typeof(CustomItemsView),
-            new PropertyMetadata(ItemsViewSelectionMode.None));
-    
-    public ItemsViewSelectionMode SelectionMode
-    {
-        get => (ItemsViewSelectionMode)GetValue(SelectionModeProperty);
-        set => SetValue(SelectionModeProperty, value);
-    }
-
-    public static readonly DependencyProperty AddItemButtonProperty
-        = DependencyProperty.Register(
-            nameof(AddItemButton),
-            typeof(bool),
-            typeof(CustomItemsView),
-            new PropertyMetadata(true));
-    
-    public bool AddItemButton
-    {
-        get => (bool)GetValue(AddItemButtonProperty);
-        set
-        {
-            SetValue(AddItemButtonProperty, value);
-            HandleAddItemButton();
-        }
-    }
-
-    public static readonly DependencyProperty ShowScrollButtonsProperty
-        = DependencyProperty.Register(
-            nameof(ShowScrollButtons),
-            typeof(bool),
-            typeof(CustomItemsView),
-            new PropertyMetadata(true));
-    
-    public bool ShowScrollButtons
-    {
-        get => (bool)GetValue(ShowScrollButtonsProperty);
-        set
-        {
-            SetValue(ShowScrollButtonsProperty, value);
-            if (value)
-            {
-                UpdateScrollButtonsVisibility();
-            }
-            else
-            {
-                ScrollBackBtn.Visibility = Visibility.Collapsed;
-                ScrollForwardBtn.Visibility = Visibility.Collapsed;
-            }
-        }
-    }
-
-    public static readonly DependencyProperty LayoutProperty
-        = DependencyProperty.Register(
-            nameof(Layout),
-            typeof(Layout),
-            typeof(CustomItemsView),
-            new PropertyMetadata(new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }));
-
-    public Layout Layout
-    {
-        get => (Layout)GetValue(LayoutProperty);
-        set => SetValue(LayoutProperty, value);
-    }
-    
-    public static readonly DependencyProperty ItemTemplateProperty
-        = DependencyProperty.Register(
-            nameof(ItemTemplate),
-            typeof(DataTemplate),
-            typeof(CustomItemsView),
-            new PropertyMetadata(null));
-
-    public DataTemplate ItemTemplate
-    {
-        get => (DataTemplate)GetValue(ItemTemplateProperty);
-        set => SetValue(ItemTemplateProperty, value);
     }
 
     public event TypedEventHandler<object, object>? RemoveItemsInvoked;

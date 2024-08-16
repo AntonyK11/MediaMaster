@@ -44,6 +44,7 @@
             <helpers:MediasToPathsConverter x:Key="MediasToPathsConverter" />
             <helpers:UriToListOfStringConverter x:Key="UriToListOfStringConverter" />
             <helpers:GetTopCornerRadiusConverter x:Key="GetTopCornerRadiusConverter" />
+            <converters:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter" GreaterThan="0" />
 
             <!--  Other app resources here  -->
         </ResourceDictionary>

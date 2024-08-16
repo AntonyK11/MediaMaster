@@ -133,7 +133,7 @@
     <value>Create</value>
   </data>
   <data name="CreateDialog.Title" xml:space="preserve">
-    <value>Create Tag</value>
+    <value>Create tag</value>
   </data>
   <data name="DeleteDialog.Content" xml:space="preserve">
     <value>Are you sure you want to delete this tag ?
@@ -143,7 +143,7 @@ This action is permanent and cannot be undone.</value>
     <value>Delete</value>
   </data>
   <data name="DeleteDialog.Title" xml:space="preserve">
-    <value>Delete Tag</value>
+    <value>Delete tag</value>
   </data>
   <data name="EditDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
@@ -155,7 +155,7 @@ This action is permanent and cannot be undone.</value>
     <value>Delete</value>
   </data>
   <data name="EditDialog.Title" xml:space="preserve">
-    <value>Edit Tag</value>
+    <value>Edit tag</value>
   </data>
   <data name="Flyout_Delete.Text" xml:space="preserve">
     <value>Delete</value>
@@ -179,13 +179,13 @@ This action is permanent and cannot be undone.</value>
     <value>Select</value>
   </data>
   <data name="SelectDialog.SecondaryButtonText" xml:space="preserve">
-    <value>New Tag</value>
+    <value>New tag</value>
   </data>
   <data name="SelectDialog.Title" xml:space="preserve">
-    <value>Select Tags</value>
+    <value>Select tags</value>
   </data>
   <data name="Shorthand_TextBox.Header" xml:space="preserve">
-    <value />
+    <value>Shorthand</value>
   </data>
   <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
@@ -195,5 +195,20 @@ This action is permanent and cannot be undone.</value>
   </data>
   <data name="ItemView_ScrollBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Scroll left</value>
+  </data>
+  <data name="Aliases_TextBlock.Text" xml:space="preserve">
+    <value>Aliases</value>
+  </data>
+  <data name="ManageDialog.Title" xml:space="preserve">
+    <value>Manage tags</value>
+  </data>
+  <data name="ManageDialog.CloseButtonText" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ManageDialog.SecondaryButtonText" xml:space="preserve">
+    <value>New tag</value>
+  </data>
+  <data name="EditableListView_EditableTextBlock.PlaceholderText" xml:space="preserve">
+    <value>Add new item</value>
   </data>
 </root>

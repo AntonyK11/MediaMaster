@@ -1,10 +1,9 @@
 using Windows.Foundation;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
 using CommunityToolkit.WinUI;
+using DependencyPropertyGenerator;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Input;
 
 namespace MediaMaster.Controls;
@@ -15,94 +14,24 @@ public class TextConfirmedArgs(string oldText, string newText)
     public string NewText = newText;
 }
 
+[DependencyProperty("Text", typeof(string), DefaultValue = "")]
+[DependencyProperty("PlaceholderText", typeof(string), DefaultValue = "")]
+[DependencyProperty("ConfirmOnReturn", typeof(bool), DefaultValue = true)]
+[DependencyProperty("ConfirmOnFocusLoss", typeof(bool), DefaultValue = true)]
+[DependencyProperty("EditOnDoubleClick", typeof(bool), DefaultValue = true)]
+[DependencyProperty("EditOnClick", typeof(bool), DefaultValue = true)]
 public sealed partial class EditableTextBlock : UserControl
 {
-    public static readonly DependencyProperty TextProperty
-        = DependencyProperty.Register(
-            nameof(Text),
-            typeof(string),
-            typeof(EditableTextBlock),
-            new PropertyMetadata(""));
-
-    public string Text
-    {
-        get => (string)GetValue(TextProperty);
-        set
-        {
-            SetValue(TextProperty, value);
-            SetText(Text);
-        }
-    }
-
     private string _text = "";
 
-    public static readonly DependencyProperty PlaceholderTextProperty
-        = DependencyProperty.Register(
-            nameof(PlaceholderText),
-            typeof(string),
-            typeof(EditableTextBlock),
-            new PropertyMetadata(""));
-
-    public string PlaceholderText
+    partial void OnTextChanged(string newValue)
     {
-        get => (string)GetValue(PlaceholderTextProperty);
-        set
-        {
-            SetValue(PlaceholderTextProperty, value);
-            SetText(Text);
-        }
+        SetText(newValue);
     }
 
-    public static readonly DependencyProperty ConfirmOnReturnProperty
-    = DependencyProperty.Register(
-        nameof(ConfirmOnReturn),
-        typeof(bool),
-        typeof(EditableTextBlock),
-        new PropertyMetadata(true));
-
-    public bool ConfirmOnReturn
+    partial void OnPlaceholderTextChanged()
     {
-        get => (bool)GetValue(ConfirmOnReturnProperty);
-        set => SetValue(ConfirmOnReturnProperty, value);
-    }
-
-    public static readonly DependencyProperty ConfirmOnFocusLossProperty
-        = DependencyProperty.Register(
-            nameof(ConfirmOnFocusLoss),
-            typeof(bool),
-            typeof(EditableTextBlock),
-            new PropertyMetadata(true));
-
-    public bool ConfirmOnFocusLoss
-    {
-        get => (bool)GetValue(ConfirmOnFocusLossProperty);
-        set => SetValue(ConfirmOnFocusLossProperty, value);
-    }
-
-    public static readonly DependencyProperty EditOnDoubleClickProperty
-        = DependencyProperty.Register(
-            nameof(EditOnDoubleClick),
-            typeof(bool),
-            typeof(EditableTextBlock),
-            new PropertyMetadata(true));
-
-    public bool EditOnDoubleClick
-    {
-        get => (bool)GetValue(EditOnDoubleClickProperty);
-        set => SetValue(EditOnDoubleClickProperty, value);
-    }
-
-    public static readonly DependencyProperty EditOnClickProperty
-        = DependencyProperty.Register(
-            nameof(EditOnClick),
-            typeof(bool),
-            typeof(EditableTextBlock),
-            new PropertyMetadata(true));
-
-    public bool EditOnClick
-    {
-        get => (bool)GetValue(EditOnClickProperty);
-        set => SetValue(EditOnClickProperty, value);
+        SetText(Text);
     }
 
     public event TypedEventHandler<EditableTextBlock, TextConfirmedArgs>? TextConfirmed;

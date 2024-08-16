@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
-
-namespace MediaMaster.Interfaces.Services;
+﻿namespace MediaMaster.Interfaces.Services;
 
 public interface INavigationViewService
 {

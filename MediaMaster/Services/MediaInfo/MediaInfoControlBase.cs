@@ -1,8 +1,5 @@
 ﻿using CommunityToolkit.WinUI.Controls;
 using MediaMaster.DataBase;
-using MediaMaster.DataBase.Models;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -14,7 +11,7 @@ public abstract class MediaInfoControlBase
     public bool IsCompact;
     public TextBlock? Title;
 
-    public bool IsVisible = true;
+    public bool IsVisible;
 
     public abstract string TranslationKey { get; set; }
 
@@ -27,17 +24,16 @@ public abstract class MediaInfoControlBase
     public virtual void Initialize(ICollection<Media> medias, bool isCompact)
     {
         IsCompact = isCompact;
+        if (FirstShown)
+        {
+            Setup();
+            SetupTranslations();
+            Hide();
+            FirstShown = false;
+        }
+
         if (ShowInfo(medias))
         {
-            if (FirstShown)
-            {
-                Setup();
-                SetupTranslations();
-
-                IsVisible = false;
-                Hide();
-            }
-
             if (!IsVisible)
             {
                 IsVisible = true;
@@ -45,10 +41,8 @@ public abstract class MediaInfoControlBase
             }
             Medias = medias;
             UpdateControl();
-
-            FirstShown = false;
         }
-        else if (IsVisible && !FirstShown)
+        else if (IsVisible)
         {
             IsVisible = false;
             Hide();

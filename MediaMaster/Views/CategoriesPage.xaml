@@ -42,20 +42,11 @@
             BookmarkLink="{StaticResource BookmarkLink}" />
     </Page.Resources>
 
-    <Grid
-        x:Name="ContentGrid"
-        Padding="{StaticResource NavigationViewPageContentMargin}"
-        HorizontalAlignment="Stretch">
+    <Grid Padding="{StaticResource NavigationViewPageContentMargin}" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition
-                x:Name="ContentColumn"
-                Width="*"
-                MinWidth="150" />
+            <ColumnDefinition Width="*" MinWidth="150" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition
-                x:Name="PaneColumn"
-                Width="350"
-                MinWidth="150" />
+            <ColumnDefinition Width="350" MinWidth="150" />
         </Grid.ColumnDefinitions>
 
         <Grid
@@ -74,14 +65,8 @@
             </Grid.RowDefinitions>
 
             <StackPanel Orientation="Horizontal" Spacing="16">
-                <Button
-                    x:Name="ActiveTabButton"
-                    Click="GetActiveTabs"
-                    Content="Find Active Tabs" />
-                <Button
-                    x:Name="BookmarkButton"
-                    Click="GetBookmarks"
-                    Content="Get Bookmarks" />
+                <Button Click="GetActiveTabs" Content="Find Active Tabs" />
+                <Button Click="GetBookmarks" Content="Get Bookmarks" />
                 <Button
                     x:Name="Button1"
                     Click="{x:Bind TeachingService.PrevStep}"
@@ -187,7 +172,6 @@
             <TextBlock Grid.Row="2">Active Tabs</TextBlock>
 
             <ListView
-                x:Name="TabsList"
                 Grid.Row="3"
                 IncrementalLoadingThreshold="1"
                 IncrementalLoadingTrigger="Edge" />

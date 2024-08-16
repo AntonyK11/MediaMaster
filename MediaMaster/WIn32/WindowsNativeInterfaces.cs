@@ -1,8 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using static MediaMaster.Services.WindowsNativeValues;
+using static MediaMaster.WIn32.WindowsNativeValues;
 
-namespace MediaMaster.Services;
+namespace MediaMaster.WIn32;
 
 public static partial class WindowsNativeInterfaces
 {

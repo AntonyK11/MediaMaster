@@ -1,185 +1,82 @@
 using CommunityToolkit.WinUI;
+using DependencyPropertyGenerator;
 using MediaMaster.Extensions;
-using Microsoft.UI.Xaml;
 using MediaMaster.Services;
 using Microsoft.UI.Input;
 
 namespace MediaMaster.Controls;
 
+[DependencyProperty("Uris", typeof(ICollection<string>), DefaultValueExpression = "new List<string>()")]
+[DependencyProperty("ImageMode", typeof(ImageMode), DefaultValue = ImageMode.IconAndThumbnail)]
+[DependencyProperty("LoadIcon", typeof(bool), DefaultValue = true)]
+[DependencyProperty("ContextMenu", typeof(bool), DefaultValue = true)]
+[DependencyProperty("CanOpen", typeof(bool), DefaultValue = true)]
+[DependencyProperty("DelayLoading", typeof(bool), DefaultValue = true)]
+[DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
+[DependencyProperty("IconHeight", typeof(double), DefaultValue = double.NaN)]
 public sealed partial class MediaIcon
 {
-    public static readonly DependencyProperty? UrisProperty
-        = DependencyProperty.Register(
-            nameof(Uris),
-            typeof(ICollection<string>),
-            typeof(MediaIcon),
-            new PropertyMetadata(null));
-
     private MyCancellationTokenSource? _tokenSource;
     private TaskCompletionSource<int> _task = new();
 
-    public ICollection<string> Uris
+    partial void OnUrisChanged(ICollection<string> newValue)
     {
-        get
+        _task.SetResult(0);
+        _task = new TaskCompletionSource<int>();
+        SetIconAsync();
+
+        OpenFileFlyout.Visibility = Visibility.Collapsed;
+        OpenFolderFlyout.Visibility = Visibility.Collapsed;
+        OpenWebPageFlyout.Visibility = Visibility.Collapsed;
+
+        if (newValue.Count != 0)
         {
-            var uris = (ICollection<string>?)GetValue(UrisProperty);
-            if (uris == null)
-            {
-                uris = [];
-                SetValue(UrisProperty, uris);
-            }
-
-            return uris;
-        }
-        set
-        {
-            SetValue(UrisProperty, value);
-            _task.SetResult(0);
-            _task = new TaskCompletionSource<int>();
-            SetIconAsync();
-
-            OpenFileFlyout.Visibility = Visibility.Collapsed;
-            OpenFolderFlyout.Visibility = Visibility.Collapsed;
-            OpenWebPageFlyout.Visibility = Visibility.Collapsed;
-
-            if (Uris.Count != 0)
-            {
-                if (ContextMenu)
-                {
-                    VisualStateManager.GoToState(this, "ShowFlyout", true);
-                }
-
-                if (Uris.First().IsWebsite())
-                {
-                    OpenWebPageFlyout.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    OpenFileFlyout.Visibility = Visibility.Visible;
-                    OpenFolderFlyout.Visibility = Visibility.Visible;
-                }
-            }
-            else
-            {
-                VisualStateManager.GoToState(this, "HideFlyout", true);
-            }
-        }
-    }
-
-    public static readonly DependencyProperty? ImageModeProperty
-        = DependencyProperty.Register(
-            nameof(ImageMode),
-            typeof(ImageMode),
-            typeof(MediaIcon),
-            new PropertyMetadata(ImageMode.IconAndThumbnail));
-
-    public ImageMode ImageMode
-    {
-        get => (ImageMode)GetValue(ImageModeProperty);
-        set
-        {
-            SetValue(ImageModeProperty, value);
-            _task.SetResult(0);
-            _task = new TaskCompletionSource<int>();
-            SetIconAsync();
-        }
-    }
-
-    public static readonly DependencyProperty LoadIconProperty
-        = DependencyProperty.Register(
-            nameof(LoadIcon),
-            typeof(bool),
-            typeof(MediaViewer),
-            new PropertyMetadata(true));
-
-    public bool LoadIcon
-    {
-        get => (bool)GetValue(LoadIconProperty);
-        set => SetValue(LoadIconProperty, value);
-    }
-
-    public static readonly DependencyProperty ContextMenuProperty
-        = DependencyProperty.Register(
-            nameof(ContextMenu),
-            typeof(bool),
-            typeof(MediaViewer),
-            new PropertyMetadata(true));
-
-    public bool ContextMenu
-    {
-        get => (bool)GetValue(ContextMenuProperty);
-        set
-        {
-            SetValue(ContextMenuProperty, value);
-
-            if (value)
+            if (ContextMenu)
             {
                 VisualStateManager.GoToState(this, "ShowFlyout", true);
             }
+
+            if (newValue.First().IsWebsite())
+            {
+                OpenWebPageFlyout.Visibility = Visibility.Visible;
+            }
             else
             {
-                VisualStateManager.GoToState(this, "HideFlyout", true);
+                OpenFileFlyout.Visibility = Visibility.Visible;
+                OpenFolderFlyout.Visibility = Visibility.Visible;
             }
         }
-    }
-
-    public static readonly DependencyProperty CanOpenProperty
-        = DependencyProperty.Register(
-            nameof(CanOpen),
-            typeof(bool),
-            typeof(MediaViewer),
-            new PropertyMetadata(true));
-
-    public bool CanOpen
-    {
-        get => (bool)GetValue(CanOpenProperty);
-        set
+        else
         {
-            SetValue(CanOpenProperty, value);
-            ProtectedCursor = InputSystemCursor.Create(value ? InputSystemCursorShape.Hand : InputSystemCursorShape.Arrow);
+            VisualStateManager.GoToState(this, "HideFlyout", true);
         }
     }
 
-    public static readonly DependencyProperty DelayLoadingProperty
-        = DependencyProperty.Register(
-            nameof(DelayLoading),
-            typeof(bool),
-            typeof(MediaViewer),
-            new PropertyMetadata(true));
-
-    public bool DelayLoading
+    partial void OnImageModeChanged()
     {
-        get => (bool)GetValue(DelayLoadingProperty);
-        set => SetValue(DelayLoadingProperty, value);
+        _task.SetResult(0);
+        _task = new TaskCompletionSource<int>();
+        SetIconAsync();
     }
 
-    public static readonly DependencyProperty IconMarginProperty
-        = DependencyProperty.Register(
-            nameof(IconMargin),
-            typeof(Thickness),
-            typeof(MediaViewer),
-            new PropertyMetadata(new Thickness(0, 0, 0, 0)));
-
-    public Thickness IconMargin
+    partial void OnContextMenuChanged(bool newValue)
     {
-        get => (Thickness)GetValue(IconMarginProperty);
-        set => SetValue(IconMarginProperty, value);
+        if (newValue)
+        {
+            VisualStateManager.GoToState(this, "ShowFlyout", true);
+        }
+        else
+        {
+            VisualStateManager.GoToState(this, "HideFlyout", true);
+        }
     }
 
-    public static readonly DependencyProperty IconHeightProperty
-        = DependencyProperty.Register(
-            nameof(IconHeight),
-            typeof(double),
-            typeof(MediaViewer),
-            new PropertyMetadata(double.NaN));
-
-    public double IconHeight
+    partial void OnCanOpenChanged(bool newValue)
     {
-        get => (double)GetValue(IconHeightProperty);
-        set => SetValue(IconHeightProperty, value);
+        ProtectedCursor = InputSystemCursor.Create(newValue ? InputSystemCursorShape.Hand : InputSystemCursorShape.Arrow);
     }
 
-    public Microsoft.UI.Xaml.Controls.Image IconImage => Image;
+    public Image IconImage => Image;
 
     public MediaIcon()
     {
