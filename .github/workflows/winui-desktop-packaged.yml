@@ -44,7 +44,7 @@ jobs:
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }}
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:PublishReadyToRun=true
 
     # Create the app package by building and packaging the project
     - name: Create the app package
