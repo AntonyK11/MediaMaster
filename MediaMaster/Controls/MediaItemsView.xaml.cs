@@ -8,6 +8,7 @@ using DependencyPropertyGenerator;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Media;
+using WinRT;
 
 namespace MediaMaster.Controls;
 
@@ -51,9 +52,9 @@ public sealed partial class MediaItemsView : UserControl
     ///  </remarks>
     
     // if the key is false the SortAscending will be inverted
-    private KeyValuePair<bool, Expression<Func<Media, object>>> _sortFunction = new(true, m => m.Name);
+    private KeyValuePair<bool, Expression<Func<Media, object>>>? _sortFunction;
 
-    public KeyValuePair<bool, Expression<Func<Media, object>>> SortFunction
+    public KeyValuePair<bool, Expression<Func<Media, object>>>? SortFunction
     {
         get => _sortFunction;
         set
@@ -106,7 +107,14 @@ public sealed partial class MediaItemsView : UserControl
                 pageCount = (int)Math.Round((double)itemNumber / _pageSize, MidpointRounding.ToPositiveInfinity);
 
                 IQueryable<Media> mediaQuery = database.Medias;
-                mediaQuery = SortMedias(mediaQuery);
+                if (SortFunction != null)
+                {
+                    mediaQuery = SortAscending ? SortMedias(mediaQuery).ThenBy(m => m.Name) : SortMedias(mediaQuery).ThenByDescending(m => m.Name);
+                }
+                else
+                {
+                    mediaQuery = SortAscending ? mediaQuery.OrderBy(m => m.Name) : mediaQuery.OrderByDescending(m => m.Name);
+                }
                 mediaQuery = FilterMedias(mediaQuery);
                 medias = await mediaQuery.Skip(currentPageIndex * _pageSize).Take(_pageSize).ToListAsync().ConfigureAwait(false);
             }
@@ -133,9 +141,10 @@ public sealed partial class MediaItemsView : UserControl
         }
     }
 
-    public IQueryable<Media> SortMedias(IQueryable<Media> medias)
+    public IOrderedQueryable<Media> SortMedias(IQueryable<Media> medias)
     {
-        return SortAscending ^ SortFunction.Key ? medias.OrderByDescending(SortFunction.Value) : medias.OrderBy(SortFunction.Value);
+        var sortFunction = (KeyValuePair<bool, Expression<Func<Media, object>>>)SortFunction!;
+        return SortAscending ^ sortFunction.Key ? medias.OrderByDescending(sortFunction.Value) : medias.OrderBy(sortFunction.Value);
     }
 
     public IQueryable<Media> FilterMedias(IQueryable<Media> medias)

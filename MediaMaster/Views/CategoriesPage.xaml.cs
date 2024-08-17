@@ -32,7 +32,7 @@ public sealed partial class CategoriesPage
     }
 }
 
-internal class BookmarksTemplateSelector : DataTemplateSelector
+internal partial class BookmarksTemplateSelector : DataTemplateSelector
 {
     public DataTemplate BookmarkFolder { get; set; }
     public DataTemplate BookmarkLink { get; set; }

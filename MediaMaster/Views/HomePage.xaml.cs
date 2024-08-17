@@ -35,13 +35,13 @@ public sealed partial class HomePage : Page
     {
         var tag = (string)((FrameworkElement)sender).Tag;
 
-        KeyValuePair<bool, Expression<Func<Media, object>>> function = tag switch
+        KeyValuePair<bool, Expression<Func<Media, object>>>? function = tag switch
         {
             "Modified" => new (false, m => m.Modified),
-            "Added" => new(true, m => m.Added),
+            "Added" => new(false, m => m.Added),
             "Archived" => new(false, m => m.IsArchived),
             "Favorite" => new(false, m => m.IsFavorite),
-            _ => new(true, m => m.Name)
+            _ => null
         };
 
         MediaItemsView.SortFunction = function;

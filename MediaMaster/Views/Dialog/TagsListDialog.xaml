@@ -13,17 +13,17 @@
 
     <Page.Resources>
         <DataTemplate x:Key="TagListViewTemplate" x:DataType="models:Tag">
-            <ListViewItem Height="36" ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}">
+            <ListViewItem Height="36" ToolTipService.ToolTip="{x:Bind Name}">
                 <Grid>
                     <Rectangle
                         Margin="-40,-9,-8,-8"
-                        Fill="{x:Bind ColorBrush, Mode=OneWay}"
+                        Fill="{x:Bind ColorBrush}"
                         RadiusX="4"
                         RadiusY="4" />
                     <TextBlock
                         VerticalAlignment="Center"
                         Foreground="{x:Bind TextColorBrush}"
-                        Text="{x:Bind DisplayName, Mode=OneWay}" />
+                        Text="{x:Bind DisplayName}" />
                 </Grid>
                 <ListViewItem.ContextFlyout>
                     <MenuFlyout>

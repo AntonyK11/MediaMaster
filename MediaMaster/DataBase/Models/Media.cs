@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MediaMaster.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.DataBase.Models;
@@ -20,9 +21,9 @@ public class Media : IHasTimestamps
 
     public virtual string Uri { get; set; } = "";
 
-    public virtual DateTime Modified { get; set; } = DateTime.UtcNow;
+    public virtual DateTime Modified { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
 
-    public virtual DateTime Added { get; set; } = DateTime.UtcNow;
+    public virtual DateTime Added { get; init; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
 
     public virtual ICollection<Tag> Tags { get; } = [];
 
