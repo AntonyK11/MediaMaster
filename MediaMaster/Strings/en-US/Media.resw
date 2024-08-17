@@ -117,11 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MediaDescription_Title.Text" xml:space="preserve">
-    <value>Description</value>
+  <data name="MediaNotes_Title.Text" xml:space="preserve">
+    <value>Notes</value>
   </data>
-  <data name="MediaDescription_TextBlock.PlaceholderText" xml:space="preserve">
-    <value>Empty description</value>
+  <data name="MediaNotes_TextBlock.PlaceholderText" xml:space="preserve">
+    <value>No notes</value>
   </data>
   <data name="MediaFilePath_Title.Text" xml:space="preserve">
     <value>File path</value>
@@ -177,5 +177,93 @@ This action is permanent and cannot be undone.</value>
   </data>
   <data name="MediaName_TextBlock.PlaceholderText" xml:space="preserve">
     <value>Media name</value>
+  </data>
+  <data name="CreateMediaDialog.Title" xml:space="preserve">
+    <value>Create media</value>
+  </data>
+  <data name="CreateMediaDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="CreateMediaDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Name_TextBox.Header" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Notes_TextBox.Header" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="Tags_TextBlock.Text" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="WebsiteUri_TextBox.Header" xml:space="preserve">
+    <value>Webiste url</value>
+  </data>
+  <data name="FileUri_TextBlock.Text" xml:space="preserve">
+    <value>File path</value>
+  </data>
+  <data name="File_SelectorBarItem.Text" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Website_SelectorBarItem.Text" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="FileUri_EditableTextBlock.PlaceholderText" xml:space="preserve">
+    <value>Missing file path</value>
+  </data>
+  <data name="WebsiteUri_TextBox.PlaceholderText" xml:space="preserve">
+    <value>Missing web url</value>
+  </data>
+  <data name="FilePathAlreadyExistsDialog.Title" xml:space="preserve">
+    <value>File path already exists</value>
+  </data>
+  <data name="FilePathAlreadyExistsDialog.Content" xml:space="preserve">
+    <value>A media already exists for this path.
+Please choose another path.</value>
+  </data>
+  <data name="FilePathAlreadyExistsDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="FilePathAlreadyExistsDialog.CloseButtonText" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="MissingWebsiteUrlDialog.Title" xml:space="preserve">
+    <value>Missing website url</value>
+  </data>
+  <data name="MissingWebsiteUrlDialog.Content" xml:space="preserve">
+    <value>Website url cannot be empty.
+Please choose a url.</value>
+  </data>
+  <data name="MissingWebsiteUrlDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="MissingWebsiteUrlDialog.CloseButtonText" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="WebsiteUrlAlreadyExistsDialog.Title" xml:space="preserve">
+    <value>Website url already exists</value>
+  </data>
+  <data name="WebsiteUrlAlreadyExistsDialog.Content" xml:space="preserve">
+    <value>A media already exists for this url.
+Please choose another url.</value>
+  </data>
+  <data name="WebsiteUrlAlreadyExistsDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="WebsiteUrlAlreadyExistsDialog.CloseButtonText" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="MissingFilePathDialog.Title" xml:space="preserve">
+    <value>Missing file path</value>
+  </data>
+  <data name="MissingFilePathDialog.Content" xml:space="preserve">
+    <value>File path cannot be empty.
+Please choose a path.</value>
+  </data>
+  <data name="MissingFilePathDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="MissingFilePathDialog.CloseButtonText" xml:space="preserve">
+    <value>Exit</value>
   </data>
 </root>

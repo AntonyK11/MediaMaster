@@ -3,44 +3,10 @@
     x:Class="MediaMaster.Views.CategoriesPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:bookmarksManager="using:BookmarksManager"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:views="using:MediaMaster.Views"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
-
-    <Page.Resources>
-        <DataTemplate x:Key="BookmarkFolder" x:DataType="bookmarksManager:BookmarkFolder">
-            <TreeViewItem
-                AllowDrop="False"
-                AutomationProperties.Name="{x:Bind Title}"
-                CanDrag="False"
-                ItemsSource="{x:Bind}">
-
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="0,0,10,0" Text="{x:Bind Title}" />
-                </StackPanel>
-            </TreeViewItem>
-        </DataTemplate>
-
-        <DataTemplate x:Key="BookmarkLink" x:DataType="bookmarksManager:BookmarkLink">
-            <TreeViewItem
-                AllowDrop="False"
-                AutomationProperties.Name="{x:Bind Title}"
-                CanDrag="False">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="0,0,10,0" Text="{x:Bind Title}" />
-                    <TextBlock Text="{x:Bind Url}" />
-                </StackPanel>
-            </TreeViewItem>
-        </DataTemplate>
-
-        <views:BookmarksTemplateSelector
-            x:Key="BookmarksTemplateSelector"
-            BookmarkFolder="{StaticResource BookmarkFolder}"
-            BookmarkLink="{StaticResource BookmarkLink}" />
-    </Page.Resources>
 
     <Grid Padding="{StaticResource NavigationViewPageContentMargin}" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -66,7 +32,6 @@
 
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <Button Click="GetActiveTabs" Content="Find Active Tabs" />
-                <Button Click="GetBookmarks" Content="Get Bookmarks" />
                 <Button
                     x:Name="Button1"
                     Click="{x:Bind TeachingService.PrevStep}"
@@ -175,16 +140,6 @@
                 Grid.Row="3"
                 IncrementalLoadingThreshold="1"
                 IncrementalLoadingTrigger="Edge" />
-
-
-            <TextBlock Grid.Row="6">Browsers Bookmarks</TextBlock>
-
-            <TreeView
-                x:Name="BookmarksTree"
-                Grid.Row="7"
-                ItemTemplateSelector="{StaticResource BookmarksTemplateSelector}" />
-
-
         </Grid>
     </Grid>
 </Page>

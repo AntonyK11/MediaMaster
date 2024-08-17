@@ -43,6 +43,7 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
             dialog.DefaultFileName = Path.GetFileName(EditableTextBlock.Text);
             dialog.EnsureFileExists = true;
             dialog.EnsurePathExists = true;
+            dialog.ShowHiddenItems = true;
 
             // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
             FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);

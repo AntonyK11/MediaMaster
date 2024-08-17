@@ -32,7 +32,7 @@ public class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
         var modified = media.Modified.ToLocalTime();
         var date = modified;
 
-        if (!media.Uri.IsWebsite())
+        if (Path.Exists(media.Uri))
         {
             date = File.GetLastWriteTime(media.Uri);
         }

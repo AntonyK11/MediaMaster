@@ -37,14 +37,13 @@ public partial class BrowserTab : ObservableObject
 
 public class BrowserService
 {
-
     public static BrowserData[]? BrowserData { get; set; }
 
     private readonly CUIAutomation _automation = new();
 
-    public ObservableCollection<BrowserTab> ActiveBrowserTabs = [];
+    public readonly ObservableCollection<BrowserTab> ActiveBrowserTabs = [];
 
-    private Dictionary<string, string> _browsersWindowTitle = [];
+    private readonly Dictionary<string, string> _browsersWindowTitle = [];
 
     private nint operaGXHWND = IntPtr.Zero;
 
@@ -167,9 +166,9 @@ public class BrowserService
                         var result = GetBrowserTab(process.MainWindowHandle);
                         if (!result.IsNullOrEmpty())
                         {
-                            if (result!.IsWebsite())
+                            if (result.StartsWith("http"))
                             {
-                                result = result!.Replace("://www.", "://");
+                                result = result.Replace("://www.", "://");
                                 if (Uri.IsWellFormedUriString(result, UriKind.Absolute))
                                 {
                                     url = new Uri(result);
@@ -177,7 +176,7 @@ public class BrowserService
                             }
                             else
                             {
-                                if (result!.StartsWith("www."))
+                                if (result.StartsWith("www."))
                                 {
                                     result = result.Replace("www.", "");
                                 }
@@ -222,16 +221,7 @@ public class BrowserService
 
                     if (tab.Domain != tab.Url.Host)
                     {
-                        var uri = new Uri("ms-appx://MediaMaster/" + browser.Icon);
-                        if (browser.Icon.EndsWith(".svg"))
-                        {
-                            tab.Icon = new SvgImageSource(uri);
-                        }
-                        else
-                        {
-                            tab.Icon = new BitmapImage(uri);
-                        }
-
+                        tab.Icon = GetBrowserIcon(browser.Icon);
                         tab.Domain = tab.Url.Host;
                     }
                 }
@@ -244,6 +234,16 @@ public class BrowserService
         }
 
         return tab;
+    }
+
+    public static ImageSource GetBrowserIcon(string iconPath)
+    {
+        var uri = new Uri("ms-appx://MediaMaster/" + iconPath);
+        if (iconPath.EndsWith(".svg"))
+        {
+            return new SvgImageSource(uri);
+        }
+        return new BitmapImage(uri);
     }
 
     public string? GetBrowserTab(nint hwnd)
@@ -282,7 +282,7 @@ public class BrowserService
         return await Task.Run(async () =>
         {
             var folder = new BookmarkFolder("Bookmarks");
-
+            
             if (BrowserData is null) return folder;
 
             foreach (BrowserData browser in BrowserData)

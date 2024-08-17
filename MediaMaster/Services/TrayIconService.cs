@@ -599,7 +599,7 @@ internal class TrayIconService
 
         if (!sMessage.IsNullOrEmpty())
         {
-            nid.szTip = sMessage!;
+            nid.szTip = sMessage;
             nid.uFlags |= NOTIFY_ICON_DATA_FLAGS.NIF_TIP;
         }
         if (hIcon != IntPtr.Zero)

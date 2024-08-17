@@ -25,20 +25,4 @@ public sealed partial class CategoriesPage
     {
         await BrowserService.FindActiveTabs();
     }
-
-    private async void GetBookmarks(object sender, RoutedEventArgs e)
-    {
-        BookmarksTree.ItemsSource = await BrowserService.GetBookmarks();
-    }
-}
-
-internal partial class BookmarksTemplateSelector : DataTemplateSelector
-{
-    public DataTemplate BookmarkFolder { get; set; }
-    public DataTemplate BookmarkLink { get; set; }
-
-    protected override DataTemplate SelectTemplateCore(object item)
-    {
-        return item is BookmarksManager.BookmarkFolder ? BookmarkFolder : BookmarkLink;
-    }
 }

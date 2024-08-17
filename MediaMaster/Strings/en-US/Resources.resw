@@ -153,4 +153,16 @@
   <data name="Exit" xml:space="preserve">
     <value>Exit</value>
   </data>
+  <data name="ImportBookmarksDialog.Title" xml:space="preserve">
+    <value>Import bookmarks</value>
+  </data>
+  <data name="ImportBookmarksDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="ImportBookmarksDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="GenerateBookmarkTags_CheckBox.Content" xml:space="preserve">
+    <value>Generate bookmark tags according to the bookmark structure</value>
+  </data>
 </root>

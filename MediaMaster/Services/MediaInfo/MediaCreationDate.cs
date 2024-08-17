@@ -31,7 +31,7 @@ public class MediaCreationDate(DockPanel parent) : MediaInfoTextBase(parent)
 
     public static string? GetDate(Media media)
     {
-        if (media.Uri.IsWebsite()) return null;
+        if (!Path.Exists(media.Uri)) return null;
 
         var date = File.GetCreationTime(media.Uri);
         return $"{date.ToLongDateString()} {date.ToShortTimeString()}";

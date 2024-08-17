@@ -32,6 +32,8 @@ public class MediaDuration(DockPanel parent) : MediaInfoTextBase(parent)
 
     public static string GetDuration(Media media)
     {
+        if (!Path.Exists(media.Uri)) return "";
+
         using (var shell = ShellObject.FromParsingName(media.Uri))
         {
             IShellProperty? prop = shell?.Properties?.System?.Media.Duration;

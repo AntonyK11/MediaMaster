@@ -13,7 +13,7 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
     public EditableTextBlock? EditableTextBlock;
     public Grid? Grid;
     public Border? Border;
-    private MyCancellationTokenSource? _tokenSource;
+    private TaskCompletionSource? _taskSource;
 
     public override string TranslationKey { get; set; } = "";
 
@@ -29,7 +29,12 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
         {
             case 1:
             {
-                SetMediaExtensionIcon(Medias.First());
+                if (_taskSource is { Task.IsCompleted: false })
+                {
+                    _taskSource.SetResult();
+                }
+                _taskSource = new TaskCompletionSource();
+                SetMediaExtensionIcon(Medias.First(), _taskSource);
                 EditableTextBlock.Text = Medias.First().Name;
                 break;
             }
@@ -139,20 +144,14 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
         InvokeMediaChange();
     }
 
-    private async void SetMediaExtensionIcon(Media media)
+    private async void SetMediaExtensionIcon(Media media, TaskCompletionSource tcs)
     {
         if (MediaExtensionIcon != null)
         {
-            if (_tokenSource is { IsDisposed: false })
-            {
-                await _tokenSource.CancelAsync();
-            }
-            _tokenSource = new MyCancellationTokenSource();
-
             MediaExtensionIcon.Source = null;
-            var icon = await IconService.GetIcon(media.Uri, ImageMode.IconOnly, 24, 24, _tokenSource);
+            var icon = await IconService.GetIcon(media.Uri, ImageMode.IconOnly, 24, 24, tcs);
 
-            if (Medias.Count == 1)
+            if (Medias.Count == 1 && !tcs.Task.IsCompleted)
             {
                 await App.DispatcherQueue.EnqueueAsync(() => MediaExtensionIcon.Source = icon);
             }

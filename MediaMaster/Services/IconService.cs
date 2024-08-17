@@ -21,21 +21,6 @@ public enum ImageMode : uint
     CacheOnly = 0x08
 }
 
-public partial class MyCancellationTokenSource : CancellationTokenSource
-{
-    public bool IsDisposed { get; private set; }
-    protected override void Dispose(bool disposing)
-    {
-        IsDisposed = true;
-        base.Dispose(disposing);
-    }
-
-    ~MyCancellationTokenSource()
-    {
-        IsDisposed = true;
-    }
-}
-
 public readonly struct CachedIcon
 {
     public BitmapSource Icon { get; init; }
@@ -56,44 +41,52 @@ public static class IconService
 
     private const int CacheLength = 2001;
 
-    public static async Task<BitmapSource?> GetIcon(string? path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
+    public static async Task<BitmapSource?> GetIcon(string? path, ImageMode imageMode, int width, int height, TaskCompletionSource? tcs = null)
     {
         if (path == null) return null;
 
         return await STATask.StartSTATask(async () =>
         {
-            using (cts)
-            {
-                var icon = await GetIconAsync(path, imageMode, width, height, cts).ConfigureAwait(false);
-                return icon == null && !imageMode.HasFlag(ImageMode.CacheOnly) ? GetDefaultIcon(path) : icon;
-            }
+            var icon = await GetIconAsync(path, imageMode, width, height, tcs).ConfigureAwait(false);
+            return icon == null && !imageMode.HasFlag(ImageMode.CacheOnly) ? GetDefaultIcon(path) : icon;
         });
     }
 
-    public static async void SetIcon(string? path, ImageMode imageMode, int width, int height, Image image, MyCancellationTokenSource cts)
+    public static async void SetIcon(string? path, ImageMode imageMode, int width, int height, Image image, TaskCompletionSource tcs)
     {
         if (path == null) return;
-        using (cts)
+
+        if (imageMode.HasFlag(ImageMode.IconAndThumbnail))
         {
-            if (imageMode.HasFlag(ImageMode.IconAndThumbnail))
-            {
-                await STATask.StartSTATask(async () =>
-                {
-                    var icon = await GetIconAsync(path, ImageMode.IconOnly, width, height, cts).ConfigureAwait(false);
-
-                    if (cts.IsDisposed || cts.IsCancellationRequested) return;
-                    await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon).ConfigureAwait(false);
-                });
-            }
-
             await STATask.StartSTATask(async () =>
             {
-                var icon = await GetIconAsync(path, imageMode, width, height, cts);
+                var icon = await GetIconAsync(path, ImageMode.IconOnly, width, height, tcs).ConfigureAwait(false);
 
-                if (cts.IsDisposed || cts.IsCancellationRequested) return;
+                if (tcs.Task.IsCompleted) return;
+
+                if (icon == null)
+                {
+                    icon = GetDefaultIcon(path);
+                }
+
                 await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon).ConfigureAwait(false);
             });
         }
+
+        await STATask.StartSTATask(async () =>
+        {
+            var icon = await GetIconAsync(path, imageMode, width, height, tcs);
+
+            if (tcs.Task.IsCompleted) return;
+
+            if (icon == null)
+            {
+                icon = GetDefaultIcon(path);
+            }
+
+            await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon).ConfigureAwait(false);
+        });
+        
     }
 
     public static BitmapSource GetDefaultIcon(string? path)
@@ -112,11 +105,11 @@ public static class IconService
         
     }
 
-    public static async Task<BitmapSource?> GetIconAsync(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
+    public static async Task<BitmapSource?> GetIconAsync(string path, ImageMode imageMode, int width, int height, TaskCompletionSource? tcs = null)
     {
-        if (cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested)) return null;
+        if (tcs is { Task.IsCompleted: true }) return null;
         ThumbnailCache.TryGetValue(path, out var cachedIconCollection);
-        if (imageMode.HasFlag(ImageMode.IconOnly))
+        if (imageMode.HasFlag(ImageMode.IconOnly) && !path.IsWebsite())
         {
             IconCache.TryGetValue(path, out cachedIconCollection);
         }
@@ -146,12 +139,12 @@ public static class IconService
 
         if (path.IsWebsite())
         {
-            return await SetWebsiteIcon(path, width, height, cts);
+            return await SetWebsiteIcon(path, width, height, tcs);
         }
 
         if (File.Exists(path))
         {
-            return await SetFileIcon(path, imageMode, width, height, cts);
+            return await SetFileIcon(path, imageMode, width, height, tcs);
         }
 
         return null;
@@ -163,7 +156,7 @@ public static class IconService
     };
     private static Fetcher? _fetcher;
 
-    private static async Task<BitmapSource?> SetWebsiteIcon(string path, int width, int height, MyCancellationTokenSource? cts = null)
+    private static async Task<BitmapSource?> SetWebsiteIcon(string path, int width, int height, TaskCompletionSource? tcs = null)
     {
         Uri url = new(path);
         IconImage? icon = null;
@@ -180,7 +173,7 @@ public static class IconService
         {
             // ignore all exceptions
         }
-        if (icon == null || (cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested))) return null;
+        if (icon == null || tcs is { Task.IsCompleted: true }) return null;
 
         BitmapSource? source = null;
         if (icon.Size.Width != 0 && icon.Size.Height != 0)
@@ -198,7 +191,7 @@ public static class IconService
             });
         }
 
-        if ((cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested)) || source == null)
+        if (source == null || tcs is { Task.IsCompleted: true })
         {
             return null;
         }
@@ -218,7 +211,7 @@ public static class IconService
         return source;
     }
 
-    private static async Task<BitmapSource?> SetFileIcon(string path, ImageMode imageMode, int width, int height, MyCancellationTokenSource? cts = null)
+    private static async Task<BitmapSource?> SetFileIcon(string path, ImageMode imageMode, int width, int height, TaskCompletionSource? tcs = null)
     {
         SIIGBF options = 0;
 
@@ -230,7 +223,7 @@ public static class IconService
 
         BitmapSource? icon = await GetThumbnail(path, width, height, options);
 
-        if ((cts != null && (cts.IsDisposed || cts.Token.IsCancellationRequested)) || icon == null)
+        if (icon == null || tcs is { Task.IsCompleted: true })
         {
             return null;
         }

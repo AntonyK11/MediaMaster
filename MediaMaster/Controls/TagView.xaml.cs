@@ -14,7 +14,6 @@ namespace MediaMaster.Controls;
 [DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
 [DependencyProperty("MediaIds", typeof(HashSet<int>), DefaultValueExpression = "new HashSet<int>()")]
 [DependencyProperty("TagId", typeof(int?))]
-
 public sealed partial class TagView : UserControl
 {
     async partial void OnMediaIdsChanged()

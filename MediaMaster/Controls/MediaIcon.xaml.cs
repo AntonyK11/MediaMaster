@@ -16,14 +16,20 @@ namespace MediaMaster.Controls;
 [DependencyProperty("IconHeight", typeof(double), DefaultValue = double.NaN)]
 public sealed partial class MediaIcon
 {
-    private MyCancellationTokenSource? _tokenSource;
-    private TaskCompletionSource<int> _task = new();
+    private TaskCompletionSource? _taskSource;
+    private TaskCompletionSource _task = new();
 
     partial void OnUrisChanged(ICollection<string> newValue)
     {
-        _task.SetResult(0);
-        _task = new TaskCompletionSource<int>();
-        SetIconAsync();
+        _task.SetResult();
+        _task = new TaskCompletionSource();
+
+        if (_taskSource is { Task.IsCompleted: false })
+        {
+            _taskSource.SetResult();
+        }
+        _taskSource = new TaskCompletionSource();
+        SetIconAsync(_taskSource);
 
         OpenFileFlyout.Visibility = Visibility.Collapsed;
         OpenFolderFlyout.Visibility = Visibility.Collapsed;
@@ -54,9 +60,15 @@ public sealed partial class MediaIcon
 
     partial void OnImageModeChanged()
     {
-        _task.SetResult(0);
-        _task = new TaskCompletionSource<int>();
-        SetIconAsync();
+        _task.SetResult();
+        _task = new TaskCompletionSource();
+
+        if (_taskSource is { Task.IsCompleted: false })
+        {
+            _taskSource.SetResult();
+        }
+        _taskSource = new TaskCompletionSource();
+        SetIconAsync(_taskSource);
     }
 
     partial void OnContextMenuChanged(bool newValue)
@@ -133,7 +145,7 @@ public sealed partial class MediaIcon
         }
     }
 
-    private async void SetIconAsync()
+    private async void SetIconAsync(TaskCompletionSource tcs)
     {
         if (Uris.Count != 1)
         {
@@ -144,6 +156,9 @@ public sealed partial class MediaIcon
         var uri = Uris.First();
 
         var icon = await IconService.GetIconAsync(uri, ImageMode | ImageMode.CacheOnly, (int)ActualWidth, (int)ActualHeight);
+
+        if (tcs.Task.IsCompleted) return;
+
         if (icon != null)
         {
             await App.DispatcherQueue.EnqueueAsync(() => Image.Source = icon);
@@ -162,20 +177,9 @@ public sealed partial class MediaIcon
                 _task.Task);
         }
 
-        if (uri == Uris.First())
+        if (uri == Uris.First() && !tcs.Task.IsCompleted)
         {
-            if (_tokenSource is { IsDisposed: false })
-            {
-                try
-                {
-                    await _tokenSource.CancelAsync();
-                }
-                catch (ObjectDisposedException) { }
-            }
-
-            _tokenSource = new MyCancellationTokenSource();
-
-            IconService.SetIcon(Uris.First(), ImageMode, (int)ActualWidth, (int)ActualHeight, Image, _tokenSource);
+            IconService.SetIcon(Uris.First(), ImageMode, (int)ActualWidth, (int)ActualHeight, Image, tcs);
         }
     }
 }

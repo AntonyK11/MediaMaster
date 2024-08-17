@@ -1,4 +1,6 @@
+using System.Collections;
 using CommunityToolkit.WinUI.Collections;
+using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
@@ -48,7 +50,8 @@ public sealed partial class TagsListDialog : Page
         }
 
         _advancedCollectionView = new AdvancedCollectionView(Tags.Where(t => _showExtensionsAndWebsites || !(t.Flags.HasFlag(TagFlags.Extension) || t.Flags.HasFlag(TagFlags.Website))).ToList());
-        _advancedCollectionView.SortDescriptions.Add(new SortDescription("Name", SortDirection.Ascending));
+        _advancedCollectionView.SortDescriptions.Add(new SortDescription("DisplayName", SortDirection.Descending, TagsExtensionComparer.Instance));
+        _advancedCollectionView.SortDescriptions.Add(new SortDescription("DisplayName", SortDirection.Ascending));
         ListView.ItemsSource = _advancedCollectionView;
 
         SelectedTags = Tags.Where(t => selectedTags.Contains(t.TagId)).ToList();
@@ -70,7 +73,7 @@ public sealed partial class TagsListDialog : Page
                     if (x is Tag tag)
                     {
                         return splitText.All(key =>
-                            tag.Name.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
+                            tag.DisplayName.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
                             tag.Shorthand.Contains(key, StringComparison.CurrentCultureIgnoreCase) ||
                             tag.Aliases.Any(a => a.Contains(key, StringComparison.CurrentCultureIgnoreCase)));
                     }
@@ -195,12 +198,11 @@ public sealed partial class TagsListDialog : Page
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,
             DefaultButton = ContentDialogButton.Primary,
-            Content = selectTagsDialog
+            Content = selectTagsDialog,
+            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
         };
 
         Uids.SetUid(dialog, selectedTags == null ? "/Tag/ManageDialog" : "/Tag/SelectDialog");
-
-        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
 
         ContentDialogResult result;
@@ -220,5 +222,35 @@ public sealed partial class TagsListDialog : Page
         } while (result == ContentDialogResult.Secondary);
 
         return (result, selectTagsDialog);
+    }
+}
+
+public class TagsExtensionComparer : IComparer
+{
+    public static readonly IComparer Instance = new TagsExtensionComparer();
+
+    public int Compare(object? x, object? y)
+    {
+        var name1 = x as string;
+        var name2 = y as string;
+
+        if (name1 == name2) return 0;
+
+        if (name1 == null)
+        {
+            return -1;
+        }
+
+        if (name2 == null)
+        {
+            return 1;
+        }
+
+        if (name1.StartsWith('.'))
+        {
+            return name2.StartsWith('.') ? 0 : -1;
+        }
+
+        return name2.StartsWith('.') ? 1 : 0;
     }
 }

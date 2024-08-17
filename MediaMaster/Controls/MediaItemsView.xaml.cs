@@ -8,7 +8,6 @@ using DependencyPropertyGenerator;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Media;
-using WinRT;
 
 namespace MediaMaster.Controls;
 
@@ -152,33 +151,26 @@ public sealed partial class MediaItemsView : UserControl
         return FilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
     }
 
-    private MyCancellationTokenSource? _tokenSource;
+    private TaskCompletionSource? _taskSource;
 
     private void SetupIcons(IEnumerable<Media> medias)
     {
-        if (_tokenSource is { IsDisposed: false })
+        if (_taskSource is { Task.IsCompleted: false })
         {
-            try
-            {
-                _tokenSource.Cancel();
-            }
-            catch (ObjectDisposedException) { }
+            _taskSource.SetResult();
         }
-        _tokenSource = new MyCancellationTokenSource();
+        _taskSource = new TaskCompletionSource();
 
-        var cts = _tokenSource;
+        var tcs = _taskSource;
         STATask.StartSTATask(async () =>
         {
-            using (cts)
+            ICollection<Task> tasks = [];
+            foreach (var media in medias)
             {
-                ICollection<Task> tasks = [];
-                foreach (var media in medias)
-                {
-                    tasks.Add(IconService.GetIconAsync(media.Uri, ImageMode.IconAndThumbnail, 128, 128, cts));
-                }
-
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+                tasks.Add(IconService.GetIconAsync(media.Uri, ImageMode.IconAndThumbnail, 128, 128, tcs));
             }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         });
     }
 
@@ -190,13 +182,14 @@ public sealed partial class MediaItemsView : UserControl
 
     private void SetupSelectionPermissions()
     {
-        var count = MediaItemsViewControl.SelectedItems.Count;
-        if (count == 0)
+        var selectedCount = MediaItemsViewControl.SelectedItems.Count;
+        var mediaCount = ((ICollection<Media>)MediaItemsViewControl.ItemsSource).Count;
+        if (selectedCount == 0)
         {
-            CanSelectAll = true;
+            CanSelectAll = mediaCount != 0;
             CanDeselectAll = false;
         }
-        else if (count == _pageSize || count == ((ICollection<Media>)MediaItemsViewControl.ItemsSource).Count)
+        else if (selectedCount == _pageSize || selectedCount == mediaCount)
         {
             CanSelectAll = false;
             CanDeselectAll = true;
@@ -206,7 +199,7 @@ public sealed partial class MediaItemsView : UserControl
             CanSelectAll = true;
             CanDeselectAll = true;
         }
-        MediasSelectedCount = count;
+        MediasSelectedCount = selectedCount;
     }
 
     private void MediaItemsView_OnProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)

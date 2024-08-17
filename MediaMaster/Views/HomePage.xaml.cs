@@ -81,10 +81,10 @@ public sealed partial class HomePage : Page
         switch (tag)
         {
             case "Import_Bookmarks":
-                // TODO
+                await ImportBookmarksDialog.ShowDialogAsync();
                 break;
             case "New_Media":
-                // TODO
+                await CreateMediaDialog.ShowDialogAsync();
                 break;
             case "New_Tag":
                 await CreateEditDeleteTagDialog.ShowDialogAsync();
@@ -92,7 +92,7 @@ public sealed partial class HomePage : Page
             case "Manage_Tags":
                 await TagsListDialog.ShowDialogAsync();
                 break;
-            case "Manage_Extensions":
+            case "Fix_Unlinked_Medias":
                 // TODO
                 break;
             case "About":

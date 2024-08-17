@@ -45,14 +45,18 @@
                         l:Uids.Uid="/Home/NewTag_MenuFlyoutItem"
                         Click="MenuBar_MenuFlyoutItem_OnClick"
                         Tag="New_Tag" />
+                    <MenuFlyoutSeparator />
                     <MenuFlyoutItem
                         l:Uids.Uid="/Home/ManageTags_MenuFlyoutItem"
                         Click="MenuBar_MenuFlyoutItem_OnClick"
                         Tag="Manage_Tags" />
+                </MenuBarItem>
+
+                <MenuBarItem l:Uids.Uid="/Home/Tools_MenuBarItem">
                     <MenuFlyoutItem
-                        l:Uids.Uid="/Home/ManageExtensions_MenuFlyoutItem"
+                        l:Uids.Uid="/Home/FixUnlinkedMedias_MenuFlyoutItem"
                         Click="MenuBar_MenuFlyoutItem_OnClick"
-                        Tag="Manage_Extensions" />
+                        Tag="Fix_Unlinked_Medias" />
                 </MenuBarItem>
 
                 <MenuBarItem l:Uids.Uid="/Home/Help_MenuBarItem">

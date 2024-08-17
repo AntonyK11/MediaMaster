@@ -211,4 +211,7 @@ This action is permanent and cannot be undone.</value>
   <data name="EditableListView_EditableTextBlock.PlaceholderText" xml:space="preserve">
     <value>Add new item</value>
   </data>
+  <data name="Parents_TextBlock.Text" xml:space="preserve">
+    <value>Parents</value>
+  </data>
 </root>

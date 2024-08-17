@@ -1,16 +1,16 @@
 {
-  "archive": [
+  "Archive": [
     ".zip",
     ".rar",
     ".7z",
     ".tar"
   ],
-  "audio": [
+  "Audio": [
     ".mp3",
     ".wav",
     ".ogg"
   ],
-  "code": [
+  "Code": [
     ".html",
     ".xml",
     ".js",
@@ -23,40 +23,40 @@
     ".cs",
     ".json"
   ],
-  "document": [
+  "Document": [
     ".doc",
     ".docx"
   ],
-  "executable": [
+  "Executable": [
     ".exe",
     ".msi",
     ".apk",
     ".bat",
     ".jar"
   ],
-  "image": [
+  "Image": [
     ".jpg",
     ".jpeg",
     ".png",
     ".svg",
     ".webp"
   ],
-  "pdf": [
+  "Pdf": [
     ".pdf"
   ],
-  "presentation": [
+  "Presentation": [
     ".ppt",
     ".pptx"
   ],
-  "spreadsheet": [
+  "Spreadsheet": [
     ".xls",
     ".xlsx"
   ],
-  "text": [
+  "Text": [
     ".txt",
     ".md"
   ],
-  "video": [
+  "Video": [
     ".mkv",
     ".mp4",
     ".gif",

@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_Empty[1]" xml:space="preserve">
-    <value></value>
-  </data>
   <data name="SelectedMediasCount.Text" xml:space="preserve">
     <value>media(s) selected</value>
   </data>
@@ -137,9 +134,6 @@
   </data>
   <data name="ManageTags_MenuFlyoutItem.Text" xml:space="preserve">
     <value>Manage tags</value>
-  </data>
-  <data name="ManageExtensions_MenuFlyoutItem.Text" xml:space="preserve">
-    <value>Manage file extensions</value>
   </data>
   <data name="About_MenuFlyoutItem.Text" xml:space="preserve">
     <value>About</value>
@@ -185,5 +179,11 @@
   </data>
   <data name="MultiSelectButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Enable multiple selection</value>
+  </data>
+  <data name="Tools_MenuBarItem.Title" xml:space="preserve">
+    <value>Tools</value>
+  </data>
+  <data name="FixUnlinkedMedias_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Fix unlinked medias</value>
   </data>
 </root>

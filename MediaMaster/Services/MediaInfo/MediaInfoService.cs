@@ -13,7 +13,7 @@ internal class MediaInfoService
         Register(new MediaDuration(parent));
         Register(new MediaFilePath(parent));
         Register(new MediaWebUrl(parent));
-        Register(new MediaDescription(parent));
+        Register(new MediaNotes(parent));
         Register(new MediaCreationDate(parent));
         Register(new MediaAdditionDate(parent));
         Register(new MediaEditionDate(parent));

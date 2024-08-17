@@ -93,15 +93,17 @@
                 Text="{x:Bind ViewModel.ColorName, Mode=OneWay}" />
         </Grid>
 
-        <controls:TagView
-            x:Name="TagView"
-            AddTagButton="True"
-            IsEnabled="{x:Bind ViewModel.CanChangeParents, Mode=OneWay}">
+        <StackPanel Spacing="8">
+            <TextBlock l:Uids.Uid="/Tag/Parents_TextBlock" />
 
-            <controls:TagView.Layout>
-                <winuiToolkit:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
-            </controls:TagView.Layout>
-
-        </controls:TagView>
+            <controls:TagView
+                x:Name="TagView"
+                AddTagButton="True"
+                IsEnabled="{x:Bind ViewModel.CanChangeParents, Mode=OneWay}">
+                <controls:TagView.Layout>
+                    <winuiToolkit:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
+                </controls:TagView.Layout>
+            </controls:TagView>
+        </StackPanel>
     </StackPanel>
 </Page>

@@ -70,11 +70,10 @@ public class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,
-            DefaultButton = ContentDialogButton.Primary,
+            DefaultButton = ContentDialogButton.Close,
+            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
         };
         Uids.SetUid(dialog, "/Media/DeleteDialog");
-        dialog.DefaultButton = ContentDialogButton.Close;
-        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
 

@@ -132,9 +132,6 @@
   <data name="ManageTags_MenuFlyoutItem.Text" xml:space="preserve">
     <value>Gérer les étiquettes</value>
   </data>
-  <data name="ManageExtensions_MenuFlyoutItem.Text" xml:space="preserve">
-    <value>Gérer les extensions de fichiers</value>
-  </data>
   <data name="ImportBookmarks_MenuFlyoutItem.Text" xml:space="preserve">
     <value>Importer des favoris</value>
   </data>
@@ -182,5 +179,11 @@
   </data>
   <data name="MultiSelectButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Activer la sélection multiple</value>
+  </data>
+  <data name="Tools_MenuBarItem.Title" xml:space="preserve">
+    <value>Outils</value>
+  </data>
+  <data name="FixUnlinkedMedias_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Réparer les médias non liés</value>
   </data>
 </root>
