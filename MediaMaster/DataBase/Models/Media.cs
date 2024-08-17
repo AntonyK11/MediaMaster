@@ -23,7 +23,7 @@ public class Media : IHasTimestamps
 
     public virtual DateTime Modified { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
 
-    public virtual DateTime Added { get; init; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
+    public virtual DateTime Added { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
 
     public virtual ICollection<Tag> Tags { get; } = [];
 
