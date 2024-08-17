@@ -348,8 +348,9 @@
                     <controls:EditableTextBlock
                         x:Name="FileUriTextBox"
                         l:Uids.Uid="/Media/FileUri_EditableTextBlock"
+                        EditButtonPressed="FileUriTextBox_OnEditButtonPressed"
                         EditOnClick="False"
-                        EditOnDoubleClick="False" EditButtonPressed="FileUriTextBox_OnEditButtonPressed" />
+                        EditOnDoubleClick="False" />
                 </StackPanel>
             </winuiToolkit:Case>
             <winuiToolkit:Case Value="Website">
