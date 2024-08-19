@@ -162,28 +162,18 @@ public class BrowserService
                     try
                     {
                         title = process.MainWindowTitle;
+                        var tabEndingString = browser.TabEndingString;
+                        if (title.EndsWith(tabEndingString))
+                        {
+                            title = title.Remove(title.Length - tabEndingString.Length, tabEndingString.Length);
+                        }
 
                         var result = GetBrowserTab(process.MainWindowHandle);
                         if (!result.IsNullOrEmpty())
                         {
-                            if (result.StartsWith("http"))
+                            if (Uri.IsWellFormedUriString(result.FormatAsWebsite(), UriKind.Absolute))
                             {
-                                result = result.Replace("://www.", "://");
-                                if (Uri.IsWellFormedUriString(result, UriKind.Absolute))
-                                {
-                                    url = new Uri(result);
-                                }
-                            }
-                            else
-                            {
-                                if (result.StartsWith("www."))
-                                {
-                                    result = result.Replace("www.", "");
-                                }
-                                if (Uri.IsWellFormedUriString("https://" + result, UriKind.Absolute))
-                                {
-                                    url = new Uri("https://" + result);
-                                }
+                                url = new Uri(result);
                             }
 
                             found = true;

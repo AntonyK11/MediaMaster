@@ -266,4 +266,25 @@ Please choose a path.</value>
   <data name="MissingFilePathDialog.CloseButtonText" xml:space="preserve">
     <value>Exit</value>
   </data>
+  <data name="FixUnlinkedMediasDialog.Title" xml:space="preserve">
+    <value>Fix unlinked medias</value>
+  </data>
+  <data name="FixUnlinkedMediasDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Fix</value>
+  </data>
+  <data name="FixUnlinkedMediasDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.Title" xml:space="preserve">
+    <value>Identical paths found</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.PrimaryButtonText" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.CloseButtonText" xml:space="preserve">
+    <value>Go back</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.Content" xml:space="preserve">
+    <value>Media with identical paths will not be fixed</value>
+  </data>
 </root>

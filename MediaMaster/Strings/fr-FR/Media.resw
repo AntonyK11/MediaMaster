@@ -266,4 +266,25 @@ Veuillez choisir une adresse .</value>
     <value>Le chemin du fichier ne peut être vide.
 Veuillez choisir un chemin.</value>
   </data>
+  <data name="FixUnlinkedMediasDialog.Title" xml:space="preserve">
+    <value>Réparer les médias non liés</value>
+  </data>
+  <data name="FixUnlinkedMediasDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Réparer</value>
+  </data>
+  <data name="FixUnlinkedMediasDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.Title" xml:space="preserve">
+    <value>Chemins identiques trouvés</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.Content" xml:space="preserve">
+    <value>Les médias avec des chemins identiques ne seront pas fixés</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.PrimaryButtonText" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="DuplicatesWillNotBeFixed.CloseButtonText" xml:space="preserve">
+    <value>Retour</value>
+  </data>
 </root>

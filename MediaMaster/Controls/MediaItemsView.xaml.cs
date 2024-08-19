@@ -30,6 +30,19 @@ public sealed partial class MediaItemsView : UserControl
             {
                 await SetupMediaCollection();
             }
+            else
+            {
+                var medias = (ICollection<Media>)MediaItemsViewControl.ItemsSource;
+                foreach (var updatedMedia in args.Medias)
+                {
+                    var media = medias.FirstOrDefault(m => m.MediaId == updatedMedia.MediaId);
+                    if (media != null)
+                    {
+                        media.Name = updatedMedia.Name;
+                        media.Uri = updatedMedia.Uri;
+                    }
+                }
+            }
         };
 
         Loaded += SetupMediaCollection;
@@ -63,7 +76,7 @@ public sealed partial class MediaItemsView : UserControl
         }
     }
 
-    public ICollection<Expression<Func<Media, bool>>> FilterFunctions = [];
+    public readonly ICollection<Expression<Func<Media, bool>>> FilterFunctions = [];
 
     private bool _sortAscending = true;
 

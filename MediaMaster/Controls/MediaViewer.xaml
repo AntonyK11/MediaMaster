@@ -254,8 +254,7 @@
                 DelayLoading="{x:Bind DelayIconLoading, Mode=OneWay}"
                 IconHeight="{x:Bind IconHeight, Mode=OneWay}"
                 IconMargin="{x:Bind IconMargin, Mode=OneWay}"
-                ImageMode="{x:Bind ImageMode, Mode=OneWay}"
-                Uris="{x:Bind Medias, Mode=OneWay, Converter={StaticResource MediasToPathsConverter}}" />
+                ImageMode="{x:Bind ImageMode, Mode=OneWay}" />
 
             <StackPanel
                 Margin="16"

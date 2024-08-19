@@ -1,0 +1,381 @@
+using BookmarksManager;
+using CommunityToolkit.WinUI;
+using DependencyPropertyGenerator;
+using MediaMaster.Controls;
+using MediaMaster.DataBase;
+using MediaMaster.Extensions;
+using MediaMaster.Interfaces.Services;
+using MediaMaster.Services.MediaInfo;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Reflection;
+using CommunityToolkit.Mvvm.ComponentModel;
+using WinUI3Localizer;
+using WinUIEx;
+using Windows.Devices.Geolocation;
+using EFCore.BulkExtensions;
+
+namespace MediaMaster.Views.Dialog;
+
+public partial class MediaProperties : ObservableObject
+{
+    [ObservableProperty] private Visibility _showValidControl = Visibility.Collapsed;
+    [ObservableProperty] private Visibility _showDuplicateControl = Visibility.Collapsed;
+    [ObservableProperty] private Visibility _showNotValidControl = Visibility.Visible;
+    [ObservableProperty] private Media _media;
+    [ObservableProperty] private string _path;
+}
+
+[DependencyProperty("GenerateBookmarkTags", typeof(bool), DefaultValue = true, IsReadOnly = true)]
+public sealed partial class FixUnlinkedMediasDialog : Page
+{
+    public FixUnlinkedMediasDialog()
+    {
+        InitializeComponent();
+
+        GetMedias();
+    }
+
+    public static readonly ICollection<BrowserFolder> BrowserFolders = [];
+    private ICollection<MediaProperties> _unlinkedMedias = [];
+
+    private async void GetMedias()
+    {
+        await Task.Run(async () =>
+        {
+            await using (var database = new MediaDbContext())
+            {
+                var unlinkedMediaList = await database.Medias.Select(m => new Media { MediaId = m.MediaId, Name = m.Name, Notes = m.Notes, Uri = m.Uri }).ToListAsync();
+                _unlinkedMedias = unlinkedMediaList.Where(m => !Path.Exists(m.Uri)).Select(m => new MediaProperties { Media = m, Path = m.Uri } ).ToList();
+            }
+        });
+
+        UnlinkedMediaListView.ItemsSource = _unlinkedMedias;
+        ProgressBar.Visibility = Visibility.Collapsed;
+    }
+
+    public static async Task<(ContentDialogResult, FixUnlinkedMediasDialog?)> ShowDialogAsync()
+    {
+        if (App.MainWindow == null) return (ContentDialogResult.None, null);
+
+        var fixUnlinkedMediasDialog = new FixUnlinkedMediasDialog();
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow.Content.XamlRoot,
+            DefaultButton = ContentDialogButton.Primary,
+            Content = fixUnlinkedMediasDialog,
+            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+        };
+
+        Uids.SetUid(dialog, "/Media/FixUnlinkedMediasDialog");
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+
+        ContentDialogResult result;
+        ContentDialogResult errorResult = ContentDialogResult.Primary;
+
+        do
+        {
+            result = await dialog.ShowAndEnqueueAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                var duplicate = fixUnlinkedMediasDialog._unlinkedMedias.FirstOrDefault(m => m.ShowDuplicateControl == Visibility.Visible);
+                if (duplicate != null)
+                {
+                    ContentDialog errorDialog = new()
+                    {
+                        XamlRoot = App.MainWindow.Content.XamlRoot,
+                        DefaultButton = ContentDialogButton.Primary,
+                        RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+                    };
+
+                    Uids.SetUid(errorDialog, "/Media/DuplicatesWillNotBeFixed");
+                    App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
+                    {
+                        errorDialog.RequestedTheme = theme;
+                    };
+
+                    errorResult = await errorDialog.ShowAndEnqueueAsync();
+                }
+
+                if (errorResult == ContentDialogResult.Primary)
+                {
+                    await using (var database = new MediaDbContext())
+                    {
+                        await database.BulkUpdateAsync(fixUnlinkedMediasDialog._unlinkedMedias.Where(m => m.ShowValidControl == Visibility.Visible ).Select(m => m.Media).ToList());
+                    }
+                }
+            }
+        } while (result == ContentDialogResult.Primary && errorResult == ContentDialogResult.None);
+
+        return (result, fixUnlinkedMediasDialog);
+    }
+
+    private async void EditableTextBlock_OnEditButtonPressed(EditableTextBlock sender, string args)
+    {
+        if (App.MainWindow == null) return;
+
+        // Cannot use System.Windows.Forms.OpenFileDialog because it makes the app crash if the window is closed after the dialog in certain situations
+        using (CommonOpenFileDialog dialog = new())
+        {
+            dialog.InitialDirectory = Path.GetDirectoryName(sender.Text);
+            dialog.DefaultFileName = Path.GetFileNameWithoutExtension(sender.Text);
+            dialog.EnsureFileExists = true;
+            dialog.EnsurePathExists = true;
+            dialog.ShowHiddenItems = true;
+            dialog.NavigateToShortcut = false;
+
+            // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
+            FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (fi != null)
+            {
+                var hwnd = App.MainWindow.GetWindowHandle();
+                fi.SetValue(dialog, hwnd);
+            }
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var filePath = dialog.FileName;
+                if (filePath == null) return;
+
+                await using (var database = new MediaDbContext())
+                {
+                    if (await database.Medias.Select(m => m.Uri).ContainsAsync(filePath))
+                    {
+                        ContentDialog errorDialog = new()
+                        {
+                            XamlRoot = App.MainWindow.Content.XamlRoot,
+                            DefaultButton = ContentDialogButton.Primary,
+                            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme,
+                        };
+                        Uids.SetUid(errorDialog, "/Media/FilePathAlreadyExistsDialog");
+                        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { errorDialog.RequestedTheme = theme; };
+
+                        ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
+
+                        if (errorResult == ContentDialogResult.Primary)
+                        {
+                            EditableTextBlock_OnEditButtonPressed(sender, args);
+                        }
+                    }
+                    else
+                    {
+                        sender.Text = filePath;
+
+                        var media = (MediaProperties)sender.Tag;
+                        UpdateMedia(media, filePath);
+                    }
+                }
+            }
+        }
+    }
+
+    public void UpdateMedia(MediaProperties media, string newPath)
+    {
+        media.ShowNotValidControl = Visibility.Collapsed;
+
+        if (media.ShowDuplicateControl == Visibility.Visible)
+        {
+            var duplicates = _unlinkedMedias.Where(m => m.Path == media.Path).ToList();
+            if (duplicates.Count < 3)
+            {
+                foreach (var dupe in duplicates)
+                {
+                    dupe.ShowDuplicateControl = Visibility.Collapsed;
+                    dupe.ShowValidControl = Visibility.Visible;
+                }
+            }
+        }
+
+        var duplicate = _unlinkedMedias.FirstOrDefault(m => m.Path == newPath);
+        if (duplicate != null)
+        {
+            media.ShowDuplicateControl = Visibility.Visible;
+            duplicate.ShowDuplicateControl = Visibility.Visible;
+
+            media.ShowValidControl = Visibility.Collapsed;
+            duplicate.ShowValidControl = Visibility.Collapsed;
+        }
+        else
+        {
+            media.ShowDuplicateControl = Visibility.Collapsed;
+            media.ShowDuplicateControl = Visibility.Collapsed;
+            media.ShowValidControl = Visibility.Visible;
+        }
+
+        media.Media.Uri = newPath;
+        media.Path = newPath;
+    }
+
+    private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (App.MainWindow == null) return;
+
+        using (CommonOpenFileDialog dialog = new())
+        {
+            dialog.EnsureFileExists = true;
+            dialog.EnsurePathExists = true;
+            dialog.ShowHiddenItems = true;
+            dialog.NavigateToShortcut = false;
+            dialog.IsFolderPicker = true;
+
+            // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
+            FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (fi != null)
+            {
+                var hwnd = App.MainWindow.GetWindowHandle();
+                fi.SetValue(dialog, hwnd);
+            }
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var folderPath = dialog.FileName;
+                if (folderPath == null) return;
+
+                ICollection<KeyValuePair<string, MediaProperties>> mediaToUpdate = [];
+                await Task.Run(() =>
+                {
+                    EnumerationOptions opt = new()
+                    {
+                        RecurseSubdirectories = true,
+                        IgnoreInaccessible = true,
+                        ReturnSpecialDirectories = true
+                    };
+                    var directories = Directory.EnumerateFiles(folderPath, "*", opt)
+                        .GroupBy(Path.GetFileName)
+                        .ToDictionary(g => g.Key!, g => g.ToList());
+
+                    var mediaDictionary = _unlinkedMedias
+                        .Where(m => m.ShowValidControl != Visibility.Visible)
+                        .GroupBy(m => Path.GetFileName(m.Media.Uri))
+                        .ToDictionary(g => g.Key, g => g.ToList());
+
+
+                    foreach ((var name, List<MediaProperties> medias) in mediaDictionary)
+                    {
+                        if (directories.TryGetValue(name, out var paths))
+                        {
+                            var matches = PairFilePaths(medias, paths);
+                            foreach ((var path, MediaProperties mediaProperties) in matches)
+                            {
+                                mediaToUpdate.Add(new KeyValuePair<string, MediaProperties>(path, mediaProperties));
+                            }
+                        }
+                    }
+                });
+                foreach ((var file, MediaProperties mediaProperties) in mediaToUpdate)
+                {
+                    UpdateMedia(mediaProperties, file);
+                }
+            }
+        }
+    }
+
+    public static List<Tuple<string, MediaProperties>> PairFilePaths(List<MediaProperties> medias, List<string> existingPaths)
+    {
+        Dictionary<string, Tuple<Tuple<int, int>, MediaProperties?>> pairedMediaPaths = [];
+
+        foreach (var media in medias)
+        {
+            string? bestMatch = null;
+            var bestMatchScoreStart = 0;
+            var bestMatchScoreEnd = int.MaxValue;
+
+            foreach (var existingPath in existingPaths)
+            {
+                var scoreStart = GetFirstDifferenceIndex(media.Media.Uri, existingPath);
+                var scoreEnd = GetLastDifferenceIndex(media.Media.Uri, existingPath);
+
+                if (scoreStart > bestMatchScoreStart || scoreEnd > bestMatchScoreEnd)
+                {
+                    bestMatchScoreStart = scoreStart;
+                    bestMatchScoreEnd = scoreEnd;
+                    bestMatch = existingPath;
+                }
+            }
+
+            if (bestMatch != null)
+            {
+                MediaProperties? mediaToUse;
+                if (pairedMediaPaths.TryGetValue(bestMatch, out Tuple<Tuple <int, int>, MediaProperties?>? tuple))
+                {
+                    if (tuple.Item1.Item1 >= bestMatchScoreStart)
+                    {
+                        mediaToUse = tuple.Item1.Item1 == bestMatchScoreStart && tuple.Item1.Item2 < bestMatchScoreEnd ? media : null;
+                    }
+                    else
+                    {
+                        mediaToUse = null;
+                    }
+                }
+                else
+                {
+                    mediaToUse = media;
+                }
+                pairedMediaPaths[bestMatch] = new Tuple<Tuple<int, int>, MediaProperties?>(new Tuple<int, int>(bestMatchScoreStart, bestMatchScoreEnd), mediaToUse);
+            }
+        }
+
+        return pairedMediaPaths.Where(t => t.Value.Item2 != null).Select(d => new Tuple<string, MediaProperties> ( d.Key, d.Value.Item2!)).ToList();
+    }
+
+    public static int GetFirstDifferenceIndex(string str1, string str2)
+    {
+        var minLength = Math.Min(str1.Length, str2.Length);
+
+        for (var i = 0; i < minLength; i++)
+        {
+            if (str1[i] != str2[i])
+            {
+                return i;
+            }
+        }
+
+        if (str1.Length != str2.Length)
+        {
+            return minLength;
+        }
+
+        return int.MaxValue;
+    }
+
+    public static int GetLastDifferenceIndex(string str1, string str2)
+    {
+        str1 = new string(str1.Reverse().ToArray());
+        str2 = new string(str2.Reverse().ToArray());
+
+        var minLength = Math.Min(str1.Length, str2.Length);
+
+        for (var i = 0; i < minLength; i++)
+        {
+            if (str1[i] != str2[i])
+            {
+                return i;
+            }
+        }
+
+        if (str1.Length != str2.Length)
+        {
+            return minLength;
+        }
+
+        return int.MaxValue;
+    }
+
+    private void FrameworkElement_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+        string path = (string)sender.Tag;
+        var isValid = Path.Exists(path);
+
+        var rectangleNotValid = sender.FindChild("RectangleNotValid");
+        if (rectangleNotValid != null)
+        {
+            rectangleNotValid.Visibility = isValid ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        var rectangleValid = sender.FindChild("RectangleValid");
+        if (rectangleValid != null)
+        {
+            rectangleValid.Visibility = isValid ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+}

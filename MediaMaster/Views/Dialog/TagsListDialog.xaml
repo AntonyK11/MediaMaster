@@ -13,10 +13,7 @@
 
     <Page.Resources>
         <DataTemplate x:Key="TagListViewTemplate" x:DataType="models:Tag">
-            <ListViewItem
-                Height="36"
-                CornerRadius="10"
-                ToolTipService.ToolTip="{x:Bind Name}">
+            <ListViewItem Height="36" ToolTipService.ToolTip="{x:Bind Name}">
                 <Grid>
                     <!--  TODO: Fix rectangle size when selection mode is none  -->
                     <Rectangle

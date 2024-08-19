@@ -10,12 +10,14 @@
     <Grid>
         <Button
             x:Name="TipIconButton"
+            Height="{x:Bind Height, Mode=OneWay}"
             Margin="0"
             Padding="0"
             BorderThickness="0"
             Click="TipIconButton_OnClick"
-            ToolTipService.ToolTip="{x:Bind Text}">
-            <FontIcon FontSize="16" Glyph="&#xE946;" />
+            Content="{x:Bind Icon, Mode=OneWay}"
+            IsTabStop="False"
+            ToolTipService.ToolTip="{x:Bind Text, Mode=OneWay}">
             <Button.Resources>
                 <StaticResource x:Key="ButtonBackground" ResourceKey="ControlFillColorTransparentBrush" />
                 <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="ControlFillColorTransparentBrush" />

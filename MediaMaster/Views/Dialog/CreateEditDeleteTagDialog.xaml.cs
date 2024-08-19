@@ -149,7 +149,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
     public async Task SaveChangesAsync()
     {
-        await using (MediaDbContext dataBase = new())
+        await using (MediaDbContext database = new())
         {
             Tag? trackedTag;
             if (CurrentTag == null)
@@ -158,7 +158,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             }
             else
             {
-                trackedTag = await dataBase.Tags.AsTracking().Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == CurrentTag.TagId);
+                trackedTag = await database.Tags.AsTracking().Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == CurrentTag.TagId);
             }
 
             if (trackedTag != null)
@@ -173,9 +173,9 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
                 if (CurrentTag == null)
                 {
-                    await dataBase.Tags.AddAsync(trackedTag);
+                    await database.Tags.AddAsync(trackedTag);
                 }
-                await dataBase.SaveChangesAsync();
+                await database.SaveChangesAsync();
                 
 
                 HashSet<int> currentTagIds = trackedTag.Parents.Select(t => t.TagId).ToHashSet();
@@ -189,16 +189,16 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 {
                     List<TagTag> newTagTags = tagsToAdd.Select(tagId => new TagTag
                         { ParentsTagId = tagId, ChildrenTagId = trackedTag.TagId }).ToList();
-                    await dataBase.BulkInsertAsync(newTagTags);
+                    await database.BulkInsertAsync(newTagTags);
                 }
 
                 // Bulk remove old tags
                 if (tagsToRemove.Count != 0)
                 {
-                    List<TagTag> tagTagsToRemove = await dataBase.TagTags
+                    List<TagTag> tagTagsToRemove = await database.TagTags
                         .Where(t => t.ChildrenTagId == trackedTag.TagId && tagsToRemove.Contains(t.ParentsTagId))
                         .ToListAsync();
-                    await dataBase.BulkDeleteAsync(tagTagsToRemove);
+                    await database.BulkDeleteAsync(tagTagsToRemove);
                 }
             }
         }

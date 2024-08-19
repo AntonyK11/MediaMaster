@@ -33,6 +33,8 @@ public sealed partial class TagsListDialog : Page
         _tagsToExclude = tagsToExclude ?? [];
 
         UpdateItemSource(selectedTags);
+
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, _) => UpdateItemSource();
     }
 
     private async void UpdateItemSource(HashSet<int>? selectedTags = null)

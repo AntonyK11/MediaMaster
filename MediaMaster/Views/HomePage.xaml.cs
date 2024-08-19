@@ -93,7 +93,7 @@ public sealed partial class HomePage : Page
                 await TagsListDialog.ShowDialogAsync();
                 break;
             case "Fix_Unlinked_Medias":
-                // TODO
+                await FixUnlinkedMediasDialog.ShowDialogAsync();
                 break;
             case "About":
                 // TODO

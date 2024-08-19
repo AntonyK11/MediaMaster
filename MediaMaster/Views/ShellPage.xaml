@@ -17,9 +17,9 @@
 
     <Grid>
         <controls:TitleBarControl x:Name="AppTitleBar" Title="MediaMaster">
-            <controls:TitleBarControl.IconPath>
+            <controls:TitleBarControl.Icon>
                 <BitmapImage UriSource="/Assets/WindowIcon.ico" />
-            </controls:TitleBarControl.IconPath>
+            </controls:TitleBarControl.Icon>
         </controls:TitleBarControl>
 
         <NavigationView

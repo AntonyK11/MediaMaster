@@ -2,7 +2,8 @@ using DependencyPropertyGenerator;
 
 namespace MediaMaster.Controls;
 
-[DependencyProperty("Text", typeof(string))]
+[DependencyProperty("Text", typeof(string), DefaultValue = "")]
+[DependencyProperty("Icon", typeof(IconElement), DefaultValueExpression = "new FontIcon() { Glyph = \"&#xE946;\" }")]
 public sealed partial class TipIcon : UserControl
 {
     public TipIcon()

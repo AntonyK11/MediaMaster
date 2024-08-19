@@ -167,7 +167,7 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
     public override void MediaChanged(object? sender, MediaChangeArgs args)
     {
         var mediaIds = Medias.Select(m => m.MediaId).ToList();
-        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.NameChanged)) return;
+        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !(args.Flags.HasFlag(MediaChangeFlags.NameChanged) || args.Flags.HasFlag(MediaChangeFlags.UriChanged))) return;
         Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }

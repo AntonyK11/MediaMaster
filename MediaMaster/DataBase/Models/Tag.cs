@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using MediaMaster.Extensions;
+using MediaMaster.Interfaces.Services;
 using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.DataBase.Models;
@@ -63,6 +64,9 @@ public class Tag
     private string _oldName = "";
     private int? _oldargb;
     private Color? _oldcolor;
+    private ElementTheme? _oldTheme;
+    private ElementTheme? _oldTextTheme;
+    private static ElementTheme CurrentTheme => App.GetService<IThemeSelectorService>().ActualTheme;
 
     [NotMapped]
     public string DisplayName
@@ -78,13 +82,15 @@ public class Tag
     {
         get
         {
-            if (_color != null && _oldargb == Argb && (Argb != null || _oldName == Name))
+            var currentTheme = CurrentTheme;
+            if (_color != null && _oldargb == Argb && (Argb != null || _oldName == Name) && _oldTheme == currentTheme)
             {
                 return (Color)_color;
             }
 
             _oldName = Name;
             _oldargb = Argb;
+            _oldTheme = currentTheme;
             _color = Argb == null ? Name.CalculateColor() : Color.FromArgb((int)Argb);
             return (Color)_color;
         }
@@ -94,16 +100,20 @@ public class Tag
         }
     }
 
+
+
     [NotMapped] public virtual Color TextColor
     {
         get
         {
-            if (_textColor != null && _oldcolor == Color)
+            var currentTheme = CurrentTheme;
+            if (_textColor != null && _oldcolor == Color && _oldTextTheme == currentTheme)
             {
                 return (Color)_textColor;
             }
 
             _oldcolor = Color;
+            _oldTextTheme = currentTheme;
             _textColor = Color.CalculateColorText();
             return (Color)_textColor;
         }

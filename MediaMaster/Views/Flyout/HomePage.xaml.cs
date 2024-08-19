@@ -72,14 +72,7 @@ public sealed partial class HomePage
         var tab = (BrowserTab?)TabsList.SelectedItem;
         if (tab == null) return;
 
-        var title = tab.Title;
-        var tabEndingString = tab.Browser.TabEndingString;
-        if (title.EndsWith(tabEndingString))
-        {
-            title = title.Remove(title.Length - tabEndingString.Length, tabEndingString.Length);
-        }
-
-        await MediaService.AddMediaAsync([new KeyValuePair<string?, string>(title, tab.Url.AbsoluteUri)]);
+        await MediaService.AddMediaAsync([new KeyValuePair<string?, string>(tab.Title, tab.Url.AbsoluteUri)]);
     }
 }
 

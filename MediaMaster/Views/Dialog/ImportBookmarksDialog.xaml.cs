@@ -12,7 +12,7 @@ namespace MediaMaster.Views.Dialog;
 [DependencyProperty("GenerateBookmarkTags", typeof(bool), DefaultValue = true, IsReadOnly = true)]
 public sealed partial class ImportBookmarksDialog : Page
 {
-    public ICollection<BrowserFolder> SelectedBrowserFolders { get; set; }
+    public ICollection<BrowserFolder> SelectedBrowserFolders { get; set; } = [];
 
     public ImportBookmarksDialog()
     {

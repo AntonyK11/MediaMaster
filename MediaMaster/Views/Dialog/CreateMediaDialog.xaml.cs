@@ -1,6 +1,4 @@
-using System.Drawing;
 using System.Reflection;
-using System.Security.Policy;
 using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
@@ -27,7 +25,7 @@ public sealed partial class CreateMediaDialog : Page
         using (CommonOpenFileDialog dialog = new())
         {
             dialog.InitialDirectory = Path.GetDirectoryName(FileUriTextBox.Text);
-            dialog.DefaultFileName = Path.GetFileName(FileUriTextBox.Text);
+            dialog.DefaultFileName = Path.GetFileNameWithoutExtension(FileUriTextBox.Text);
             dialog.EnsureFileExists = true;
             dialog.EnsurePathExists = true;
             dialog.ShowHiddenItems = true;
@@ -148,18 +146,7 @@ public sealed partial class CreateMediaDialog : Page
                     return "MissingWebsiteUrl";
                 }
 
-                if (websiteUrl.StartsWith("http"))
-                {
-                    websiteUrl = websiteUrl.Replace("://www.", "://");
-                }
-                else
-                {
-                    if (websiteUrl.StartsWith("www."))
-                    {
-                        websiteUrl = websiteUrl.Replace("www.", "");
-                    }
-                    websiteUrl = "https://" + websiteUrl;
-                }
+                websiteUrl = websiteUrl.FormatAsWebsite();
 
                 await using (var database = new MediaDbContext())
                 {
@@ -176,7 +163,7 @@ public sealed partial class CreateMediaDialog : Page
 
     public async Task SaveChangesAsync()
     {
-        await using (MediaDbContext dataBase = new())
+        await using (MediaDbContext database = new())
         {
             
             Media media = new()
@@ -192,25 +179,12 @@ public sealed partial class CreateMediaDialog : Page
                     break;
 
                 case "Website":
-                    var websiteUrl = WebsiteUriTextBox.Text;
-                    if (websiteUrl.StartsWith("http"))
-                    {
-                        websiteUrl = websiteUrl.Replace("://www.", "://");
-                    }
-                    else
-                    {
-                        if (websiteUrl.StartsWith("www."))
-                        {
-                            websiteUrl = websiteUrl.Replace("www.", "");
-                        }
-                        websiteUrl = "https://" + websiteUrl;
-                    }
-                    media.Uri = websiteUrl;
+                    media.Uri = WebsiteUriTextBox.Text.FormatAsWebsite();
                     break;
             }
 
-            await dataBase.Medias.AddAsync(media);
-            await dataBase.SaveChangesAsync();
+            await database.Medias.AddAsync(media);
+            await database.SaveChangesAsync();
 
             HashSet<int> currentTagIds = media.Tags.Select(t => t.TagId).ToHashSet();
             HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
@@ -224,16 +198,16 @@ public sealed partial class CreateMediaDialog : Page
                 if (tagIdsToAdd.Count != 0)
                 {
                     List<MediaTag> newMediaTags = tagIdsToAdd.Select(tagId => new MediaTag { MediaId = media.MediaId, TagId = tagId }).ToList();
-                    await dataBase.BulkInsertOrUpdateAsync(newMediaTags);
+                    await database.BulkInsertOrUpdateAsync(newMediaTags);
                 }
 
                 // Bulk remove old tags
                 if (tagIdsToRemove.Count != 0)
                 {
-                    List<MediaTag> mediaTagsToRemove = await dataBase.MediaTags
+                    List<MediaTag> mediaTagsToRemove = await database.MediaTags
                         .Where(mt => mt.MediaId == media.MediaId && tagIdsToRemove.Contains(mt.TagId))
                         .ToListAsync();
-                    await dataBase.BulkDeleteAsync(mediaTagsToRemove);
+                    await database.BulkDeleteAsync(mediaTagsToRemove);
                 }
 
                 if (MediaDbContext.ArchivedTag != null)

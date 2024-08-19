@@ -43,7 +43,7 @@ public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoContro
             HorizontalAlignment = HorizontalAlignment.Stretch,
             ConfirmOnReturn = false
         };
-        editableTextBlock.TextConfirmed += (_, args) => UpdateMedia(args);
+        editableTextBlock.TextConfirmed += (_, args) => UpdateMedia(args.NewText, args.OldText);
         return editableTextBlock;
     }
 
@@ -63,13 +63,13 @@ public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoContro
         }
     }
 
-    public virtual async void UpdateMedia(TextConfirmedArgs args)
+    public virtual async void UpdateMedia(string newText, string oldText = "")
     {
-        if (Medias.Count == 0 || args.OldText == args.NewText) return;
+        if (Medias.Count == 0 || oldText == newText) return;
 
         foreach (var media in Medias)
         {
-            UpdateMediaProperty(media, args.NewText);
+            UpdateMediaProperty(media, newText);
             media.Modified = DateTime.UtcNow;
         }
 

@@ -33,19 +33,19 @@ public sealed partial class TitleBarControl
         set => SetValue(SubtitleProperty, value);
     }
 
-    public static readonly DependencyProperty IconPathProperty
+    public static readonly DependencyProperty IconProperty
     = DependencyProperty.Register(
-        nameof(IconPath),
+        nameof(Icon),
         typeof(string),
         typeof(TitleBarControl),
         new PropertyMetadata(null));
 
-    public BitmapImage? IconPath
+    public BitmapImage? Icon
     {
-        get => (BitmapImage?)GetValue(IconPathProperty);
+        get => (BitmapImage?)GetValue(IconProperty);
         set 
         {
-            SetValue(IconPathProperty, value);
+            SetValue(IconProperty, value);
 
             if (value != null)
             {

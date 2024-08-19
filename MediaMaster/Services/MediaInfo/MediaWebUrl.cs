@@ -1,6 +1,11 @@
 ﻿using CommunityToolkit.WinUI.Controls;
+using EFCore.BulkExtensions;
+using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
+using MediaMaster.Interfaces.Services;
+using Microsoft.EntityFrameworkCore;
+using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
@@ -14,9 +19,107 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
         EditableTextBlock.Text = Medias.FirstOrDefault()?.Uri ?? "";
     }
 
-    public override void UpdateMediaProperty(Media media, string text)
+    public override EditableTextBlock GetEditableTextBlock()
     {
-        media.Uri = text;
+        var editableTextBlock = new EditableTextBlock
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            ConfirmOnReturn = false
+        };
+        editableTextBlock.TextConfirmed += async (_, args) => await UpdateMediaUri(args.NewText, args.OldText);
+        return editableTextBlock;
+    }
+
+    public async Task UpdateMediaUri(string newText, string oldText)
+    {
+        if (oldText == newText || EditableTextBlock == null || App.MainWindow == null) return;
+
+        newText = newText.FormatAsWebsite();
+
+        await using (var database = new MediaDbContext())
+        {
+            if (await database.Medias.Select(m => m.Uri).ContainsAsync(newText) || newText.IsNullOrEmpty())
+            {
+                EditableTextBlock.Text = oldText;
+                ContentDialog errorDialog = new()
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot,
+                    DefaultButton = ContentDialogButton.Primary,
+                    RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme,
+                };
+                Uids.SetUid(errorDialog, newText.IsNullOrEmpty() ? "/Media/MissingWebsiteUrlDialog" : "/Media/WebsiteUrlAlreadyExistsDialog");
+                App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { errorDialog.RequestedTheme = theme; };
+
+                ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
+
+                if (errorResult == ContentDialogResult.Primary)
+                {
+                    EditableTextBlock.EditText();
+                }
+            }
+            else
+            {
+                UpdateMedia(newText, oldText);
+            }
+        }
+    }
+
+    public override async void UpdateMedia(string newText, string oldText = "")
+    {
+        if (Medias.Count != 1 || oldText == newText) return;
+        var media = Medias.First();
+
+        Tag? newTag = null;
+        Tag? oldTag = null;
+        await using (var database = new MediaDbContext())
+        {
+            media.Uri = newText;
+            media.Modified = DateTime.UtcNow;
+
+            var oldDomain = new Uri(oldText).Host;
+            var newDomain = new Uri(newText).Host;
+            if (oldDomain != newDomain)
+            {
+                var oldDomainTag = await database.Medias.Include(m => m.Tags).Where(m => m.MediaId == media.MediaId)
+                    .SelectMany(m => m.Tags)
+                    .FirstOrDefaultAsync(t => t.Name == oldDomain && t.Flags.HasFlag(TagFlags.Website));
+
+                if (oldDomainTag != null)
+                {
+                    var oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m => m.TagId == oldDomainTag.TagId && m.MediaId == media.MediaId);
+
+                    if (oldMediaTag != null)
+                    {
+                        oldTag = oldDomainTag;
+                        await database.BulkDeleteAsync([oldMediaTag]);
+                    }
+                }
+
+                (var isNew, newTag) = await MediaService.GetWebsiteTag(newText, database: database);
+                if (newTag != null)
+                {
+                    if (isNew)
+                    {
+                        await database.BulkInsertAsync([newTag], new BulkConfig { SetOutputIdentity = true });
+                        await MediaService.AddNewTags([newTag], database);
+                    }
+
+                    media.Tags.Add(newTag);
+                    await MediaService.AddNewMedias([media], database);
+                }
+
+            }
+            await database.BulkUpdateAsync(Medias);
+        }
+
+        if (newTag != null || oldTag != null)
+        {
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged | MediaChangeFlags.TagsChanged, Medias, newTag != null ? [newTag] : [], oldTag != null ? [oldTag] : []);
+        }
+        else
+        {
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Medias);
+        }
     }
 
     public override bool ShowInfo(ICollection<Media> medias)

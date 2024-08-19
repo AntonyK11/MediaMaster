@@ -97,9 +97,9 @@ public class ActivationService : IActivationService
     private async Task LoadServices()
     {
         //await Task.Delay(10);
-        await using (MediaDbContext dataBase = new())
+        await using (MediaDbContext database = new())
         {
-            await dataBase.InitializeAsync();
+            await database.InitializeAsync();
         }
         await Task.WhenAll(
             App.GetService<ITranslationService>().InitializeAsync(),
@@ -168,9 +168,9 @@ public class ActivationService : IActivationService
             {
                 if (App.MainWindow is null)
                 {
-                    await using (MediaDbContext dataBase = new())
+                    await using (MediaDbContext database = new())
                     {
-                        await dataBase.InitializeAsync();
+                        await database.InitializeAsync();
                     }
                     await Task.WhenAll(
                         App.GetService<ITranslationService>().InitializeAsync(),

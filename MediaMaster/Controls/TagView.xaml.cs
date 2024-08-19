@@ -2,6 +2,7 @@ using System.Collections;
 using Windows.Foundation;
 using DependencyPropertyGenerator;
 using MediaMaster.DataBase;
+using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,12 @@ public sealed partial class TagView : UserControl
 
         CustomItemsView.SelectItemsInvoked += (_, _) => TagsSelected();
         CustomItemsView.RemoveItemsInvoked += (_, tagObjectId) => TagRemoved((int)tagObjectId);
+
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, _) =>
+        {
+            CustomItemsView.ItemsSource.Clear();
+            CustomItemsView.ItemsSource = new ObservableCollection<object>(Tags);
+        };
     }
 
     private async void TagsSelected()
@@ -127,27 +134,30 @@ public sealed partial class TagView : UserControl
     {
         if (tags == null)
         {
-            await using (MediaDbContext dataBase = new())
+            await using (MediaDbContext database = new())
             {
                 if (MediaIds.Count != 0)
                 {
-                    Tags = await dataBase.Medias
-                        .Where(m => MediaIds.Contains(m.MediaId))
-                        .SelectMany(m => m.Tags)
-                        .GroupBy(t => t)
-                        .Where(g => g.Count() == MediaIds.Count)
-                        .Select(g => g.Key)
-                        .ToListAsync();
+                    if (!(MediaIds.Count == 1 && MediaIds.First() == -1))
+                    {
+                        Tags = await database.Medias
+                            .Where(m => MediaIds.Contains(m.MediaId))
+                            .SelectMany(m => m.Tags)
+                            .GroupBy(t => t)
+                            .Where(g => g.Count() == MediaIds.Count)
+                            .Select(g => g.Key)
+                            .ToListAsync();
+                    }
                 }
                 else if (TagId != null)
                 {
                     if (refreshAll)
                     {
-                        Tags = dataBase.Tags.Select(t => new { t.TagId, t.Parents }).FirstOrDefault(t => t.TagId == TagId)?.Parents.ToList() ?? [];
+                        Tags = database.Tags.Select(t => new { t.TagId, t.Parents }).FirstOrDefault(t => t.TagId == TagId)?.Parents.ToList() ?? [];
                     }
                     else if (GetItemSource().Count != 0)
                     {
-                        Tags = dataBase.Tags.Where(tag => GetItemSource().Select(t => t.TagId).Contains(tag.TagId)).ToList();
+                        Tags = database.Tags.Where(tag => GetItemSource().Select(t => t.TagId).Contains(tag.TagId)).ToList();
                     }
                 }
             }

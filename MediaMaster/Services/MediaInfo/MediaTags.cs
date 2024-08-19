@@ -126,11 +126,11 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
 
     private async void SaveSelectedTags(ICollection<Tag> selectedTags)
     {
-        await using (MediaDbContext dataBase = new())
+        await using (MediaDbContext database = new())
         {
             if (Medias.Count != 0)
             {
-                Medias = dataBase.Medias.Include(m => m.Tags).Where(media => Medias.Select(m => m.MediaId).Contains(media.MediaId)).ToList();
+                Medias = database.Medias.Include(m => m.Tags).Where(media => Medias.Select(m => m.MediaId).Contains(media.MediaId)).ToList();
 
                 if (Medias.Count != 0)
                 {
@@ -153,16 +153,16 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
                             if (tagIdsToAdd.Count != 0)
                             {
                                 List<MediaTag> newMediaTags = tagIdsToAdd.Select(tagId => new MediaTag { MediaId = media.MediaId, TagId = tagId }).ToList();
-                                await dataBase.BulkInsertOrUpdateAsync(newMediaTags);
+                                await database.BulkInsertOrUpdateAsync(newMediaTags);
                             }
 
                             // Bulk remove old tags
                             if (tagIdsToRemove.Count != 0)
                             {
-                                List<MediaTag> mediaTagsToRemove = await dataBase.MediaTags
+                                List<MediaTag> mediaTagsToRemove = await database.MediaTags
                                     .Where(mt => mt.MediaId == media.MediaId && tagIdsToRemove.Contains(mt.TagId))
                                     .ToListAsync();
-                                await dataBase.BulkDeleteAsync(mediaTagsToRemove);
+                                await database.BulkDeleteAsync(mediaTagsToRemove);
                             }
 
                             if (MediaDbContext.ArchivedTag != null)
@@ -192,7 +192,7 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
                             media.Modified = DateTime.UtcNow;
                         }
 
-                        await dataBase.BulkUpdateAsync(Medias);
+                        await database.BulkUpdateAsync(Medias);
                     }
 
                     ICollection<Tag> tagsToAdd = selectedTags.Where(tag => tagIdsToAdd.Contains(tag.TagId)).ToList();

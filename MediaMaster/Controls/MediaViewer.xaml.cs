@@ -6,7 +6,6 @@ using MediaMaster.Services;
 using MediaMaster.Services.MediaInfo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Composition;
-using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
@@ -24,21 +23,20 @@ public sealed partial class MediaViewer : UserControl
     {
         //Visibility = value != null ? Visibility.Visible : Visibility.Collapsed;
 
-        ICollection<Media> updatedMedias = newValue;
         if (newValue.Count != 0)
         {
             ArchiveToggleButton.IsEnabled = true;
             FavoriteToggleButton.IsEnabled = true;
             if (ForceUpdate)
             {
-                updatedMedias = [];
                 using (var database = new MediaDbContext())
                 {
                     var mediaIds = newValue.Select(m => m.MediaId).ToHashSet();
                     var foundMedias = database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToList();
+                    newValue.Clear();
                     foreach (var foundMedia in foundMedias)
                     {
-                        updatedMedias.Add(foundMedia);
+                        newValue.Add(foundMedia);
                     }
                 }
             }
@@ -48,9 +46,12 @@ public sealed partial class MediaViewer : UserControl
             ArchiveToggleButton.IsEnabled = false;
             FavoriteToggleButton.IsEnabled = false;
         }
-        _mediaInfoService.SetMedia(updatedMedias, IsCompact);
 
-        SetupToggleButtons(updatedMedias);
+        MediaIcon.Uris = newValue.Select(m => m.Uri).ToList();
+
+        _mediaInfoService.SetMedia(newValue, IsCompact);
+
+        SetupToggleButtons(newValue);
     }
 
     public Media? Media
@@ -75,18 +76,15 @@ public sealed partial class MediaViewer : UserControl
         {
             ScrollView.Visibility = Visibility.Collapsed;
             DockPanelCompact.Visibility = Visibility.Visible;
-            ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
             _mediaInfoService = new MediaInfoService(DockPanelCompact);
-            _mediaInfoService.SetMedia([], newValue);
         }
         else
         {
             ScrollView.Visibility = Visibility.Visible;
             DockPanelCompact.Visibility = Visibility.Collapsed;
-            ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
             _mediaInfoService = new MediaInfoService(DockPanel);
-            _mediaInfoService.SetMedia([], newValue);
         }
+        _mediaInfoService.SetMedia([], newValue);
     }
 
     private MediaInfoService _mediaInfoService;
@@ -101,8 +99,20 @@ public sealed partial class MediaViewer : UserControl
 
         MediaDbContext.MediasChanged += (sender, args) =>
         {
-            if (!args.MediaIds.Intersect(Medias.Select(m => m.MediaId)).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
-            SetupToggleButtons(args.Medias);
+            if (!args.MediaIds.Intersect(Medias.Select(m => m.MediaId)).Any() || ReferenceEquals(sender, this)) return;
+
+            if (args.Flags.HasFlag(MediaChangeFlags.TagsChanged))
+            {
+                SetupToggleButtons(args.Medias);
+            }
+
+            if (args.Flags.HasFlag(MediaChangeFlags.UriChanged))
+            {
+                if (Medias.Count == 1)
+                {
+                    MediaIcon.Uris = [args.Medias.First(m => m.MediaId == Medias.First().MediaId).Uri];
+                }
+            }
         };
     }
 

@@ -11,6 +11,15 @@ public sealed partial class NullToVisibilityConverter : IValueConverter
 
     public object Convert(object? value, Type targetType, object parameter, string language)
     {
+        if (value?.GetType() == typeof(string))
+        {
+            if (IsInverted)
+            {
+                return string.IsNullOrEmpty((string)value) ? Visibility.Collapsed : Visibility.Visible;
+            }
+
+            return string.IsNullOrEmpty((string)value) ? Visibility.Visible : Visibility.Collapsed;
+        }
 
         if (IsInverted)
         {
