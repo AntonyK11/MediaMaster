@@ -116,6 +116,7 @@ public class ActivationService : IActivationService
         if (_contextMenuLock)
         {
             _contextMenuLock = false;
+            var installationPath = AppContext.BaseDirectory;
             ContextMenuItem menu = new()
             {
                 Title = $"{"add_context_menu".GetLocalizedString()}",
@@ -125,7 +126,8 @@ public class ActivationService : IActivationService
                 AcceptMultipleFilesFlag = 2,
                 PathDelimiter = ", ",
                 Exe = "MediaMaster.exe",
-                Param = "--Files \"{path}\" --NoWindow"
+                Param = "--Files \"{path}\" --NoWindow",
+                Icon = $"{installationPath}/Assets/WindowIcon.ico"
             };
 
             _menuService.ClearCache();

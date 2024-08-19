@@ -19,6 +19,7 @@ namespace MediaMaster.Controls;
 public sealed partial class MediaItemsView : UserControl
 {
     public event TypedEventHandler<object, ICollection<Media>>? SelectionChanged;
+    private readonly TasksService _tasksService = App.GetService<TasksService>();
 
     public MediaItemsView()
     {
@@ -105,6 +106,8 @@ public sealed partial class MediaItemsView : UserControl
 
     public async Task SetupMediaCollection()
     {
+        _tasksService.AddMainTask();
+
         await Task.Yield();
 
         var currentPageIndex = PagerControl.SelectedPageIndex;
@@ -151,6 +154,8 @@ public sealed partial class MediaItemsView : UserControl
         {
             SetupIcons(medias);
         }
+
+        _tasksService.RemoveMainTask();
     }
 
     public IOrderedQueryable<Media> SortMedias(IQueryable<Media> medias)

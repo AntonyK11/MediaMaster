@@ -79,7 +79,7 @@ public partial class App : Application
                 services.AddSingleton<ViewModels.Flyout.HomeViewModel>();
 
                 services.AddSingleton<TrayIconService>();
-                services.AddSingleton<InAppNotificationService>();
+                services.AddSingleton<TasksService>();
             }).Build();
 
         GetService<IAppNotificationService>().Initialize();

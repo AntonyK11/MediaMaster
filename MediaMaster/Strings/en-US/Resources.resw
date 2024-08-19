@@ -165,4 +165,13 @@
   <data name="GenerateBookmarkTags_CheckBox.Content" xml:space="preserve">
     <value>Generate bookmark tags according to the bookmark structure</value>
   </data>
+  <data name="DropFile_TextBlock.Text" xml:space="preserve">
+    <value>Drop file here to add it</value>
+  </data>
+  <data name="BrowsersTab_TextBlock.Text" xml:space="preserve">
+    <value>Browsers tabs</value>
+  </data>
+  <data name="AddTab_Button.Content" xml:space="preserve">
+    <value>Add tab</value>
+  </data>
 </root>

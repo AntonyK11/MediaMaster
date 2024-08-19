@@ -88,7 +88,7 @@ public sealed partial class FlyoutWindow
         {
             IsAlwaysOnTop = true;
         };
-
+        ExtendsContentIntoTitleBar = true;
     }
 
     private void Flyout_ThemeChanged(object? sender, ElementTheme theme)

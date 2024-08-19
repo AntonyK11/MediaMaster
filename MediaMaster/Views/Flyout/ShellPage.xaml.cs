@@ -1,3 +1,4 @@
+using MediaMaster.Services;
 using MediaMaster.Services.Navigation;
 using MediaMaster.ViewModels.Flyout;
 
@@ -6,6 +7,7 @@ namespace MediaMaster.Views.Flyout;
 public sealed partial class ShellPage : Page
 {
     public ShellViewModel ViewModel { get; }
+    private readonly TasksService _tasksService = App.GetService<TasksService>();
 
     public ShellPage()
     {

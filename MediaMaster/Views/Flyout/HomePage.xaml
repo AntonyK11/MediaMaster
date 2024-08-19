@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:services="using:MediaMaster.Services"
     Margin="0,48,0,0"
@@ -42,16 +43,28 @@
     <Grid
         Margin="16,0,16,16"
         HorizontalAlignment="Stretch"
-        VerticalAlignment="Stretch">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <ListView x:Name="TabsList" ItemTemplate="{StaticResource TabTemplate}" />
-        <Button Grid.Row="1" Click="ButtonBase_OnClick">Hello</Button>
+        VerticalAlignment="Stretch"
+        RowDefinitions="*, *"
+        RowSpacing="16">
         <Grid
-            Grid.Row="2"
+            Grid.Row="0"
+            RowDefinitions="Auto, *, Auto"
+            RowSpacing="8">
+            <TextBlock Grid.Row="0" l:Uids.Uid="BrowsersTab_TextBlock" />
+            <ListView
+                x:Name="TabsList"
+                Grid.Row="1"
+                CornerRadius="8"
+                ItemTemplate="{StaticResource TabTemplate}" />
+            <Button
+                Grid.Row="2"
+                HorizontalAlignment="Center"
+                l:Uids.Uid="AddTab_Button"
+                Click="ButtonBase_OnClick"
+                IsEnabled="{x:Bind TabsList.SelectedItem, Converter={StaticResource NullToFalseConverter}, Mode=OneWay}" />
+        </Grid>
+        <Grid
+            Grid.Row="1"
             AllowDrop="True"
             Background="Transparent"
             DragOver="OnDragOver"
@@ -61,12 +74,12 @@
                 VerticalAlignment="Center"
                 Spacing="16">
                 <FontIcon FontSize="32" Glyph="&#xE896;" />
-                <TextBlock FontSize="18" Text="Drop file here!" />
+                <TextBlock l:Uids.Uid="DropFile_TextBlock" FontSize="18" />
             </StackPanel>
             <Rectangle
                 RadiusX="8"
                 RadiusY="8"
-                Stroke="Black"
+                Stroke="{ThemeResource ControlStrongStrokeColorDefaultBrush}"
                 StrokeDashArray="2"
                 StrokeThickness="2" />
         </Grid>

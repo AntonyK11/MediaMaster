@@ -46,6 +46,7 @@ public sealed partial class HomePage
 
     private void OnDragOver(object sender, DragEventArgs e)
     {
+        if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
         e.AcceptedOperation = DataPackageOperation.Link;
     }
 
@@ -54,17 +55,7 @@ public sealed partial class HomePage
         if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
 
         IReadOnlyList<IStorageItem>? items = await e.DataView.GetStorageItemsAsync();
-
-        Debug.WriteLine("Adding files");
-        DateTime time = DateTime.Now;
-
-        foreach (IStorageItem? item in items)
-        {
-            Debug.WriteLine(item.Path);
-        }
-
         await Task.Run(() => MediaService.AddMediaAsync(items.Select(i => i.Path)).ConfigureAwait(false));
-        Debug.WriteLine(DateTime.Now - time);
     }
 
     private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)

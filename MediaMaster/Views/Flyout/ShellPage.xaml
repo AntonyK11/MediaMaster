@@ -165,13 +165,18 @@
                 <FontIcon Glyph="&#xE8BB;" />
             </Viewbox>
         </Button>
-        <Button
+        <ProgressBar
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            IsIndeterminate="True"
+            Visibility="{x:Bind _tasksService.FlyoutProgressBarLoading, Mode=OneWay}" />
+        <!--<Button
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             l:Uids.Uid="NavigationBackButton"
             Canvas.ZIndex="1"
             IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
-            Style="{StaticResource NavigationBackButtonStyle}" />
+            Style="{StaticResource NavigationBackButtonStyle}" />-->
         <!--<Grid
             AllowDrop="True"
             Background="Transparent"

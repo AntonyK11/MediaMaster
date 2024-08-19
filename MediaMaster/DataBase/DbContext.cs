@@ -8,6 +8,7 @@ using CommunityToolkit.WinUI.Behaviors;
 using MediaMaster.Services;
 using Microsoft.Extensions.Logging;
 using EFCore.BulkExtensions;
+using WinUICommunity;
 
 namespace MediaMaster.DataBase;
 
@@ -244,7 +245,33 @@ public partial class MediaDbContext : DbContext
                 notification.Message = $"{media.Count} Media(s) Removed";
             }
 
-            App.GetService<InAppNotificationService>().SendNotification(notification);
+
+            App.DispatcherQueue.EnqueueAsync(() =>
+            {
+                Growl.Info("Hello");
+
+                // OR
+
+                Growl.Info("Hello", "Info");
+
+                // OR
+
+                Growl.Ask("Hello", (s, e) =>
+                {
+                    Growl.Info("Clicked");
+                    return true;
+                });
+
+                Growl.Warning(new GrowlInfo
+                {
+                    ShowDateTime = true,
+                    StaysOpen = true,
+                    IsClosable = false,
+                    Title = "Hello",
+                    Message = "Warning with GrowlInfo"
+                });
+            });
+
         }
     }
 

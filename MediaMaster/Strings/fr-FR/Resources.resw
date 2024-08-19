@@ -165,4 +165,13 @@
   <data name="GenerateBookmarkTags_CheckBox.Content" xml:space="preserve">
     <value>Générer des étiquettes de signets en fonction de la structure des favorits</value>
   </data>
+  <data name="DropFile_TextBlock.Text" xml:space="preserve">
+    <value>Déposez le fichier ici pour l'ajouter</value>
+  </data>
+  <data name="BrowsersTab_TextBlock.Text" xml:space="preserve">
+    <value>Onglets des navigateurs</value>
+  </data>
+  <data name="AddTab_Button.Content" xml:space="preserve">
+    <value>Ajouter l'onglet</value>
+  </data>
 </root>

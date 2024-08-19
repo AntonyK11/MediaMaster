@@ -56,7 +56,7 @@ public class Tag
 
     public string GetReferenceName()
     {
-        return Shorthand.IsNullOrEmpty() ? Name : Shorthand;
+        return Shorthand.IsNullOrEmpty() ? Name.ToLower() : Shorthand;
     }
 
     private Color? _color;

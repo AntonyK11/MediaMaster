@@ -1,6 +1,7 @@
 ﻿using BookmarksManager;
 using EFCore.BulkExtensions;
 using MediaMaster.Extensions;
+using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,11 +30,13 @@ public static class MediaService
         }
 
         _isRunning = true;
+        App.GetService<TasksService>().AddGlobalTak();
         try
         {
             await using (MediaDbContext database = new())
             {
-                var tags = await database.Tags.Select(t => new Tag{ TagId = t.TagId, Name = t.Name }).GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
+                var tags = await database.Tags.Select(t => new Tag { TagId = t.TagId, Name = t.Name })
+                    .GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
                 var medias = database.Medias.Select(m => m.Uri).ToHashSet();
 
                 ICollection<Tag> newTags = [];
@@ -48,7 +51,8 @@ public static class MediaService
                 {
                     foreach (var browserFolder in browserFolders)
                     {
-                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags, generateBookmarkTags ? 0 : -1);
+                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags,
+                            generateBookmarkTags ? 0 : -1);
                     }
                 }
 
@@ -78,11 +82,13 @@ public static class MediaService
         catch (Exception e)
         {
             Debug.WriteLine(e);
-            _isRunning = false;
             return false;
         }
-
-        _isRunning = false;
+        finally
+        {
+            _isRunning = false;
+            App.GetService<TasksService>().RemoveGlobalTak();
+        }
         return true;
     }
 

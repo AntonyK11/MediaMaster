@@ -73,7 +73,7 @@
                                                 x:Name="ContrastIcon"
                                                 FontSize="16"
                                                 Glyph="&#xE7BA;"
-                                                Visibility="Visible" />
+                                                Visibility="Collapsed" />
                                         </StackPanel>
                                     </Button>
                                     <Button
