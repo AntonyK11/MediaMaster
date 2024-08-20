@@ -113,9 +113,15 @@
                     l:Uids.Uid="/Settings/Misc"
                     Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/ShowExtensions" Icon="{winUi:FontIcon Glyph=&#xE8E6;}">
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/ShowExtensions" Icon="{winUi:FontIcon Glyph=&#xE8EC;}">
                     <controls:ExpandableSettingControl.SettingActionableElement>
                         <ToggleSwitch l:Uids.Uid="/Settings/ToggleSwitch" IsOn="{x:Bind Settings.ShowExtensions, Mode=TwoWay}" />
+                    </controls:ExpandableSettingControl.SettingActionableElement>
+                </controls:ExpandableSettingControl>
+
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/ShowExtensions" Icon="{winUi:FontIcon Glyph=&#xE789;}">
+                    <controls:ExpandableSettingControl.SettingActionableElement>
+                        <ToggleSwitch l:Uids.Uid="/Settings/ToggleSwitch" IsOn="{x:Bind Settings.DoNotSendMediaAddedConfirmationNotification, Converter={StaticResource BoolNegationConverter}, Mode=TwoWay}" />
                     </controls:ExpandableSettingControl.SettingActionableElement>
                 </controls:ExpandableSettingControl>
 

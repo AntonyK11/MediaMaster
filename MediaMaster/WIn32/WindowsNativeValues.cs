@@ -869,6 +869,16 @@ public static class WindowsNativeValues
         MFS_UNHILITE = 0x00000000,
         MFS_DEFAULT = 0x00001000,
     }
+
+    [Flags]
+    internal enum TaskBarProgressState : uint
+    {
+        NoProgress = 0x00000000,
+        Indeterminate = 0x00000001,
+        Normal = 0x00000002,
+        Error = 0x00000004,
+        Paused = 0x00000008
+    }
 }
 
 internal static class InlineArrayIndexerExtensions

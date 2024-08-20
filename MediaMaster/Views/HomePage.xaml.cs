@@ -100,4 +100,9 @@ public sealed partial class HomePage : Page
                 break;
         }
     }
+
+    private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        await AdvancedFiltersDialog.ShowDialogAsync();
+    }
 }

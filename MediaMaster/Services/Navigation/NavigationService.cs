@@ -51,8 +51,10 @@ public abstract class NavigationService(IPageService pageService) : INavigationS
 
     }
 
-    public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
+    public bool NavigateTo(string? pageKey, object? parameter = null, bool clearNavigation = false)
     {
+        if (pageKey == null) return false;
+
         var pageType = pageService.GetPageType(pageKey);
 
         if (_frame == null || _frame.Content?.GetType() == pageType && (parameter == null || parameter.Equals(_lastParameterUsed))) return false;

@@ -40,7 +40,7 @@ public class NavigationViewService(INavigationService navigationService, IPageSe
     {
         if (args.IsSettingsInvoked)
         {
-            navigationService.NavigateTo(typeof(SettingsPage).FullName!);
+            navigationService.NavigateTo(typeof(SettingsPage).FullName);
         }
         else
         {

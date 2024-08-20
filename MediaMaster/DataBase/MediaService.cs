@@ -14,22 +14,23 @@ using HtmlAgilityPack;
 
 public static class MediaService
 {
-    private static bool _isRunning;
+    public static bool IsRunning;
 
-    public static Task<bool> AddMediaAsync(IEnumerable<string> uris)
+    public static Task<int> AddMediaAsync(IEnumerable<string> uris)
     {
         return AddMediaAsync(uris.Select(uri => new KeyValuePair<string?, string>(null, uri.Trim())));
     }
 
 
-    public static async Task<bool> AddMediaAsync(IEnumerable<KeyValuePair<string?, string>>? nameUris = null, ICollection<BrowserFolder>? browserFolders = null, bool generateBookmarkTags = true)
+    public static async Task<int> AddMediaAsync(IEnumerable<KeyValuePair<string?, string>>? nameUris = null, ICollection<BrowserFolder>? browserFolders = null, bool generateBookmarkTags = true)
     {
-        if (_isRunning)
+        if (IsRunning)
         {
-            return false;
+            return 0;
         }
 
-        _isRunning = true;
+        IsRunning = true;
+        var mediaAddedCount = 0;
         App.GetService<TasksService>().AddGlobalTak();
         try
         {
@@ -62,6 +63,7 @@ public static class MediaService
                 var mediaTags = await AddNewMedias(newMedias, database);
                 var tagTags = await AddNewTags(newTags, database);
 
+                mediaAddedCount = newMedias.Count;
                 Debug.WriteLine($"Media: {newMedias.Count}");
                 Debug.WriteLine($"Tags: {newTags.Count}");
                 Debug.WriteLine($"MediaTags: {mediaTags.Count}");
@@ -82,14 +84,14 @@ public static class MediaService
         catch (Exception e)
         {
             Debug.WriteLine(e);
-            return false;
+            return -1;
         }
         finally
         {
-            _isRunning = false;
+            IsRunning = false;
             App.GetService<TasksService>().RemoveGlobalTak();
         }
-        return true;
+        return mediaAddedCount;
     }
 
     public static async Task<ICollection<MediaTag>> AddNewMedias(ICollection<Media> newMedias, MediaDbContext database)

@@ -139,6 +139,41 @@ public static partial class WindowsNativeInterfaces
             [MarshalAs(UnmanagedType.Interface)] out IntPtr ppenumShellItems);
     }
 
+    [GeneratedComInterface]
+    [Guid("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal partial interface ITaskbarList3
+    {
+        // ITaskbarList
+        [PreserveSig]
+        HResult HrInit();
+        [PreserveSig]
+        HResult AddTab(IntPtr hwnd);
+        [PreserveSig]
+        HResult DeleteTab(IntPtr hwnd);
+        [PreserveSig]
+        HResult ActivateTab(IntPtr hwnd);
+        [PreserveSig]
+        HResult SetActiveAlt(IntPtr hwnd);
+
+        // ITaskbarList2
+        [PreserveSig]
+        HResult MarkFullscreenWindow(IntPtr hwnd, [MarshalAs(UnmanagedType.Bool)] bool fFullscreen);
+
+        // ITaskbarList3
+        [PreserveSig]
+        HResult SetProgressValue(IntPtr hwnd, ulong ullCompleted, ulong ullTotal);
+        [PreserveSig]
+        HResult SetProgressState(IntPtr hwnd, TaskBarProgressState state);
+    }
+
+    [ComImport]
+    [Guid("56fdf344-fd6d-11d0-958a-006097c9a090")]
+    [ClassInterface(ClassInterfaceType.None)]
+    internal class TaskbarInstance
+    {
+    }
+
     //[GeneratedComInterface]
     //[Guid("B4DB1657-70D7-485E-8E3E-6FCB5A5C1802")]
     //[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

@@ -12,6 +12,8 @@ public partial class SettingsService : ObservableObject
 
     [ObservableProperty] private bool _showExtensions;
 
+    [ObservableProperty] private bool _doNotSendMediaAddedConfirmationNotification;
+
     public static async Task<T?> ReadSettingAsync<T>(string key)
     {
         if (ApplicationData.Current.LocalSettings.Values.TryGetValue(key, out var obj))

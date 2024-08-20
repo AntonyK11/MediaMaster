@@ -1,5 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
+using MediaMaster.WIn32;
+using WinUIEx;
+using static MediaMaster.WIn32.WindowsNativeInterfaces;
 
 namespace MediaMaster.Services;
 
@@ -63,14 +66,43 @@ internal partial class TasksService : ObservableObject
         });
     }
 
-    partial void OnMainTasksNumberChanged(int value)
+    partial void OnMainTasksNumberChanged(int oldValue, int newValue)
     {
-        App.DispatcherQueue.EnqueueAsync(() => MainProgressBarLoading = value > 0 ? Visibility.Visible : Visibility.Collapsed);
+        if (oldValue != newValue)
+        {
+            App.DispatcherQueue.EnqueueAsync(() =>
+            {
+                MainProgressBarLoading = newValue > 0 ? Visibility.Visible : Visibility.Collapsed;
+            });
+        }
     }
 
-    partial void OnFlyoutTasksNumberChanged(int value)
+    partial void OnFlyoutTasksNumberChanged(int oldValue, int newValue)
     {
-        App.DispatcherQueue.EnqueueAsync(() => FlyoutProgressBarLoading = value > 0 ? Visibility.Visible : Visibility.Collapsed);
+        if (oldValue != newValue)
+        {
+            App.DispatcherQueue.EnqueueAsync(() =>
+            {
+                if (newValue > 0)
+                {
+                    FlyoutProgressBarLoading = Visibility.Visible;
+                    SetProgressState(WindowsNativeValues.TaskBarProgressState.Indeterminate);
+                }
+                else
+                {
+                    FlyoutProgressBarLoading = Visibility.Collapsed;
+                    SetProgressState(WindowsNativeValues.TaskBarProgressState.NoProgress);
+                }
+            });
+        }
+    }
+
+    private static readonly ITaskbarList3 TaskbarInstance = (ITaskbarList3) new TaskbarInstance();
+    private static void SetProgressState(WindowsNativeValues.TaskBarProgressState taskBarProgress)
+    {
+        if (App.MainWindow != null)
+        {
+            TaskbarInstance.SetProgressState(App.MainWindow.GetWindowHandle(), taskBarProgress);
+        }
     }
 }
-

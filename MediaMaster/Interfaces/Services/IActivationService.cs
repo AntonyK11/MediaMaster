@@ -6,11 +6,11 @@ public interface IActivationService
 {
     Task ActivateAsync();
 
-    Task LaunchWindow(bool show);
+    Task CreateWindow();
+
+    Task LoadServices();
 
     Task LoadWindow();
-
-    void AddFiles();
 
     Task<string?> HandleActivationAsync(AppActivationArguments? activationArgs = null);
 

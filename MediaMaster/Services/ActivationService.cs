@@ -1,6 +1,5 @@
 ﻿using MediaMaster.Interfaces.Services;
 using MediaMaster.Views;
-using WinUIEx;
 using Windows.Storage;
 using MediaMaster.DataBase;
 using Microsoft.Windows.AppNotifications;
@@ -30,9 +29,10 @@ public class ActivationService : IActivationService
         //// Execute tasks after activation.
         //await StartupAsync();
 
-        if (args is not null) await LaunchApp(args);
-
-        await LoadWindow();
+        if (args is not null)
+        {
+            await LaunchApp(args);
+        }
 
         App.GetService<ITranslationService>().LanguageChanged += async (_, _) => await ResetContextMenu();
 
@@ -72,29 +72,16 @@ public class ActivationService : IActivationService
         return "";
     }
 
-    public async Task LaunchWindow(bool show)
+    public async Task CreateWindow()
     {
-        await App.GetService<IThemeSelectorService>().InitializeAsync();
-        App.MainWindow ??= new MainWindow();
-
-        if (!show) return;
-
-        App.MainWindow.Show();
+        if (App.MainWindow == null)
+        {
+            await App.GetService<IThemeSelectorService>().InitializeAsync();
+            App.MainWindow = new MainWindow();
+        }
     }
 
-    public async Task LoadWindow()
-    {
-        if (App.MainWindow is null) return;
-
-        await LoadServices();
-        App.MainWindow.Content = App.GetService<ShellPage>();
-        App.MainWindow.InitializeTheme();
-        App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName!);
-
-        await App.GetService<BrowserService>().InitializeAsync();
-    }
-
-    private async Task LoadServices()
+    public async Task LoadServices()
     {
         //await Task.Delay(10);
         await using (MediaDbContext database = new())
@@ -106,6 +93,17 @@ public class ActivationService : IActivationService
             App.GetService<SettingsService>().InitializeAsync(),
             ResetContextMenu()
         );
+    }
+
+    public async Task LoadWindow()
+    {
+        if (App.MainWindow is null) return;
+
+        App.MainWindow.Content = App.GetService<ShellPage>();
+        App.MainWindow.InitializeTheme();
+        App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName);
+
+        await App.GetService<BrowserService>().InitializeAsync();
     }
 
     private bool _contextMenuLock = true;
@@ -132,18 +130,16 @@ public class ActivationService : IActivationService
 
             _menuService.ClearCache();
             StorageFolder? menuFolder = await _menuService.GetMenusFolderAsync();
-            foreach (var file in Directory.EnumerateFiles(menuFolder.Path)) File.Delete(file);
+            foreach (var file in Directory.EnumerateFiles(menuFolder.Path))
+            {
+                File.Delete(file);
+            }
 
             await _menuService.SaveAsync(menu);
             await _menuService.BuildToCacheAsync();
             _menuService.SetCustomMenuName($"{"add_context_menu".GetLocalizedString()} (Win 11)");
         }
         _contextMenuLock = true;
-    }
-
-    public void AddFiles()
-    {
-
     }
 
     public async Task LaunchApp(string args)
@@ -154,71 +150,101 @@ public class ActivationService : IActivationService
         {
             if (filesValue is null) return;
 
-            if (App.MainWindow is not null && (App.MainWindow.GetWindowStyle() & WindowStyle.Visible) != 0)
+            if (App.MainWindow?.Visible == true)
             {
-                await LaunchWindow(true);
-                AddFiles();
-
-                DateTime time = DateTime.Now;
-                Debug.WriteLine("Adding files");
+                App.MainWindow.Show();
                 var files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
-                await Task.Run(() => MediaService.AddMediaAsync(files).ConfigureAwait(false));
-                Debug.WriteLine(filesValue);
-                Debug.WriteLine(DateTime.Now - time);
+                await Task.Run(() => MediaService.AddMediaAsync(files));
             }
             else
             {
-                if (App.MainWindow is null)
+                var noMainWindow = App.MainWindow == null;
+                if (noMainWindow)
                 {
-                    await using (MediaDbContext database = new())
+                    await LoadServices();
+                }
+
+
+                if (!MediaService.IsRunning)
+                {
+                    var xmlPayload = $"""
+                                        <toast launch="action=edit">
+                                            <visual>
+                                                <binding template="ToastGeneric">
+                                                    <text>{"adding_medias_toast_text".GetLocalizedString()}</text>
+                                                </binding>
+                                            </visual>
+                                            <actions>
+                                                <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                            </actions>
+                                        </toast>
+                                        """;
+
+                    var toast = new AppNotification(xmlPayload)
                     {
-                        await database.InitializeAsync();
+                        ExpiresOnReboot = true
+                    };
+
+                    var notificationManager = AppNotificationManager.Default;
+                    notificationManager.Show(toast);
+
+                    var files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
+                    var mediaAddedCount = await Task.Run(() => MediaService.AddMediaAsync(files));
+
+                    if (!App.GetService<SettingsService>().DoNotSendMediaAddedConfirmationNotification)
+                    {
+                        xmlPayload = $"""
+                                          <toast launch="action=edit">
+                                              <visual>
+                                                  <binding template="ToastGeneric">
+                                                      <text>{string.Format("medias_added_toast_text".GetLocalizedString(), mediaAddedCount)}</text>
+                                                  </binding>
+                                              </visual>
+                                              <actions>
+                                                  <action content='{"view_toast_button".GetLocalizedString()}' arguments='action=view'/>
+                                                  <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                              </actions>
+                                          </toast>
+                                          """;
+
+                        toast = new AppNotification(xmlPayload)
+                        {
+                            ExpiresOnReboot = true
+                        };
+
+                        notificationManager.Show(toast);
                     }
-                    await Task.WhenAll(
-                        App.GetService<ITranslationService>().InitializeAsync(),
-                        App.GetService<SettingsService>().InitializeAsync()
-                    );
                 }
 
-                var files = filesValue.Split(", ");
-                foreach (var file in files)
-                {
-                    //await App.GetService<MediaService>().AddMediaAsync(file.Replace("\"", ""));
-                    Debug.WriteLine(file.Replace("\"", ""));
-                }
-                //await App.GetService<DataBaseService>().SaveChangesAsync();
-
-                var xmlPayload = $"""
-                                  <toast launch="action=edit">
-                                    <visual>
-                                      <binding template="ToastGeneric">
-                                        <text>{"media_added_toast_text".GetLocalizedString()}</text>
-                                      </binding>
-                                    </visual>
-                                    <actions>
-                                      <action content='{"edit_toast_button".GetLocalizedString()}' arguments='action=edit'/>
-                                      <action activationType="system" arguments="dismiss"  content="{"dismiss_toast_button".GetLocalizedString()}"/>
-                                    </actions>
-                                  </toast>
-                                  """;
-
-                var toast = new AppNotification(xmlPayload)
-                {
-                    ExpiresOnReboot = true
-                };
-
-                var notificationManager = AppNotificationManager.Default;
-                notificationManager.Show(toast);
-
-                if (!App.GetService<SettingsService>().LeaveAppRunning)
+                if (!App.GetService<SettingsService>().LeaveAppRunning && noMainWindow)
                 {
                     App.Shutdown();
+                }
+                else
+                {
+                    await CreateWindow();
+                    await LoadWindow();
                 }
             }
         }
         else
         {
-            await LaunchWindow(!parameters.ContainsKey("NoWindow"));
+            var noMainWindow = App.MainWindow == null;
+            if (noMainWindow)
+            {
+                await CreateWindow();
+            }
+
+            if (!parameters.ContainsKey("NoWindow"))
+            {
+                App.MainWindow?.Show();
+            }
+
+            if (noMainWindow)
+            {
+                await LoadServices();
+                await LoadWindow();
+            }
         }
     }
 
