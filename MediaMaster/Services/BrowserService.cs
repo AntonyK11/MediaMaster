@@ -151,16 +151,16 @@ public class BrowserService
 
             foreach (var process in processes)
             {
-                if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero && WIn32.WindowsApiService.IsWindow(process.MainWindowHandle))
+                try
                 {
-                    if (cache && process.MainWindowTitle == windowTitle && tab != null)
+                    if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero && WIn32.WindowsApiService.IsWindow(process.MainWindowHandle))
                     {
-                        found = true;
-                        break;
-                    }
+                        if (cache && process.MainWindowTitle == windowTitle && tab != null)
+                        {
+                            found = true;
+                            break;
+                        }
 
-                    try
-                    {
                         title = process.MainWindowTitle;
                         var tabEndingString = browser.TabEndingString;
                         if (title.EndsWith(tabEndingString))
@@ -180,10 +180,10 @@ public class BrowserService
                             break;
                         }
                     }
-                    catch
-                    {
-                        // Catch any exceptions
-                    }
+                }
+                catch
+                {
+                    // Catch any exceptions
                 }
             }
         });

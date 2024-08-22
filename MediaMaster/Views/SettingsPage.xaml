@@ -94,8 +94,8 @@
 
                 <controls:ExpandableSettingControl l:Uids.Uid="/Settings/Language" Icon="{winUi:FontIcon Glyph=&#xF2B7;}">
                     <controls:ExpandableSettingControl.SettingActionableElement>
-                        <ComboBox
-                            x:Name="ComboBox"
+                        <controls:ComboBoxEx
+                            MinWidth="105"
                             ItemsSource="{x:Bind ViewModel.AvailableLanguages, Mode=OneWay}"
                             SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             SelectionChanged="{x:Bind ViewModel.SelectionChanged, Mode=OneWay}">
@@ -104,7 +104,7 @@
                                     <TextBlock l:Uids.Uid="{x:Bind UidKey}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
-                        </ComboBox>
+                        </controls:ComboBoxEx>
                     </controls:ExpandableSettingControl.SettingActionableElement>
                 </controls:ExpandableSettingControl>
 

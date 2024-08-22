@@ -186,4 +186,46 @@
   <data name="FixUnlinkedMedias_MenuFlyoutItem.Text" xml:space="preserve">
     <value>Fix unlinked medias</value>
   </data>
+  <data name="Is_FilterOperation.Text" xml:space="preserve">
+    <value>Is</value>
+  </data>
+  <data name="Contains_FilterOperation.Text" xml:space="preserve">
+    <value>Contains</value>
+  </data>
+  <data name="StartWith_FilterOperation.Text" xml:space="preserve">
+    <value>Start with</value>
+  </data>
+  <data name="EndWith_FilterOperation.Text" xml:space="preserve">
+    <value>End with</value>
+  </data>
+  <data name="After_FilterOperation.Text" xml:space="preserve">
+    <value>After</value>
+  </data>
+  <data name="Before_FilterOperation.Text" xml:space="preserve">
+    <value>Before</value>
+  </data>
+  <data name="From_FilterOperation.Text" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="ContainsWithoutParents_FilterOperation.Text" xml:space="preserve">
+    <value>Contains (without parents)</value>
+  </data>
+  <data name="To_FilterOperation.Text" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Name_Filter.Text" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Notes_Filter.Text" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="DateAdded_Filter.Text" xml:space="preserve">
+    <value>Date added</value>
+  </data>
+  <data name="DateModified_Filter.Text" xml:space="preserve">
+    <value>Date modified</value>
+  </data>
+  <data name="Tags_Filter.Text" xml:space="preserve">
+    <value>Tags</value>
+  </data>
 </root>

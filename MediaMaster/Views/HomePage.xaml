@@ -111,7 +111,10 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="0" Click="ButtonBase_OnClick" Content="Advanced Filters" />
+                        <Button
+                            Grid.Column="0"
+                            Click="ButtonBase_OnClick"
+                            Content="Advanced Filters" />
 
                         <DropDownButton Grid.Column="2" BorderThickness="0">
                             <StackPanel Orientation="Horizontal" Spacing="8">

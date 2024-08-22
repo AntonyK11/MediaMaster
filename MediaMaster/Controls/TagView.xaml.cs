@@ -15,6 +15,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
 [DependencyProperty("MediaIds", typeof(HashSet<int>), DefaultValueExpression = "new HashSet<int>()")]
 [DependencyProperty("TagId", typeof(int?))]
+[DependencyProperty("Tags", typeof(ICollection<Tag>), DefaultValueExpression = "new List<Tag>()")]
 public sealed partial class TagView : UserControl
 {
     async partial void OnMediaIdsChanged()
@@ -30,8 +31,6 @@ public sealed partial class TagView : UserControl
     public event TypedEventHandler<object, Tag>? RemoveTagsInvoked;
     public event TypedEventHandler<object, ICollection<int>>? SelectTagsInvoked;
 
-    public ICollection<Tag> Tags = [];
-    
     public TagView()
     {
         InitializeComponent();
@@ -46,6 +45,11 @@ public sealed partial class TagView : UserControl
             CustomItemsView.ItemsSource.Clear();
             CustomItemsView.ItemsSource = new ObservableCollection<object>(Tags);
         };
+    }
+
+    async partial void OnTagsChanged()
+    {
+        await UpdateItemSource();
     }
 
     private async void TagsSelected()
@@ -168,7 +172,7 @@ public sealed partial class TagView : UserControl
         }
 
         const int tagCheckLimit = 100;
-        var showExtensions = App.GetService<SettingsService>().ShowExtensions;
+        var showExtensions = App.GetService<SettingsService>().ShowExtensions || (MediaIds.Count == 0 && TagId == null);
 
         ICollection<Tag> filteredTags = Tags.Where(t => showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList();
         ICollection<Tag> itemSource = CustomItemsView.ItemsSource.OfType<Tag>().ToList();

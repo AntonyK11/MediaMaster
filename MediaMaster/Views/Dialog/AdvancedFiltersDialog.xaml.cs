@@ -62,12 +62,14 @@ public sealed partial class AdvancedFiltersDialog : Page
         {
             XamlRoot = App.MainWindow.Content.XamlRoot,
             DefaultButton = ContentDialogButton.Primary,
-            Content = mediaDialog
+            Content = mediaDialog,
+            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme,
+            Resources =
+            {
+                ["ContentDialogMaxWidth"] = double.PositiveInfinity
+            }
         };
-
         Uids.SetUid(dialog, "/Media/CreateMediaDialog");
-
-        dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
 
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
@@ -256,59 +258,17 @@ public sealed partial class AdvancedFiltersDialog : Page
         FilterObjects.Add(new FilterGroup());
     }
 
-    private void ListViewBase_OnDragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
-    {
-        Debug.WriteLine(args);
-    }
-
-    private void Target_DragOver(object sender, DragEventArgs e)
+    private void DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = DataPackageOperation.Move;
     }
 
-    private void Target_DragEnter(object sender, DragEventArgs e)
+    private void DragItemsStarting(object sender, DragItemsStartingEventArgs e)
     {
-        // We don't want to show the Move icon
-        e.DragUIOverride.IsGlyphVisible = false;
-    }
-
-    private void Source_DragOver(object sender, DragEventArgs e)
-    {
-        e.AcceptedOperation = DataPackageOperation.Move;
-    }
-
-    private void Source_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
-    {
-        //// Prepare a string with one dragged item per line
-        //StringBuilder items = new StringBuilder();
-        //foreach (Contact item in e.Items)
-        //{
-        //    if (items.Length > 0) { items.AppendLine(); }
-        //    if (item.ToString() != null)
-        //    {
-        //        // Append name from contact object onto data string
-        //        items.Append(item.ToString() + " " + item.Company);
-        //    }
-        //}
-        //// Set the content of the DataPackage
-        //e.Data.SetText(items.ToString());
-        e.Data.Properties.Add("1", e.Items.First());
+        e.Data.Properties.Add("item", e.Items.First());
         e.Data.Properties.Add("sender", sender);
         e.Data.RequestedOperation = DataPackageOperation.Move;
 
-    }
-
-    private async void Target_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
-    {
-        //if (e.Items.Count == 1)
-        //{
-            //// Prepare ListViewItem to be moved
-            //Contact tmp = (Contact)e.Items[0];
-
-        e.Data.Properties.Add("1", e.Items.First());
-        e.Data.Properties.Add("sender", sender);
-        e.Data.RequestedOperation = DataPackageOperation.Move;
-        //}
     }
 
     private async void ListView_Drop(object sender, DragEventArgs e)
@@ -317,7 +277,7 @@ public sealed partial class AdvancedFiltersDialog : Page
         DragOperationDeferral def = e.GetDeferral();
         ListView target = (ListView)sender;
 
-        var item = (FilterObject)e.Data.Properties["1"];
+        var item = (FilterObject)e.Data.Properties["item"];
         var oldSender = (ListView)e.Data.Properties["sender"];
 
         var position = e.GetPosition(target.ItemsPanelRoot);
@@ -340,88 +300,100 @@ public sealed partial class AdvancedFiltersDialog : Page
         ((ObservableCollection<FilterObject>)oldSender.ItemsSource).Remove(item);
         ((ObservableCollection<FilterObject>)target.ItemsSource).Insert(index, item);
 
-        //if (e.DataView.Contains(StandardDataFormats.Text))
-        //{
-        //    DragOperationDeferral def = e.GetDeferral();
-        //    string s = await e.DataView.GetTextAsync();
-        //    string[] items = s.Split('\n');
-        //    foreach (string item in items)
-        //    {
-
-        //        //// Create Contact object from string, add to existing target ListView
-        //        //string[] info = item.Split(" ", 3);
-        //        //Contact temp = new Contact(info[0], info[1], info[2]);
-
-        //        //// Find the insertion index:
-        //        //Windows.Foundation.Point pos = e.GetPosition(target.ItemsPanelRoot);
-
-        //        //// If the target ListView has items in it, use the height of the first item
-        //        ////      to find the insertion index.
-        //        //int index = 0;
-        //        //if (target.Items.Count != 0)
-        //        //{
-        //        //    // Get a reference to the first item in the ListView
-        //        //    ListViewItem sampleItem = (ListViewItem)target.ContainerFromIndex(0);
-
-        //        //    // Adjust itemHeight for margins
-        //        //    double itemHeight = sampleItem.ActualHeight + sampleItem.Margin.Top + sampleItem.Margin.Bottom;
-
-        //        //    // Find index based on dividing number of items by height of each item
-        //        //    index = Math.Min(target.Items.Count - 1, (int)(pos.Y / itemHeight));
-
-        //        //    // Find the item being dropped on top of.
-        //        //    ListViewItem targetItem = (ListViewItem)target.ContainerFromIndex(index);
-
-        //        //    // If the drop position is more than half-way down the item being dropped on
-        //        //    //      top of, increment the insertion index so the dropped item is inserted
-        //        //    //      below instead of above the item being dropped on top of.
-        //        //    Windows.Foundation.Point positionInItem = e.GetPosition(targetItem);
-        //        //    if (positionInItem.Y > itemHeight / 2)
-        //        //    {
-        //        //        index++;
-        //        //    }
-
-        //        //    // Don't go out of bounds
-        //        //    index = Math.Min(target.Items.Count, index);
-        //        //}
-        //        //// Only other case is if the target ListView has no items (the dropped item will be
-        //        ////      the first). In that case, the insertion index will remain zero.
-
-        //        //// Find correct source list
-        //        //if (target.Name == "DragDropListView")
-        //        //{
-        //        //    // Find the ItemsSource for the target ListView and insert
-        //        //    contacts1.Insert(index, temp);
-        //        //    //Go through source list and remove the items that are being moved
-        //        //    foreach (Contact contact in DragDropListView2.Items)
-        //        //    {
-        //        //        if (contact.FirstName == temp.FirstName && contact.LastName == temp.LastName && contact.Company == temp.Company)
-        //        //        {
-        //        //            contacts2.Remove(contact);
-        //        //            break;
-        //        //        }
-        //        //    }
-        //        //}
-        //        //else if (target.Name == "DragDropListView2")
-        //        //{
-        //        //    contacts2.Insert(index, temp);
-        //        //    foreach (Contact contact in DragDropListView.Items)
-        //        //    {
-        //        //        if (contact.FirstName == temp.FirstName && contact.LastName == temp.LastName && contact.Company == temp.Company)
-        //        //        {
-        //        //            contacts1.Remove(contact);
-        //        //            break;
-        //        //        }
-        //        //    }
-        //        //}
-        //    }
-
-        //e.AcceptedOperation = DataPackageOperation.Move;
-        //    def.Complete();
-        //}
         def.Complete();
-        e.AcceptedOperation = DataPackageOperation.None;
     }
+
+    private void UIElement_OnDrop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        DragOperationDeferral def = e.GetDeferral();
+
+        var item = (FilterObject)e.Data.Properties["item"];
+        var oldSender = (ListView)e.Data.Properties["sender"];
+
+        ((ObservableCollection<FilterObject>)oldSender.ItemsSource).Remove(item);
+
+        def.Complete();
+    }
+}
+
+public partial class Type : ObservableObject
+{
+    [ObservableProperty] private string _name;
+    [ObservableProperty] private string _uid;
+}
+
+public abstract partial class Operations : Type
+{
+    [ObservableProperty] private Type _currentOperation;
+    public virtual ICollection<Type> OperationsCollection { get; }
+
+    protected Operations()
+    {
+        CurrentOperation = OperationsCollection.First();
+    }
+
+    partial void OnCurrentOperationChanged(Type? oldValue, Type newValue)
+    {
+        if (!OperationsCollection.Contains(newValue))
+        {
+            CurrentOperation = oldValue ?? OperationsCollection.First();
+        }
+    }
+}
+
+public partial class TextOperations : Operations
+{
+    private static readonly ICollection<Type> StaticOperationsCollection =
+    [
+        new Type { Uid = "/Home/Is_FilterOperation", Name = "Is"},
+        new Type { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
+        new Type { Uid = "/Home/StartWith_FilterOperation", Name = "Start_with" },
+        new Type { Uid = "/Home/EndWith_FilterOperation", Name = "End_Width" }
+    ];
+
+    public override ICollection<Type> OperationsCollection => StaticOperationsCollection;
+}
+
+public partial class DateOperations : Operations
+{
+    private static readonly ICollection<Type> StaticOperationsCollection =
+    [
+        new Type { Uid = "/Home/After_FilterOperation", Name = "After" },
+        new Type { Uid = "/Home/Before_FilterOperation", Name = "Before" },
+        new Type { Uid = "/Home/From_FilterOperation", Name = "From_to" }
+    ];
+
+    public override ICollection<Type> OperationsCollection => StaticOperationsCollection;
+}
+
+public partial class TagsOperations : Operations
+{
+    private static readonly ICollection<Type> StaticOperationsCollection =
+    [
+        new Type { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
+        new Type { Uid = "/Home/ContainsWithoutParents_FilterOperation", Name = "Contains_Without_Parents" }
+    ];
+
+    public override ICollection<Type> OperationsCollection => StaticOperationsCollection;
+}
+
+
+public partial class FilterType : Type
+{
+    [ObservableProperty] private string _category;
+    [ObservableProperty] private Operations _operations;
+
+    [ObservableProperty] private Type _defaultType;
+
+    [ObservableProperty] private string _text;
+    [ObservableProperty] private DateTimeOffset _date = DateTimeOffset.Now;
+    [ObservableProperty] private TimeSpan _time;
+    [ObservableProperty] private DateTimeOffset _secondDate = DateTimeOffset.Now;
+    [ObservableProperty] private TimeSpan _secondTime;
+    [ObservableProperty] private ICollection<Tag> _tags = [];
+
+    [ObservableProperty] private bool _negate;
 }
 
 public partial class FilterObject : ObservableObject
@@ -431,12 +403,36 @@ public partial class FilterObject : ObservableObject
 
 public partial class Filter : FilterObject
 {
-    [ObservableProperty] public string _title = "hi";
+    public readonly ICollection<FilterType> FiltersCollection =
+    [
+        new FilterType { Uid = "/Home/Name_Filter", Name = "Name", Category = "Text", Operations = new TextOperations() },
+        new FilterType { Uid = "/Home/Notes_Filter", Name = "Notes", Category = "Text", Operations = new TextOperations() },
+        new FilterType { Uid = "/Home/DateAdded_Filter", Name = "Date_Added", Category = "Date", Operations = new DateOperations() },
+        new FilterType { Uid = "/Home/DateModified_Filter", Name = "Date_Modifed", Category = "Date", Operations = new DateOperations() },
+        new FilterType { Uid = "/Home/Tags_Filter", Name = "Tags", Category = "Tags", Operations = new TagsOperations() }
+    ];
+
+    [ObservableProperty] private string _title = "hi";
+
+    [ObservableProperty] private FilterType _filterType;
+
+    public Filter()
+    {
+        FilterType = FiltersCollection.First();
+    }
+
+    partial void OnFilterTypeChanged(FilterType? oldValue, FilterType newValue)
+    {
+        if (!FiltersCollection.Contains(newValue))
+        {
+            FilterType = oldValue ?? FiltersCollection.First();
+        }
+    }
 }
 
 public partial class FilterGroup : FilterObject
 {
-    public ObservableCollection<FilterObject> FilterObjects = [new Filter()];
+    public readonly ObservableCollection<FilterObject> FilterObjects = [];
 }
 
 internal partial class FiltersTemplateSelector : DataTemplateSelector

@@ -38,7 +38,8 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{x:Bind Media.Name}" />
                             <controls:TipIcon
-                                Icon="{winUi:FontIcon Glyph=&#xE70B;, FontSize=14}"
+                                Icon="{winUi:FontIcon Glyph=&#xE70B;,
+                                                      FontSize=14}"
                                 Text="{x:Bind Media.Notes}"
                                 Visibility="{x:Bind Media.Notes, Converter={StaticResource NullToVisibilityConverterInverted}}" />
                         </StackPanel>

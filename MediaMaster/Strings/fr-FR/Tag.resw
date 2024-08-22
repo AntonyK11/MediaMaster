@@ -182,7 +182,7 @@ Cette action est permanente et ne peut être annulée.</value>
     <value>Nouvelle étiquette</value>
   </data>
   <data name="SelectDialog.Title" xml:space="preserve">
-    <value>Selectionner une étiquette</value>
+    <value>Selectionner étiquettes</value>
   </data>
   <data name="DeleteDialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
