@@ -47,9 +47,15 @@ public sealed partial class TagView : UserControl
         };
     }
 
+    private bool _skipTagsChange;
     async partial void OnTagsChanged()
     {
-        await UpdateItemSource();
+        if (!_skipTagsChange)
+        {
+            _skipTagsChange = true;
+            await UpdateItemSource();
+            _skipTagsChange = false;
+        }
     }
 
     private async void TagsSelected()
@@ -172,7 +178,7 @@ public sealed partial class TagView : UserControl
         }
 
         const int tagCheckLimit = 100;
-        var showExtensions = App.GetService<SettingsService>().ShowExtensions || (MediaIds.Count == 0 && TagId == null);
+        var showExtensions = App.GetService<SettingsService>().ShowExtensions || MediaIds.Count == 0;
 
         ICollection<Tag> filteredTags = Tags.Where(t => showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList();
         ICollection<Tag> itemSource = CustomItemsView.ItemsSource.OfType<Tag>().ToList();
@@ -250,8 +256,8 @@ public class TagsComparer : IComparer
 
         if (tag1 == tag2) return 0;
 
-        var cx = tag1?.Name as IComparable;
-        var cy = tag2?.Name as IComparable;
+        IComparable? cx = tag1?.Name;
+        IComparable? cy = tag2?.Name;
 
         return cx == null ? -1 : cy == null ? +1 : cx.CompareTo(cy);
     }

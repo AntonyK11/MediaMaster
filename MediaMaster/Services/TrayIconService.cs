@@ -320,11 +320,11 @@ internal class TrayIconService
 
     private void WindowSubClass(object? sender, WindowMessageEventArgs args)
     {
-        IntPtr hWnd = args.Message.Hwnd;
-        uint uMsg = args.Message.MessageId;
+        var hWnd = args.Message.Hwnd;
+        var uMsg = args.Message.MessageId;
 
-        UIntPtr wParam = args.Message.WParam;
-        IntPtr lParam = args.Message.LParam;
+        var wParam = args.Message.WParam;
+        var lParam = args.Message.LParam;
         if (uMsg == TaskbarRestartMessageId)
         {
             RemoveFromTray();

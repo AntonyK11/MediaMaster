@@ -13,6 +13,13 @@
     xmlns:winUiCommunity="using:WinUICommunity"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <Style BasedOn="{StaticResource GrowlStyle}" TargetType="winUiCommunity:Growl" />
+        <Style x:Key="GrowlStyle" TargetType="winUiCommunity:Growl">
+            <Setter Property="IsOpen" Value="True" />
+        </Style>
+    </Page.Resources>
+
     <Grid
         AllowDrop="True"
         Background="Transparent"
@@ -47,11 +54,16 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>-->
             </NavigationView.MenuItems>
-
-            <Frame x:Name="ContentFrame" IsTabStop="False" />
+            <Grid>
+                <Frame x:Name="ContentFrame" IsTabStop="False" />
+                <StackPanel
+                    MaxWidth="480"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    winUiCommunity:Growl.GrowlParent="True"
+                    Orientation="Vertical" />
+            </Grid>
         </NavigationView>
-
-        <StackPanel MinWidth="340" winUiCommunity:Growl.GrowlParent="True" />
 
         <Grid
             x:Name="DropGrid"

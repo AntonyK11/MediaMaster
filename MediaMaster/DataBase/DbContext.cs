@@ -9,6 +9,7 @@ using MediaMaster.Services;
 using Microsoft.Extensions.Logging;
 using EFCore.BulkExtensions;
 using WinUICommunity;
+using WinUI3Localizer;
 
 namespace MediaMaster.DataBase;
 
@@ -230,48 +231,28 @@ public partial class MediaDbContext : DbContext
 
         if (flags.HasFlag(MediaChangeFlags.MediaAdded) || flags.HasFlag(MediaChangeFlags.MediaRemoved))
         {
-            var notification = new Notification()
+            var growlInfo = new GrowlInfo
             {
-                Title = $"Notification {DateTimeOffset.Now}",
-                Duration = TimeSpan.FromSeconds(5)
+                ShowDateTime = true,
+                IsClosable = true,
+                Title = string.Format("InAppNotification_Title".GetLocalizedString(), DateTimeOffset.Now),
+                UseBlueColorForInfo = true,
             };
 
             if (flags.HasFlag(MediaChangeFlags.MediaAdded))
             {
-                notification.Message = $"{media.Count} Media(s) Added";
+                growlInfo.Message = string.Format("InAppNotification_MediasAdded".GetLocalizedString(), media.Count);
             }
             else if (flags.HasFlag(MediaChangeFlags.MediaRemoved))
             {
-                notification.Message = $"{media.Count} Media(s) Removed";
+                growlInfo.Message = string.Format("InAppNotification_MediasRemoved".GetLocalizedString(), media.Count);
             }
 
 
             App.DispatcherQueue.EnqueueAsync(() =>
             {
-                Growl.Info("Hello");
-
-                // OR
-
-                Growl.Info("Hello", "Info");
-
-                // OR
-
-                Growl.Ask("Hello", (s, e) =>
-                {
-                    Growl.Info("Clicked");
-                    return true;
-                });
-
-                Growl.Warning(new GrowlInfo
-                {
-                    ShowDateTime = true,
-                    StaysOpen = true,
-                    IsClosable = false,
-                    Title = "Hello",
-                    Message = "Warning with GrowlInfo"
-                });
+                Growl.Info(growlInfo);
             });
-
         }
     }
 

@@ -4,11 +4,14 @@ using MediaMaster.Extensions;
 using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
+using WinUI3Localizer;
+using WinUICommunity;
 
 namespace MediaMaster.DataBase;
 
 using System.Collections.Generic;
 using System.Linq;
+using CommunityToolkit.WinUI;
 using HtmlAgilityPack;
 
 
@@ -26,6 +29,16 @@ public static class MediaService
     {
         if (IsRunning)
         {
+            await App.DispatcherQueue.EnqueueAsync(() =>
+            {
+                Growl.Error(new GrowlInfo
+                {
+                    ShowDateTime = true,
+                    IsClosable = true,
+                    Title = string.Format("InAppNotification_Title".GetLocalizedString(), DateTimeOffset.Now),
+                    Message = "InAppNotification_CannotAddMedias".GetLocalizedString()
+                });
+            });
             return 0;
         }
 

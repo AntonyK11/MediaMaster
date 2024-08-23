@@ -177,4 +177,16 @@
   <data name="adding_medias_toast_text" xml:space="preserve">
     <value>Adding new media(s)</value>
   </data>
+  <data name="InAppNotification_Title" xml:space="preserve">
+    <value>Notification {0}</value>
+  </data>
+  <data name="InAppNotification_CannotAddMedias" xml:space="preserve">
+    <value>Cannot add new medias while medias are being added</value>
+  </data>
+  <data name="InAppNotification_MediasAdded" xml:space="preserve">
+    <value>{0} media(s) added</value>
+  </data>
+  <data name="InAppNotification_MediasRemoved" xml:space="preserve">
+    <value>{0} media(s) removed</value>
+  </data>
 </root>
