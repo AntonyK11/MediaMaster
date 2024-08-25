@@ -253,7 +253,7 @@ public partial class TitleBarViewModel : ObservableObject
 
         var mif = new MENUITEMINFOW
         {
-            cbSize = (uint)Marshal.SizeOf(typeof(MENUITEMINFOW)),
+            cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
             fMask = MENU_ITEM_MASK.MIIM_TYPE,
             fType = MENU_ITEM_TYPE.MFT_BITMAP,
             dwTypeData = new IntPtr()
@@ -288,7 +288,7 @@ public partial class TitleBarViewModel : ObservableObject
         {
             var itemInfo1 = new MENUITEMINFOW
             {
-                cbSize = (uint)Marshal.SizeOf(typeof(MENUITEMINFOW)),
+                cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
                 fMask = MENU_ITEM_MASK.MIIM_TYPE,
                 fType = MENU_ITEM_TYPE.MFT_OWNERDRAW
             };
@@ -298,7 +298,7 @@ public partial class TitleBarViewModel : ObservableObject
 
         var itemInfo = new MENUITEMINFOW
         {
-            cbSize = (uint)Marshal.SizeOf(typeof(MENUITEMINFOW)),
+            cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
             fMask = MENU_ITEM_MASK.MIIM_BITMAP, 
             hbmpItem = IntPtr.Zero
         };

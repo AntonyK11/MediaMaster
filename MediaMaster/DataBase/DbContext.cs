@@ -4,8 +4,6 @@ using Windows.Foundation.Collections;
 using Microsoft.EntityFrameworkCore;
 using Windows.Storage;
 using CommunityToolkit.WinUI;
-using CommunityToolkit.WinUI.Behaviors;
-using MediaMaster.Services;
 using Microsoft.Extensions.Logging;
 using EFCore.BulkExtensions;
 using WinUICommunity;
@@ -80,6 +78,8 @@ public partial class MediaDbContext : DbContext
         optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
 
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+        //optionsBuilder.WithExpressionExpanding();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

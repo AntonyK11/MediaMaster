@@ -9,6 +9,7 @@ using Microsoft.UI.Dispatching;
 using Windows.Storage;
 using System.Text.Json;
 using MediaMaster.Services.Navigation;
+using MediaMaster.Helpers;
 
 namespace MediaMaster;
 
@@ -87,7 +88,7 @@ public partial class App : Application
         // Fixes the issue where the mica background would flicker to the system theme if the application theme was not the same
         if (ApplicationData.Current.LocalSettings.Values.TryGetValue(ThemeSelectorService.SettingsKey, out var obj))
         {
-            var theme = JsonSerializer.Deserialize<ElementTheme>((string)obj);
+            var theme = JsonSerializer.Deserialize((string)obj, SourceGenerationContext.Default.ElementTheme);
 
             if (theme is ElementTheme.Dark)
             {

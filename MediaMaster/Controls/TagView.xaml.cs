@@ -52,9 +52,7 @@ public sealed partial class TagView : UserControl
     {
         if (!_skipTagsChange)
         {
-            _skipTagsChange = true;
             await UpdateItemSource();
-            _skipTagsChange = false;
         }
     }
 
@@ -142,6 +140,7 @@ public sealed partial class TagView : UserControl
 
     public async Task UpdateItemSource(ICollection<Tag>? tags = null, bool refreshAll = false)
     {
+        _skipTagsChange = true;
         if (tags == null)
         {
             await using (MediaDbContext database = new())
@@ -202,6 +201,10 @@ public sealed partial class TagView : UserControl
                 CustomItemsView.ItemsSource.Add(tag);
             }
         }
+        _skipTagsChange = false;
+
+        await Task.Delay(1);
+        CustomItemsView.UpdateScrollButtonsVisibility();
     }
 
     private void RemoveTagFlyout_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)

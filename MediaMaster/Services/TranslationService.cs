@@ -2,6 +2,7 @@
 using Windows.Storage;
 using MediaMaster.Interfaces.Services;
 using WinUI3Localizer;
+using MediaMaster.Helpers;
 
 namespace MediaMaster.Services;
 
@@ -30,10 +31,10 @@ public class TranslationService : ITranslationService
             .SetOptions(options => { options.DefaultLanguage = DefaultLanguage; })
             .Build();
 
-        var lang = await SettingsService.ReadSettingAsync<string>(SettingsKey);
+        var lang = await SettingsService.ReadSettingAsync(SettingsKey, SourceGenerationContext.Default.String);
         if (lang is null)
         {
-            await SettingsService.SaveSettingAsync(SettingsKey, DefaultLanguage);
+            await SettingsService.SaveSettingAsync(SettingsKey, DefaultLanguage, SourceGenerationContext.Default.String);
             lang = DefaultLanguage;
         }
 
@@ -50,7 +51,7 @@ public class TranslationService : ITranslationService
         await Localizer.SetLanguage(language);
         ApplicationLanguages.PrimaryLanguageOverride = language;
 
-        await SettingsService.SaveSettingAsync(SettingsKey, language);
+        await SettingsService.SaveSettingAsync(SettingsKey, language, SourceGenerationContext.Default.String);
     }
 
     public string GetCurrentLanguage()

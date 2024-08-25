@@ -228,4 +228,22 @@
   <data name="Tags_Filter.Text" xml:space="preserve">
     <value>Tags</value>
   </data>
+  <data name="AddGroup_AdvancedFilterFlyout.Content" xml:space="preserve">
+    <value>Add group</value>
+  </data>
+  <data name="AddFilter_AdvancedFilterFlyout.Content" xml:space="preserve">
+    <value>Add filter</value>
+  </data>
+  <data name="ClearAll_AdvancedFilterFlyout.Content" xml:space="preserve">
+    <value>Clear all</value>
+  </data>
+  <data name="And_FiIterGroup.Text" xml:space="preserve">
+    <value>And</value>
+  </data>
+  <data name="Or_FilterGroup.Text" xml:space="preserve">
+    <value>Or</value>
+  </data>
+  <data name="Negate_Filter.Content" xml:space="preserve">
+    <value>Negate</value>
+  </data>
 </root>

@@ -54,7 +54,7 @@ public class BrowserService
     {
         var browsersDataFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "Browsers.json");
         var browsersDataString = await File.ReadAllTextAsync(browsersDataFilePath);
-        BrowserData = await Json.ToObjectAsync<BrowserData[]>(browsersDataString);
+        BrowserData = await Json.ToObjectAsync(browsersDataString, SourceGenerationContext.Default.BrowserDataArray);
     }
 
     private bool _isRunning;

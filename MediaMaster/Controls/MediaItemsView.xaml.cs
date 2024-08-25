@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Input;
 using Windows.System;
 using CommunityToolkit.WinUI;
 using DependencyPropertyGenerator;
+using LinqKit;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Media;
@@ -77,7 +78,8 @@ public sealed partial class MediaItemsView : UserControl
         }
     }
 
-    public readonly ICollection<Expression<Func<Media, bool>>> FilterFunctions = [];
+    public readonly ICollection<Expression<Func<Media, bool>>> SimpleFilterFunctions = [];
+    public readonly ICollection<Expression<Func<Media, bool>>> AdvancedFilterFunctions = [];
 
     private bool _sortAscending = true;
 
@@ -121,7 +123,7 @@ public sealed partial class MediaItemsView : UserControl
                 var itemNumber = await database.Medias.CountAsync().ConfigureAwait(false);
                 pageCount = (int)Math.Round((double)itemNumber / _pageSize, MidpointRounding.ToPositiveInfinity);
 
-                IQueryable<Media> mediaQuery = database.Medias;
+                IQueryable<Media> mediaQuery = database.Medias.AsExpandableEFCore();
                 if (SortFunction != null)
                 {
                     mediaQuery = SortAscending ? SortMedias(mediaQuery).ThenBy(m => m.Name) : SortMedias(mediaQuery).ThenByDescending(m => m.Name);
@@ -130,7 +132,8 @@ public sealed partial class MediaItemsView : UserControl
                 {
                     mediaQuery = SortAscending ? mediaQuery.OrderBy(m => m.Name) : mediaQuery.OrderByDescending(m => m.Name);
                 }
-                mediaQuery = FilterMedias(mediaQuery);
+                mediaQuery = SimpleFilterMedias(mediaQuery);
+                mediaQuery = AdvancedFilterMedias(mediaQuery);
                 medias = await mediaQuery.Skip(currentPageIndex * _pageSize).Take(_pageSize).ToListAsync().ConfigureAwait(false);
             }
         });
@@ -164,9 +167,14 @@ public sealed partial class MediaItemsView : UserControl
         return SortAscending ^ sortFunction.Key ? medias.OrderByDescending(sortFunction.Value) : medias.OrderBy(sortFunction.Value);
     }
 
-    public IQueryable<Media> FilterMedias(IQueryable<Media> medias)
+    public IQueryable<Media> SimpleFilterMedias(IQueryable<Media> medias)
     {
-        return FilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
+        return SimpleFilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
+    }
+
+    public IQueryable<Media> AdvancedFilterMedias(IQueryable<Media> medias)
+    {
+        return AdvancedFilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
     }
 
     private TaskCompletionSource? _taskSource;

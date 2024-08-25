@@ -52,6 +52,11 @@ public static class DateTimeExtensions
         }
     }
 
+    public static DateTimeOffset GetDateTimeOffsetUpToDay(this DateTimeOffset date)
+    {
+        return new DateTime(date.Year, date.Month, date.Day);
+    }
+
     public static DateTime GetDateTimeUpToSeconds(this DateTime date)
     {
         return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second);

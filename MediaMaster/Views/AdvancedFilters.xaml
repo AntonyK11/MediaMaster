@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="MediaMaster.Views.AdvancedFilters"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="using:WinUI3Localizer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mcontrols="using:MediaMaster.Controls"
+    xmlns:views="using:MediaMaster.Views"
+    MinWidth="800"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="Type" x:DataType="views:AdvancedType">
+            <TextBlock l:Uids.Uid="{x:Bind Uid}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="Filter" x:DataType="views:Filter">
+            <ListViewItem MinWidth="750" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <Grid Height="96">
+                    <Rectangle
+                        Margin="-12,2,-8,2"
+                        RadiusX="4"
+                        RadiusY="4"
+                        Stroke="{ThemeResource CardStrokeColorDefaultBrush}"
+                        StrokeThickness="1" />
+
+                    <Grid ColumnDefinitions="Auto, Auto, *, Auto" ColumnSpacing="12">
+                        <mcontrols:ComboBoxEx
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            ItemTemplate="{StaticResource Type}"
+                            ItemsSource="{x:Bind FiltersCollection, Mode=OneWay}"
+                            SelectedItem="{x:Bind FilterType, Mode=TwoWay}" />
+
+                        <mcontrols:ComboBoxEx
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            ItemTemplate="{StaticResource Type}"
+                            ItemsSource="{x:Bind FilterType.Operations.OperationsCollection, Mode=OneWay}"
+                            SelectedItem="{x:Bind FilterType.Operations.CurrentOperation, Mode=TwoWay}" />
+
+                        <controls:SwitchPresenter Grid.Column="2" Value="{x:Bind FilterType.Category, Mode=OneWay}">
+
+                            <controls:Case Value="Text">
+                                <TextBox VerticalAlignment="Center" Text="{x:Bind FilterType.Text, Mode=TwoWay}" />
+                            </controls:Case>
+
+                            <controls:Case Value="Date">
+                                <Grid
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    ColumnDefinitions="Auto, Auto"
+                                    ColumnSpacing="12">
+                                    <StackPanel
+                                        Grid.Column="0"
+                                        Orientation="Vertical"
+                                        Spacing="8">
+                                        <DatePicker Date="{x:Bind FilterType.Date, Mode=TwoWay}" />
+                                        <TimePicker HorizontalAlignment="Center" Time="{x:Bind FilterType.Time, Mode=TwoWay}" />
+                                    </StackPanel>
+
+                                    <controls:SwitchPresenter Grid.Column="1" Value="{x:Bind FilterType.Operations.CurrentOperation.Name, Mode=OneWay}">
+
+                                        <controls:Case Value="From_to">
+                                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                                <TextBlock VerticalAlignment="Center" l:Uids.Uid="/Home/To_FilterOperation" />
+
+                                                <StackPanel Orientation="Vertical" Spacing="8">
+                                                    <DatePicker Date="{x:Bind FilterType.SecondDate, Mode=TwoWay}" />
+                                                    <TimePicker HorizontalAlignment="Center" Time="{x:Bind FilterType.SecondTime, Mode=TwoWay}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </controls:Case>
+
+                                    </controls:SwitchPresenter>
+                                </Grid>
+                            </controls:Case>
+
+                            <controls:Case Value="Tags">
+                                <Canvas
+                                    x:Name="Canvas"
+                                    Height="{Binding ActualHeight, ElementName=TagView, Mode=OneWay}"
+                                    SizeChanged="Canvas_OnSizeChanged">
+                                    <mcontrols:TagView x:Name="TagView" Tags="{x:Bind FilterType.Tags, Mode=TwoWay}" />
+                                </Canvas>
+                            </controls:Case>
+
+                        </controls:SwitchPresenter>
+
+                        <CheckBox
+                            Grid.Column="3"
+                            Margin="0,0,8,0"
+                            l:Uids.Uid="/Home/Negate_Filter"
+                            IsChecked="{x:Bind FilterType.Negate, Mode=TwoWay}" />
+                    </Grid>
+                </Grid>
+            </ListViewItem>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FilterGroup" x:DataType="views:FilterGroup">
+            <ListViewItem MinWidth="750" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <Grid MinHeight="128">
+                    <Rectangle
+                        Margin="-12,2,-8,2"
+                        RadiusX="4"
+                        RadiusY="4"
+                        Stroke="{ThemeResource CardStrokeColorDefaultBrush}"
+                        StrokeThickness="1" />
+
+                    <Grid ColumnDefinitions="Auto, *">
+
+                        <Grid
+                            Grid.Column="0"
+                            Width="64"
+                            Margin="0,16"
+                            SizeChanged="FrameworkElement_OnSizeChanged">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition x:Name="UpperLineRow" Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition x:Name="LowerLineRow" Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Path
+                                Grid.Row="0"
+                                HorizontalAlignment="Right"
+                                Data="M 0,8 C 0,0 8,0 8,0 h 23"
+                                Stroke="{ThemeResource ControlStrongStrokeColorDefaultBrush}"
+                                StrokeDashArray="2"
+                                StrokeThickness="1" />
+
+                            <Line
+                                x:Name="UpperLine"
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                Stroke="{ThemeResource ControlStrongStrokeColorDefaultBrush}"
+                                StrokeDashArray="2"
+                                StrokeThickness="1"
+                                X1="0"
+                                X2="0"
+                                Y1="0"
+                                Y2="{Binding ActualHeight, ElementName=UpperLineRow}" />
+
+                            <Line
+                                x:Name="LowerLine"
+                                Grid.Row="3"
+                                HorizontalAlignment="Center"
+                                Stroke="{ThemeResource ControlStrongStrokeColorDefaultBrush}"
+                                StrokeDashArray="2"
+                                StrokeThickness="1"
+                                X1="0"
+                                X2="0"
+                                Y1="1"
+                                Y2="{Binding ActualHeight, ElementName=LowerLineRow}" />
+
+                            <Path
+                                Grid.Row="4"
+                                HorizontalAlignment="Right"
+                                Data="M 0,0 C 0,8 8,8 8,8 h 23"
+                                Stroke="{ThemeResource ControlStrongStrokeColorDefaultBrush}"
+                                StrokeDashArray="2"
+                                StrokeThickness="1" />
+
+                            <controls:SwitchPresenter
+                                Grid.Row="2"
+                                HorizontalAlignment="Center"
+                                TargetType="x:Boolean"
+                                Value="{x:Bind OrCombination, Mode=OneWay}">
+
+                                <controls:Case Value="True">
+                                    <Button
+                                        Padding="4,2"
+                                        Click="SwitchButton_OnClick"
+                                        Tag="{x:Bind}">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock l:Uids.Uid="/Home/Or_FilterGroup" FontSize="14" />
+                                            <FontIcon FontSize="12" Glyph="&#xE8AB;" />
+                                        </StackPanel>
+                                    </Button>
+                                </controls:Case>
+
+                                <controls:Case Value="False">
+                                    <Button
+                                        Padding="4,2"
+                                        Click="SwitchButton_OnClick"
+                                        Tag="{x:Bind}">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock l:Uids.Uid="/Home/And_FilterGroup" FontSize="14" />
+                                            <FontIcon FontSize="12" Glyph="&#xE8AB;" />
+                                        </StackPanel>
+                                    </Button>
+                                </controls:Case>
+
+                            </controls:SwitchPresenter>
+                        </Grid>
+
+                        <ListView
+                            Grid.Column="1"
+                            Padding="0,16"
+                            AllowDrop="True"
+                            CanDragItems="True"
+                            CanReorderItems="True"
+                            DragItemsStarting="ListView_DragItemsStarting"
+                            DragOver="ListView_DragOver"
+                            Drop="ListView_Drop"
+                            ItemTemplateSelector="{StaticResource FiltersTemplateSelector}"
+                            ItemsSource="{x:Bind FilterObjects, Mode=OneWay}"
+                            SelectionMode="None" />
+                    </Grid>
+                </Grid>
+            </ListViewItem>
+        </DataTemplate>
+
+        <views:FiltersTemplateSelector
+            x:Key="FiltersTemplateSelector"
+            FilterGroupTemplate="{StaticResource FilterGroup}"
+            FilterTemplate="{StaticResource Filter}" />
+    </Page.Resources>
+
+    <Grid RowDefinitions="*, Auto" RowSpacing="16">
+        <ListView
+            Grid.Row="0"
+            MinHeight="96"
+            Padding="0,16"
+            AllowDrop="True"
+            CanDragItems="True"
+            CanReorderItems="True"
+            DragItemsStarting="ListView_DragItemsStarting"
+            DragOver="ListView_DragOver"
+            Drop="ListView_Drop"
+            ItemTemplateSelector="{StaticResource FiltersTemplateSelector}"
+            ItemsSource="{x:Bind FilterObjects, Mode=OneWay}"
+            SelectionMode="None" />
+
+        <Border
+            Grid.Row="1"
+            Padding="8"
+            HorizontalAlignment="Center"
+            AllowDrop="True"
+            DragOver="ListView_DragOver"
+            Drop="UIElement_OnDrop">
+            <FontIcon Glyph="&#xE74D;" />
+        </Border>
+
+        <Grid
+            Grid.Row="1"
+            ColumnDefinitions="Auto, Auto, *, Auto"
+            ColumnSpacing="8">
+            <Button
+                Grid.Column="0"
+                l:Uids.Uid="/Home/AddFilter_AdvancedFilterFlyout"
+                Click="ButtonBase_OnClick" />
+            <Button
+                Grid.Column="1"
+                l:Uids.Uid="/Home/AddGroup_AdvancedFilterFlyout"
+                Click="ButtonBase_OnClick2" />
+            <Button
+                Grid.Column="3"
+                l:Uids.Uid="/Home/ClearAll_AdvancedFilterFlyout"
+                Click="ButtonBase_OnClick3" />
+        </Grid>
+    </Grid>
+</Page>

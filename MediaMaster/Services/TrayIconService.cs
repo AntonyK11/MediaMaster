@@ -214,7 +214,7 @@ internal class TrayIconService
     {
         var info = new MENUINFO
         {
-            cbSize = (uint)Marshal.SizeOf(typeof(MENUINFO)),
+            cbSize = (uint)Marshal.SizeOf<MENUINFO>(),
             fMask = MENUINFO_MASK.MIM_BACKGROUND,
             hbrBack = BackgroundHBrush
         };
@@ -374,13 +374,9 @@ internal class TrayIconService
                 break;
             case WM_DRAWITEM:
                 {
-                    DRAWITEMSTRUCT? disNull = (DRAWITEMSTRUCT?)Marshal.PtrToStructure(lParam, typeof(DRAWITEMSTRUCT));
-                    if (disNull == null) return;
-                    DRAWITEMSTRUCT dis = (DRAWITEMSTRUCT)disNull;
+                    DRAWITEMSTRUCT dis = Marshal.PtrToStructure<DRAWITEMSTRUCT>(lParam);
 
-                    ODM_DATA? odmdNull = (ODM_DATA?)Marshal.PtrToStructure((IntPtr)dis.itemData, typeof(ODM_DATA));
-                    if (odmdNull == null) return;
-                    ODM_DATA odmd = (ODM_DATA)odmdNull;
+                    ODM_DATA odmd = Marshal.PtrToStructure<ODM_DATA>((IntPtr)dis.itemData);
 
                     IntPtr hPen;
                     IntPtr hPenOld;
@@ -524,13 +520,9 @@ internal class TrayIconService
                 break;
             case WM_MEASUREITEM:
                 {
-                    MEASUREITEMSTRUCT? misNull = (MEASUREITEMSTRUCT?)Marshal.PtrToStructure(lParam, typeof(MEASUREITEMSTRUCT));
-                    if (misNull == null) return;
-                    MEASUREITEMSTRUCT mis = (MEASUREITEMSTRUCT)misNull;
+                    MEASUREITEMSTRUCT mis = Marshal.PtrToStructure<MEASUREITEMSTRUCT>(lParam);
 
-                    ODM_DATA? odmdNull = (ODM_DATA?)Marshal.PtrToStructure((IntPtr)mis.itemData, typeof(ODM_DATA));
-                    if (odmdNull == null) return;
-                    ODM_DATA odmd = (ODM_DATA)odmdNull;
+                    ODM_DATA odmd = Marshal.PtrToStructure<ODM_DATA>((IntPtr)mis.itemData);
 
                     mis.itemWidth = 78;
                     if (odmd.text == "")

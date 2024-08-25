@@ -9,6 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:MediaMaster.Views"
     xmlns:winUi="using:CommunityToolkit.WinUI"
     NavigationCacheMode="Enabled"
     SizeChanged="HomePage_OnSizeChanged"
@@ -111,10 +112,38 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Button
-                            Grid.Column="0"
-                            Click="ButtonBase_OnClick"
-                            Content="Advanced Filters" />
+                        <DropDownButton Grid.Column="0" Content="Advanced Filters">
+                            <DropDownButton.Flyout>
+                                <Flyout Closed="FlyoutBase_OnClosed" Placement="BottomEdgeAlignedLeft">
+                                    <Flyout.FlyoutPresenterStyle>
+                                        <Style BasedOn="{StaticResource DefaultFlyoutPresenterStyle}" TargetType="FlyoutPresenter">
+                                            <Setter Property="MaxWidth" Value="9000" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="FlyoutPresenter">
+                                                        <Border
+                                                            Background="{TemplateBinding Background}"
+                                                            BackgroundSizing="InnerBorderEdge"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="{TemplateBinding CornerRadius}">
+                                                            <ContentPresenter
+                                                                Margin="{TemplateBinding Padding}"
+                                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                Content="{TemplateBinding Content}"
+                                                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                                ContentTransitions="{TemplateBinding ContentTransitions}" />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Flyout.FlyoutPresenterStyle>
+                                    <views:AdvancedFilters x:Name="AdvancedFilters" />
+                                </Flyout>
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
 
                         <DropDownButton Grid.Column="2" BorderThickness="0">
                             <StackPanel Orientation="Horizontal" Spacing="8">

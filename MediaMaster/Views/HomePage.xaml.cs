@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using MediaMaster.Views.Dialog;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.Views;
 
@@ -14,7 +15,7 @@ public sealed partial class HomePage : Page
     {
         this.InitializeComponent();
 
-        MediaItemsView.FilterFunctions.Add(m => m.Name.Contains(_textBoxText));
+        MediaItemsView.SimpleFilterFunctions.Add(m => EF.Functions.Like(m.Name, $"%{_textBoxText}%"));
     }
 
     private void HomePage_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -101,8 +102,14 @@ public sealed partial class HomePage : Page
         }
     }
 
-    private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    private async void FlyoutBase_OnClosed(object? sender, object e)
     {
-        await AdvancedFiltersDialog.ShowDialogAsync();
+        MediaItemsView.AdvancedFilterFunctions.Clear();
+        foreach (var expression in await AdvancedFilters.GetFilterExpressions(AdvancedFilters.FilterObjects))
+        {
+            MediaItemsView.AdvancedFilterFunctions.Add(expression);
+        }
+
+        await MediaItemsView.SetupMediaCollection();
     }
 }

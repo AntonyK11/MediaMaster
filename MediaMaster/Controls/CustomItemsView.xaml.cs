@@ -123,7 +123,7 @@ public sealed partial class CustomItemsView
     private ScrollView? ScrollView => ItemsView.FindDescendants().OfType<ScrollView>()
         .FirstOrDefault(i => i.Name == "PART_ScrollView");
 
-    private void UpdateScrollButtonsVisibility(object? sender = null, SizeChangedEventArgs? args = null)
+    public void UpdateScrollButtonsVisibility(object? sender = null, SizeChangedEventArgs? args = null)
     {
         if (!ShowScrollButtons || ScrollView == null)
         {

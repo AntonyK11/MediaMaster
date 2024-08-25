@@ -300,14 +300,14 @@ public static class IconService
     {
         if (m_hBitmapCapture == IntPtr.Zero) return null;
 
-        var result = GetObject(m_hBitmapCapture, Marshal.SizeOf(typeof(BITMAP)), out BITMAP bm);
+        var result = GetObject(m_hBitmapCapture, Marshal.SizeOf<BITMAP>(), out BITMAP bm);
         if (result == 0) return null;
 
         var nWidth = bm.bmWidth;
         var nHeight = bm.bmHeight;
         BITMAPV5HEADER bi = new()
         {
-            bV5Size = (uint)Marshal.SizeOf(typeof(BITMAPV5HEADER)),
+            bV5Size = (uint)Marshal.SizeOf<BITMAPV5HEADER>(),
             bV5Width = nWidth,
             bV5Height = -nHeight,
             bV5Planes = 1,

@@ -3,6 +3,7 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using CommunityToolkit.WinUI;
 using MediaMaster.Interfaces.Services;
+using MediaMaster.Helpers;
 
 namespace MediaMaster.Services;
 
@@ -53,7 +54,7 @@ public class ThemeSelectorService : IThemeSelectorService
 
         Theme = theme;
         ActualTheme = GetActualTheme();
-        await SettingsService.SaveSettingAsync(SettingsKey, theme);
+        await SettingsService.SaveSettingAsync(SettingsKey, theme, SourceGenerationContext.Default.ElementTheme);
 
         OnThemeChange();
     }
@@ -91,7 +92,7 @@ public class ThemeSelectorService : IThemeSelectorService
 
     private static async Task<ElementTheme> LoadThemeFromSettingsAsync()
     {
-        return await SettingsService.ReadSettingAsync<ElementTheme>(SettingsKey);
+        return await SettingsService.ReadSettingAsync(SettingsKey, SourceGenerationContext.Default.ElementTheme);
     }
 
     private void Listener_SystemThemeChanged()
