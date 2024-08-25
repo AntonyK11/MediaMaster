@@ -237,7 +237,7 @@
   <data name="ClearAll_AdvancedFilterFlyout.Content" xml:space="preserve">
     <value>Tout effacer</value>
   </data>
-  <data name="And_FiIterGroup.Text" xml:space="preserve">
+  <data name="And_FilterGroup.Text" xml:space="preserve">
     <value>Et</value>
   </data>
   <data name="Or_FilterGroup.Text" xml:space="preserve">
