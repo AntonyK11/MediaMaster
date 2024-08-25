@@ -41,8 +41,6 @@
 
 		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-
-		<WindowsSdkPackageVersion>10.0.22621.39</WindowsSdkPackageVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' != 'Debug'">
