@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using MediaMaster.Views.Dialog;
-using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.Views;
 
@@ -9,13 +8,11 @@ namespace MediaMaster.Views;
 /// </summary>
 public sealed partial class HomePage : Page
 {
-    private string _textBoxText = "";
-
     public HomePage()
     {
         this.InitializeComponent();
 
-        MediaItemsView.SimpleFilterFunctions.Add(m => EF.Functions.Like(m.Name, $"%{_textBoxText}%"));
+        MediaItemsView.AdvancedFilterFunctions.Add(SearchBox.Filter);
     }
 
     private void HomePage_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -53,9 +50,8 @@ public sealed partial class HomePage : Page
         MediaItemsView.SortAscending = (string)((FrameworkElement)sender).Tag == "Ascending";
     }
 
-    private async void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    private async void SearchBox_OnFilterChanged(object sender, Expression<Func<Media, bool>> args)
     {
-        _textBoxText = TextBox.Text;
         await MediaItemsView.SetupMediaCollection();
     }
 

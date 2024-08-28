@@ -105,11 +105,6 @@ public partial class App : Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        //// TODO: Remove
-        //if (await WinUI3XamlPreview.Preview.IsXamlPreviewLaunched())
-        //{
-        //    return;
-        //}
         base.OnLaunched(args);
 
         await GetService<IActivationService>().ActivateAsync();

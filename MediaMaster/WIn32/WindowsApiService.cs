@@ -185,4 +185,12 @@ public static partial class WindowsApiService
 
     [LibraryImport("OLE32.dll")]
     internal static partial void OleUninitialize();
+
+
+    [LibraryImport("COMCTL32.dll")]
+    internal static partial IntPtr ImageList_GetIcon(IntPtr himl, int i, IMAGE_LIST_DRAW_STYLE flags);
+
+    [LibraryImport("User32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool DrawIconEx(IntPtr hdc, int xLeft, int yTop, IntPtr hIcon, int cxWidth, int cyWidth, uint istepIfAniCur, IntPtr hbrFlickerFreeDraw, ICON_DRAW_STYLE diFlags);
 }

@@ -29,31 +29,33 @@
 		<!--<UserSecretsId>da2555a1-d2f2-4507-9f2a-40c3553fafa3</UserSecretsId>-->
 		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppxBundle>Never</AppxBundle>
-		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>False</GenerateTestArtifacts>
+		<AppxBundle>Always</AppxBundle>
+		<AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-		<PackageCertificateKeyFile>MediaMaster_TemporaryKey.pfx</PackageCertificateKeyFile>
 		<UserSecretsId>32a47c34-9fca-45ca-b9b8-de9ad6de0289</UserSecretsId>
 
 		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 
 		<WindowsSdkPackageVersion>10.0.22621.42</WindowsSdkPackageVersion>
+
+		<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+		<PackageCertificateThumbprint>57B6BFC04E19EDF692D2E8FB53AA8CB9F9B54CE8</PackageCertificateThumbprint>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' != 'Debug'">
 		<Optimize>true</Optimize>
 
 		<!--<PublishAot>true</PublishAot>-->
-		<PublishTrimmed>true</PublishTrimmed>
+		<!--<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
 		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-		<SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+		<SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>-->
 		<!--<EnableTrimAnalyzer>true</EnableTrimAnalyzer>-->
 		<!--<TrimmerSingleWarn>false</TrimmerSingleWarn>-->
 	</PropertyGroup>
@@ -104,13 +106,12 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240821007-preview2" />		
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240802000" />		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Text.Json" Version="8.0.4" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 		<PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
 		<PackageReference Include="WinUI3Localizer" Version="2.2.0" />
-		<PackageReference Include="WinUI3XamlPreview" Version="0.8.2" />
 		<PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
 		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.9.0" />
 		<PackageReference Include="WinUIEx" Version="2.3.4" />

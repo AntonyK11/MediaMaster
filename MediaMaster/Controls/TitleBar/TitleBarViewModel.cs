@@ -182,8 +182,10 @@ public partial class TitleBarViewModel : ObservableObject
     {
         if (AppWindow == null) return;
 
+        var scaleAdjustment = _titleBar.XamlRoot.RasterizationScale;
+
         var pos = args.GetPosition(App.MainWindow!.Content);
-        Point menuPos = new(AppWindow.Position.X + pos.X, AppWindow.Position.Y + pos.Y);
+        Point menuPos = new(AppWindow.Position.X + pos.X * scaleAdjustment, AppWindow.Position.Y + pos.Y * scaleAdjustment);
         ShowMenu(menuPos);
     }
 
@@ -227,8 +229,10 @@ public partial class TitleBarViewModel : ObservableObject
             _ = EnableMenuItem(hMenu, 0xF060, MENU_ITEM_FLAGS.MF_ENABLED); // Close Enabled
         }
 
+        var scaleAdjustment = App.MainWindow.Content.XamlRoot.RasterizationScale;
+
         _ = SendMessage(hWnd, WM_INITMENU, hMenu, IntPtr.Zero);
-        int cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)pos.X + 9, (int)pos.Y + 2, 0, hWnd, IntPtr.Zero);
+        var cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)(pos.X + 9 * scaleAdjustment), (int)(pos.Y + 2 * scaleAdjustment), 0, hWnd, IntPtr.Zero);
         if (cmd > 0)
         {
             _ = SendMessage(hWnd, WM_SYSCOMMAND, cmd, IntPtr.Zero);

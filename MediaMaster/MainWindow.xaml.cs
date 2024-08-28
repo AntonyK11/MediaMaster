@@ -41,12 +41,13 @@ public sealed partial class MainWindow
 
     public void Show()
     {
-        //// TODO: Sends the WM_NCHITTEST message to restore the close button hover state to normal because it gets stuck in the hover state when the window is hidden.
-        //WindowsApiService.SendMessage(App.MainWindow.GetWindowHandle(), WindowsNativeValues.WM_NCHITTEST, 0, 0);
-
         EfficiencyModeUtilities.SetEfficiencyMode(false);
 
-        this.Restore();
+        if (!Visible)
+        {
+            this.Restore();
+        }
+
         this.SetForegroundWindow();
         BringToFront();
     }

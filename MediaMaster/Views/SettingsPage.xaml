@@ -147,12 +147,12 @@
                 </controls:ExpandableSettingControl>
 
                 <TextBlock l:Uids.Uid="/Settings/About" Style="{ThemeResource SubtitleTextBlockStyle}" />
-
-                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
+                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="TODO" />
+                <!--<TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
 
                 <HyperlinkButton Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" l:Uids.Uid="/Settings/PrivacyTermsLink" />
 
-                <Button l:Uids.Uid="/Settings/PrivacyTermsLink" Style="{StaticResource AccentButtonStyle}" />
+                <Button l:Uids.Uid="/Settings/PrivacyTermsLink" Style="{StaticResource AccentButtonStyle}" />-->
             </StackPanel>
         </ScrollView>
     </Grid>

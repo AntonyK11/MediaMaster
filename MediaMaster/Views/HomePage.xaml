@@ -101,7 +101,7 @@
                     CornerRadius="8"
                     Spacing="8">
 
-                    <TextBox x:Name="TextBox" TextChanged="TextBox_OnTextChanged" />
+                    <customControls:SearchBox x:Name="SearchBox" FilterChanged="SearchBox_OnFilterChanged" />
 
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>

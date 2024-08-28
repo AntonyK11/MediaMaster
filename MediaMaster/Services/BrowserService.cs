@@ -171,7 +171,8 @@ public class BrowserService
                         var result = GetBrowserTab(process.MainWindowHandle);
                         if (!result.IsNullOrEmpty())
                         {
-                            if (Uri.IsWellFormedUriString(result.FormatAsWebsite(), UriKind.Absolute))
+                            result = result.FormatAsWebsite();
+                            if (Uri.IsWellFormedUriString(result, UriKind.Absolute))
                             {
                                 url = new Uri(result);
                             }

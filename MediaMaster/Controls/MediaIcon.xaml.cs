@@ -100,15 +100,12 @@ public sealed partial class MediaIcon
             ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
         }
 
-        Loaded += (_, _) =>
+        if (ContextMenu)
         {
-            if (ContextMenu)
-            {
-                OpenFileFlyout.Click += (_, _) => Open();
-                OpenFolderFlyout.Click += (_, _) => OpenFolder();
-                OpenWebPageFlyout.Click += (_, _) => Open();
-            }
-        };
+            OpenFileFlyout.Click += (_, _) => Open();
+            OpenFolderFlyout.Click += (_, _) => OpenFolder();
+            OpenWebPageFlyout.Click += (_, _) => Open();
+        }
     }
 
     public void Open()

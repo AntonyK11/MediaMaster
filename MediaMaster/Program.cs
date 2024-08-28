@@ -71,7 +71,11 @@ internal static partial class Program
         await App.DispatcherQueue.EnqueueAsync(async () =>
         {
             var activationArgs = await App.GetService<IActivationService>().HandleActivationAsync(args);
-            if (activationArgs is not null) await App.GetService<IActivationService>().LaunchApp(activationArgs);
+
+            if (activationArgs is not null)
+            {
+                await App.GetService<IActivationService>().LaunchApp(activationArgs);
+            };
         }); 
     }
 }

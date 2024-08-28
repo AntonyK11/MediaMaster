@@ -7,6 +7,7 @@ using WinUI3Localizer;
 using WinUIEx.Messaging;
 using static MediaMaster.WIn32.WindowsApiService;
 using static MediaMaster.WIn32.WindowsNativeValues;
+using WinUICommunity;
 
 
 namespace MediaMaster.Services;
@@ -96,7 +97,6 @@ internal class TrayIconService
     public const int WM_DRAWITEM = 0x002B;
     public const int WM_MEASUREITEM = 0x002C;
 
-    IntPtr hFontMenu;
     int m_SizeBitmap = 11;
 
     private IntPtr hIcon;
@@ -170,9 +170,6 @@ internal class TrayIconService
             monitor2.WindowMessageReceived += WindowSubClass;
         }
         hIcon = LoadImage(IntPtr.Zero, @"Assets\WindowIcon.ico", GDI_IMAGE_TYPE.IMAGE_ICON, 32, 32, IMAGE_FLAGS.LR_LOADFROMFILE);
-
-        hFontMenu = CreateFont(19, 0, 0, 0, FW_DONTCARE, 0, 0, 0, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
-            CLEARTYPE_NATURAL_QUALITY, VARIABLE_PITCH | FF_DONTCARE, "Segoe UI");
 
         trayHMenu = CreateMenu();
 
@@ -260,6 +257,8 @@ internal class TrayIconService
             ImageList_Destroy(hImageList);
         }
 
+        if (App.MainWindow == null) return;
+        var scaleAdjustment = App.MainWindow.Content.XamlRoot.RasterizationScale;
         hImageList = ImageList_Create(m_SizeBitmap, m_SizeBitmap, IMAGELIST_CREATION_FLAGS.ILC_COLOR32 | IMAGELIST_CREATION_FLAGS.ILC_MASK, 1, 0);
         _ = ImageList_AddMasked(hImageList, restoreIconHBitmap, ColorTranslator.ToWin32(BackgroundColor));
         _ = ImageList_AddMasked(hImageList, minimizeIconHBitmap, ColorTranslator.ToWin32(BackgroundColor));
@@ -419,12 +418,14 @@ internal class TrayIconService
 
                     //attributeValue = 1;
                     //PInvoke.DwmSetWindowAttribute(menu_hwnd, DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &attributeValue, sizeof(int));
+                    if (App.MainWindow == null) return;
+                    var scaleAdjustment = App.MainWindow.Content.XamlRoot.RasterizationScale;
 
                     RECT rcBack = dis.rcItem;
-                    rcBack.top += 2;
-                    rcBack.bottom -= 2;
-                    rcBack.left += 2;
-                    rcBack.right -= 2;
+                    rcBack.top += (int)(2 * scaleAdjustment);
+                    rcBack.bottom -= (int)(2 * scaleAdjustment);
+                    rcBack.left += (int)(2 * scaleAdjustment);
+                    rcBack.right -= (int)(2 * scaleAdjustment);
 
                     if (dis.itemState.HasFlag(ODS_FLAGS.ODS_SELECTED) && !dis.itemState.HasFlag(ODS_FLAGS.ODS_GRAYED))
                     {
@@ -442,7 +443,7 @@ internal class TrayIconService
                         hBrush = CreateSolidBrush(ColorTranslator.ToWin32(BackgroundColor));
                         hBrushOld = SelectObject(dis.hDC, hBrush);
                     }
-                    RoundRect(dis.hDC, rcBack.left, rcBack.top, rcBack.right, rcBack.bottom, 8, 8);
+                    RoundRect(dis.hDC, rcBack.left, rcBack.top, rcBack.right, rcBack.bottom, (int)(8 * scaleAdjustment), (int)(8 * scaleAdjustment));
 
                     SelectObject(dis.hDC, hPenOld);
                     DeleteObject(hPen);
@@ -450,10 +451,6 @@ internal class TrayIconService
                     SelectObject(dis.hDC, hBrushOld);
                     DeleteObject(hBrush);
 
-                    if (hFontMenu != IntPtr.Zero)
-                    {
-                        SelectObject(dis.hDC, hFontMenu);
-                    }
                     _ = SetBkMode(dis.hDC, BACKGROUND_MODE.TRANSPARENT);
 
 
@@ -471,14 +468,18 @@ internal class TrayIconService
                         RECT rcText = dis.rcItem;
                         if (odmd.hasIcon)
                         {
-                            rcText.left += 27;
+                            rcText.left += (int)(27 * scaleAdjustment);
                         }
-                        rcText.left += 14;
+                        rcText.left += (int)(14 * scaleAdjustment);
                         
                         var text = odmd.text.Replace("\t", "       ");
                         var translatedText = text.GetLocalizedString();
-                        
+
+                        var hFontMenu = CreateFont((int)(19 * scaleAdjustment), 0, 0, 0, FW_DONTCARE, 0, 0, 0, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+                            CLEARTYPE_NATURAL_QUALITY, VARIABLE_PITCH | FF_DONTCARE, "Segoe UI");
+                        SelectObject(dis.hDC, hFontMenu);
                         DrawText(dis.hDC, translatedText.IsNullOrEmpty() ? text : translatedText, -1, ref rcText, DRAW_TEXT_FORMAT.DT_SINGLELINE | DRAW_TEXT_FORMAT.DT_VCENTER);
+                        DeleteObject(hFontMenu);
                     }
                     else
                     {
@@ -507,13 +508,17 @@ internal class TrayIconService
                             index += 1;
                         }
 
-                        ImageList_Draw(
-                            hImageList, 
-                            index,
-                            dis.hDC, 
-                            dis.rcItem.left + 14, 
-                            dis.rcItem.top + 10, 
-                            IMAGE_LIST_DRAW_STYLE.ILD_TRANSPARENT
+                        var menuHIcon = ImageList_GetIcon(hImageList, index, IMAGE_LIST_DRAW_STYLE.ILD_TRANSPARENT);
+                        DrawIconEx(
+                            dis.hDC,
+                            dis.rcItem.left + (int)(14 * scaleAdjustment),
+                            dis.rcItem.top + (int)(10 * scaleAdjustment),
+                            menuHIcon, 
+                            (int)(m_SizeBitmap * scaleAdjustment),
+                            (int)(m_SizeBitmap * scaleAdjustment),
+                            0,
+                            IntPtr.Zero,
+                            ICON_DRAW_STYLE.DI_NORMAL
                             );
                     }
                 }
@@ -524,23 +529,25 @@ internal class TrayIconService
 
                     ODM_DATA odmd = Marshal.PtrToStructure<ODM_DATA>((IntPtr)mis.itemData);
 
-                    mis.itemWidth = 78;
+                    if (App.MainWindow == null) return;
+                    var scaleAdjustment = App.MainWindow.Content.XamlRoot.RasterizationScale;
+                    mis.itemWidth = (uint)(78 * scaleAdjustment);
                     if (odmd.text == "")
                     {
-                        mis.itemHeight = 3;
+                        mis.itemHeight = (uint)(3 * scaleAdjustment);
                     }
                     else
                     {
                         var text = odmd.text;
                         var translatedText = text.GetLocalizedString();
                         
-                        mis.itemHeight = 32;
-                        var tb = new TextBlock { Text = translatedText.IsNullOrEmpty() ? text : translatedText, FontSize = 14 };
+                        mis.itemHeight = (uint)(32 * scaleAdjustment); ;
+                        var tb = new TextBlock { Text = translatedText.IsNullOrEmpty() ? text : translatedText, FontSize = (uint)(14 * scaleAdjustment) };
                         tb.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-                        var width = tb.DesiredSize.Width + 13;
+                        var width = tb.DesiredSize.Width + 13 * scaleAdjustment; ;
                         if (odmd.hBitmap != IntPtr.Zero)
                         {
-                            width += 29;
+                            width += 29 * scaleAdjustment; ;
                         }
                         mis.itemWidth = (uint)width;
                     }
@@ -553,11 +560,6 @@ internal class TrayIconService
     ~TrayIconService()
     {
         RemoveFromTray();
-
-        if (hFontMenu != IntPtr.Zero)
-        {
-            DeleteObject(hFontMenu);
-        }
 
         if (hIcon != IntPtr.Zero)
         {
@@ -574,7 +576,7 @@ internal class TrayIconService
         monitor2?.Dispose();
     }
 
-    internal static bool TrayMessage(IntPtr hWnd, string? sMessage, IntPtr hIcon, IntPtr hBalloonIcon, NOTIFY_ICON_MESSAGE nMessage, NOTIFY_ICON_INFOTIP_FLAGS dwInfoFlags, string? sInfo, string? sTitle, int nTimeOut)
+    private static bool TrayMessage(IntPtr hWnd, string? sMessage, IntPtr hIcon, IntPtr hBalloonIcon, NOTIFY_ICON_MESSAGE nMessage, NOTIFY_ICON_INFOTIP_FLAGS dwInfoFlags, string? sInfo, string? sTitle, int nTimeOut)
     {
         NOTIFYICONDATAW nid = new()
         {

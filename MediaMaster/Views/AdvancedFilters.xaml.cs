@@ -184,6 +184,28 @@ public sealed partial class AdvancedFilters : Page
 
     }
 
+
+    private static bool IsInItemSource(object itemSource, ObservableCollection<FilterObject> filterObjects)
+    {
+        if (ReferenceEquals(itemSource, filterObjects))
+        {
+            return true;
+        }
+
+        foreach (var filterObject in filterObjects)
+        {
+            if (filterObject is FilterGroup filterGroup)
+            {
+                var result = IsInItemSource(itemSource, filterGroup.FilterObjects);
+                if (result)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void ListView_Drop(object sender, DragEventArgs e)
     {
         ListView target = (ListView)sender;
@@ -194,7 +216,10 @@ public sealed partial class AdvancedFilters : Page
         if (oldSender == target) return;
         if (item is FilterGroup filterGroup)
         {
-            if (target.ItemsSource == filterGroup.FilterObjects) return;
+            if (IsInItemSource(target.ItemsSource, filterGroup.FilterObjects))
+            {
+                return;
+            }
         }
 
         var position = e.GetPosition(target.ItemsPanelRoot);

@@ -505,6 +505,17 @@ public static class WindowsNativeValues
         ILD_ASYNC = 0x00008000,
     }
 
+    [Flags]
+    internal enum ICON_DRAW_STYLE : uint
+    {
+        DI_MASK = 0x0001,
+        DI_IMAGE = 0x0002,
+        DI_NORMAL = 0x0003,
+        DI_COMPAT = 0x0004,
+        DI_DEFAULTSIZE = 0x0008,
+        DI_NOMIRROR = 0x0010
+    }
+
     internal enum NOTIFY_ICON_MESSAGE : uint
     {
         NIM_ADD = 0U,

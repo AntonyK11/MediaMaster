@@ -246,4 +246,13 @@
   <data name="Negate_Filter.Content" xml:space="preserve">
     <value>Mettre au négatif</value>
   </data>
+  <data name="NameButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="NotesButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="TagsButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Étiquettes</value>
+  </data>
 </root>

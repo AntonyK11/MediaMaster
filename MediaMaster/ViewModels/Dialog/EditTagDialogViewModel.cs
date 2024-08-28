@@ -34,7 +34,7 @@ public partial class EditTagDialogViewModel : ObservableObject
         {
             _color = value;
             ColorBrush = new SolidColorBrush(value);
-            ColorName = ColorHelper.ToDisplayName(value);
+            //ColorName = ColorHelper.ToDisplayName(value);
         }
     }
 
