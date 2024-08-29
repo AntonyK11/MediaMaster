@@ -59,13 +59,6 @@
                         Click="MenuBar_MenuFlyoutItem_OnClick"
                         Tag="Fix_Unlinked_Medias" />
                 </MenuBarItem>
-
-                <MenuBarItem l:Uids.Uid="/Home/Help_MenuBarItem">
-                    <MenuFlyoutItem
-                        l:Uids.Uid="/Home/About_MenuFlyoutItem"
-                        Click="MenuBar_MenuFlyoutItem_OnClick"
-                        Tag="About" />
-                </MenuBarItem>
             </MenuBar>
         </Border>
 

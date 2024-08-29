@@ -119,7 +119,7 @@
                     </controls:ExpandableSettingControl.SettingActionableElement>
                 </controls:ExpandableSettingControl>
 
-                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/ShowExtensions" Icon="{winUi:FontIcon Glyph=&#xE789;}">
+                <controls:ExpandableSettingControl l:Uids.Uid="/Settings/SendMediaAddedConfirmationNotification" Icon="{winUi:FontIcon Glyph=&#xE789;}">
                     <controls:ExpandableSettingControl.SettingActionableElement>
                         <ToggleSwitch l:Uids.Uid="/Settings/ToggleSwitch" IsOn="{x:Bind Settings.DoNotSendMediaAddedConfirmationNotification, Converter={StaticResource BoolNegationConverter}, Mode=TwoWay}" />
                     </controls:ExpandableSettingControl.SettingActionableElement>
@@ -146,13 +146,33 @@
                     </controls:ExpandableSettingControl.SettingActionableElement>
                 </controls:ExpandableSettingControl>
 
-                <TextBlock l:Uids.Uid="/Settings/About" Style="{ThemeResource SubtitleTextBlockStyle}" />
-                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="TODO" />
-                <!--<TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
+                <TextBlock
+                    Margin="0,8,0,4"
+                    l:Uids.Uid="/Settings/About"
+                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                <HyperlinkButton Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" l:Uids.Uid="/Settings/PrivacyTermsLink" />
+                <controls:ExpandableSettingControl x:Name="VersionSettingsControl" Title="MediaMaster">
+                    <controls:ExpandableSettingControl.Icon>
+                        <ImageIcon Height="20" Source="/Assets/WindowIcon.ico" />
+                    </controls:ExpandableSettingControl.Icon>
 
-                <Button l:Uids.Uid="/Settings/PrivacyTermsLink" Style="{StaticResource AccentButtonStyle}" />-->
+                    <controls:ExpandableSettingControl.ExpandableContent>
+                        <StackPanel Margin="{StaticResource LargeLeftMargin}" Spacing="4">
+                            <HyperlinkButton
+                                l:Uids.Uid="/Settings/SourceCodeButton"
+                                Content="Source code"
+                                NavigateUri="https://github.com/AntonyK11/MediaMaster" />
+                            <HyperlinkButton
+                                l:Uids.Uid="/Settings/PrivacyPolicyButton"
+                                Content="Privacy policy"
+                                NavigateUri="https://github.com/AntonyK11/MediaMaster/PRIVACY.md" />
+                            <HyperlinkButton
+                                l:Uids.Uid="/Settings/LicenseButton"
+                                Content="License"
+                                NavigateUri="https://github.com/AntonyK11/MediaMaster/LICENSE.txt" />
+                        </StackPanel>
+                    </controls:ExpandableSettingControl.ExpandableContent>
+                </controls:ExpandableSettingControl>
             </StackPanel>
         </ScrollView>
     </Grid>

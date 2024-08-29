@@ -256,7 +256,7 @@ public class BrowserService
                 break;
             }
 
-            if (!elem.CurrentName.Contains("address", StringComparison.InvariantCultureIgnoreCase))
+            if (!(elem.CurrentName.Contains("address", StringComparison.InvariantCultureIgnoreCase) || elem.CurrentName.Contains("adresse", StringComparison.InvariantCultureIgnoreCase)))
             {
                 condName = _automation.CreateAndCondition(condName, _automation.CreateNotCondition(_automation.CreatePropertyCondition(UIA_PropertyIds.UIA_NamePropertyId, elem.CurrentName)));
                 continue;

@@ -12,7 +12,6 @@ namespace MediaMaster.Controls;
 [DependencyProperty("Icon", typeof(IconElement))]
 [DependencyProperty("ExpandableContent", typeof(FrameworkElement))]
 [DependencyProperty("IsExpanded", typeof(bool), DefaultValue = false)]
-
 public sealed partial class ExpandableSettingControl
 {
     public FrameworkElement? SettingActionableElement { get; set; }
