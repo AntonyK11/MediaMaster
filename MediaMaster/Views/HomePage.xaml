@@ -105,7 +105,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <DropDownButton Grid.Column="0" Content="Advanced Filters">
+                        <DropDownButton Grid.Column="0" l:Uids.Uid="/Home/AdvancedFilters_DropDownButton" Content="Advanced Filters">
                             <DropDownButton.Flyout>
                                 <Flyout Closed="FlyoutBase_OnClosed" Placement="BottomEdgeAlignedLeft">
                                     <Flyout.FlyoutPresenterStyle>

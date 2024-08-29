@@ -249,4 +249,7 @@
   <data name="TagsButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
     <value>Étiquettes</value>
   </data>
+  <data name="AdvancedFilters_DropDownButton.Content" xml:space="preserve">
+    <value>Filtres avancés</value>
+  </data>
 </root>

@@ -165,11 +165,11 @@
                             <HyperlinkButton
                                 l:Uids.Uid="/Settings/PrivacyPolicyButton"
                                 Content="Privacy policy"
-                                NavigateUri="https://github.com/AntonyK11/MediaMaster/PRIVACY.md" />
+                                NavigateUri="https://github.com/AntonyK11/MediaMaster/blob/master/PRIVACY.md" />
                             <HyperlinkButton
                                 l:Uids.Uid="/Settings/LicenseButton"
                                 Content="License"
-                                NavigateUri="https://github.com/AntonyK11/MediaMaster/LICENSE.txt" />
+                                NavigateUri="https://github.com/AntonyK11/MediaMaster/blob/master/LICENSE.txt" />
                         </StackPanel>
                     </controls:ExpandableSettingControl.ExpandableContent>
                 </controls:ExpandableSettingControl>
