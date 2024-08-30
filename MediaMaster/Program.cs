@@ -22,14 +22,6 @@ internal static partial class Program
     {
         ComWrappersSupport.InitializeComWrappers();
 
-        //Host.CreateDefaultBuilder(args)
-        //    .ConfigureServices(
-        //        services =>
-        //        {
-        //            // EF Core uses this method at design time to access the DbContext
-        //            services.AddDbContext<DataBaseService>();
-        //        }).Build();
-
         XamlCheckProcessRequirements();
 
         var isRedirect = DecideRedirection();

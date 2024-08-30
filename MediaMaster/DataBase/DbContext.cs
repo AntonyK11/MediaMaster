@@ -54,18 +54,9 @@ public partial class MediaDbContext : DbContext
 
 
     private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
-    //private const string DbPath = "C:\\Users\\Antony\\AppData\\Local\\Packages\\MediaMaster_dqnfd4b7hk63t\\LocalState\\MediaMaster.db";
-
-    private StorageFolder DataFolder { get; set; }
+    //private const string DbPath = @"C:\Users\Antony\AppData\Local\Packages\AntonyKonstantas.MediaMasterApp_ryx18h009e2z4\LocalState\MediaMaster.db";
 
     private const string CategoriesFileName = "MediaCategories.json";
-
-    private const string CategoriesSettingsKey = "MediaCategories";
-
-    private readonly IPropertySet _localSetting = ApplicationData.Current.LocalSettings.Values;
-
-    private const string AddKey = "Add";
-    private const string RemoveKey = "Remove";
 
     public readonly Dictionary<string, ICollection<string>> Categories = [];
 
@@ -110,8 +101,12 @@ public partial class MediaDbContext : DbContext
     public async Task InitializeAsync()
     {
         //await Database.MigrateAsync();
+#if DEBUG
         await Database.EnsureDeletedAsync();
         await Database.EnsureCreatedAsync();
+#else
+        await Database.MigrateAsync();
+#endif
         //await Medias.LoadAsync();
         //await Tags.LoadAsync();
 
