@@ -2,20 +2,15 @@
 
 namespace MediaMaster.Helpers;
 
-/// <summary>
-///     Converts a <see cref="TagFlags" /> value to a <see cref="Visibility" /> value.
-/// </summary>
-public sealed partial class TagFlagsToVisibilityConverter : IValueConverter
+public partial class TagFlagsToVisibilityConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
-
-    public Visibility? Force { get; set; } = null;
-
+    
     public object Convert(object? value, Type targetType, object parameter, string language)
     {
-        if (Force != null) return Force;
-
-        var hasFlag = value is TagFlags flags && Enum.TryParse(parameter.ToString(), true, out TagFlags flag) && flags.HasFlag(flag);
+        var hasFlag = value is TagFlags flags &&
+                      Enum.TryParse(parameter.ToString(), true, out TagFlags flag) &&
+                      flags.HasFlag(flag);
 
         if (IsInverted)
         {

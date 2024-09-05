@@ -6,20 +6,20 @@ namespace MediaMaster.Services.MediaInfo;
 
 public class MediaCreationDate(DockPanel parent) : MediaInfoTextBase(parent)
 {
-    public override string TranslationKey { get; set; } = "MediaCreationDate";
+    protected override string TranslationKey => "MediaCreationDate";
 
-    public override void UpdateControlContent()
+    protected override void UpdateControlContent()
     {
         if (Text == null) return;
         Text.Text = GetDate(Medias);
     }
 
-    public override bool ShowInfo(ICollection<Media> medias)
+    protected override bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !(IsCompact || GetDate(medias).IsNullOrEmpty());
     }
 
-    public static string GetDate(ICollection<Media> medias)
+    private static string GetDate(ICollection<Media> medias)
     {
         if (medias.Count == 0) return "";
 
@@ -29,20 +29,24 @@ public class MediaCreationDate(DockPanel parent) : MediaInfoTextBase(parent)
         return medias.Any(media => GetDate(media) != text) ? "" : text;
     }
 
-    public static string? GetDate(Media media)
+    private static string? GetDate(Media media)
     {
         if (!Path.Exists(media.Uri)) return null;
 
-        var date = File.GetCreationTime(media.Uri);
+        DateTime date = File.GetCreationTime(media.Uri);
         return $"{date.ToLongDateString()} {date.ToShortTimeString()}";
     }
 
-    public override void MediaChanged(object? sender, MediaChangeArgs args)
+    protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        var mediaIds = Medias.Select(m => m.MediaId).ToList();
-        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        
+        if (Medias.Count == 0 ||
+            !args.MediaIds.Intersect(mediaIds).Any() ||
+            ReferenceEquals(sender, this) ||
+            !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        
         Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }
 }
-

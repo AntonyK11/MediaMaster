@@ -27,7 +27,7 @@ public partial class ComboBoxEx : ComboBox
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        var baseSize = base.MeasureOverride(availableSize);
+        Size baseSize = base.MeasureOverride(availableSize);
         _cachedWidth = baseSize.Width;
 
         return baseSize;

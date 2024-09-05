@@ -3,24 +3,23 @@ using MediaMaster.Views.Dialog;
 
 namespace MediaMaster.Views;
 
-/// <summary>
-///     An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
-public sealed partial class HomePage : Page
+public partial class HomePage : Page
 {
     public HomePage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
         MediaItemsView.AdvancedFilterFunctions.Add(SearchBox.Filter);
     }
 
     private void HomePage_OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (ContentColumn.ActualWidth == ContentColumn.MinWidth && e.NewSize.Width > ContentColumn.MinWidth + PaneColumn.MinWidth + ContentGrid.Padding.Left + ContentGrid.Padding.Right)
+        if (ContentColumn.ActualWidth == ContentColumn.MinWidth && e.NewSize.Width > ContentColumn.MinWidth +
+            PaneColumn.MinWidth + ContentGrid.Padding.Left + ContentGrid.Padding.Right)
         {
             var newWidth = PaneColumn.Width.Value + e.NewSize.Width - e.PreviousSize.Width;
-            PaneColumn.Width = new GridLength(newWidth < PaneColumn.MinWidth ? PaneColumn.MinWidth : newWidth, GridUnitType.Pixel);
+            PaneColumn.Width = new GridLength(newWidth < PaneColumn.MinWidth ? PaneColumn.MinWidth : newWidth,
+                GridUnitType.Pixel);
         }
     }
 
@@ -35,10 +34,10 @@ public sealed partial class HomePage : Page
 
         KeyValuePair<bool, Expression<Func<Media, object>>>? function = tag switch
         {
-            "Modified" => new (false, m => m.Modified),
-            "Added" => new(false, m => m.Added),
-            "Archived" => new(false, m => m.IsArchived),
-            "Favorite" => new(false, m => m.IsFavorite),
+            "Modified" => new KeyValuePair<bool, Expression<Func<Media, object>>>(false, m => m.Modified),
+            "Added" => new KeyValuePair<bool, Expression<Func<Media, object>>>(false, m => m.Added),
+            "Archived" => new KeyValuePair<bool, Expression<Func<Media, object>>>(false, m => m.IsArchived),
+            "Favorite" => new KeyValuePair<bool, Expression<Func<Media, object>>>(false, m => m.IsFavorite),
             _ => null
         };
 
@@ -68,7 +67,6 @@ public sealed partial class HomePage : Page
                 MediaItemsView.ClearSelection();
                 break;
         }
-
     }
 
     private async void MenuBar_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
@@ -92,16 +90,14 @@ public sealed partial class HomePage : Page
             case "Fix_Unlinked_Medias":
                 await FixUnlinkedMediasDialog.ShowDialogAsync();
                 break;
-            case "About":
-                // TODO
-                break;
         }
     }
 
     private async void FlyoutBase_OnClosed(object? sender, object e)
     {
         MediaItemsView.AdvancedFilterFunctions.Clear();
-        foreach (var expression in await AdvancedFilters.GetFilterExpressions(AdvancedFilters.FilterObjects))
+        foreach (Expression<Func<Media, bool>> expression in await AdvancedFilters.GetFilterExpressions(AdvancedFilters
+                     .FilterObjects))
         {
             MediaItemsView.AdvancedFilterFunctions.Add(expression);
         }

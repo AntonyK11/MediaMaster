@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
+
 <UserControl
     x:Class="MediaMaster.Controls.SearchBox"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -226,7 +227,6 @@
                 <Border
                     x:Name="BorderElement"
                     Grid.Row="1"
-                    Grid.RowSpan="1"
                     Grid.Column="0"
                     Grid.ColumnSpan="5"
                     MinWidth="{TemplateBinding MinWidth}"
@@ -414,5 +414,8 @@
         </ControlTemplate>
     </UserControl.Resources>
 
-    <TextBox x:Name="TextBox" Template="{StaticResource SearchBoxControlTemplate}" />
+    <TextBox
+        x:Name="TextBox"
+        l:Uids.Uid="/Home/Media_SearchBox"
+        Template="{StaticResource SearchBoxControlTemplate}" />
 </UserControl>

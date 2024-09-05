@@ -8,26 +8,20 @@ namespace MediaMaster.Services;
 
 internal partial class TasksService : ObservableObject
 {
-    [ObservableProperty] private Visibility _mainProgressBarLoading = Visibility.Collapsed;
+    private static readonly ITaskbarList3 TaskbarInstance = (ITaskbarList3)new TaskbarInstance();
     [ObservableProperty] private Visibility _flyoutProgressBarLoading = Visibility.Collapsed;
-    [ObservableProperty] private int _mainTasksNumber;
     [ObservableProperty] private int _flyoutTasksNumber;
+    [ObservableProperty] private Visibility _mainProgressBarLoading = Visibility.Collapsed;
+    [ObservableProperty] private int _mainTasksNumber;
 
     public void AddMainTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() =>
-        {
-        MainTasksNumber += 1;
-        });
+        App.DispatcherQueue.EnqueueAsync(() => { MainTasksNumber += 1; });
     }
 
     public void AddFlyoutTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() =>
-        {
-            FlyoutTasksNumber += 1;
-        });
-
+        App.DispatcherQueue.EnqueueAsync(() => { FlyoutTasksNumber += 1; });
     }
 
     public void AddGlobalTak()
@@ -37,24 +31,16 @@ internal partial class TasksService : ObservableObject
             MainTasksNumber += 1;
             FlyoutTasksNumber += 1;
         });
-
     }
 
     public void RemoveMainTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() =>
-        {
-            MainTasksNumber -= 1;
-        });
-
+        App.DispatcherQueue.EnqueueAsync(() => { MainTasksNumber -= 1; });
     }
 
     public void RemoveFlyoutTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() =>
-        {
-            FlyoutTasksNumber -= 1;
-        });
+        App.DispatcherQueue.EnqueueAsync(() => { FlyoutTasksNumber -= 1; });
     }
 
     public void RemoveGlobalTak()
@@ -97,7 +83,6 @@ internal partial class TasksService : ObservableObject
         }
     }
 
-    private static readonly ITaskbarList3 TaskbarInstance = (ITaskbarList3) new TaskbarInstance();
     private static void SetProgressState(WindowsNativeValues.TaskBarProgressState taskBarProgress)
     {
         if (App.MainWindow != null)

@@ -5,13 +5,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Interop.UIAutomationClient;
 using MediaMaster.Extensions;
 using MediaMaster.Helpers;
+using MediaMaster.WIn32;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 
-
 namespace MediaMaster.Services;
 
-public struct BrowserData
+public record struct BrowserData
 {
     public string Name { get; set; }
     public string Icon { get; set; }
@@ -29,42 +29,42 @@ public struct BrowserData
 public partial class BrowserTab : ObservableObject
 {
     [ObservableProperty] private BrowserData _browser;
-    [ObservableProperty] private ImageSource _icon;
-    [ObservableProperty] private string _domain;
-    [ObservableProperty] private string _title;
-    [ObservableProperty] private Uri _url;
+    [ObservableProperty] private string _domain = null!;
+    [ObservableProperty] private ImageSource _icon = null!;
+    [ObservableProperty] private string _title = null!;
+    [ObservableProperty] private Uri _url = null!;
 }
 
 public class BrowserService
 {
-    public static BrowserData[]? BrowserData { get; set; }
-
     private readonly CUIAutomation _automation = new();
-
-    public readonly ObservableCollection<BrowserTab> ActiveBrowserTabs = [];
 
     private readonly Dictionary<string, string> _browsersWindowTitle = [];
 
-    private nint operaGXHWND = IntPtr.Zero;
+    public readonly ObservableCollection<BrowserTab> ActiveBrowserTabs = [];
+
+    private bool _isRunning;
+
+    private nint _operaGxhwnd = IntPtr.Zero;
+    public static List<BrowserData>? BrowserData { get; private set; }
 
     private static string LocalAppDataPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
     private static string AppDataPath => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-    
-    public async Task InitializeAsync()
+
+    public static async Task InitializeAsync()
     {
         var browsersDataFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "Browsers.json");
         var browsersDataString = await File.ReadAllTextAsync(browsersDataFilePath);
-        BrowserData = await Json.ToObjectAsync(browsersDataString, SourceGenerationContext.Default.BrowserDataArray);
+        BrowserData = await Json.ToObjectAsync(browsersDataString, SourceGenerationContext.Default.ListBrowserData);
     }
 
-    private bool _isRunning;
     public async Task FindActiveTabs()
     {
         if (BrowserData is null || _isRunning) return;
 
         _isRunning = true;
 
-        var tasks = BrowserData.Select(browser => ProcessBrowserInstances(browser));
+        IEnumerable<Task<BrowserTab?>> tasks = BrowserData.Select(browser => ProcessBrowserInstances(browser));
         await Task.WhenAll(tasks);
 
         _isRunning = false;
@@ -74,7 +74,7 @@ public class BrowserService
     {
         BrowserTab? tab = null;
 
-        var browserData = BrowserData?.FirstOrDefault(b => b.Name == browserName);
+        BrowserData? browserData = BrowserData?.FirstOrDefault(b => b.Name == browserName);
         if (browserData != null)
         {
             await Task.Run(async () =>
@@ -89,11 +89,12 @@ public class BrowserService
                 }
             });
         }
+
         return tab;
     }
 
     // https://stackoverflow.com/a/70748896
-    public async Task<BrowserTab?> ProcessBrowserInstances(BrowserData browser, bool cache = true)
+    private async Task<BrowserTab?> ProcessBrowserInstances(BrowserData browser, bool cache = true)
     {
         var found = false;
         var title = "";
@@ -110,14 +111,14 @@ public class BrowserService
                 "Opera" => processes.Where(p =>
                 {
                     if (p.HasExited) return false;
-                    var mainModule = p.MainModule;
+                    ProcessModule? mainModule = p.MainModule;
                     return mainModule != null && !mainModule.FileName.Contains("GX");
                 }),
 
                 "Opera GX" => processes.Where(p =>
                 {
                     if (p.HasExited) return false;
-                    var mainModule = p.MainModule;
+                    ProcessModule? mainModule = p.MainModule;
                     return mainModule != null && mainModule.FileName.Contains("GX");
                 }),
 
@@ -126,15 +127,16 @@ public class BrowserService
 
             if (browser.Name is "Opera GX")
             {
-                var tempHWND = WIn32.WindowsApiService.GetForegroundWindow();
+                var tempHwnd = WindowsApiService.GetForegroundWindow();
                 List<Process> processesList = processes.ToList();
-                if (processesList.FirstOrDefault(p => p.MainWindowHandle == tempHWND) is { } foregroundProcess)
+                if (processesList.FirstOrDefault(p => p.MainWindowHandle == tempHwnd) is { } foregroundProcess)
                 {
                     processesList.Remove(foregroundProcess);
                     processesList.Insert(0, foregroundProcess);
-                    operaGXHWND = tempHWND;
+                    _operaGxhwnd = tempHwnd;
                 }
-                else if (processesList.FirstOrDefault(p => p.MainWindowHandle == operaGXHWND) is { } cachedForegroundProcess)
+                else if (processesList.FirstOrDefault(p => p.MainWindowHandle == _operaGxhwnd) is
+                         { } cachedForegroundProcess)
                 {
                     processesList.Remove(cachedForegroundProcess);
                     processesList.Insert(0, cachedForegroundProcess);
@@ -149,11 +151,12 @@ public class BrowserService
                 _browsersWindowTitle.TryGetValue(browser.Name, out windowTitle);
             }
 
-            foreach (var process in processes)
+            foreach (Process process in processes)
             {
                 try
                 {
-                    if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero && WIn32.WindowsApiService.IsWindow(process.MainWindowHandle))
+                    if (!process.HasExited && process.MainWindowHandle != IntPtr.Zero &&
+                        WindowsApiService.IsWindow(process.MainWindowHandle))
                     {
                         if (cache && process.MainWindowTitle == windowTitle && tab != null)
                         {
@@ -234,10 +237,11 @@ public class BrowserService
         {
             return new SvgImageSource(uri);
         }
+
         return new BitmapImage(uri);
     }
 
-    public string? GetBrowserTab(nint hwnd)
+    private string? GetBrowserTab(nint hwnd)
     {
         IUIAutomationElement? element = _automation.ElementFromHandle(hwnd);
 
@@ -256,7 +260,8 @@ public class BrowserService
                 break;
             }
 
-            if (!(elem.CurrentName.Contains("address", StringComparison.InvariantCultureIgnoreCase) || elem.CurrentName.Contains("adresse", StringComparison.InvariantCultureIgnoreCase)))
+            if (!(elem.CurrentName.Contains("address", StringComparison.InvariantCultureIgnoreCase) ||
+                  elem.CurrentName.Contains("adresse", StringComparison.InvariantCultureIgnoreCase)))
             {
                 condName = _automation.CreateAndCondition(condName, _automation.CreateNotCondition(_automation.CreatePropertyCondition(UIA_PropertyIds.UIA_NamePropertyId, elem.CurrentName)));
                 continue;
@@ -273,7 +278,7 @@ public class BrowserService
         return await Task.Run(async () =>
         {
             var folder = new BookmarkFolder("Bookmarks");
-            
+
             if (BrowserData is null) return folder;
 
             foreach (BrowserData browser in BrowserData)
@@ -300,17 +305,16 @@ public class BrowserService
         }
 
         return BuildBookmarkFolder(browser, bookmarkFolders);
-
     }
-    
+
     private static BookmarkFolder BuildBookmarkFolder(BrowserData browser, IEnumerable<BookmarkFolder> bookmarkFolders)
     {
         BookmarkFolder bookmarksFolder = new(browser.Name);
-        
-        foreach (var bookmarkFolder in bookmarkFolders)
+
+        foreach (BookmarkFolder bookmarkFolder in bookmarkFolders)
         {
             // Used to remove the empty folder without title in Opera and Opera GX
-            foreach (var bookmark in bookmarkFolder.ToList())
+            foreach (IBookmarkItem? bookmark in bookmarkFolder.ToList())
             {
                 if (bookmark.Title is null && bookmark is BookmarkFolder folder && !folder.Any())
                 {
@@ -324,7 +328,7 @@ public class BrowserService
             }
             else
             {
-                foreach (var bookmark in bookmarkFolder)
+                foreach (IBookmarkItem? bookmark in bookmarkFolder)
                 {
                     bookmarksFolder.Add(bookmark);
                 }
@@ -333,14 +337,16 @@ public class BrowserService
 
         return bookmarksFolder;
     }
-    
+
     private static async Task<IEnumerable<BookmarkFolder>> GetPackagedBrowserBookmarks(BrowserData browser)
     {
         var packageFolderPath = Path.Combine(LocalAppDataPath, "Packages");
 
         if (Directory.Exists(packageFolderPath) && browser.PackageId is not null)
         {
-            var packagePath = Directory.GetDirectories(packageFolderPath).FirstOrDefault(s => s.Contains(browser.PackageId));
+            var packagePath = Directory
+                .GetDirectories(packageFolderPath)
+                .FirstOrDefault(s => s.Contains(browser.PackageId));
 
             if (packagePath is not null)
             {
@@ -353,15 +359,16 @@ public class BrowserService
 
         return [];
     }
-    
+
     private static async Task<IEnumerable<BookmarkFolder>> GetNonPackagedBrowserBookmarks(BrowserData browser)
     {
         var storagePath = browser.IsInLocalAppData ? LocalAppDataPath : AppDataPath;
         var browserStoragePath = Path.Combine(storagePath, browser.ProfilesDirectory);
         return await GetBrowserBookmarksPerFormat(browser, browserStoragePath);
     }
-    
-    private static async Task<IEnumerable<BookmarkFolder>> GetBrowserBookmarksPerFormat(BrowserData browser, string browserStoragePath)
+
+    private static async Task<IEnumerable<BookmarkFolder>> GetBrowserBookmarksPerFormat(BrowserData browser,
+        string browserStoragePath)
     {
         return browser.BookmarkFormat switch
         {
@@ -382,7 +389,8 @@ public class BrowserService
 
         if (browser.HasProfiles)
         {
-            IEnumerable<string> profiles = Directory.GetDirectories(browserPath).Where(d => d.Contains("Profile") || d.Contains("Default"));
+            IEnumerable<string> profiles = Directory.GetDirectories(browserPath)
+                .Where(d => d.Contains("Profile") || d.Contains("Default"));
 
             // Opera GX has a slightly different bookmark format
             if (browser.BookmarkFormat == "opera-gx")
@@ -409,24 +417,23 @@ public class BrowserService
         return bookmarksFolder;
     }
 
-    public static async Task<BookmarkFolder?> GetChromiumBookmarks(string browserPath, string bookmarksFolderTitle)
+    private static async Task<BookmarkFolder?> GetChromiumBookmarks(string browserPath, string bookmarksFolderTitle)
     {
         var bookmarkPath = Path.Combine(browserPath, "Bookmarks");
         if (!File.Exists(bookmarkPath)) return null;
-        
-        await using var file = File.OpenRead(bookmarkPath);
+
+        await using FileStream file = File.OpenRead(bookmarkPath);
         BookmarkFolder bookmarks = new ChromeBookmarksReader().Read(file);
         bookmarks.Title = bookmarksFolderTitle;
         return bookmarks;
-
     }
 
     private static IEnumerable<BookmarkFolder> GetFirefoxBookmarks(string browserPath)
     {
         ICollection<BookmarkFolder> bookmarksFolder = [];
-        
+
         if (!Directory.Exists(browserPath)) return bookmarksFolder;
-        
+
         IEnumerable<string> profiles = Directory.GetDirectories(browserPath);
 
         foreach (var profile in profiles)

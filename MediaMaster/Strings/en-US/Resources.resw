@@ -189,4 +189,7 @@
   <data name="InAppNotification_MediasRemoved" xml:space="preserve">
     <value>{0} media(s) removed</value>
   </data>
+  <data name="PathsFromDirectory_Button.Content" xml:space="preserve">
+    <value>Fill paths from directory</value>
+  </data>
 </root>

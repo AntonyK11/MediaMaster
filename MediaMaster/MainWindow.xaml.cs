@@ -7,12 +7,13 @@ using static MediaMaster.WIn32.WindowsApiService;
 
 namespace MediaMaster;
 
-public sealed partial class MainWindow
+
+public partial class MainWindow : WindowEx
 {
     public MainWindow()
     {
-        InitializeComponent();
-
+        this.InitializeComponent();
+        ExtendsContentIntoTitleBar = true;
         App.GetService<IThemeSelectorService>().ThemeChanged += MainWindow_ThemeChanged;
 
         ExtendsContentIntoTitleBar = true;

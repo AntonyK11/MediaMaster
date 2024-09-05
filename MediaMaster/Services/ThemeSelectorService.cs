@@ -2,8 +2,8 @@
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using CommunityToolkit.WinUI;
-using MediaMaster.Interfaces.Services;
 using MediaMaster.Helpers;
+using MediaMaster.Interfaces.Services;
 
 namespace MediaMaster.Services;
 

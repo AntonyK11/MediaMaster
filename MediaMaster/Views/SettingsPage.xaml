@@ -14,19 +14,6 @@
     NavigationCacheMode="Disabled"
     mc:Ignorable="d">
 
-    <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-
-    <ToggleSwitch AutomationProperties.Name="simple ToggleSwitch"
-    VerticalAlignment="Center"
-    HorizontalAlignment="Right"
-    MinWidth="0"
-    HorizontalContentAlignment="Center"
-    VerticalContentAlignment="Center"
-    Loaded="DarkSwitch_Loaded"
-    Toggled="ToggleSwitch_Toggled" />
-
-    </StackPanel>-->
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

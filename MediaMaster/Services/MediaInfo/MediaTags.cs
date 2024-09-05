@@ -9,19 +9,19 @@ namespace MediaMaster.Services.MediaInfo;
 
 public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
 {
-    public TagView? TagView;
-    public StackPanel? StackPanel;
+    private StackPanel? _stackPanel;
+    private TagView? _tagView;
 
-    public override string TranslationKey { get; set; } = "MediaTags";
+    protected override string TranslationKey => "MediaTags";
 
-    public override void UpdateControl()
+    protected override void UpdateControl()
     {
-        if (TagView == null) return;
-        TagView.MediaIds = Medias.Select(m => m.MediaId).ToHashSet();
-        TagView.AddTagButton = !IsCompact;
+        if (_tagView == null) return;
+        _tagView.MediaIds = Medias.Select(m => m.MediaId).ToHashSet();
+        _tagView.AddTagButton = !IsCompact;
         if (IsCompact)
         {
-            TagView.Layout = new StackLayout()
+            _tagView.Layout = new StackLayout
             {
                 Orientation = Orientation.Horizontal,
                 Spacing = 4
@@ -29,7 +29,7 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         }
         else
         {
-            TagView.Layout = new WrapLayout
+            _tagView.Layout = new WrapLayout
             {
                 HorizontalSpacing = 4,
                 VerticalSpacing = 4
@@ -42,60 +42,61 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         }
     }
 
-    public override void Setup()
+    protected override void Setup()
     {
-        StackPanel = new StackPanel
+        _stackPanel = new StackPanel
         {
             Spacing = 10
         };
-        StackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+        _stackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
 
-        Title = GetTitle();
-        TagView = new TagView
+        Title = GetTitleTextBlock();
+        _tagView = new TagView
         {
             MaxHeight = 200,
             AddTagButton = !IsCompact
         };
-        StackPanel.Children.Add(Title);
-        StackPanel.Children.Add(TagView);
-        Parent.Children.Add(StackPanel);
+        _stackPanel.Children.Add(Title);
+        _stackPanel.Children.Add(_tagView);
+        Parent.Children.Add(_stackPanel);
 
-        TagView.SelectTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
-        TagView.RemoveTagsInvoked += (_, _) => SaveSelectedTags(TagView.Tags);
+        _tagView.SelectTagsInvoked += (_, _) => SaveSelectedTags(_tagView.Tags);
+        _tagView.RemoveTagsInvoked += (_, _) => SaveSelectedTags(_tagView.Tags);
 
         MediaDbContext.MediasChanged += async (sender, args) =>
         {
-            if (!args.MediaIds.Intersect(TagView.MediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
-            var currentTagIds = TagView.Tags.Select(t => t.TagId).ToList();
+            if (!args.MediaIds.Intersect(_tagView.MediaIds).Any() || ReferenceEquals(sender, this) ||
+                !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
+            List<int> currentTagIds = _tagView.Tags.Select(t => t.TagId).ToList();
 
             if (args.TagsAdded != null)
             {
-                foreach (var tag in args.TagsAdded)
+                foreach (Tag tag in args.TagsAdded)
                 {
                     if (!currentTagIds.Contains(tag.TagId))
                     {
-                        TagView.Tags.Add(tag);
+                        _tagView.Tags.Add(tag);
                     }
                 }
             }
 
             if (args.TagsRemoved != null)
             {
-                foreach (var tag in args.TagsRemoved)
+                foreach (Tag tag in args.TagsRemoved)
                 {
-                    var existingTag = TagView.Tags.FirstOrDefault(t => t.TagId == tag.TagId);
+                    Tag? existingTag = _tagView.Tags.FirstOrDefault(t => t.TagId == tag.TagId);
                     if (existingTag != null)
                     {
-                        TagView.Tags.Remove(existingTag);
+                        _tagView.Tags.Remove(existingTag);
                     }
                 }
             }
 
-            await TagView.UpdateItemSource(TagView.Tags);
+            await _tagView.UpdateItemSource(_tagView.Tags);
         };
     }
 
-    public override void SetupTranslations()
+    protected override void SetupTranslations()
     {
         if (Title != null)
         {
@@ -103,24 +104,24 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         }
     }
 
-    public override bool ShowInfo(ICollection<Media> medias)
+    protected override bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !IsCompact;
     }
 
-    public override void Show()
+    protected override void Show()
     {
-        if (StackPanel != null)
+        if (_stackPanel != null)
         {
-            StackPanel.Visibility = Visibility.Visible;
+            _stackPanel.Visibility = Visibility.Visible;
         }
     }
 
-    public override void Hide()
+    protected override void Hide()
     {
-        if (StackPanel != null)
+        if (_stackPanel != null)
         {
-            StackPanel.Visibility = Visibility.Collapsed;
+            _stackPanel.Visibility = Visibility.Collapsed;
         }
     }
 
@@ -130,7 +131,8 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         {
             if (Medias.Count != 0)
             {
-                Medias = database.Medias.Include(m => m.Tags).Where(media => Medias.Select(m => m.MediaId).Contains(media.MediaId)).ToList();
+                Medias = database.Medias.Include(m => m.Tags)
+                    .Where(media => Medias.Select(m => m.MediaId).Contains(media.MediaId)).ToList();
 
                 if (Medias.Count != 0)
                 {
@@ -147,12 +149,13 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
 
                     if (tagIdsToAdd.Count != 0 || tagIdsToRemove.Count != 0)
                     {
-                        foreach (var media in Medias)
+                        foreach (Media media in Medias)
                         {
                             // Bulk add new tags
                             if (tagIdsToAdd.Count != 0)
                             {
-                                List<MediaTag> newMediaTags = tagIdsToAdd.Select(tagId => new MediaTag { MediaId = media.MediaId, TagId = tagId }).ToList();
+                                List<MediaTag> newMediaTags = tagIdsToAdd.Select(tagId =>
+                                    new MediaTag { MediaId = media.MediaId, TagId = tagId }).ToList();
                                 await database.BulkInsertOrUpdateAsync(newMediaTags);
                             }
 
@@ -196,11 +199,15 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
                     }
 
                     ICollection<Tag> tagsToAdd = selectedTags.Where(tag => tagIdsToAdd.Contains(tag.TagId)).ToList();
-                    ICollection<Tag> tagsToRemove = Medias.SelectMany(m => m.Tags).Where(tag => tagIdsToRemove.Contains(tag.TagId)).ToList();
-                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias, tagsToAdd, tagsToRemove);
+                    ICollection<Tag> tagsToRemove = Medias
+                        .SelectMany(m => m.Tags)
+                        .Where(tag => tagIdsToRemove.Contains(tag.TagId))
+                        .ToList();
+                    
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        Medias, tagsToAdd, tagsToRemove);
                 }
             }
         }
     }
 }
-

@@ -1,11 +1,11 @@
-using MediaMaster.DataBase;
-using MediaMaster.Services;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using MediaMaster.DataBase;
+using MediaMaster.Services;
 
 namespace MediaMaster.Views.Flyout;
 
-public sealed partial class HomePage
+public partial class HomePage
 {
     private BrowserService BrowserService { get; }
 
@@ -66,4 +66,3 @@ public sealed partial class HomePage
         await MediaService.AddMediaAsync([new KeyValuePair<string?, string>(tab.Title, tab.Url.AbsoluteUri)]);
     }
 }
-

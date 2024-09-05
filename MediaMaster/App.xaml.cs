@@ -8,8 +8,10 @@ using MediaMaster.Views;
 using Microsoft.UI.Dispatching;
 using Windows.Storage;
 using System.Text.Json;
+using MediaMaster.DataBase;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster;
 
@@ -38,12 +40,15 @@ public partial class App : Application
 
     public static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-    // Used to support dynamic language for trimming
-    [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(ContentDialog))]
-    [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(MenuFlyoutItem))]
+   // Used to support dynamic language for trimming
+   [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(ContentDialog))]
+   [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(MenuFlyoutItem))]
+   [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(TextBox))]
+   [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(SelectorBarItem))]
+   [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(MenuBarItem))]
     public App()
     {
-        InitializeComponent();
+        this.InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.
             CreateDefaultBuilder().

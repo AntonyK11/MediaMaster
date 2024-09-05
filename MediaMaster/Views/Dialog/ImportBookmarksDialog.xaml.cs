@@ -10,9 +10,9 @@ using WinUI3Localizer;
 namespace MediaMaster.Views.Dialog;
 
 [DependencyProperty("GenerateBookmarkTags", typeof(bool), DefaultValue = true, IsReadOnly = true)]
-public sealed partial class ImportBookmarksDialog : Page
+public partial class ImportBookmarksDialog : Page
 {
-    public ICollection<BrowserFolder> SelectedBrowserFolders { get; set; } = [];
+    private static readonly ICollection<BrowserFolder> BrowserFolders = [];
 
     public ImportBookmarksDialog()
     {
@@ -21,14 +21,14 @@ public sealed partial class ImportBookmarksDialog : Page
         GetBookmarks();
     }
 
-    public static readonly ICollection<BrowserFolder> BrowserFolders = [];
+    private ICollection<BrowserFolder> SelectedBrowserFolders { get; set; } = [];
 
     private async void GetBookmarks()
     {
-        var bookmarks = await BrowserService.GetBookmarks();
-        
+        BookmarkFolder bookmarks = await BrowserService.GetBookmarks();
+
         BrowserFolders.Clear();
-        foreach (var bookmark in bookmarks)
+        foreach (IBookmarkItem? bookmark in bookmarks)
         {
             if (bookmark is BookmarkFolder browser)
             {
@@ -60,7 +60,9 @@ public sealed partial class ImportBookmarksDialog : Page
         if (result == ContentDialogResult.Primary)
         {
             var generateBookmarkTags = importBookmarksDialog.GenerateBookmarkTags;
-            _ = Task.Run(() => MediaService.AddMediaAsync(browserFolders: importBookmarksDialog.SelectedBrowserFolders, generateBookmarkTags: generateBookmarkTags));
+            _ = Task.Run(() => MediaService.AddMediaAsync(
+                browserFolders: importBookmarksDialog.SelectedBrowserFolders,
+                generateBookmarkTags: generateBookmarkTags));
         }
 
         return (result, importBookmarksDialog);
@@ -74,40 +76,35 @@ public sealed partial class ImportBookmarksDialog : Page
 
 public class BrowserFolder
 {
-    public BookmarkFolder BookmarkFolder { get; set; }
-
-    public ImageSource Icon { get; set; }
-
     public BrowserFolder(BookmarkFolder bookmarkFolder)
     {
         BookmarkFolder = bookmarkFolder;
 
         if (BrowserService.BrowserData != null)
         {
-            var data = BrowserService.BrowserData.FirstOrDefault(b => b.Name == BookmarkFolder.Title);
+            BrowserData data = BrowserService.BrowserData.FirstOrDefault(b => b.Name == BookmarkFolder.Title);
             Icon = BrowserService.GetBrowserIcon(data.Icon);
         }
     }
+
+    public BookmarkFolder BookmarkFolder { get; set; }
+
+    public ImageSource? Icon { get; set; }
 }
 
 internal partial class BookmarksTemplateSelector : DataTemplateSelector
 {
-    public DataTemplate BrowserFolder { get; set; }
-    public DataTemplate BookmarkFolder { get; set; }
-    public DataTemplate BookmarkLink { get; set; }
+    public DataTemplate BrowserFolderTemplate { get; set; } = null!;
+    public DataTemplate BookmarkFolderTemplate { get; set; } = null!;
+    public DataTemplate BookmarkLinkTemplate { get; set; } = null!;
 
     protected override DataTemplate SelectTemplateCore(object item)
     {
-        if (item is BrowserFolder)
+        return item switch
         {
-            return BrowserFolder;
-        }
-
-        if (item is BookmarkFolder)
-        {
-            return BookmarkFolder;
-        }
-
-        return BookmarkLink;
+            BrowserFolder => BrowserFolderTemplate,
+            BookmarkFolder => BookmarkFolderTemplate,
+            _ => BookmarkLinkTemplate
+        };
     }
 }

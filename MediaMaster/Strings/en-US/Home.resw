@@ -252,4 +252,10 @@
   <data name="AdvancedFilters_DropDownButton.Content" xml:space="preserve">
     <value>Advanced Filters</value>
   </data>
+  <data name="Media_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Media search</value>
+  </data>
+  <data name="MediasFound.Text" xml:space="preserve">
+    <value>media(s) found</value>
+  </data>
 </root>

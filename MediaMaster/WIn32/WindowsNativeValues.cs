@@ -526,37 +526,37 @@ public static class WindowsNativeValues
     }
 
 
-    internal struct NOTIFYICONDATAW
+    internal struct NOTIFYICONDATAW()
     {
-        internal uint cbSize;
+        internal uint cbSize = 0;
 
-        internal IntPtr hWnd;
+        internal IntPtr hWnd = 0;
 
-        internal uint uID;
+        internal uint uID = 0;
 
-        internal NOTIFY_ICON_DATA_FLAGS uFlags;
+        internal NOTIFY_ICON_DATA_FLAGS uFlags = 0;
 
-        internal uint uCallbackMessage;
+        internal uint uCallbackMessage = 0;
 
-        internal IntPtr hIcon;
+        internal IntPtr hIcon = 0;
 
-        internal __char_128 szTip;
+        internal __char_128 szTip = default;
 
-        internal NOTIFY_ICON_STATE dwState;
+        internal NOTIFY_ICON_STATE dwState = 0;
 
-        internal NOTIFY_ICON_STATE dwStateMask;
+        internal NOTIFY_ICON_STATE dwStateMask = 0;
 
-        internal __char_256 szInfo;
+        internal __char_256 szInfo = default;
 
-        internal Union union;
+        internal Union union = default;
 
-        internal __char_64 szInfoTitle;
+        internal __char_64 szInfoTitle = default;
 
-        internal NOTIFY_ICON_INFOTIP_FLAGS dwInfoFlags;
+        internal NOTIFY_ICON_INFOTIP_FLAGS dwInfoFlags = NOTIFY_ICON_INFOTIP_FLAGS.NIIF_NONE;
 
-        internal Guid guidItem;
+        internal Guid guidItem = default;
 
-        internal IntPtr hBalloonIcon;
+        internal IntPtr hBalloonIcon = 0;
 
         [StructLayout(LayoutKind.Explicit)]
         internal struct Union
@@ -628,25 +628,25 @@ public static class WindowsNativeValues
         TPM_WORKAREA = 0x00010000,
     }
 
-    internal struct DRAWITEMSTRUCT
+    internal struct DRAWITEMSTRUCT()
     {
-        internal DRAWITEMSTRUCT_CTL_TYPE CtlType;
+        internal DRAWITEMSTRUCT_CTL_TYPE CtlType = 0;
 
-        internal uint CtlID;
+        internal uint CtlID = 0;
 
-        internal uint itemID;
+        internal uint itemID = 0;
 
-        internal ODA_FLAGS itemAction;
+        internal ODA_FLAGS itemAction = 0;
 
-        internal ODS_FLAGS itemState;
+        internal ODS_FLAGS itemState = 0;
 
-        internal IntPtr hwndItem;
+        internal IntPtr hwndItem = 0;
 
-        internal IntPtr hDC;
+        internal IntPtr hDC = 0;
 
-        internal RECT rcItem;
+        internal RECT rcItem = default;
 
-        internal nuint itemData;
+        internal nuint itemData = 0;
     }
 
     internal enum ODA_FLAGS : uint
@@ -671,19 +671,19 @@ public static class WindowsNativeValues
         ODS_NOFOCUSRECT = 512U,
     }
 
-    internal struct MEASUREITEMSTRUCT
+    internal struct MEASUREITEMSTRUCT()
     {
-        internal DRAWITEMSTRUCT_CTL_TYPE CtlType;
+        internal DRAWITEMSTRUCT_CTL_TYPE CtlType = 0;
 
-        internal uint CtlID;
+        internal uint CtlID = 0;
 
-        internal uint itemID;
+        internal uint itemID = 0;
 
-        internal uint itemWidth;
+        internal uint itemWidth = 0;
 
-        internal uint itemHeight;
+        internal uint itemHeight = 0;
 
-        internal nuint itemData;
+        internal nuint itemData = 0;
     }
 
     internal enum DRAWITEMSTRUCT_CTL_TYPE : uint

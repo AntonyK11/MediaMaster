@@ -1,60 +1,62 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Package
-  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
-  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
-  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
-  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
-  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
-  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
-  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10" 
-  IgnorableNamespaces="desktop desktop4 desktop5 com uap uap2 uap3 uap5 rescap">
+	  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+	  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+	  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+	  xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
+	  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+	  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+	  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+	  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+	  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+	  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+	  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+	  IgnorableNamespaces="desktop desktop4 desktop5 com uap uap2 uap3 uap5 rescap">
 
-  <Identity
-    Name="AntonyKonstantas.MediaMasterApp"
-    Publisher="CN=0EB75C35-165C-4A6B-882E-AE20F61FAACA"
-    Version="1.0.1.0" />
+	<Identity 
+			Name="AntonyKonstantas.MediaMasterApp" 
+			Publisher="CN=0EB75C35-165C-4A6B-882E-AE20F61FAACA" 
+			Version="1.0.2.0" />
 
-  <Properties>
-    <DisplayName>MediaMaster App</DisplayName>
-    <PublisherDisplayName>Antony Konstantas</PublisherDisplayName>
-    <Logo>Assets\AppIcon\StoreLogo.png</Logo>
-  </Properties>
+	<Properties>
+		<DisplayName>MediaMaster App</DisplayName>
+		<PublisherDisplayName>Antony Konstantas</PublisherDisplayName>
+		<Logo>Assets\AppIcon\StoreLogo.png</Logo>
+	</Properties>
 
-  <Dependencies>
-	  <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
-	  <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
-  </Dependencies>
+	<Dependencies>
+		<TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
+		<TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
+	</Dependencies>
 
-  <Resources>
-    <Resource Language="en-US"/>
-    <Resource Language="fr-FR" />
-  </Resources>
+	<Resources>
+		<Resource Language="en-US"/>
+		<Resource Language="fr-FR" />
+	</Resources>
 
-  <Applications>
-    <Application Id="App"
-      Executable="$targetnametoken$.exe"
-      EntryPoint="$targetentrypoint$">
-      <uap:VisualElements
-	    DisplayName="MediaMaster App"
-	    Description="MediaMaster"
-        BackgroundColor="#252074"
-        Square150x150Logo="Assets\AppIcon\Square150x150Logo.png"
-        Square44x44Logo="Assets\AppIcon\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\AppIcon\Wide310x150Logo.png"  Square71x71Logo="Assets\AppIcon\SmallTile.png" Square310x310Logo="Assets\AppIcon\LargeTile.png">
-          <uap:ShowNameOnTiles>
-            <uap:ShowOn Tile="square310x310Logo"/>
-            <uap:ShowOn Tile="wide310x150Logo"/>
-            <uap:ShowOn Tile="square150x150Logo"/>
-          </uap:ShowNameOnTiles>
-        </uap:DefaultTile >
-        <uap:SplashScreen Image="Assets\AppIcon\SplashScreen.png"  uap5:Optional="true"  BackgroundColor="transparent"/>
-        <uap:LockScreen BadgeLogo="Assets\AppIcon\BadgeLogo.png" Notification="badge"/>
-      </uap:VisualElements>
+	<Applications>
+		<Application 
+				Id="App"
+				Executable="$targetnametoken$.exe"
+				EntryPoint="$targetentrypoint$">
+			
+			<uap:VisualElements 
+				  DisplayName="MediaMaster App" 
+				  Description="MediaMaster" 
+				  BackgroundColor="#252074" 
+				  Square150x150Logo="Assets\AppIcon\Square150x150Logo.png" 
+				  Square44x44Logo="Assets\AppIcon\Square44x44Logo.png">
+				<uap:DefaultTile Wide310x150Logo="Assets\AppIcon\Wide310x150Logo.png"  Square71x71Logo="Assets\AppIcon\SmallTile.png" Square310x310Logo="Assets\AppIcon\LargeTile.png">
+					<uap:ShowNameOnTiles>
+						<uap:ShowOn Tile="square310x310Logo"/>
+						<uap:ShowOn Tile="wide310x150Logo"/>
+						<uap:ShowOn Tile="square150x150Logo"/>
+					</uap:ShowNameOnTiles>
+				</uap:DefaultTile >
+				<uap:SplashScreen Image="Assets\AppIcon\SplashScreen.png"  uap5:Optional="true"  BackgroundColor="transparent"/>
+				<uap:LockScreen BadgeLogo="Assets\AppIcon\BadgeLogo.png" Notification="badge"/>
+			</uap:VisualElements>
         <Extensions>
 
 			<desktop4:Extension Category="windows.fileExplorerContextMenus">
@@ -78,7 +80,7 @@
 					</com:SurrogateServer>
 				</com:ComServer>
 			</com:Extension>
-
+			
 			<uap5:Extension Category="windows.appExecutionAlias">
 				<uap5:AppExecutionAlias>
 					<uap5:ExecutionAlias Alias="MediaMaster.exe"/>
@@ -105,10 +107,10 @@
 			</uap5:Extension>
 
         </Extensions>
-    </Application>
-  </Applications>
+		</Application>
+	</Applications>
 
-  <Capabilities>
-    <rescap:Capability Name="runFullTrust" />
-  </Capabilities>
+	<Capabilities>
+		<rescap:Capability Name="runFullTrust" />
+	</Capabilities>
 </Package>

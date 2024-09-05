@@ -5,20 +5,20 @@ namespace MediaMaster.Services.MediaInfo;
 
 public class MediaAdditionDate(DockPanel parent) : MediaInfoTextBase(parent)
 {
-    public override string TranslationKey { get; set; } = "MediaAdditionDate";
+    protected override string TranslationKey => "MediaAdditionDate";
 
-    public override void UpdateControlContent()
+    protected override void UpdateControlContent()
     {
         if (Text == null) return;
         Text.Text = GetDate(Medias);
     }
 
-    public override bool ShowInfo(ICollection<Media> medias)
+    protected override bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !(IsCompact || GetDate(medias).IsNullOrEmpty());
     }
 
-    public static string GetDate(ICollection<Media> medias)
+    private static string GetDate(ICollection<Media> medias)
     {
         if (medias.Count == 0) return "";
 
@@ -27,10 +27,9 @@ public class MediaAdditionDate(DockPanel parent) : MediaInfoTextBase(parent)
         return medias.Any(media => GetDate(media) != text) ? "" : text;
     }
 
-    public static string GetDate(Media media)
+    private static string GetDate(Media media)
     {
-        var date = media.Added.ToLocalTime();
+        DateTime date = media.Added.ToLocalTime();
         return $"{date.ToLongDateString()} {date.ToShortTimeString()}";
     }
 }
-

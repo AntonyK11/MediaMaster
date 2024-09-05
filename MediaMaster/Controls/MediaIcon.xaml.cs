@@ -3,6 +3,7 @@ using DependencyPropertyGenerator;
 using MediaMaster.Extensions;
 using MediaMaster.Services;
 using Microsoft.UI.Input;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace MediaMaster.Controls;
 
@@ -14,10 +15,30 @@ namespace MediaMaster.Controls;
 [DependencyProperty("DelayLoading", typeof(bool), DefaultValue = true)]
 [DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
 [DependencyProperty("IconHeight", typeof(double), DefaultValue = double.NaN)]
-public sealed partial class MediaIcon
+public partial class MediaIcon
 {
-    private TaskCompletionSource? _taskSource;
     private TaskCompletionSource _task = new();
+    private TaskCompletionSource? _taskSource;
+    
+    public Image IconImage => Image;
+
+    public MediaIcon()
+    {
+        InitializeComponent();
+        DoubleTapped += (_, _) => Open();
+
+        if (CanOpen)
+        {
+            ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
+        }
+
+        if (ContextMenu)
+        {
+            OpenFileFlyout.Click += (_, _) => Open();
+            OpenFolderFlyout.Click += (_, _) => OpenFolder();
+            OpenWebPageFlyout.Click += (_, _) => Open();
+        }
+    }
 
     partial void OnUrisChanged(ICollection<string> newValue)
     {
@@ -28,6 +49,7 @@ public sealed partial class MediaIcon
         {
             _taskSource.SetResult();
         }
+
         _taskSource = new TaskCompletionSource();
         SetIconAsync(_taskSource);
 
@@ -67,6 +89,7 @@ public sealed partial class MediaIcon
         {
             _taskSource.SetResult();
         }
+
         _taskSource = new TaskCompletionSource();
         SetIconAsync(_taskSource);
     }
@@ -85,27 +108,8 @@ public sealed partial class MediaIcon
 
     partial void OnCanOpenChanged(bool newValue)
     {
-        ProtectedCursor = InputSystemCursor.Create(newValue ? InputSystemCursorShape.Hand : InputSystemCursorShape.Arrow);
-    }
-
-    public Image IconImage => Image;
-
-    public MediaIcon()
-    {
-        InitializeComponent();
-        DoubleTapped += (_, _) => Open();
-
-        if (CanOpen)
-        {
-            ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
-        }
-
-        if (ContextMenu)
-        {
-            OpenFileFlyout.Click += (_, _) => Open();
-            OpenFolderFlyout.Click += (_, _) => OpenFolder();
-            OpenWebPageFlyout.Click += (_, _) => Open();
-        }
+        ProtectedCursor =
+            InputSystemCursor.Create(newValue ? InputSystemCursorShape.Hand : InputSystemCursorShape.Arrow);
     }
 
     public void Open()
@@ -152,7 +156,8 @@ public sealed partial class MediaIcon
 
         var uri = Uris.First();
 
-        var icon = await IconService.GetIconAsync(uri, ImageMode | ImageMode.CacheOnly, (int)ActualWidth, (int)ActualHeight);
+        BitmapSource? icon = await IconService.GetIconAsync(uri, ImageMode | ImageMode.CacheOnly, (int)ActualWidth,
+            (int)ActualHeight);
 
         if (tcs.Task.IsCompleted) return;
 

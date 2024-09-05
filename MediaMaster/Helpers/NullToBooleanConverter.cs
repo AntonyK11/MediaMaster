@@ -3,10 +3,7 @@
 namespace MediaMaster.Helpers;
 
 // https://github.com/veler/DevToys/blob/main/src/dev/impl/DevToys/UI/Converters/NullToBooleanConverter.cs
-/// <summary>
-///     Converts a null value to a <see cref="bool" /> value.
-/// </summary>
-public sealed partial class NullToBooleanConverter : IValueConverter
+public partial class NullToBooleanConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 

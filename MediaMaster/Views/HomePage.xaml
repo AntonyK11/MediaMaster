@@ -105,7 +105,10 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <DropDownButton Grid.Column="0" l:Uids.Uid="/Home/AdvancedFilters_DropDownButton" Content="Advanced Filters">
+                        <DropDownButton
+                            Grid.Column="0"
+                            l:Uids.Uid="/Home/AdvancedFilters_DropDownButton"
+                            Content="Advanced Filters">
                             <DropDownButton.Flyout>
                                 <Flyout Closed="FlyoutBase_OnClosed" Placement="BottomEdgeAlignedLeft">
                                     <Flyout.FlyoutPresenterStyle>
@@ -236,9 +239,7 @@
 
             <controls:GridSplitter
                 Grid.Column="1"
-                Width="10"
                 Padding="0"
-                HorizontalAlignment="Right"
                 CornerRadius="4"
                 ResizeBehavior="PreviousAndNext">
                 <controls:GridSplitter.Resources>
@@ -272,6 +273,29 @@
                 VerticalAlignment="Center"
                 l:Uids.Uid="/Home/MediasCount"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="8"
+                Visibility="{x:Bind MediaItemsView.IsSearching, Mode=OneWay}">
+                <Border
+                    Width="1"
+                    Height="18"
+                    Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                    Visibility="{x:Bind MediaItemsView.MediasFound, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="{x:Bind MediaItemsView.MediasFound, Mode=OneWay}"
+                    Visibility="{x:Bind MediaItemsView.MediasFound, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+
+                <TextBlock
+                    VerticalAlignment="Center"
+                    l:Uids.Uid="/Home/MediasFound"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Visibility="{x:Bind MediaItemsView.MediasFound, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+            </StackPanel>
 
             <Border
                 Width="1"

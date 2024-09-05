@@ -1,13 +1,12 @@
 ﻿using System.Text.Json.Nodes;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Microsoft.EntityFrameworkCore;
 using Windows.Storage;
 using CommunityToolkit.WinUI;
-using Microsoft.Extensions.Logging;
 using EFCore.BulkExtensions;
-using WinUICommunity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WinUI3Localizer;
+using WinUICommunity;
 
 namespace MediaMaster.DataBase;
 
@@ -17,20 +16,24 @@ public enum MediaChangeFlags
     MediaAdded = 0x00001,
     MediaRemoved = 0x00002,
     MediaChanged = 0x00004,
-    
+
     NameChanged = 0x00010,
     UriChanged = 0x00100,
     NotesChanged = 0x01000,
-    TagsChanged = 0x10000,
+    TagsChanged = 0x10000
 }
 
-public struct MediaChangeArgs(MediaChangeFlags flags, ICollection<Media> media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+public struct MediaChangeArgs(
+    MediaChangeFlags flags,
+    ICollection<Media> media,
+    ICollection<Tag>? tagsAdded = null,
+    ICollection<Tag>? tagsRemoved = null)
 {
-    public MediaChangeFlags Flags = flags;
-    public HashSet<int> MediaIds = media.Select(m => m.MediaId).ToHashSet();
-    public ICollection<Media> Medias = media;
-    public ICollection<Tag>? TagsAdded = tagsAdded;
-    public ICollection<Tag>? TagsRemoved = tagsRemoved;
+    public readonly MediaChangeFlags Flags = flags;
+    public readonly HashSet<int> MediaIds = media.Select(m => m.MediaId).ToHashSet();
+    public readonly ICollection<Media> Medias = media;
+    public readonly ICollection<Tag>? TagsAdded = tagsAdded;
+    public readonly ICollection<Tag>? TagsRemoved = tagsRemoved;
 }
 
 public partial class MediaDbContext : DbContext
@@ -40,11 +43,8 @@ public partial class MediaDbContext : DbContext
     public static Tag? FavoriteTag;
     public static Tag? ArchivedTag;
 
-    public static event TypedEventHandler<object?, MediaChangeArgs>? MediasChanged;
 
-    //public static event TypedEventHandler<object, >? TagAdded;
-    //public static event TypedEventHandler<object, >? TagRemoved;
-    //public static event TypedEventHandler<object, >? TagChanged;
+    private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
 
     public DbSet<Media> Medias { get; init; }
     public DbSet<Tag> Tags { get; init; }
@@ -52,25 +52,21 @@ public partial class MediaDbContext : DbContext
     public DbSet<MediaTag> MediaTags { get; init; }
     public DbSet<TagTag> TagTags { get; init; }
 
+    public static event TypedEventHandler<object?, MediaChangeArgs>? MediasChanged;
 
-    private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
+    // Used for migrations
     //private const string DbPath = @"C:\Users\Antony\AppData\Local\Packages\AntonyKonstantas.MediaMasterApp_ryx18h009e2z4\LocalState\MediaMaster.db";
-
-    private const string CategoriesFileName = "MediaCategories.json";
-
-    public readonly Dictionary<string, ICollection<string>> Categories = [];
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite($"Data Source={DbPath}");
+#if DEBUG
         optionsBuilder.EnableDetailedErrors();
         optionsBuilder.EnableSensitiveDataLogging();
-
         optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
+#endif
 
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
-        //optionsBuilder.WithExpressionExpanding();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -82,7 +78,7 @@ public partial class MediaDbContext : DbContext
 
         modelBuilder.Entity<Tag>()
             .HasMany(e => e.Children)
-            .WithMany(e=> e.Parents)
+            .WithMany(e => e.Parents)
             .UsingEntity<TagTag>(
                 t => t
                     .HasOne<Tag>()
@@ -92,27 +88,25 @@ public partial class MediaDbContext : DbContext
                     .HasOne<Tag>()
                     .WithMany()
                     .HasForeignKey(e => e.ParentsTagId),
-                j =>
-                {
-                    j.HasKey(t => new { t.ChildrenTagId, t.ParentsTagId });
-                });
+                j => { j.HasKey(t => new { t.ChildrenTagId, t.ParentsTagId }); });
     }
 
     public async Task InitializeAsync()
     {
-        //await Database.MigrateAsync();
 #if DEBUG
         await Database.EnsureDeletedAsync();
         await Database.EnsureCreatedAsync();
 #else
         await Database.MigrateAsync();
 #endif
-        //await Medias.LoadAsync();
-        //await Tags.LoadAsync();
 
-        //ChangeTracker.StateChanged += Timestamps.UpdateTimestamps;
-        //ChangeTracker.Tracked += Timestamps.UpdateTimestamps;
 
+        await SetupTags();
+        await SetupCategories();
+    }
+
+    private async Task SetupTags()
+    {
         ICollection<Tag> tags = Tags.ToList();
 
         if (tags.FirstOrDefault(t => t.Name == "File") is not { } fileTag)
@@ -125,6 +119,7 @@ public partial class MediaDbContext : DbContext
             };
             await Tags.AddAsync(fileTag);
         }
+
         FileTag = fileTag;
 
         if (tags.FirstOrDefault(t => t.Name == "Website") is not { } websiteTag)
@@ -137,6 +132,7 @@ public partial class MediaDbContext : DbContext
             };
             await Tags.AddAsync(websiteTag);
         }
+
         WebsiteTag = websiteTag;
 
         if (tags.FirstOrDefault(t => t.Name == "Favorite") is not { } favoriteTag)
@@ -144,12 +140,13 @@ public partial class MediaDbContext : DbContext
             favoriteTag = new Tag
             {
                 Name = "Favorite",
-                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete | TagPermissions.CannotChangeColor,
-                Aliases = { "Favorited", "Favorites" },
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete |
+                              TagPermissions.CannotChangeColor,
                 Argb = -204544
             };
             await Tags.AddAsync(favoriteTag);
         }
+
         FavoriteTag = favoriteTag;
 
         if (tags.FirstOrDefault(t => t.Name == "Archived") is not { } archivedTag)
@@ -157,35 +154,39 @@ public partial class MediaDbContext : DbContext
             archivedTag = new Tag
             {
                 Name = "Archived",
-                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete | TagPermissions.CannotChangeColor,
-                Aliases = { "Archive" },
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete |
+                              TagPermissions.CannotChangeColor,
                 Argb = -3921124
             };
             await Tags.AddAsync(archivedTag);
         }
+
         ArchivedTag = archivedTag;
 
         await SaveChangesAsync();
+    }
 
-        var defaultCategoriesFilePath = Path.Combine(AppContext.BaseDirectory, "Data", CategoriesFileName);
+    private async Task SetupCategories()
+    {
+        var defaultCategoriesFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "MediaCategories.json");
 
         await using FileStream fileStream = File.OpenRead(defaultCategoriesFilePath);
         JsonNode defaultCategories = (await JsonNode.ParseAsync(fileStream))!;
 
         ICollection<Tag> newTags = [];
 
-        if (defaultCategories is JsonObject defaultCategoriesObject)
+        if (defaultCategories is JsonObject defaultCategoriesObject && FileTag != null)
         {
             foreach ((var key, JsonNode? value) in defaultCategoriesObject)
             {
                 if (value is not JsonArray array) continue;
 
-                var category = new Tag()
+                var category = new Tag
                 {
                     Name = key,
                     Flags = TagFlags.Extension,
                     Permissions = TagPermissions.CannotChangeParents,
-                    FirstParentReferenceName = FileTag.GetReferenceName()
+                    FirstParentReferenceName = FileTag.ReferenceName
                 };
                 category.Parents.Add(FileTag);
                 newTags.Add(category);
@@ -194,12 +195,12 @@ public partial class MediaDbContext : DbContext
                 {
                     if (extension != null)
                     {
-                        var tag = new Tag()
+                        var tag = new Tag
                         {
                             Name = extension.ToString(),
                             Flags = TagFlags.Extension,
                             Permissions = TagPermissions.CannotChangeName | TagPermissions.CannotDelete,
-                            FirstParentReferenceName = category.GetReferenceName()
+                            FirstParentReferenceName = category.ReferenceName
                         };
                         tag.Parents.Add(category);
                         newTags.Add(tag);
@@ -210,7 +211,7 @@ public partial class MediaDbContext : DbContext
 
         await this.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
 
-        var tagTags = newTags.SelectMany(tag => tag.Parents.Select(parent => new TagTag
+        List<TagTag> tagTags = newTags.SelectMany(tag => tag.Parents.Select(parent => new TagTag
         {
             ParentsTagId = parent.TagId,
             ChildrenTagId = tag.TagId
@@ -219,7 +220,8 @@ public partial class MediaDbContext : DbContext
         await this.BulkInsertAsync(tagTags);
     }
 
-    public static void InvokeMediaChange(object?  sender, MediaChangeFlags flags, ICollection<Media> media, ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+    public static void InvokeMediaChange(object? sender, MediaChangeFlags flags, ICollection<Media> media,
+        ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
     {
         var args = new MediaChangeArgs(flags, media, tagsAdded, tagsRemoved);
         App.DispatcherQueue.EnqueueAsync(() => MediasChanged?.Invoke(sender, args));
@@ -231,7 +233,7 @@ public partial class MediaDbContext : DbContext
                 ShowDateTime = true,
                 IsClosable = true,
                 Title = string.Format("InAppNotification_Title".GetLocalizedString(), DateTimeOffset.Now),
-                UseBlueColorForInfo = true,
+                UseBlueColorForInfo = true
             };
 
             if (flags.HasFlag(MediaChangeFlags.MediaAdded))
@@ -244,280 +246,7 @@ public partial class MediaDbContext : DbContext
             }
 
 
-            App.DispatcherQueue.EnqueueAsync(() =>
-            {
-                Growl.Info(growlInfo);
-            });
+            App.DispatcherQueue.EnqueueAsync(() => { Growl.Info(growlInfo); });
         }
     }
-
-    //public async Task SetupMediaCategories()
-    //{
-    //    JsonNode defaultCategories = await GetDefaultCategories();
-    //    JsonNode userCategories = await GetUserCategories();
-    //    JsonNode categoriesToRemove = userCategories[RemoveKey]!;
-    //    JsonNode categoriesToAdd = userCategories[AddKey]!;
-
-    //    if (defaultCategories is not JsonObject categoriesObject) return;
-
-    //    if (categoriesToRemove is JsonObject categoriesToRemoveObject)
-    //    {
-    //        foreach ((string key, JsonNode? value) in categoriesToRemoveObject)
-    //        {
-    //            JsonArray? defaultFormats = categoriesObject[key]?.AsArray();
-
-    //            if (defaultFormats == null || value is not JsonArray array) continue;
-
-    //            foreach (JsonNode? userFormat in array)
-    //            {
-    //                JsonNode? defaultFormat = defaultFormats.FirstOrDefault(node => node?.ToString() == userFormat?.ToString());
-    //                defaultFormats.Remove(defaultFormat);
-    //            }
-    //        }
-    //    }
-
-    //    if (categoriesToAdd is JsonObject)
-    //    {
-    //        foreach ((string key, JsonNode? value) in categoriesToAdd.AsObject())
-    //        {
-    //            if (categoriesObject[key] is not JsonArray formats)
-    //            {
-    //                formats = [];
-    //                categoriesObject[key] = formats;
-    //            }
-
-    //            if (value is not JsonArray valueArray) continue;
-
-    //            foreach (JsonNode? format in valueArray)
-    //            {
-    //                formats.Add(format?.DeepClone());
-    //            }
-    //        }
-    //    }
-
-    //    foreach ((string key, JsonNode? extensions) in categoriesObject)
-    //    {
-    //        if (extensions is not JsonArray array)
-    //        {
-    //            categoriesObject.Remove(key);
-    //            continue;
-    //        }
-
-    //        foreach (IGrouping<string?, JsonNode?> extension in array.GroupBy(node => node?.ToString()).Where(nodes => nodes.Count() > 1))
-    //        {
-    //            foreach (JsonNode? node in extension.Skip(1))
-    //            {
-    //                array.Remove(node);
-    //            }
-    //        }
-    //    }
-
-    //    await AddCategoriesToDatabase(categoriesObject);
-
-    //    // Invert the keys and values of the categories object
-    //    JsonObject invertedCategoriesObject = [];
-    //    foreach ((string key, JsonNode? value) in categoriesObject)
-    //    {
-    //        if (value is not JsonArray array) continue;
-
-    //        foreach (JsonNode? format in array)
-    //        {
-    //            if (format == null) continue;
-
-    //            if (invertedCategoriesObject.ContainsKey(format.ToString()) && invertedCategoriesObject[format.ToString()] is JsonArray formatArray)
-    //            {
-    //                if (!formatArray.ToString().Contains(key))
-    //                {
-    //                    formatArray.Add(key);
-    //                }
-    //            }
-    //            else
-    //            {
-    //                invertedCategoriesObject[format.ToString()] = new JsonArray { key };
-    //            }
-    //        }
-    //    }
-
-    //    //foreach (Category category in Categories)
-    //    //{ 
-    //    //    Debug.WriteLine(category.Name);
-    //    //    foreach (Extension extension in category.Extensions)
-    //    //    {
-    //    //        Debug.WriteLine($"    - {extension.Name}");
-    //    //    }
-    //    //    Debug.WriteLine("");
-    //    //}
-
-    //    // IEnumerable<string> formatsToUpdate = FormatsToUpdate(invertedCategoriesObject);
-
-    //    // await UpdateFormats(formatsToUpdate);
-    //}
-
-    //private async Task<JsonNode> GetDefaultCategories()
-    //{
-    //    string defaultCategoriesFilePath = Path.Combine(AppContext.BaseDirectory, DataFolder.Name, CategoriesFileName);
-
-    //    await using FileStream fileStream = File.OpenRead(defaultCategoriesFilePath);
-    //    JsonNode defaultCategories = (await JsonNode.ParseAsync(fileStream))!;
-
-    //    return defaultCategories;
-    //}
-
-    //private async Task<JsonNode> GetUserCategories()
-    //{
-    //    string filePath = Path.Combine(DataFolder.Path, CategoriesFileName);
-
-    //    bool fileExists = File.Exists(filePath);
-    //    if (!fileExists)
-    //    {
-    //        File.Create(filePath).Close();
-    //    }
-
-    //    JsonNode userCategories;
-    //    try
-    //    {
-    //        await using FileStream fileStream = File.OpenRead(filePath);
-    //        userCategories = await JsonSerializer.DeserializeAsync<JsonNode>(fileStream) ?? new JsonObject();
-    //    }
-    //    catch (JsonException)
-    //    {
-    //        userCategories = new JsonObject();
-    //    }
-
-    //    if (!userCategories.AsObject().ContainsKey(AddKey))
-    //    {
-    //        userCategories[AddKey] = new JsonObject();
-    //    }
-    //    if (!userCategories.AsObject().ContainsKey(RemoveKey))
-    //    {
-    //        userCategories[RemoveKey] = new JsonObject();
-    //    }
-
-    //    await File.WriteAllTextAsync(filePath, userCategories.ToString());
-
-    //    return userCategories;
-    //}
-
-    //private async Task AddCategoriesToDatabase(JsonObject categoriesObject)
-    //{
-    //    // Convert the JSON object to a dictionary of Categories
-    //    //Dictionary<string, Category> mediaCategories = [];
-    //    //foreach ((string key, JsonNode? value) in categoriesObject)
-    //    //{
-    //    //    if (value is not JsonArray) continue;
-
-    //    //    Category newCategory = this.CreateProxy<Category>();
-
-    //    //    newCategory.Name = key;
-    //    //    foreach (JsonNode? format in value.AsArray())
-    //    //    {
-    //    //        if (format == null) continue;
-    //    //        string extensionString = format.ToString();
-
-    //    //        Extension? ext = await Extensions.FirstOrDefaultAsync(f => f.Name == extensionString);
-
-    //    //        if (ext == null)
-    //    //        {
-    //    //            ext = this.CreateProxy<Extension>(e => e.Name = extensionString);
-    //    //            await AddAsync(ext);
-    //    //        }
-
-    //    //        newCategory.Extensions.Add(ext);
-
-    //    //        // if (!Formats.TryGetValue(formatString, out IList<Category>? categories))
-    //    //        // {
-    //    //        //     categories = [];
-    //    //        //     Formats[formatString] = categories;
-    //    //        // }
-
-    //    //        // categories.Add(newCategory);
-    //    //    }
-    //    //    mediaCategories[key] = newCategory;
-    //    //}
-
-    //    // Get the Categories from the database
-    //    Dictionary<string, Category> categoriesInDb = Categories.Local.ToDictionary(t => t.Name);
-
-    //    // Prepare the lists for bulk operations
-    //    //List<Category> categoriesToDelete = [];
-    //    //List<Category> categoriesToUpdate = [];
-    //    //List<Category> categoriesToAdd = [];
-
-    //    // Prepare the data for bulk operations
-    //    foreach (string category in categoriesInDb.Keys)
-    //    {
-    //        if (!categoriesObject.ContainsKey(category))
-    //        {
-    //            Remove(categoriesInDb[category]);
-    //            //categoriesToDelete.Add(categoriesInDb[category]);
-    //        }
-    //        else
-    //        {
-    //            if (categoriesObject[category] is not JsonArray extensionsArray) continue;
-
-    //            IEnumerable<string?> extensionsArrayString = extensionsArray.Select(e => e?.ToString()).ToArray();
-
-    //            foreach (Extension extension in categoriesInDb[category].Extensions.ToArray())
-    //            {
-    //                if (!extensionsArrayString.Contains(extension.Name))
-    //                {
-    //                    categoriesInDb[category].Extensions.Remove(extension);
-    //                }
-    //            }
-
-    //            foreach (string? extension in extensionsArrayString)
-    //            {
-    //                if (extension is null) continue;
-
-    //                if (categoriesInDb[category].Extensions.Select(e => e.Name).Contains(extension)) continue;
-
-    //                Extension? ext = Extensions.Local.FirstOrDefault(f => f.Name == extension);
-
-    //                if (ext == null)
-    //                {
-    //                    ext = this.CreateProxy<Extension>(e => e.Name = extension);
-    //                    await AddAsync(ext);
-    //                }
-
-    //                categoriesInDb[category].Extensions.Add(ext);
-    //            }
-
-    //            //categoriesToUpdate.Add(value);
-    //        }
-    //    }
-
-    //    foreach ((string key, JsonNode? value) in categoriesObject)
-    //    {
-    //        if (value is not JsonArray array) continue;
-
-    //        if (categoriesInDb.ContainsKey(key)) continue;
-
-    //        Category newCategory = this.CreateProxy<Category>();
-
-    //        newCategory.Name = key;
-    //        foreach (JsonNode? format in array)
-    //        {
-    //            if (format == null) continue;
-    //            string extensionString = format.ToString();
-
-    //            Extension? ext = Extensions.Local.FirstOrDefault(f => f.Name == extensionString);
-
-    //            if (ext == null)
-    //            {
-    //                ext = this.CreateProxy<Extension>(e => e.Name = extensionString);
-    //                await AddAsync(ext);
-    //            }
-
-    //            newCategory.Extensions.Add(ext);
-    //        }
-
-    //        await AddAsync(newCategory);
-    //    }
-
-    //    //categoriesToAdd.AddRange(mediaCategories.Keys.Except(categoriesInDb.Keys).Select(category => mediaCategories[category]));
-
-    //    //await PerformBulkOperations(categoriesToDelete, categoriesToUpdate, categoriesToAdd);
-
-    //    await SaveChangesAsync();
-    //}
 }

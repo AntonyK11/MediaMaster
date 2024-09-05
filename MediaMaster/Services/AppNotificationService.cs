@@ -1,6 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Web;
-using CommunityToolkit.WinUI;
+﻿using CommunityToolkit.WinUI;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Views;
@@ -10,21 +8,11 @@ namespace MediaMaster.Services;
 
 public class AppNotificationService(IActivationService activationService) : IAppNotificationService
 {
-    ~AppNotificationService()
-    {
-        Unregister();
-    }
-
     public void Initialize()
     {
         AppNotificationManager.Default.NotificationInvoked += OnNotificationInvoked;
         // Must be called before any GetActivatedEventArgs calls or else the app will crash.
         AppNotificationManager.Default.Register();
-    }
-
-    public async void OnNotificationInvoked(AppNotificationManager? sender, AppNotificationActivatedEventArgs args)
-    {
-        await App.DispatcherQueue.EnqueueAsync(async () => await HandleNotificationAsync(args));
     }
 
     public async Task HandleNotificationAsync(AppNotificationActivatedEventArgs args)
@@ -40,21 +28,21 @@ public class AppNotificationService(IActivationService activationService) : IApp
         {
             App.MainWindow.Show();
         }
+
         App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName);
-
-        //switch (ParseArguments(args.Argument)["action"])
-        //{
-        //    case "edit":
-        //        break;
-        //}
     }
 
-    public NameValueCollection ParseArguments(string arguments)
+    ~AppNotificationService()
     {
-        return HttpUtility.ParseQueryString(arguments);
+        Unregister();
     }
 
-    public void Unregister()
+    private async void OnNotificationInvoked(AppNotificationManager? sender, AppNotificationActivatedEventArgs args)
+    {
+        await App.DispatcherQueue.EnqueueAsync(async () => await HandleNotificationAsync(args));
+    }
+
+    private static void Unregister()
     {
         AppNotificationManager.Default.Unregister();
     }

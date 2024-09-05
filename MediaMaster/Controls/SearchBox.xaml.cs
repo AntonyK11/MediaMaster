@@ -2,11 +2,10 @@ using System.Linq.Expressions;
 using Windows.Foundation;
 using CommunityToolkit.WinUI;
 using DependencyPropertyGenerator;
-using Microsoft.EntityFrameworkCore;
 using MediaMaster.DataBase;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Input;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 
 namespace MediaMaster.Controls;
@@ -14,44 +13,45 @@ namespace MediaMaster.Controls;
 [DependencyProperty("FilterName", typeof(bool), DefaultValue = true)]
 [DependencyProperty("FilterNotes", typeof(bool), DefaultValue = false)]
 [DependencyProperty("FilterTags", typeof(bool), DefaultValue = false)]
-public sealed partial class SearchBox : UserControl
+public partial class SearchBox : UserControl
 {
-    private string _text = "";
-    private HashSet<int> _medias = [];
-    private bool _filterName = true;
-    private bool _filterNotes = false;
-    private bool _filterTags = false;
     public readonly Expression<Func<Media, bool>> Filter;
-    public event TypedEventHandler<object, Expression<Func<Media, bool>>>? FilterChanged;
+    private bool _filterName = true;
+    private bool _filterNotes;
+    private bool _filterTags;
+    private HashSet<int> _medias = [];
+    private string _text = "";
 
     public SearchBox()
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
-        Filter = m => 
+        Filter = m =>
             _text.Length == 0 ||
-            _filterName && EF.Functions.Like(m.Name, $"%{_text}%") ||
-            _filterNotes && EF.Functions.Like(m.Notes, $"%{_text}%") ||
-            _filterTags && _medias.Contains(m.MediaId);
+            (_filterName && EF.Functions.Like(m.Name, $"%{_text}%")) ||
+            (_filterNotes && EF.Functions.Like(m.Notes, $"%{_text}%")) ||
+            (_filterTags && _medias.Contains(m.MediaId));
 
-        TextBox.TextChanged += async (_, args) =>
-        {
-            await Change();
-        };
+        TextBox.TextChanged += async (_, args) => { await Change(); };
     }
+
+    public event TypedEventHandler<object, Expression<Func<Media, bool>>>? FilterChanged;
 
     private static async Task<HashSet<int>> GetMediasFromTagName(string tagName)
     {
         await using (var database = new MediaDbContext())
         {
-            HashSet<int> tagsId = database.Tags.Where(t => EF.Functions.Like(t.Name, $"%{tagName}%")).Select(t => t.TagId).ToHashSet();
+            HashSet<int> tagsId = database.Tags
+                .Where(t => EF.Functions.Like(t.Name, $"%{tagName}%"))
+                .Select(t => t.TagId)
+                .ToHashSet();
 
             ICollection<TagTag> tagTags = await database.TagTags.ToListAsync();
             int oldCount;
             do
             {
                 oldCount = tagsId.Count;
-                foreach (var tagTag in tagTags.Where(t => tagsId.Contains(t.ParentsTagId)))
+                foreach (TagTag tagTag in tagTags.Where(t => tagsId.Contains(t.ParentsTagId)))
                 {
                     tagsId.Add(tagTag.ChildrenTagId);
                 }
@@ -71,6 +71,7 @@ public sealed partial class SearchBox : UserControl
         {
             _medias = await GetMediasFromTagName(_text);
         }
+
         await App.DispatcherQueue.EnqueueAsync(() => FilterChanged?.Invoke(this, Filter));
     }
 

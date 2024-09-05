@@ -81,7 +81,7 @@ public class TeachingService : ITeachingService
     {
         if (_teachingTips.TryGetValue(step, out TeachingTip? teachingTip))
         {
-            teachingTip.GetType().GetProperty(property)?.SetValue(teachingTip, value);
+            typeof(TeachingTip).GetProperty(property)?.SetValue(teachingTip, value);
         }
     }
 }

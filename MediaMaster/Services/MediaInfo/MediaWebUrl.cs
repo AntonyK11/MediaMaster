@@ -11,15 +11,15 @@ namespace MediaMaster.Services.MediaInfo;
 
 public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
-    public override string TranslationKey { get; set; } = "MediaWebUrl";
+    protected override string TranslationKey => "MediaWebUrl";
 
-    public override void UpdateControlContent()
+    protected override void UpdateControlContent()
     {
         if (EditableTextBlock == null) return;
         EditableTextBlock.Text = Medias.FirstOrDefault()?.Uri ?? "";
     }
 
-    public override EditableTextBlock GetEditableTextBlock()
+    protected override EditableTextBlock GetEditableTextBlock()
     {
         var editableTextBlock = new EditableTextBlock
         {
@@ -30,7 +30,7 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
         return editableTextBlock;
     }
 
-    public async Task UpdateMediaUri(string newText, string oldText)
+    private async Task UpdateMediaUri(string newText, string oldText)
     {
         if (oldText == newText || EditableTextBlock == null || App.MainWindow == null) return;
 
@@ -45,10 +45,16 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
                 {
                     XamlRoot = App.MainWindow.Content.XamlRoot,
                     DefaultButton = ContentDialogButton.Primary,
-                    RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme,
+                    RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
                 };
-                Uids.SetUid(errorDialog, newText.IsNullOrEmpty() ? "/Media/MissingWebsiteUrlDialog" : "/Media/WebsiteUrlAlreadyExistsDialog");
-                App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { errorDialog.RequestedTheme = theme; };
+                Uids.SetUid(errorDialog,
+                    newText.IsNullOrEmpty()
+                        ? "/Media/MissingWebsiteUrlDialog"
+                        : "/Media/WebsiteUrlAlreadyExistsDialog");
+                App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
+                {
+                    errorDialog.RequestedTheme = theme;
+                };
 
                 ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
 
@@ -64,10 +70,10 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
         }
     }
 
-    public override async void UpdateMedia(string newText, string oldText = "")
+    protected override async void UpdateMedia(string newText, string oldText = "")
     {
         if (Medias.Count != 1 || oldText == newText) return;
-        var media = Medias.First();
+        Media media = Medias.First();
 
         Tag? newTag = null;
         Tag? oldTag = null;
@@ -80,13 +86,16 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
             var newDomain = new Uri(newText).Host;
             if (oldDomain != newDomain)
             {
-                var oldDomainTag = await database.Medias.Include(m => m.Tags).Where(m => m.MediaId == media.MediaId)
+                Tag? oldDomainTag = await database.Medias
+                    .Include(m => m.Tags)
+                    .Where(m => m.MediaId == media.MediaId)
                     .SelectMany(m => m.Tags)
                     .FirstOrDefaultAsync(t => t.Name == oldDomain && t.Flags.HasFlag(TagFlags.Website));
 
                 if (oldDomainTag != null)
                 {
-                    var oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m => m.TagId == oldDomainTag.TagId && m.MediaId == media.MediaId);
+                    MediaTag? oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m =>
+                        m.TagId == oldDomainTag.TagId && m.MediaId == media.MediaId);
 
                     if (oldMediaTag != null)
                     {
@@ -107,14 +116,19 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
                     media.Tags.Add(newTag);
                     await MediaService.AddNewMedias([media], database);
                 }
-
             }
+
             await database.BulkUpdateAsync(Medias);
         }
 
         if (newTag != null || oldTag != null)
         {
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged | MediaChangeFlags.TagsChanged, Medias, newTag != null ? [newTag] : [], oldTag != null ? [oldTag] : []);
+            MediaDbContext.InvokeMediaChange(
+                this,
+                MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged | MediaChangeFlags.TagsChanged,
+                Medias,
+                newTag != null ? [newTag] : [],
+                oldTag != null ? [oldTag] : []);
         }
         else
         {
@@ -122,17 +136,21 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
         }
     }
 
-    public override bool ShowInfo(ICollection<Media> medias)
+    protected override bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !(IsCompact || medias.Count != 1 || !medias.First().Uri.IsWebsite());
     }
 
-    public override void MediaChanged(object? sender, MediaChangeArgs args)
+    protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        var mediaIds = Medias.Select(m => m.MediaId).ToList();
-        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        
+        if (Medias.Count == 0 ||
+            !args.MediaIds.Intersect(mediaIds).Any() ||
+            ReferenceEquals(sender, this) ||
+            !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        
         Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }
 }
-

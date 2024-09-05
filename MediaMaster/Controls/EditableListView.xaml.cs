@@ -9,27 +9,25 @@ public partial class StringValue : ObservableObject
     [ObservableProperty] public string _value = "";
 }
 
-[DependencyProperty("ItemsSource", typeof(ObservableCollection<StringValue>), DefaultValueExpression = "new ObservableCollection<StringValue>()")]
-public sealed partial class EditableListView : UserControl
+[DependencyProperty("ItemsSource", typeof(ObservableCollection<StringValue>),
+    DefaultValueExpression = "new ObservableCollection<StringValue>()")]
+public partial class EditableListView : UserControl
 {
-    partial void OnItemsSourceChanged()
+    public EditableListView()
     {
-        SetupEmptyStringValue();
+        ItemsSource = [new StringValue()];
+        InitializeComponent();
     }
 
     public ICollection<string> Strings
     {
         get => ItemsSource.Select(v => v.Value).Where(v => !v.IsNullOrEmpty()).ToList();
-        set
-        {
-            ItemsSource = new ObservableCollection<StringValue>(value.Select(a => new StringValue() { Value = a }));
-        }
+        set => ItemsSource = new ObservableCollection<StringValue>(value.Select(a => new StringValue { Value = a }));
     }
 
-    public EditableListView()
+    partial void OnItemsSourceChanged()
     {
-        ItemsSource = [new StringValue()];
-        InitializeComponent();
+        SetupEmptyStringValue();
     }
 
     private void EditableTextBlock_OnTextConfirmed(EditableTextBlock sender, TextConfirmedArgs args)

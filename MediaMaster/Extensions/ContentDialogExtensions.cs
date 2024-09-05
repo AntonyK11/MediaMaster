@@ -10,7 +10,7 @@ public static class ContentDialogExtensions
 
         if (DialogStack.Count > 0)
         {
-            var first = DialogStack.First();
+            Dialog first = DialogStack.First();
             DialogStack.Push(newDialog);
             first.Hide();
             await Task.Delay(210);
@@ -29,7 +29,6 @@ public static class ContentDialogExtensions
             }
 
             result = await newDialog.ShowAsync();
-
         } while (result == null);
 
         DialogStack.Pop();
@@ -39,12 +38,12 @@ public static class ContentDialogExtensions
 
     private class Dialog(ContentDialog contentDialog)
     {
-        private bool _wasHidden;
         private readonly TaskCompletionSource _tcs = new();
+        private bool _wasHidden;
 
         public async Task<ContentDialogResult?> ShowAsync()
         {
-            var result = await contentDialog.ShowAsync();
+            ContentDialogResult result = await contentDialog.ShowAsync();
             if (_wasHidden)
             {
                 _wasHidden = false;

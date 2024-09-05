@@ -68,6 +68,6 @@ internal static partial class Program
             {
                 await App.GetService<IActivationService>().LaunchApp(activationArgs);
             };
-        }); 
+        });
     }
 }

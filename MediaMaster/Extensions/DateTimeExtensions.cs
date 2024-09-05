@@ -12,13 +12,15 @@ public static class DateTimeExtensions
         const int day = 24 * hour;
         const int month = 30 * day;
 
-        var ts = DateTime.Now - date;
+        TimeSpan ts = DateTime.Now - date;
         var delta = ts.TotalSeconds;
 
         switch (delta)
         {
             case < 1 * minute:
-                return ts.Seconds == 1 ? "/DateTime/one_second_ago".GetLocalizedString() : string.Format("/DateTime/seconds_ago".GetLocalizedString(), ts.Seconds);
+                return ts.Seconds == 1
+                    ? "/DateTime/one_second_ago".GetLocalizedString()
+                    : string.Format("/DateTime/seconds_ago".GetLocalizedString(), ts.Seconds);
 
             case < 2 * minute:
                 return "/DateTime/a_minute_ago".GetLocalizedString();
@@ -41,13 +43,17 @@ public static class DateTimeExtensions
             case < 12 * month:
             {
                 var months = ts.Days / 30;
-                return months <= 1 ? "/DateTime/one_month_ago".GetLocalizedString() : string.Format("/DateTime/months_ago".GetLocalizedString(), months);
+                return months <= 1
+                    ? "/DateTime/one_month_ago".GetLocalizedString()
+                    : string.Format("/DateTime/months_ago".GetLocalizedString(), months);
             }
 
             default:
             {
                 var years = ts.Days / 365;
-                return years <= 1 ? "/DateTime/one_year_ago".GetLocalizedString() : string.Format("/DateTime/years_ago".GetLocalizedString(), years);
+                return years <= 1
+                    ? "/DateTime/one_year_ago".GetLocalizedString()
+                    : string.Format("/DateTime/years_ago".GetLocalizedString(), years);
             }
         }
     }
@@ -61,5 +67,4 @@ public static class DateTimeExtensions
     {
         return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second);
     }
-
 }

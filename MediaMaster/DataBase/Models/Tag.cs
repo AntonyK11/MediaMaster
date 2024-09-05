@@ -7,15 +7,12 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.DataBase.Models;
 
-
 [Flags]
 public enum TagFlags
 {
     UserTag = 0x000,
     Extension = 0x001,
-    Website = 0x002,
-    Favorite = 0x010,
-    Archived = 0x100
+    Website = 0x002
 }
 
 [Flags]
@@ -31,110 +28,100 @@ public enum TagPermissions
 
 public class Tag
 {
+    private Color? _color;
+    private int? _oldArgb;
+    private Color? _oldColor;
+    private string _oldName = "";
+    private ElementTheme? _oldTextTheme;
+    private ElementTheme? _oldTheme;
+    private Color? _textColor;
+
     [Key]
-    public virtual int TagId { get; set; }
+    public int TagId { get; set; }
 
-    public virtual string Name { get; set; } = "";
+    public string Name { get; set; } = "";
 
-    public virtual string Shorthand { get; set; } = "";
+    public string Shorthand { get; set; } = "";
 
-    public virtual string FirstParentReferenceName { get; set; } = "";
+    public string FirstParentReferenceName { get; set; } = "";
 
-    public virtual TagFlags Flags { get; set; }
+    public TagFlags Flags { get; set; }
 
-    public virtual TagPermissions Permissions { get; set; }
+    public TagPermissions Permissions { get; set; }
 
-    public virtual IList<string> Aliases { get; set; } = [];
+    public IList<string> Aliases { get; set; } = [];
 
-    public virtual ICollection<Media> Medias { get; set; } = [];
+    public ICollection<Media> Medias { get; set; } = [];
 
-    public virtual ICollection<Tag> Parents { get; set; } = [];
+    public ICollection<Tag> Parents { get; set; } = [];
 
-    public virtual ICollection<Tag> Children { get; set; } = [];
+    public ICollection<Tag> Children { get; set; } = [];
 
     public int? Argb { get; set; }
-
-    public string GetReferenceName()
-    {
-        return Shorthand.IsNullOrEmpty() ? Name.ToLower() : Shorthand;
-    }
-
-    private Color? _color;
-    private Color? _textColor;
-    private string _oldName = "";
-    private int? _oldargb;
-    private Color? _oldcolor;
-    private ElementTheme? _oldTheme;
-    private ElementTheme? _oldTextTheme;
+    
+    [NotMapped]
     private static ElementTheme CurrentTheme => App.GetService<IThemeSelectorService>().ActualTheme;
 
     [NotMapped]
-    public string DisplayName
-    {
-        get
-        {
-            return FirstParentReferenceName.IsNullOrEmpty() ? Name : $"{Name} ({FirstParentReferenceName})";
-        }
-    }
+    public string ReferenceName => Shorthand.IsNullOrEmpty() ? Name.ToLower() : Shorthand;
+    
+    [NotMapped]
+    public string DisplayName => FirstParentReferenceName.IsNullOrEmpty() ? Name : $"{Name} ({FirstParentReferenceName})";
 
     [NotMapped]
     public Color Color
     {
         get
         {
-            var currentTheme = CurrentTheme;
-            if (_color != null && _oldargb == Argb && (Argb != null || _oldName == Name) && _oldTheme == currentTheme)
+            ElementTheme currentTheme = CurrentTheme;
+            if (_color != null && _oldArgb == Argb && (Argb != null || _oldName == Name) && _oldTheme == currentTheme)
             {
                 return (Color)_color;
             }
 
             _oldName = Name;
-            _oldargb = Argb;
+            _oldArgb = Argb;
             _oldTheme = currentTheme;
             _color = Argb == null ? Name.CalculateColor() : Color.FromArgb((int)Argb);
             return (Color)_color;
         }
-        set
-        {
-            Argb = value.ToArgb();
-        }
+        set => Argb = value.ToArgb();
     }
-
-
-
-    [NotMapped] public virtual Color TextColor
+    
+    [NotMapped]
+    public Color TextColor
     {
         get
         {
-            var currentTheme = CurrentTheme;
-            if (_textColor != null && _oldcolor == Color && _oldTextTheme == currentTheme)
+            ElementTheme currentTheme = CurrentTheme;
+            if (_textColor != null && _oldColor == Color && _oldTextTheme == currentTheme)
             {
                 return (Color)_textColor;
             }
 
-            _oldcolor = Color;
+            _oldColor = Color;
             _oldTextTheme = currentTheme;
             _textColor = Color.CalculateColorText();
             return (Color)_textColor;
         }
     }
 
-    [NotMapped] 
-    public virtual SolidColorBrush ColorBrush
+    [NotMapped]
+    public SolidColorBrush ColorBrush
     {
         get
         {
-            var color = Color.ToWindowsColor();
+            Windows.UI.Color color = Color.ToWindowsColor();
             return new SolidColorBrush(color);
         }
     }
 
     [NotMapped]
-    public virtual SolidColorBrush TextColorBrush
+    public SolidColorBrush TextColorBrush
     {
         get
         {
-            var color = TextColor.ToWindowsColor();
+            Windows.UI.Color color = TextColor.ToWindowsColor();
             return new SolidColorBrush(color);
         }
     }

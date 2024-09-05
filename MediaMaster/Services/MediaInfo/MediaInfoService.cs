@@ -4,7 +4,7 @@ namespace MediaMaster.Services.MediaInfo;
 
 internal class MediaInfoService
 {
-    public readonly ICollection<MediaInfoControlBase> MediaInfoControls = [];
+    private readonly ICollection<MediaInfoControlBase> _mediaInfoControls = [];
 
     public MediaInfoService(DockPanel parent)
     {
@@ -23,20 +23,20 @@ internal class MediaInfoService
 
     private void Register(MediaInfoControlBase mediaInfoControl)
     {
-        if (MediaInfoControls.Any(p => p == mediaInfoControl))
+        if (_mediaInfoControls.Any(p => p == mediaInfoControl))
         {
-            throw new ArgumentException($"This type is already registered : {MediaInfoControls.First(p => p == mediaInfoControl)}");
+            throw new ArgumentException(
+                $"This type is already registered : {_mediaInfoControls.First(p => p == mediaInfoControl)}");
         }
 
-        MediaInfoControls.Add(mediaInfoControl);
+        _mediaInfoControls.Add(mediaInfoControl);
     }
 
     public void SetMedia(ICollection<Media> medias, bool isCompact)
     {
-        foreach (var mediaInfoControl in MediaInfoControls)
+        foreach (MediaInfoControlBase mediaInfoControl in _mediaInfoControls)
         {
             mediaInfoControl.Initialize(medias, isCompact);
         }
     }
 }
-

@@ -9,10 +9,10 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
-public sealed partial class CreateEditDeleteTagDialog : Page
+public partial class CreateEditDeleteTagDialog : Page
 {
+    private readonly Tag? _currentTag;
     public EditTagDialogViewModel ViewModel = new();
-    public readonly Tag? CurrentTag;
 
     public CreateEditDeleteTagDialog(int? tagId = null, Tag? tagParam = null)
     {
@@ -24,8 +24,9 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             {
                 tagParam = database.Tags.FirstOrDefault(t => t.TagId == tagId);
             }
+
             TagView.TagId = tagId;
-            CurrentTag = tagParam;
+            _currentTag = tagParam;
         }
         else if (tagParam != null)
         {
@@ -34,16 +35,16 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
         if (tagParam == null)
         {
-            var emptyColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);
+            Windows.UI.Color emptyColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);
             ViewModel.Color = emptyColor;
             return;
         }
-        
+
         AliasesListView.Strings = tagParam.Aliases;
         ViewModel.Name = tagParam.Name;
         ViewModel.Shorthand = tagParam.Shorthand;
         ViewModel.Color = tagParam.Color.ToWindowsColor();
-        ViewModel.Permissions = tagParam.Permissions;
+        ViewModel.SetPermissions(tagParam.Permissions);
 
         Color color = ViewModel.Color.ToSystemColor();
         CheckColorContrast(color);
@@ -69,13 +70,18 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
     private void CheckColorContrast(Color color)
     {
-        var badContrast = color.GetBackgroundColor(ElementTheme.Dark).CalculateContrastRatio(color.CalculateColorText(ElementTheme.Dark)) < 4.5
-                           && color.GetBackgroundColor(ElementTheme.Light).CalculateContrastRatio(color.CalculateColorText(ElementTheme.Light)) < 4.5;
+        var badContrast = color
+                              .GetBackgroundColor(ElementTheme.Dark)
+                              .CalculateContrastRatio(color.CalculateColorText(ElementTheme.Dark)) < 4.5
+                          && color
+                              .GetBackgroundColor(ElementTheme.Light)
+                              .CalculateContrastRatio(color.CalculateColorText(ElementTheme.Light)) < 4.5;
 
         ContrastIcon.Visibility = badContrast ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(int? tagId = null, Tag? tag = null)
+    public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(int? tagId = null,
+        Tag? tag = null)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 
@@ -89,10 +95,11 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         };
 
         Uids.SetUid(dialog, tagId == null ? "/Tag/CreateDialog" : "/Tag/EditDialog");
-        if (tagDialog.CurrentTag?.Permissions.HasFlag(TagPermissions.CannotDelete) is true)
+        if (tagDialog._currentTag?.Permissions.HasFlag(TagPermissions.CannotDelete) is true)
         {
             dialog.SecondaryButtonText = "";
         }
+
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
         ContentDialogResult? deleteResult;
         ContentDialogResult result;
@@ -114,6 +121,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                     {
                         deleteResult = await DeleteTag((int)tagId);
                     }
+
                     break;
                 }
             }
@@ -147,18 +155,21 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         return result;
     }
 
-    public async Task SaveChangesAsync()
+    private async Task SaveChangesAsync()
     {
         await using (MediaDbContext database = new())
         {
             Tag? trackedTag;
-            if (CurrentTag == null)
+            if (_currentTag == null)
             {
                 trackedTag = new Tag();
             }
             else
             {
-                trackedTag = await database.Tags.AsTracking().Include(m => m.Parents).FirstOrDefaultAsync(t => t.TagId == CurrentTag.TagId);
+                trackedTag = await database.Tags
+                    .AsTracking()
+                    .Include(m => m.Parents)
+                    .FirstOrDefaultAsync(t => t.TagId == _currentTag.TagId);
             }
 
             if (trackedTag != null)
@@ -166,17 +177,18 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 trackedTag.Name = ViewModel.Name;
                 trackedTag.Shorthand = ViewModel.Shorthand;
 
-                trackedTag.FirstParentReferenceName = TagView.GetItemSource().MinBy(t => t.Name)?.GetReferenceName() ?? "";
+                trackedTag.FirstParentReferenceName = TagView.GetItemSource().MinBy(t => t.Name)?.ReferenceName ?? "";
 
                 trackedTag.Color = ViewModel.Color.ToSystemColor();
                 trackedTag.Aliases = AliasesListView.Strings.ToList();
 
-                if (CurrentTag == null)
+                if (_currentTag == null)
                 {
                     await database.Tags.AddAsync(trackedTag);
                 }
+
                 await database.SaveChangesAsync();
-                
+
 
                 HashSet<int> currentTagIds = trackedTag.Parents.Select(t => t.TagId).ToHashSet();
                 HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();

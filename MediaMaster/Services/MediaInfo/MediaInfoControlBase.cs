@@ -5,15 +5,13 @@ namespace MediaMaster.Services.MediaInfo;
 
 public abstract class MediaInfoControlBase
 {
-    public ICollection<Media> Medias = [];
-    public readonly DockPanel Parent;
-    public bool FirstShown = true;
-    public bool IsCompact;
-    public TextBlock? Title;
+    protected readonly DockPanel Parent;
+    private bool _firstShown = true;
 
-    public bool IsVisible;
-
-    public abstract string TranslationKey { get; set; }
+    private bool _isVisible;
+    protected bool IsCompact;
+    protected ICollection<Media> Medias = [];
+    protected TextBlock? Title;
 
     protected MediaInfoControlBase(DockPanel parent)
     {
@@ -21,42 +19,45 @@ public abstract class MediaInfoControlBase
         MediaDbContext.MediasChanged += MediaChanged;
     }
 
+    protected abstract string TranslationKey { get; }
+
     public virtual void Initialize(ICollection<Media> medias, bool isCompact)
     {
         IsCompact = isCompact;
-        if (FirstShown)
+        if (_firstShown)
         {
             Setup();
             SetupTranslations();
             Hide();
-            FirstShown = false;
+            _firstShown = false;
         }
 
         if (ShowInfo(medias))
         {
-            if (!IsVisible)
+            if (!_isVisible)
             {
-                IsVisible = true;
+                _isVisible = true;
                 Show();
             }
+
             Medias = medias;
             UpdateControl();
         }
-        else if (IsVisible)
+        else if (_isVisible)
         {
-            IsVisible = false;
+            _isVisible = false;
             Hide();
         }
     }
 
-    public virtual void UpdateControl()
+    protected virtual void UpdateControl()
     {
         UpdateControlContent();
     }
 
-    public virtual void UpdateControlContent() { }
+    protected virtual void UpdateControlContent() { }
 
-    public virtual TextBlock GetTitle()
+    protected static TextBlock GetTitleTextBlock()
     {
         var textBlock = new TextBlock
         {
@@ -65,21 +66,20 @@ public abstract class MediaInfoControlBase
         return textBlock;
     }
 
-    public virtual bool ShowInfo(ICollection<Media> medias)
+    protected virtual bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !IsCompact;
     }
-    
-    public abstract void Setup();
 
-    public virtual void SetupTranslations() { }
+    protected abstract void Setup();
 
-    public abstract void Show();
+    protected virtual void SetupTranslations() { }
 
-    public abstract void Hide();
+    protected abstract void Show();
 
-    public virtual void InvokeMediaChange() { }
+    protected abstract void Hide();
 
-    public virtual void MediaChanged(object?  sender, MediaChangeArgs args) { }
+    protected virtual void InvokeMediaChange() { }
+
+    protected virtual void MediaChanged(object? sender, MediaChangeArgs args) { }
 }
-

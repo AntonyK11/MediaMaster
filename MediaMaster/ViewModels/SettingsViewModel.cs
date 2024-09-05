@@ -55,14 +55,20 @@ public partial class SettingsViewModel : ObservableObject
     private static string GetVersionDescription()
     {
         PackageVersion packageVersion = Package.Current.Id.Version;
-        Version version = new(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
+        Version version = new(
+            packageVersion.Major,
+            packageVersion.Minor,
+            packageVersion.Build,
+            packageVersion.Revision);
 
-        return $"{"AppDisplayName".GetLocalizedString()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision} {AppDomain.CurrentDomain.BaseDirectory}";
+        return
+            $"{"AppDisplayName".GetLocalizedString()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision} {AppDomain.CurrentDomain.BaseDirectory}";
     }
 
     public async void SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems.FirstOrDefault() is not LanguageItem languageItem || _translationService.GetCurrentLanguage() == languageItem.Language)
+        if (e.AddedItems.FirstOrDefault() is not LanguageItem languageItem ||
+            _translationService.GetCurrentLanguage() == languageItem.Language)
         {
             return;
         }
@@ -102,7 +108,7 @@ public partial class SettingsViewModel : ObservableObject
         await DetectOpenFilesAtStartupAsync(startupTask);
     }
 
-    public async Task DetectOpenFilesAtStartupAsync(StartupTask? startupTask = null)
+    private async Task DetectOpenFilesAtStartupAsync(StartupTask? startupTask = null)
     {
         if (startupTask == null)
         {

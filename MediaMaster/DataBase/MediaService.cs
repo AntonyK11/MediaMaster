@@ -1,5 +1,7 @@
 ﻿using BookmarksManager;
+using CommunityToolkit.WinUI;
 using EFCore.BulkExtensions;
+using HtmlAgilityPack;
 using MediaMaster.Extensions;
 using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
@@ -8,12 +10,6 @@ using WinUI3Localizer;
 using WinUICommunity;
 
 namespace MediaMaster.DataBase;
-
-using System.Collections.Generic;
-using System.Linq;
-using CommunityToolkit.WinUI;
-using HtmlAgilityPack;
-
 
 public static class MediaService
 {
@@ -25,7 +21,8 @@ public static class MediaService
     }
 
 
-    public static async Task<int> AddMediaAsync(IEnumerable<KeyValuePair<string?, string>>? nameUris = null, ICollection<BrowserFolder>? browserFolders = null, bool generateBookmarkTags = true)
+    public static async Task<int> AddMediaAsync(IEnumerable<KeyValuePair<string?, string>>? nameUris = null,
+        ICollection<BrowserFolder>? browserFolders = null, bool generateBookmarkTags = true)
     {
         if (IsRunning)
         {
@@ -43,15 +40,16 @@ public static class MediaService
         }
 
         IsRunning = true;
-        var mediaAddedCount = 0;
+        int mediaAddedCount;
         App.GetService<TasksService>().AddGlobalTak();
         try
         {
             await using (MediaDbContext database = new())
             {
-                var tags = await database.Tags.Select(t => new Tag { TagId = t.TagId, Name = t.Name })
+                Dictionary<string, Tag> tags = await database.Tags
+                    .Select(t => new Tag { TagId = t.TagId, Name = t.Name })
                     .GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
-                var medias = database.Medias.Select(m => m.Uri).ToHashSet();
+                HashSet<string> medias = database.Medias.Select(m => m.Uri).ToHashSet();
 
                 ICollection<Tag> newTags = [];
                 ICollection<Media> newMedias = [];
@@ -63,7 +61,7 @@ public static class MediaService
 
                 if (browserFolders != null)
                 {
-                    foreach (var browserFolder in browserFolders)
+                    foreach (BrowserFolder browserFolder in browserFolders)
                     {
                         await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags,
                             generateBookmarkTags ? 0 : -1);
@@ -73,8 +71,8 @@ public static class MediaService
                 await database.BulkInsertAsync(newMedias, new BulkConfig { SetOutputIdentity = true });
                 await database.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
 
-                var mediaTags = await AddNewMedias(newMedias, database);
-                var tagTags = await AddNewTags(newTags, database);
+                ICollection<MediaTag> mediaTags = await AddNewMedias(newMedias, database);
+                ICollection<TagTag> tagTags = await AddNewTags(newTags, database);
 
                 mediaAddedCount = newMedias.Count;
                 Debug.WriteLine($"Media: {newMedias.Count}");
@@ -104,12 +102,13 @@ public static class MediaService
             IsRunning = false;
             App.GetService<TasksService>().RemoveGlobalTak();
         }
+
         return mediaAddedCount;
     }
 
     public static async Task<ICollection<MediaTag>> AddNewMedias(ICollection<Media> newMedias, MediaDbContext database)
     {
-        var mediaTags = newMedias.SelectMany(media => media.Tags.Select(tag => new MediaTag
+        List<MediaTag> mediaTags = newMedias.SelectMany(media => media.Tags.Select(tag => new MediaTag
         {
             MediaId = media.MediaId,
             TagId = tag.TagId
@@ -121,7 +120,7 @@ public static class MediaService
 
     public static async Task<ICollection<TagTag>> AddNewTags(ICollection<Tag> newTags, MediaDbContext database)
     {
-        var tagTags = newTags.SelectMany(tag => tag.Parents.Select(parent => new TagTag
+        List<TagTag> tagTags = newTags.SelectMany(tag => tag.Parents.Select(parent => new TagTag
         {
             ParentsTagId = parent.TagId,
             ChildrenTagId = tag.TagId
@@ -141,7 +140,8 @@ public static class MediaService
                 IgnoreInaccessible = true,
                 ReturnSpecialDirectories = true
             };
-            return Directory.EnumerateFiles(nameUris.Value, "*", opt).Select(f => new KeyValuePair<string?, string>(null , f));
+            return Directory.EnumerateFiles(nameUris.Value, "*", opt)
+                .Select(f => new KeyValuePair<string?, string>(null, f));
         }
 
         if (File.Exists(nameUris.Value))
@@ -153,10 +153,11 @@ public static class MediaService
         return [];
     }
 
-    private static async Task GetMedias(IEnumerable<KeyValuePair<string?, string>> nameUris, HashSet<string> medias, ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+    private static async Task GetMedias(IEnumerable<KeyValuePair<string?, string>> nameUris, HashSet<string> medias,
+        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags)
     {
         IEnumerable<KeyValuePair<string?, string>> mediaNameUris = [];
-        foreach (var nameUri in nameUris)
+        foreach (KeyValuePair<string?, string> nameUri in nameUris)
         {
             if (nameUri.Value.IsWebsite())
             {
@@ -170,7 +171,7 @@ public static class MediaService
 
         mediaNameUris = mediaNameUris.Where(p => !medias.Contains(p.Value)).ToList();
 
-        foreach (var mediaNameUri in mediaNameUris)
+        foreach (KeyValuePair<string?, string> mediaNameUri in mediaNameUris)
         {
             if (mediaNameUri.Value.IsWebsite())
             {
@@ -183,7 +184,8 @@ public static class MediaService
         }
     }
 
-    private static async Task GetBookmarks(BookmarkFolder bookmarkFolder, Tag? parentTag, HashSet<string> medias, ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags, int depth)
+    private static async Task GetBookmarks(BookmarkFolder bookmarkFolder, Tag? parentTag, HashSet<string> medias,
+        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags, int depth)
     {
         if (depth > 1)
         {
@@ -192,13 +194,13 @@ public static class MediaService
                 tag = new Tag
                 {
                     Name = bookmarkFolder.Title,
-                    Flags = TagFlags.UserTag,
+                    Flags = TagFlags.UserTag
                 };
 
                 if (parentTag != null)
                 {
                     tag.Parents.Add(parentTag);
-                    tag.FirstParentReferenceName = parentTag.GetReferenceName();
+                    tag.FirstParentReferenceName = parentTag.ReferenceName;
                 }
 
                 tags.Add(bookmarkFolder.Title, tag);
@@ -208,35 +210,38 @@ public static class MediaService
             parentTag = tag;
         }
 
-        foreach (var bookmarkItem in bookmarkFolder)
+        foreach (IBookmarkItem? bookmarkItem in bookmarkFolder)
         {
             switch (bookmarkItem)
             {
                 case BookmarkFolder newBookmarkFolder:
-                    await GetBookmarks(newBookmarkFolder, parentTag, medias, newMedias, tags, newTags, depth != -1 ? depth + 1 : -1);
+                    await GetBookmarks(newBookmarkFolder, parentTag, medias, newMedias, tags, newTags,
+                        depth != -1 ? depth + 1 : -1);
                     break;
 
-                case BookmarkLink bookmarkLink when !medias.Contains(bookmarkLink.Url) && !newMedias.Select(m => m.Uri).Contains(bookmarkLink.Url):
+                case BookmarkLink bookmarkLink when !medias.Contains(bookmarkLink.Url) &&
+                                                    !newMedias.Select(m => m.Uri).Contains(bookmarkLink.Url):
                     await GetBookmark(bookmarkLink, parentTag, newMedias, tags, newTags);
                     break;
             }
         }
     }
 
-    private static async Task GetWebPage(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+    private static async Task GetWebPage(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias,
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags)
     {
         var title = nameUri.Key;
         if (title == null)
         {
             var webGet = new HtmlWeb();
-            var document = await webGet.LoadFromWebAsync(nameUri.Value);
+            HtmlDocument? document = await webGet.LoadFromWebAsync(nameUri.Value);
             title = document.DocumentNode.SelectSingleNode("html/head/title").InnerText;
         }
 
         Media media = new()
         {
             Name = title ?? "",
-            Uri = nameUri.Value,
+            Uri = nameUri.Value
         };
 
         (var isNew, Tag? tag) = await GetWebsiteTag(nameUri.Value, tags);
@@ -246,18 +251,20 @@ public static class MediaService
             {
                 newTags.Add(tag);
             }
+
             media.Tags.Add(tag);
         }
 
         newMedias.Add(media);
     }
 
-    private static async Task GetFile(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+    private static async Task GetFile(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias,
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags)
     {
         Media media = new()
         {
             Name = nameUri.Key ?? Path.GetFileNameWithoutExtension(nameUri.Value),
-            Uri = nameUri.Value,
+            Uri = nameUri.Value
         };
 
         (var isNew, Tag? tag) = await GetFileTag(nameUri.Value, tags);
@@ -267,18 +274,21 @@ public static class MediaService
             {
                 newTags.Add(tag);
             }
+
             media.Tags.Add(tag);
         }
+
         newMedias.Add(media);
     }
 
-    private static async Task GetBookmark(BookmarkLink bookBookmarkLink, Tag? parentTag, ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+    private static async Task GetBookmark(BookmarkLink bookBookmarkLink, Tag? parentTag, ICollection<Media> newMedias,
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags)
     {
         Media media = new()
         {
             Name = bookBookmarkLink.Title,
             Notes = bookBookmarkLink.Description ?? "",
-            Uri = bookBookmarkLink.Url,
+            Uri = bookBookmarkLink.Url
         };
 
         (var isNew, Tag? tag) = await GetWebsiteTag(bookBookmarkLink.Url, tags);
@@ -288,10 +298,11 @@ public static class MediaService
             {
                 newTags.Add(tag);
             }
+
             media.Tags.Add(tag);
         }
 
-        if (parentTag != null) 
+        if (parentTag != null)
         {
             media.Tags.Add(parentTag);
         }
@@ -299,7 +310,8 @@ public static class MediaService
         newMedias.Add(media);
     }
 
-    public static async Task<(bool, Tag?)> GetWebsiteTag(string url, IDictionary<string, Tag>? tags = null, MediaDbContext? database = null)
+    public static async Task<(bool, Tag?)> GetWebsiteTag(string url, IDictionary<string, Tag>? tags = null,
+        MediaDbContext? database = null)
     {
         if (tags == null)
         {
@@ -307,6 +319,7 @@ public static class MediaService
             {
                 return (false, null);
             }
+
             tags = await database.Tags.GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
         }
 
@@ -325,7 +338,7 @@ public static class MediaService
                 if (MediaDbContext.WebsiteTag != null)
                 {
                     tag.Parents.Add(MediaDbContext.WebsiteTag);
-                    tag.FirstParentReferenceName = MediaDbContext.WebsiteTag.GetReferenceName();
+                    tag.FirstParentReferenceName = MediaDbContext.WebsiteTag.ReferenceName;
                 }
 
                 tags.Add(domain, tag);
@@ -334,10 +347,12 @@ public static class MediaService
 
             return (false, tag);
         }
+
         return (false, null);
     }
 
-    public static async Task<(bool, Tag?)> GetFileTag(string path, IDictionary<string, Tag>? tags = null, MediaDbContext? database = null)
+    public static async Task<(bool, Tag?)> GetFileTag(string path, IDictionary<string, Tag>? tags = null,
+        MediaDbContext? database = null)
     {
         if (tags == null)
         {
@@ -345,6 +360,7 @@ public static class MediaService
             {
                 return (false, null);
             }
+
             tags = await database.Tags.GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
         }
 
@@ -361,11 +377,13 @@ public static class MediaService
             if (MediaDbContext.FileTag != null)
             {
                 tag.Parents.Add(MediaDbContext.FileTag);
-                tag.FirstParentReferenceName = MediaDbContext.FileTag.GetReferenceName();
+                tag.FirstParentReferenceName = MediaDbContext.FileTag.ReferenceName;
             }
+
             tags.Add(extension, tag);
             return (true, tag);
         }
+
         return (false, tag);
     }
 }

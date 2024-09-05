@@ -6,46 +6,46 @@ namespace MediaMaster.Services.MediaInfo;
 
 public abstract class MediaInfoTextBase(DockPanel parent) : MediaInfoControlBase(parent)
 {
-    public TextBlock? Text;
-    public StackPanel? StackPanel;
+    private StackPanel? _stackPanel;
+    protected TextBlock? Text;
 
-    public override void Setup()
+    protected override void Setup()
     {
-        StackPanel = new StackPanel
+        _stackPanel = new StackPanel
         {
             Spacing = 4
         };
-        StackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+        _stackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
 
-        Title = GetTitle();
+        Title = GetTitleTextBlock();
         Text = new TextBlock
         {
             IsTextSelectionEnabled = true,
-            Padding = new Thickness(11,6,8,7),
+            Padding = new Thickness(11, 6, 8, 7),
             TextWrapping = TextWrapping.WrapWholeWords
         };
-        StackPanel.Children.Add(Title);
-        StackPanel.Children.Add(Text);
-        Parent.Children.Add(StackPanel);
+        _stackPanel.Children.Add(Title);
+        _stackPanel.Children.Add(Text);
+        Parent.Children.Add(_stackPanel);
     }
 
-    public override void Show()
+    protected override void Show()
     {
-        if (StackPanel != null)
+        if (_stackPanel != null)
         {
-            StackPanel.Visibility = Visibility.Visible;
+            _stackPanel.Visibility = Visibility.Visible;
         }
     }
 
-    public override void Hide()
+    protected override void Hide()
     {
-        if (StackPanel != null)
+        if (_stackPanel != null)
         {
-            StackPanel.Visibility = Visibility.Collapsed;
+            _stackPanel.Visibility = Visibility.Collapsed;
         }
     }
 
-    public override void SetupTranslations()
+    protected override void SetupTranslations()
     {
         if (Title != null && !TranslationKey.IsNullOrEmpty())
         {
@@ -53,4 +53,3 @@ public abstract class MediaInfoTextBase(DockPanel parent) : MediaInfoControlBase
         }
     }
 }
-

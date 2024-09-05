@@ -9,61 +9,61 @@ namespace MediaMaster.Services.MediaInfo;
 
 public class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
 {
-    public Button? Button;
+    private Button? _button;
 
-    public override string TranslationKey { get; set; } = "MediaDelete";
+    protected override string TranslationKey => "MediaDelete";
 
-    public override void Setup()
+    protected override void Setup()
     {
         var grid = new Grid
         {
             Padding = new Thickness(0, 16, 0, 0)
         };
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star)});
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         grid.SetValue(DockPanel.DockProperty, Dock.Bottom);
 
-        Button = new Button
+        _button = new Button
         {
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        Button.SetValue(Grid.RowProperty, 1);
-        Button.Click += (_, _) => DeleteMedias();
+        _button.SetValue(Grid.RowProperty, 1);
+        _button.Click += (_, _) => DeleteMedias();
 
-        grid.Children.Add(Button);
+        grid.Children.Add(_button);
         Parent.Children.Add(grid);
     }
 
-    public override void SetupTranslations()
+    protected override void SetupTranslations()
     {
-        if (Button != null)
+        if (_button != null)
         {
-            Uids.SetUid(Button, $"/Media/{TranslationKey}_Button");
+            Uids.SetUid(_button, $"/Media/{TranslationKey}_Button");
         }
     }
 
-    public override bool ShowInfo(ICollection<Media> medias)
+    protected override bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !IsCompact;
     }
 
-    public override void Show()
+    protected override void Show()
     {
-        if (Button != null)
+        if (_button != null)
         {
-            Button.Visibility = Visibility.Visible;
+            _button.Visibility = Visibility.Visible;
         }
     }
 
-    public override void Hide()
+    protected override void Hide()
     {
-        if (Button != null)
+        if (_button != null)
         {
-            Button.Visibility = Visibility.Collapsed;
+            _button.Visibility = Visibility.Collapsed;
         }
     }
 
-    public async void DeleteMedias()
+    private async void DeleteMedias()
     {
         if (App.MainWindow == null) return;
 
@@ -88,4 +88,3 @@ public class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
         }
     }
 }
-

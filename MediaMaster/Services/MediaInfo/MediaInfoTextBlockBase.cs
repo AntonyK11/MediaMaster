@@ -9,25 +9,25 @@ namespace MediaMaster.Services.MediaInfo;
 
 public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoControlBase(parent)
 {
-    public EditableTextBlock? EditableTextBlock;
-    public StackPanel? StackPanel;
+    private StackPanel? _stackPanel;
+    protected EditableTextBlock? EditableTextBlock;
 
-    public override void Setup()
+    protected override void Setup()
     {
-        StackPanel = new StackPanel
+        _stackPanel = new StackPanel
         {
             Spacing = 4
         };
-        StackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+        _stackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
 
-        Title = GetTitle();
+        Title = GetTitleTextBlock();
         EditableTextBlock = GetEditableTextBlock();
-        StackPanel.Children.Add(Title);
-        StackPanel.Children.Add(EditableTextBlock);
-        Parent.Children.Add(StackPanel);
+        _stackPanel.Children.Add(Title);
+        _stackPanel.Children.Add(EditableTextBlock);
+        Parent.Children.Add(_stackPanel);
     }
 
-    public override void SetupTranslations()
+    protected override void SetupTranslations()
     {
         if (Title != null && EditableTextBlock != null && !TranslationKey.IsNullOrEmpty())
         {
@@ -36,7 +36,7 @@ public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoContro
         }
     }
 
-    public virtual EditableTextBlock GetEditableTextBlock()
+    protected virtual EditableTextBlock GetEditableTextBlock()
     {
         var editableTextBlock = new EditableTextBlock
         {
@@ -47,27 +47,27 @@ public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoContro
         return editableTextBlock;
     }
 
-    public override void Show()
+    protected override void Show()
     {
-        if (StackPanel != null)
+        if (_stackPanel != null)
         {
-            StackPanel.Visibility = Visibility.Visible;
+            _stackPanel.Visibility = Visibility.Visible;
         }
     }
 
-    public override void Hide()
+    protected override void Hide()
     {
-        if (StackPanel != null)
+        if (_stackPanel != null)
         {
-            StackPanel.Visibility = Visibility.Collapsed;
+            _stackPanel.Visibility = Visibility.Collapsed;
         }
     }
 
-    public virtual async void UpdateMedia(string newText, string oldText = "")
+    protected virtual async void UpdateMedia(string newText, string oldText = "")
     {
         if (Medias.Count == 0 || oldText == newText) return;
 
-        foreach (var media in Medias)
+        foreach (Media media in Medias)
         {
             UpdateMediaProperty(media, newText);
             media.Modified = DateTime.UtcNow;
@@ -81,6 +81,5 @@ public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoContro
         InvokeMediaChange();
     }
 
-    public virtual void UpdateMediaProperty(Media medias, string text) { }
+    protected virtual void UpdateMediaProperty(Media medias, string text) { }
 }
-

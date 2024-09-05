@@ -2,10 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-/// <summary>
-///     Converts a null value to a <see cref="Visibility" /> value.
-/// </summary>
-public sealed partial class UriToListOfStringConverter : IValueConverter
+public partial class UriToListOfStringConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object parameter, string language)
     {
@@ -14,6 +11,7 @@ public sealed partial class UriToListOfStringConverter : IValueConverter
             ICollection<string> collection = [uri.AbsoluteUri];
             return collection;
         }
+
         ICollection<string> emptyCollection = [];
         return emptyCollection;
     }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
+
 <UserControl
     x:Class="MediaMaster.Controls.TitleBarControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -20,28 +21,28 @@
                     <StaticResource x:Key="TitleBarDeactivatedForegroundBrush" ResourceKey="TextFillColorTertiaryBrush" />
                     <StaticResource x:Key="SubtitleBarForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
                     <StaticResource x:Key="SubtitleBarDeactivatedForegroundBrush" ResourceKey="TextFillColorTertiaryBrush" />
-                    <Color x:Key="TitleBarButtonForegroundColor">#FFFFFF</Color>
-                    <Color x:Key="TitleBarButtonHoverForegroundColor">#FFFFFF</Color>
-                    <Color x:Key="TitleBarButtonPressedForegroundColor">#CFCFCF</Color>
-                    <Color x:Key="TitleBarButtonInactiveForegroundColor">#717171</Color>
                     <StaticResource x:Key="TitleBarButtonBackgroundColor" ResourceKey="SubtleFillColorTransparent" />
                     <StaticResource x:Key="TitleBarButtonHoverBackgroundColor" ResourceKey="SubtleFillColorSecondary" />
                     <StaticResource x:Key="TitleBarButtonPressedBackgroundColor" ResourceKey="SubtleFillColorTertiary" />
                     <StaticResource x:Key="TitleBarButtonInactiveBackgroundColor" ResourceKey="SubtleFillColorTransparent" />
+                    <Color x:Key="TitleBarButtonForegroundColor">#FFFFFF</Color>
+                    <Color x:Key="TitleBarButtonHoverForegroundColor">#FFFFFF</Color>
+                    <Color x:Key="TitleBarButtonPressedForegroundColor">#CFCFCF</Color>
+                    <Color x:Key="TitleBarButtonInactiveForegroundColor">#717171</Color>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
                     <StaticResource x:Key="TitleBarForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
                     <StaticResource x:Key="TitleBarDeactivatedForegroundBrush" ResourceKey="TextFillColorTertiaryBrush" />
                     <StaticResource x:Key="SubtitleBarForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
                     <StaticResource x:Key="SubtitleBarDeactivatedForegroundBrush" ResourceKey="TextFillColorTertiaryBrush" />
-                    <Color x:Key="TitleBarButtonForegroundColor">#191919</Color>
-                    <Color x:Key="TitleBarButtonHoverForegroundColor">#191919</Color>
-                    <Color x:Key="TitleBarButtonPressedForegroundColor">#606060</Color>
-                    <Color x:Key="TitleBarButtonInactiveForegroundColor">#9b9b9b</Color>
                     <StaticResource x:Key="TitleBarButtonBackgroundColor" ResourceKey="SubtleFillColorTransparent" />
                     <StaticResource x:Key="TitleBarButtonHoverBackgroundColor" ResourceKey="SubtleFillColorSecondary" />
                     <StaticResource x:Key="TitleBarButtonPressedBackgroundColor" ResourceKey="SubtleFillColorTertiary" />
                     <StaticResource x:Key="TitleBarButtonInactiveBackgroundColor" ResourceKey="SubtleFillColorTransparent" />
+                    <Color x:Key="TitleBarButtonForegroundColor">#191919</Color>
+                    <Color x:Key="TitleBarButtonHoverForegroundColor">#191919</Color>
+                    <Color x:Key="TitleBarButtonPressedForegroundColor">#606060</Color>
+                    <Color x:Key="TitleBarButtonInactiveForegroundColor">#9b9b9b</Color>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
@@ -64,7 +65,8 @@
             Width="20"
             Height="20"
             Margin="16,0,0,0"
-            VerticalAlignment="Center" />
+            VerticalAlignment="Center"
+            Source="{x:Bind Icon, Mode=OneWay}" />
 
         <TextBlock
             x:Name="TitleText"
@@ -80,7 +82,7 @@
             TextTrimming="CharacterEllipsis"
             TextWrapping="NoWrap" />
 
-        <!--<TextBlock
+        <TextBlock
             x:Name="SubtitleText"
             Grid.Column="2"
             MinWidth="48"
@@ -92,7 +94,7 @@
             Style="{StaticResource CaptionTextBlockStyle}"
             Text="{x:Bind Subtitle, Mode=OneWay}"
             TextTrimming="CharacterEllipsis"
-            TextWrapping="NoWrap" />-->
+            TextWrapping="NoWrap" />
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="WindowActivationGroup">

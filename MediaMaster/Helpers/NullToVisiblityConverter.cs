@@ -2,10 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-/// <summary>
-///     Converts a null value to a <see cref="Visibility" /> value.
-/// </summary>
-public sealed partial class NullToVisibilityConverter : IValueConverter
+public partial class NullToVisibilityConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 

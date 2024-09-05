@@ -1,14 +1,15 @@
 ﻿using System.Runtime.InteropServices;
 using Windows.Foundation;
 using Windows.Graphics;
+using Windows.UI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
+using MediaMaster.Services;
 using Microsoft.UI.Input;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using WinUIEx;
-using MediaMaster.Services;
 using Point = Windows.Foundation.Point;
 using static MediaMaster.WIn32.WindowsApiService;
 using static MediaMaster.WIn32.WindowsNativeValues;
@@ -21,20 +22,16 @@ namespace MediaMaster.Controls;
 // https://gist.github.com/rounk-ctrl/b04e5622e30e0d62956870d5c22b7017
 // https://learn.microsoft.com/en-us/windows/apps/develop/title-bar?tabs=wasdk#interactive-content
 // https://stackoverflow.com/questions/21825352/how-to-open-window-system-menu-on-right-click
-/// <summary>
-///     Service that handles the title bar of the application.
-/// </summary>
 public partial class TitleBarViewModel : ObservableObject
 {
-    [ObservableProperty] public Thickness _margin = new();
-
-    [ObservableProperty] public bool _isFocused;
-
     private static readonly AppWindow? AppWindow = App.MainWindow?.AppWindow;
 
     private static readonly AppWindowTitleBar? TitleBar = AppWindow?.TitleBar;
 
     private readonly TitleBarControl _titleBar;
+
+    [ObservableProperty] private bool _isFocused;
+    [ObservableProperty] private Thickness _margin;
 
     public TitleBarViewModel(TitleBarControl titleBar)
     {
@@ -60,7 +57,8 @@ public partial class TitleBarViewModel : ObservableObject
 
         _titleBar = titleBar;
     }
-    public void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+
+    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
         IsFocused = args.WindowActivationState != WindowActivationState.Deactivated;
     }
@@ -72,18 +70,18 @@ public partial class TitleBarViewModel : ObservableObject
             ? PreferredAppMode.ForceDark
             : PreferredAppMode.ForceLight);
 
-        ResourceDictionary? themeColor = _titleBar.Resources.ThemeDictionaries[actualTheme.ToString()] as ResourceDictionary;
+        var themeColor = _titleBar.Resources.ThemeDictionaries[actualTheme.ToString()] as ResourceDictionary;
 
         if (themeColor == null || TitleBar == null) return;
 
-        TitleBar.ButtonBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonBackgroundColor"];
-        TitleBar.ButtonForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonForegroundColor"];
-        TitleBar.ButtonHoverBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonHoverBackgroundColor"];
-        TitleBar.ButtonHoverForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonHoverForegroundColor"];
-        TitleBar.ButtonInactiveBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonInactiveBackgroundColor"];
-        TitleBar.ButtonInactiveForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonInactiveForegroundColor"];
-        TitleBar.ButtonPressedBackgroundColor = (Windows.UI.Color)themeColor["TitleBarButtonPressedBackgroundColor"];
-        TitleBar.ButtonPressedForegroundColor = (Windows.UI.Color)themeColor["TitleBarButtonPressedForegroundColor"];
+        TitleBar.ButtonBackgroundColor = (Color)themeColor["TitleBarButtonBackgroundColor"];
+        TitleBar.ButtonForegroundColor = (Color)themeColor["TitleBarButtonForegroundColor"];
+        TitleBar.ButtonHoverBackgroundColor = (Color)themeColor["TitleBarButtonHoverBackgroundColor"];
+        TitleBar.ButtonHoverForegroundColor = (Color)themeColor["TitleBarButtonHoverForegroundColor"];
+        TitleBar.ButtonInactiveBackgroundColor = (Color)themeColor["TitleBarButtonInactiveBackgroundColor"];
+        TitleBar.ButtonInactiveForegroundColor = (Color)themeColor["TitleBarButtonInactiveForegroundColor"];
+        TitleBar.ButtonPressedBackgroundColor = (Color)themeColor["TitleBarButtonPressedBackgroundColor"];
+        TitleBar.ButtonPressedForegroundColor = (Color)themeColor["TitleBarButtonPressedForegroundColor"];
     }
 
     public void SetLeftMargin(double margin)
@@ -106,11 +104,10 @@ public partial class TitleBarViewModel : ObservableObject
         Margin = new Thickness(Margin.Left, Margin.Top, Margin.Right, margin);
     }
 
-    
+
     /// <summary>
     ///     Sets the drag region for a custom title bar.
     /// </summary>
-    /// <param name="appTitleBar"> The <see cref="TitleBarControl" /> that contains the application icon. </param>
     public void SetDragRegionTitleBar()
     {
         if (AppWindow == null || TitleBar == null) return;
@@ -118,26 +115,42 @@ public partial class TitleBarViewModel : ObservableObject
         List<RectInt32> rects = [];
         var scale = _titleBar.XamlRoot.RasterizationScale;
 
-        var navigationViewBackButton = App.MainWindow?.Content.FindDescendants().OfType<Button>().FirstOrDefault(x => x.Name is "NavigationViewBackButton");
+        Button? navigationViewBackButton = App.MainWindow?.Content
+            .FindDescendants()
+            .OfType<Button>()
+            .FirstOrDefault(x => x.Name is "NavigationViewBackButton");
+        
         if (navigationViewBackButton != null)
         {
             rects.Add(GetRect(navigationViewBackButton, scale));
         }
 
-        var togglePaneButton = App.MainWindow?.Content.FindDescendants().OfType<Button>().FirstOrDefault(x => x.Name is "TogglePaneButton");
-        var togglePaneButtonGrid = togglePaneButton?.FindDescendants().OfType<Grid>().FirstOrDefault(x => x.Name is "LayoutRoot");
+        Button? togglePaneButton = App.MainWindow?.Content
+            .FindDescendants()
+            .OfType<Button>()
+            .FirstOrDefault(x => x.Name is "TogglePaneButton");
+        
+        Grid? togglePaneButtonGrid = togglePaneButton?
+            .FindDescendants()
+            .OfType<Grid>()
+            .FirstOrDefault(x => x.Name is "LayoutRoot");
+        
         if (togglePaneButtonGrid != null)
         {
             rects.Add(GetRect(togglePaneButtonGrid, scale));
         }
 
-        var titleBarIcon = _titleBar.FindDescendants().OfType<Image>().FirstOrDefault(x => x.Name is "AppIconElement");
+        Image? titleBarIcon = _titleBar
+            .FindDescendants()
+            .OfType<Image>()
+            .FirstOrDefault(x => x.Name is "AppIconElement");
+        
         if (titleBarIcon != null)
         {
             rects.Add(GetRect(titleBarIcon, scale));
         }
 
-        var nonClientInputSrc = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
+        InputNonClientPointerSource? nonClientInputSrc = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
         nonClientInputSrc.SetRegionRects(NonClientRegionKind.Passthrough, [.. rects]);
     }
 
@@ -150,7 +163,9 @@ public partial class TitleBarViewModel : ObservableObject
     private static RectInt32 GetRect(FrameworkElement frameworkElement, double scale)
     {
         GeneralTransform transformElement = frameworkElement.TransformToVisual(null);
-        Rect bounds = transformElement.TransformBounds(new Rect(0, 0, frameworkElement.ActualWidth, frameworkElement.ActualHeight));
+        Rect bounds =
+            transformElement.TransformBounds(
+                new Rect(0, 0, frameworkElement.ActualWidth, frameworkElement.ActualHeight));
 
         return new RectInt32(
             (int)Math.Round(bounds.X * scale),
@@ -172,9 +187,12 @@ public partial class TitleBarViewModel : ObservableObject
 
         var scaleAdjustment = _titleBar.XamlRoot.RasterizationScale;
 
-        GeneralTransform ttv = ((UIElement) sender).TransformToVisual(App.MainWindow!.Content);
+        GeneralTransform ttv = ((UIElement)sender).TransformToVisual(App.MainWindow!.Content);
         Point screenCords = ttv.TransformPoint(new Point(0, 0));
-        Point menuPos = new(AppWindow.Position.X + screenCords.X * scaleAdjustment, AppWindow.Position.Y + _titleBar.ActualHeight * scaleAdjustment);
+        Point menuPos = new(
+            AppWindow.Position.X + screenCords.X * scaleAdjustment,
+            AppWindow.Position.Y + _titleBar.ActualHeight * scaleAdjustment);
+        
         ShowMenu(menuPos);
     }
 
@@ -184,8 +202,11 @@ public partial class TitleBarViewModel : ObservableObject
 
         var scaleAdjustment = _titleBar.XamlRoot.RasterizationScale;
 
-        var pos = args.GetPosition(App.MainWindow!.Content);
-        Point menuPos = new(AppWindow.Position.X + pos.X * scaleAdjustment, AppWindow.Position.Y + pos.Y * scaleAdjustment);
+        Point pos = args.GetPosition(App.MainWindow!.Content);
+        Point menuPos = new(
+            AppWindow.Position.X + pos.X * scaleAdjustment,
+            AppWindow.Position.Y + pos.Y * scaleAdjustment);
+        
         ShowMenu(menuPos);
     }
 
@@ -232,14 +253,15 @@ public partial class TitleBarViewModel : ObservableObject
         var scaleAdjustment = App.MainWindow.Content.XamlRoot.RasterizationScale;
 
         _ = SendMessage(hWnd, WM_INITMENU, hMenu, IntPtr.Zero);
-        var cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)(pos.X + 9 * scaleAdjustment), (int)(pos.Y + 2 * scaleAdjustment), 0, hWnd, IntPtr.Zero);
+        var cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)(pos.X + 9 * scaleAdjustment),
+            (int)(pos.Y + 2 * scaleAdjustment), 0, hWnd, IntPtr.Zero);
         if (cmd > 0)
         {
             _ = SendMessage(hWnd, WM_SYSCOMMAND, cmd, IntPtr.Zero);
         }
     }
 
-    internal static void SetMenuItemInfo(IntPtr hMenu, uint item, bool separator = false)
+    private static void SetMenuItemInfo(IntPtr hMenu, uint item, bool separator = false)
     {
         if (separator)
         {
@@ -251,7 +273,9 @@ public partial class TitleBarViewModel : ObservableObject
             };
             var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
             Marshal.StructureToPtr(odmd, pODMD, false);
-            ModifyMenu(hMenu, item, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW | MENU_ITEM_FLAGS.MF_SEPARATOR, item, pODMD);
+            ModifyMenu(hMenu, item,
+                MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW | MENU_ITEM_FLAGS.MF_SEPARATOR, item,
+                pODMD);
             return;
         }
 
@@ -298,12 +322,13 @@ public partial class TitleBarViewModel : ObservableObject
             };
             WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo1);
         }
+
         Marshal.FreeHGlobal(ptr);
 
         var itemInfo = new MENUITEMINFOW
         {
             cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
-            fMask = MENU_ITEM_MASK.MIIM_BITMAP, 
+            fMask = MENU_ITEM_MASK.MIIM_BITMAP,
             hbmpItem = IntPtr.Zero
         };
         WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo);

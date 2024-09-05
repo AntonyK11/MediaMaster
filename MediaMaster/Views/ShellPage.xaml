@@ -41,6 +41,7 @@
             DisplayModeChanged="OnDisplayModeChanged"
             Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay, FallbackValue=''}"
             IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
+            IsPaneOpen="False"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
 
             <NavigationView.MenuItems>

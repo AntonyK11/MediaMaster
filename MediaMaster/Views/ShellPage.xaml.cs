@@ -1,22 +1,19 @@
-using MediaMaster.DataBase;
-using MediaMaster.Services;
-using MediaMaster.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using MediaMaster.DataBase;
+using MediaMaster.ViewModels;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views;
 
-public sealed partial class ShellPage
+public partial class ShellPage
 {
-    private ShellViewModel ViewModel;
+    private readonly ShellViewModel ViewModel;
 
     public ShellPage(ShellViewModel viewModel)
     {
         ViewModel = viewModel;
         InitializeComponent();
-
-        NavView.IsPaneOpen = false;
 
         ViewModel.NavigationService.Frame = ContentFrame;
         ViewModel.NavigationViewService.Initialize(NavView);

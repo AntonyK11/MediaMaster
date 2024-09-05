@@ -12,7 +12,7 @@ namespace MediaMaster;
 /// <summary>
 ///     An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class FlyoutWindow
+public partial class FlyoutWindow
 {
     private const int WindowMargin = 12;
     private const int WindowWidth = 386;

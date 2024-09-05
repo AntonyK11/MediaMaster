@@ -1,73 +1,23 @@
+using DependencyPropertyGenerator;
 using MediaMaster.Interfaces.Services;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace MediaMaster.Controls;
 
-public sealed partial class TitleBarControl
+[DependencyProperty("Title", typeof(string), DefaultValue = "")]
+[DependencyProperty("Subtitle", typeof(string), DefaultValue = "")]
+[DependencyProperty("Icon", typeof(BitmapImage))]
+public partial class TitleBarControl
 {
-    public TitleBarViewModel ViewModel { get; }
-
-    public static readonly DependencyProperty TitleProperty
-        = DependencyProperty.Register(
-            nameof(Title),
-            typeof(string),
-            typeof(TitleBarControl),
-            new PropertyMetadata(string.Empty));
-
-    public string Title
-    {
-        get => (string)GetValue(TitleProperty);
-        set => SetValue(TitleProperty, value);
-    }
-
-    public static readonly DependencyProperty SubtitleProperty
-        = DependencyProperty.Register(
-            nameof(Subtitle),
-            typeof(string),
-            typeof(TitleBarControl),
-            new PropertyMetadata(string.Empty));
-
-    public string Subtitle
-    {
-        get => (string)GetValue(SubtitleProperty);
-        set => SetValue(SubtitleProperty, value);
-    }
-
-    public static readonly DependencyProperty IconProperty
-    = DependencyProperty.Register(
-        nameof(Icon),
-        typeof(string),
-        typeof(TitleBarControl),
-        new PropertyMetadata(null));
-
-    public BitmapImage? Icon
-    {
-        get => (BitmapImage?)GetValue(IconProperty);
-        set 
-        {
-            SetValue(IconProperty, value);
-
-            if (value != null)
-            {
-                AppIconElement.Source = value;
-
-                if (App.MainWindow != null)
-                {
-                    App.MainWindow.AppWindow.SetIcon(value.UriSource.AbsoluteUri);
-                }
-            }
-        }
-    }
-
     public TitleBarControl()
     {
         InitializeComponent();
 
         ViewModel = new TitleBarViewModel(this);
-         
+
         Loaded += (_, _) => ViewModel.SetDragRegionTitleBar();
         SizeChanged += (_, _) => ViewModel.SetDragRegionTitleBar();
-        IThemeSelectorService themeSelectorService = App.GetService<IThemeSelectorService>();
+        var themeSelectorService = App.GetService<IThemeSelectorService>();
 
         themeSelectorService.ThemeChanged += (_, theme) => ViewModel.UpdateTitleBar(theme);
         ViewModel.UpdateTitleBar(themeSelectorService.ActualTheme);
@@ -90,6 +40,16 @@ public sealed partial class TitleBarControl
         };
     }
 
+    public TitleBarViewModel ViewModel { get; }
+
+    partial void OnIconChanged(BitmapImage? newValue)
+    {
+        if (newValue != null && App.MainWindow != null)
+        {
+            App.MainWindow.AppWindow.SetIcon(newValue.UriSource.AbsoluteUri);
+        }
+    }
+
     private void Callback(DependencyObject sender, DependencyProperty dp)
     {
         if (App.MainWindow != null)
@@ -98,7 +58,7 @@ public sealed partial class TitleBarControl
         }
     }
 
-    public void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
         VisualStateManager.GoToState(this,
             args.WindowActivationState != WindowActivationState.Deactivated

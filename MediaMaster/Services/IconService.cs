@@ -1,14 +1,14 @@
 ﻿using System.Collections.Concurrent;
 using System.Net.Cache;
-using Microsoft.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using CommunityToolkit.WinUI;
+using FaviconFetcher;
+using MediaMaster.Extensions;
+using Microsoft.UI.Xaml.Media.Imaging;
 using static MediaMaster.WIn32.WindowsNativeValues;
 using static MediaMaster.WIn32.WindowsApiService;
 using static MediaMaster.WIn32.WindowsNativeInterfaces;
-using System.Runtime.InteropServices.WindowsRuntime;
-using FaviconFetcher;
-using MediaMaster.Extensions;
 
 namespace MediaMaster.Services;
 
@@ -30,6 +30,7 @@ public readonly struct CachedIcon
 
 public static class IconService
 {
+    private const int CacheLength = 2001;
     private static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
     private static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
     private static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
@@ -39,20 +40,27 @@ public static class IconService
     private static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> IconCache = [];
     private static readonly ConcurrentQueue<string> IconCacheKeys = [];
 
-    private const int CacheLength = 2001;
+    private static readonly HttpSource Source = new()
+    {
+        CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
+    };
 
-    public static async Task<BitmapSource?> GetIcon(string? path, ImageMode imageMode, int width, int height, TaskCompletionSource? tcs = null)
+    private static Fetcher? _fetcher;
+
+    public static async Task<BitmapSource?> GetIcon(string? path, ImageMode imageMode, int width, int height,
+        TaskCompletionSource? tcs = null)
     {
         if (path == null) return null;
 
         return await STATask.StartSTATask(async () =>
         {
-            var icon = await GetIconAsync(path, imageMode, width, height, tcs).ConfigureAwait(false);
+            BitmapSource? icon = await GetIconAsync(path, imageMode, width, height, tcs).ConfigureAwait(false);
             return icon == null && !imageMode.HasFlag(ImageMode.CacheOnly) ? GetDefaultIcon(path) : icon;
         });
     }
 
-    public static async void SetIcon(string? path, ImageMode imageMode, int width, int height, Image image, TaskCompletionSource tcs)
+    public static async void SetIcon(string? path, ImageMode imageMode, int width, int height, Image image,
+        TaskCompletionSource tcs)
     {
         if (path == null) return;
 
@@ -60,7 +68,8 @@ public static class IconService
         {
             await STATask.StartSTATask(async () =>
             {
-                var icon = await GetIconAsync(path, ImageMode.IconOnly, width, height, tcs).ConfigureAwait(false);
+                BitmapSource? icon =
+                    await GetIconAsync(path, ImageMode.IconOnly, width, height, tcs).ConfigureAwait(false);
 
                 if (tcs.Task.IsCompleted) return;
 
@@ -75,7 +84,7 @@ public static class IconService
 
         await STATask.StartSTATask(async () =>
         {
-            var icon = await GetIconAsync(path, imageMode, width, height, tcs);
+            BitmapSource? icon = await GetIconAsync(path, imageMode, width, height, tcs);
 
             if (tcs.Task.IsCompleted) return;
 
@@ -86,7 +95,6 @@ public static class IconService
 
             await App.DispatcherQueue.EnqueueAsync(() => image.Source = icon).ConfigureAwait(false);
         });
-        
     }
 
     public static BitmapSource GetDefaultIcon(string? path)
@@ -102,13 +110,13 @@ public static class IconService
         }
 
         return DefaultIcon;
-        
     }
 
-    public static async Task<BitmapSource?> GetIconAsync(string path, ImageMode imageMode, int width, int height, TaskCompletionSource? tcs = null)
+    public static async Task<BitmapSource?> GetIconAsync(string path, ImageMode imageMode, int width, int height,
+        TaskCompletionSource? tcs = null)
     {
         if (tcs is { Task.IsCompleted: true }) return null;
-        ThumbnailCache.TryGetValue(path, out var cachedIconCollection);
+        ThumbnailCache.TryGetValue(path, out ICollection<CachedIcon>? cachedIconCollection);
         if (imageMode.HasFlag(ImageMode.IconOnly) && !path.IsWebsite())
         {
             IconCache.TryGetValue(path, out cachedIconCollection);
@@ -116,7 +124,7 @@ public static class IconService
 
         if (cachedIconCollection != null)
         {
-            foreach (var cachedIcon in cachedIconCollection)
+            foreach (CachedIcon cachedIcon in cachedIconCollection)
             {
                 if (width < height)
                 {
@@ -150,13 +158,8 @@ public static class IconService
         return null;
     }
 
-    private static readonly HttpSource Source = new()
-    {
-        CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
-    };
-    private static Fetcher? _fetcher;
-
-    private static async Task<BitmapSource?> SetWebsiteIcon(string path, int width, int height, TaskCompletionSource? tcs = null)
+    private static async Task<BitmapSource?> SetWebsiteIcon(string path, int width, int height,
+        TaskCompletionSource? tcs = null)
     {
         Uri url = new(path);
         IconImage? icon = null;
@@ -173,6 +176,7 @@ public static class IconService
         {
             // ignore all exceptions
         }
+
         if (icon == null || tcs is { Task.IsCompleted: true }) return null;
 
         BitmapSource? source = null;
@@ -196,22 +200,24 @@ public static class IconService
             return null;
         }
 
-        if (!ThumbnailCache.TryGetValue(path, out var cachedIconCollection))
+        if (!ThumbnailCache.TryGetValue(path, out ICollection<CachedIcon>? cachedIconCollection))
         {
             cachedIconCollection = [];
             ThumbnailCache[path] = cachedIconCollection;
             ThumbnailCacheKeys.Enqueue(path);
 
-            if (ThumbnailCache.Count > CacheLength &&  ThumbnailCacheKeys.TryDequeue(out var item))
+            if (ThumbnailCache.Count > CacheLength && ThumbnailCacheKeys.TryDequeue(out var item))
             {
                 ThumbnailCache.Remove(item, out _);
             }
         }
+
         cachedIconCollection.Add(new CachedIcon { Icon = source, RequestedWidth = width, RequestedHeight = height });
         return source;
     }
 
-    private static async Task<BitmapSource?> SetFileIcon(string path, ImageMode imageMode, int width, int height, TaskCompletionSource? tcs = null)
+    private static async Task<BitmapSource?> SetFileIcon(string path, ImageMode imageMode, int width, int height,
+        TaskCompletionSource? tcs = null)
     {
         SIIGBF options = 0;
 
@@ -230,7 +236,7 @@ public static class IconService
 
         if (imageMode.HasFlag(ImageMode.IconOnly))
         {
-            if (!IconCache.TryGetValue(path, out var cachedIconCollection))
+            if (!IconCache.TryGetValue(path, out ICollection<CachedIcon>? cachedIconCollection))
             {
                 cachedIconCollection = [];
                 IconCache[path] = cachedIconCollection;
@@ -241,11 +247,12 @@ public static class IconService
                     IconCache.Remove(item, out _);
                 }
             }
+
             cachedIconCollection.Add(new CachedIcon { Icon = icon, RequestedWidth = width, RequestedHeight = height });
         }
         else
         {
-            if (!ThumbnailCache.TryGetValue(path, out var cachedIconCollection))
+            if (!ThumbnailCache.TryGetValue(path, out ICollection<CachedIcon>? cachedIconCollection))
             {
                 cachedIconCollection = [];
                 ThumbnailCache[path] = cachedIconCollection;
@@ -256,6 +263,7 @@ public static class IconService
                     ThumbnailCache.Remove(item, out _);
                 }
             }
+
             cachedIconCollection.Add(new CachedIcon { Icon = icon, RequestedWidth = width, RequestedHeight = height });
         }
 
@@ -263,7 +271,7 @@ public static class IconService
     }
 
     // https://github.com/rlv-dan/ShellThumbs/blob/master/ShellThumbs.cs#L64-L104
-    public static async Task<BitmapSource?> GetThumbnail(string fileName, int width, int height, SIIGBF options)
+    private static async Task<BitmapSource?> GetThumbnail(string fileName, int width, int height, SIIGBF options)
     {
         var hBitmap = GetHBitmap(fileName, width, height, options);
         if (hBitmap != IntPtr.Zero)
@@ -279,7 +287,8 @@ public static class IconService
     private static IntPtr GetHBitmap(string fileName, int width, int height, SIIGBF options)
     {
         Guid shellItem2Guid = typeof(IShellItemImageFactory).GUID;
-        var retCode = SHCreateItemFromParsingName(fileName, IntPtr.Zero, ref shellItem2Guid, out IShellItem nativeShellItem);
+        HResult retCode =
+            SHCreateItemFromParsingName(fileName, IntPtr.Zero, ref shellItem2Guid, out IShellItem nativeShellItem);
 
         if (retCode == HResult.Ok)
         {
@@ -296,11 +305,11 @@ public static class IconService
     }
 
     // https://github.com/castorix/WinUI3_MediaEngine/blob/master/CMediaEngine.cs#L2136-L2168
-    private static async Task<WriteableBitmap?> GetCaptureWriteableBitmap(IntPtr m_hBitmapCapture)
+    private static async Task<WriteableBitmap?> GetCaptureWriteableBitmap(IntPtr hBitmapCapture)
     {
-        if (m_hBitmapCapture == IntPtr.Zero) return null;
+        if (hBitmapCapture == IntPtr.Zero) return null;
 
-        var result = GetObject(m_hBitmapCapture, Marshal.SizeOf<BITMAP>(), out BITMAP bm);
+        var result = GetObject(hBitmapCapture, Marshal.SizeOf<BITMAP>(), out BITMAP bm);
         if (result == 0) return null;
 
         var nWidth = bm.bmWidth;
@@ -319,15 +328,15 @@ public static class IconService
             bV5BlueMask = 0x000000FF
         };
 
-        var hDC = CreateCompatibleDC(IntPtr.Zero);
+        var hDc = CreateCompatibleDC(IntPtr.Zero);
         try
         {
-            var hBitmapOld = SelectObject(hDC, m_hBitmapCapture);
+            var hBitmapOld = SelectObject(hDc, hBitmapCapture);
             try
             {
                 var nNumBytes = nWidth * 4 * nHeight;
                 var pPixels = new byte[nNumBytes];
-                result = GetDIBits(hDC, m_hBitmapCapture, 0, (uint)nHeight, pPixels, ref bi, DIB_RGB_COLORS);
+                result = GetDIBits(hDc, hBitmapCapture, 0, (uint)nHeight, pPixels, ref bi, DIB_RGB_COLORS);
                 if (result != 0)
                 {
                     ApplyAlphaChannel(pPixels);
@@ -338,12 +347,12 @@ public static class IconService
             }
             finally
             {
-                SelectObject(hDC, hBitmapOld);
+                SelectObject(hDc, hBitmapOld);
             }
         }
         finally
         {
-            DeleteDC(hDC);
+            DeleteDC(hDc);
         }
     }
 
@@ -360,21 +369,21 @@ public static class IconService
                     break;
 
                 case 0:
-                    {
-                        pixelsSpan[i + 0] = 0; // Blue
-                        pixelsSpan[i + 1] = 0; // Green
-                        pixelsSpan[i + 2] = 0; // Red
-                        break;
-                    }
+                {
+                    pixelsSpan[i + 0] = 0; // Blue
+                    pixelsSpan[i + 1] = 0; // Green
+                    pixelsSpan[i + 2] = 0; // Red
+                    break;
+                }
 
                 default:
-                    {
-                        var multiplier = alpha / 255.0;
-                        pixelsSpan[i + 0] = (byte)(pixelsSpan[i + 0] * multiplier); // Blue
-                        pixelsSpan[i + 1] = (byte)(pixelsSpan[i + 1] * multiplier); // Green
-                        pixelsSpan[i + 2] = (byte)(pixelsSpan[i + 2] * multiplier); // Red
-                        break;
-                    }
+                {
+                    var multiplier = alpha / 255.0;
+                    pixelsSpan[i + 0] = (byte)(pixelsSpan[i + 0] * multiplier); // Blue
+                    pixelsSpan[i + 1] = (byte)(pixelsSpan[i + 1] * multiplier); // Green
+                    pixelsSpan[i + 2] = (byte)(pixelsSpan[i + 2] * multiplier); // Red
+                    break;
+                }
             }
         }
     }
@@ -388,6 +397,7 @@ public static class IconService
             {
                 await pixelStream.WriteAsync(pixels);
             }
+
             bitmap.Invalidate();
             return bitmap;
         });

@@ -189,4 +189,7 @@
   <data name="InAppNotification_MediasAdded" xml:space="preserve">
     <value>{0} média(s) ajouté(s)</value>
   </data>
+  <data name="PathsFromDirectory_Button.Content" xml:space="preserve">
+    <value>Remplir les chemins à partir du répertoire</value>
+  </data>
 </root>

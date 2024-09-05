@@ -5,10 +5,7 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.Helpers;
 
-/// <summary>
-///     Converts a <see cref="Color" /> value to a <see cref="ElementTheme" /> value.
-/// </summary>
-public sealed partial class ColorToThemeConverter : IValueConverter
+public partial class ColorToThemeConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 

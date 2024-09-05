@@ -1,19 +1,18 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json.Serialization.Metadata;
 using Windows.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MediaMaster.Helpers;
-using System.Text.Json.Serialization.Metadata;
 
 namespace MediaMaster.Services;
 
 public partial class SettingsService : ObservableObject
 {
+    [ObservableProperty] private bool _doNotSendMediaAddedConfirmationNotification;
     [ObservableProperty] private bool _leaveAppRunning;
 
     [ObservableProperty] private bool _showExtensions;
-
-    [ObservableProperty] private bool _doNotSendMediaAddedConfirmationNotification;
 
     public static async Task<T?> ReadSettingAsync<T>(string key, JsonTypeInfo<T> typeInfo)
     {
@@ -21,6 +20,7 @@ public partial class SettingsService : ObservableObject
         {
             return await Json.ToObjectAsync((string)obj, typeInfo) ?? default;
         }
+
         return default;
     }
 
@@ -57,7 +57,7 @@ public partial class SettingsService : ObservableObject
         var propertyName = e.PropertyName;
         if (propertyName is null) return;
 
-        var type = GetType();
+        Type type = GetType();
         PropertyInfo? property = type.GetProperty(propertyName);
         var value = (bool?)property?.GetValue(this);
         if (value == null) return;

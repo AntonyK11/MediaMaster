@@ -1,8 +1,7 @@
-﻿using CommunityToolkit.WinUI.Converters;namespace MediaMaster.Helpers;
+﻿using CommunityToolkit.WinUI.Converters;
 
-/// <summary>
-///     Converts a null value to a <see cref="Visibility" /> value.
-/// </summary>
+namespace MediaMaster.Helpers;
+
 public partial class BoolToSelectionModeConverter : BoolToObjectConverter
 {
     public BoolToSelectionModeConverter()

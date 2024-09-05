@@ -1,33 +1,27 @@
-﻿using MediaMaster.Interfaces.Services;
-using MediaMaster.Views;
+﻿using Windows.ApplicationModel.Activation;
 using Windows.Storage;
 using MediaMaster.DataBase;
-using Microsoft.Windows.AppNotifications;
+using MediaMaster.Interfaces.Services;
+using MediaMaster.Services.Navigation;
+using MediaMaster.Views;
 using Microsoft.Windows.AppLifecycle;
-using Windows.ApplicationModel.Activation;
+using Microsoft.Windows.AppNotifications;
 using WinUI3Localizer;
 using WinUICommunity;
-using MediaMaster.Services.Navigation;
+using H.NotifyIcon.EfficiencyMode;
 
 namespace MediaMaster.Services;
 
 public class ActivationService : IActivationService
 {
+    private readonly ContextMenuService _menuService = new();
+
+    private bool _contextMenuLock = true;
+
     public async Task ActivateAsync()
     {
         // Handle activation via ActivationHandlers.
-        var args =  await HandleActivationAsync();
-
-        //// Execute tasks before activation.
-        //await InitializeAsync();
-
-        //// Set the MainWindow Content.
-
-        //// Activate the MainWindow.
-        //App.MainWindow?.Activate();
-
-        //// Execute tasks after activation.
-        //await StartupAsync();
+        var args = await HandleActivationAsync();
 
         if (args is not null)
         {
@@ -52,6 +46,7 @@ public class ActivationService : IActivationService
                     await App.GetService<IAppNotificationService>().HandleNotificationAsync(notificationArgs);
                     return null;
                 }
+
                 break;
 
             case ExtendedActivationKind.Launch:
@@ -59,8 +54,9 @@ public class ActivationService : IActivationService
                 {
                     return launchArgs.Arguments;
                 }
+
                 break;
-                
+
             case ExtendedActivationKind.StartupTask:
                 await App.GetService<SettingsService>().InitializeAsync();
                 return App.GetService<SettingsService>().LeaveAppRunning ? "--NoWindow" : "";
@@ -83,11 +79,11 @@ public class ActivationService : IActivationService
 
     public async Task LoadServices()
     {
-        //await Task.Delay(10);
         await using (MediaDbContext database = new())
         {
             await database.InitializeAsync();
         }
+
         await Task.WhenAll(
             App.GetService<ITranslationService>().InitializeAsync(),
             App.GetService<SettingsService>().InitializeAsync(),
@@ -103,43 +99,7 @@ public class ActivationService : IActivationService
         App.MainWindow.InitializeTheme();
         App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName);
 
-        await App.GetService<BrowserService>().InitializeAsync();
-    }
-
-    private bool _contextMenuLock = true;
-    private readonly ContextMenuService _menuService = new();
-
-    private async Task ResetContextMenu()
-    {
-        if (_contextMenuLock)
-        {
-            _contextMenuLock = false;
-            var installationPath = AppContext.BaseDirectory;
-            ContextMenuItem menu = new()
-            {
-                Title = $"{"add_context_menu".GetLocalizedString()}",
-                AcceptDirectory = true,
-                AcceptFileFlag = 1,
-                AcceptExts = "*",
-                AcceptMultipleFilesFlag = 2,
-                PathDelimiter = ", ",
-                Exe = "MediaMaster.exe",
-                Param = "--Files \"{path}\" --NoWindow",
-                Icon = $"{installationPath}/Assets/WindowIcon.ico"
-            };
-
-            _menuService.ClearCache();
-            StorageFolder? menuFolder = await _menuService.GetMenusFolderAsync();
-            foreach (var file in Directory.EnumerateFiles(menuFolder.Path))
-            {
-                File.Delete(file);
-            }
-
-            await _menuService.SaveAsync(menu);
-            await _menuService.BuildToCacheAsync();
-            _menuService.SetCustomMenuName($"{"add_context_menu".GetLocalizedString()} (Win 11)");
-        }
-        _contextMenuLock = true;
+        await BrowserService.InitializeAsync();
     }
 
     public async Task LaunchApp(string args)
@@ -153,7 +113,7 @@ public class ActivationService : IActivationService
             if (App.MainWindow?.Visible == true)
             {
                 App.MainWindow.Show();
-                var files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
+                IEnumerable<string> files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
                 await Task.Run(() => MediaService.AddMediaAsync(files));
             }
             else
@@ -161,6 +121,7 @@ public class ActivationService : IActivationService
                 var noMainWindow = App.MainWindow == null;
                 if (noMainWindow)
                 {
+                    await CreateWindow();
                     await LoadServices();
                 }
 
@@ -168,17 +129,17 @@ public class ActivationService : IActivationService
                 if (!MediaService.IsRunning)
                 {
                     var xmlPayload = $"""
-                                        <toast launch="action=edit">
-                                            <visual>
-                                                <binding template="ToastGeneric">
-                                                    <text>{"adding_medias_toast_text".GetLocalizedString()}</text>
-                                                </binding>
-                                            </visual>
-                                            <actions>
-                                                <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
-                                            </actions>
-                                        </toast>
-                                        """;
+                                      <toast launch="action=edit">
+                                          <visual>
+                                              <binding template="ToastGeneric">
+                                                  <text>{"adding_medias_toast_text".GetLocalizedString()}</text>
+                                              </binding>
+                                          </visual>
+                                          <actions>
+                                              <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                          </actions>
+                                      </toast>
+                                      """;
 
                     var toast = new AppNotification(xmlPayload)
                     {
@@ -188,24 +149,24 @@ public class ActivationService : IActivationService
                     var notificationManager = AppNotificationManager.Default;
                     notificationManager.Show(toast);
 
-                    var files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
+                    IEnumerable<string> files = filesValue.Split(", ").Select(f => f.Replace("\"", "").Trim());
                     var mediaAddedCount = await Task.Run(() => MediaService.AddMediaAsync(files));
 
                     if (!App.GetService<SettingsService>().DoNotSendMediaAddedConfirmationNotification)
                     {
                         xmlPayload = $"""
-                                          <toast launch="action=edit">
-                                              <visual>
-                                                  <binding template="ToastGeneric">
-                                                      <text>{string.Format("medias_added_toast_text".GetLocalizedString(), mediaAddedCount)}</text>
-                                                  </binding>
-                                              </visual>
-                                              <actions>
-                                                  <action content='{"view_toast_button".GetLocalizedString()}' arguments='action=view'/>
-                                                  <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
-                                              </actions>
-                                          </toast>
-                                          """;
+                                      <toast launch="action=edit">
+                                          <visual>
+                                              <binding template="ToastGeneric">
+                                                  <text>{string.Format("medias_added_toast_text".GetLocalizedString(), mediaAddedCount)}</text>
+                                              </binding>
+                                          </visual>
+                                          <actions>
+                                              <action content='{"view_toast_button".GetLocalizedString()}' arguments='action=view'/>
+                                              <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                          </actions>
+                                      </toast>
+                                      """;
 
                         toast = new AppNotification(xmlPayload)
                         {
@@ -215,16 +176,12 @@ public class ActivationService : IActivationService
                         notificationManager.Show(toast);
                     }
                 }
-
-                if (!App.GetService<SettingsService>().LeaveAppRunning && noMainWindow)
+                
+                if (noMainWindow)
                 {
-                    App.Shutdown();
-                }
-                else
-                {
-                    await CreateWindow();
                     await LoadWindow();
                 }
+                EfficiencyModeUtilities.SetEfficiencyMode(true);
             }
         }
         else
@@ -248,6 +205,39 @@ public class ActivationService : IActivationService
         }
     }
 
+    private async Task ResetContextMenu()
+    {
+        if (_contextMenuLock)
+        {
+            _contextMenuLock = false;
+            ContextMenuItem menu = new()
+            {
+                Title = $"{"add_context_menu".GetLocalizedString()}",
+                AcceptDirectory = true,
+                AcceptFileFlag = 1,
+                AcceptExts = "*",
+                AcceptMultipleFilesFlag = 2,
+                PathDelimiter = ", ",
+                Exe = "MediaMaster.exe",
+                Param = "--Files \"{path}\" --NoWindow",
+                Icon = $"{AppContext.BaseDirectory}/Assets/WindowIcon.ico"
+            };
+
+            _menuService.ClearCache();
+            StorageFolder? menuFolder = await _menuService.GetMenusFolderAsync();
+            foreach (var file in Directory.EnumerateFiles(menuFolder.Path))
+            {
+                File.Delete(file);
+            }
+
+            await _menuService.SaveAsync(menu);
+            await _menuService.BuildToCacheAsync();
+            _menuService.SetCustomMenuName($"{"add_context_menu".GetLocalizedString()} (Win 11)");
+        }
+
+        _contextMenuLock = true;
+    }
+
     private static Dictionary<string, string?> GetParams(string args)
     {
         Dictionary<string, string?> parameters = [];
@@ -267,12 +257,13 @@ public class ActivationService : IActivationService
                 parameters[args] = null;
                 break;
             }
+
             args = args[(param.Length + 1)..].Trim();
 
             var value = args.Contains("--") ? args[..args.IndexOf("--", StringComparison.Ordinal)] : args;
             parameters[param] = value.Length == 0 ? null : value;
 
-            args = args.Contains("--") ? args[(args.IndexOf("--", StringComparison.Ordinal))..] : "";
+            args = args.Contains("--") ? args[args.IndexOf("--", StringComparison.Ordinal)..] : "";
         }
 
         return parameters;

@@ -3,7 +3,7 @@
 namespace MediaMaster.Services;
 
 /// https://github.com/files-community/Files/blob/main/src/Files.App/Helpers/Win32/Win32Helper.Storage.cs
-public class STATask
+public static class STATask
 {
     public static Task StartSTATask(Func<Task> func)
     {

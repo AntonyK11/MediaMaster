@@ -1,6 +1,5 @@
 using System.Collections;
 using CommunityToolkit.WinUI.Collections;
-using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
@@ -10,11 +9,8 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
-public sealed partial class TagsListDialog : Page
+public partial class TagsListDialog : Page
 {
-    public ICollection<Tag> Tags { get; private set; } = [];
-    public ICollection<Tag> SelectedTags { get; private set; } = [];
-    
     private readonly bool _showExtensionsAndWebsites;
 
     private readonly ICollection<int> _tagsToExclude;
@@ -37,6 +33,9 @@ public sealed partial class TagsListDialog : Page
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, _) => UpdateItemSource();
     }
 
+    public ICollection<Tag> Tags { get; private set; } = [];
+    public ICollection<Tag> SelectedTags { get; private set; } = [];
+
     private async void UpdateItemSource(HashSet<int>? selectedTags = null)
     {
         await SetupTags(selectedTags ?? SelectedTags.Select(t => t.TagId).ToHashSet());
@@ -51,7 +50,13 @@ public sealed partial class TagsListDialog : Page
             Tags = database.Tags.Where(tag => !_tagsToExclude.Contains(tag.TagId)).ToList();
         }
 
-        _advancedCollectionView = new AdvancedCollectionView(Tags.Where(t => _showExtensionsAndWebsites || !(t.Flags.HasFlag(TagFlags.Extension) || t.Flags.HasFlag(TagFlags.Website))).ToList());
+        _advancedCollectionView = new AdvancedCollectionView(
+            Tags
+                .Where(t => _showExtensionsAndWebsites ||
+                            (!t.Flags.HasFlag(TagFlags.Extension) &&
+                             !t.Flags.HasFlag(TagFlags.Website)))
+                .ToList());
+
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("DisplayName", SortDirection.Descending, TagsExtensionComparer.Instance));
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("DisplayName", SortDirection.Ascending));
         ListView.ItemsSource = _advancedCollectionView;
@@ -60,7 +65,7 @@ public sealed partial class TagsListDialog : Page
 
         _watchForSelectionChange = true;
     }
-    
+
     private void TextBox_TextChanged(object? sender, TextChangedEventArgs? args)
     {
         _watchForSelectionChange = false;
@@ -90,7 +95,7 @@ public sealed partial class TagsListDialog : Page
         _watchForSelectionChange = true;
     }
 
-    private void SelectTags(IList<Tag> tags, ICollection<int> selectedTags)
+    private void SelectTags(IList<Tag> tags, HashSet<int> selectedTags)
     {
         _watchForSelectionChange = false;
 
@@ -104,9 +109,9 @@ public sealed partial class TagsListDialog : Page
             }
         }
 
-        var rangesToSelect = FindContiguousRanges(selectedIndexes);
+        List<ItemIndexRange> rangesToSelect = FindContiguousRanges(selectedIndexes);
 
-        foreach (var range in rangesToSelect)
+        foreach (ItemIndexRange range in rangesToSelect)
         {
             ListView.SelectRange(range);
         }
@@ -135,6 +140,7 @@ public sealed partial class TagsListDialog : Page
             ranges.Add(new ItemIndexRange(start, (uint)(current - start + 1)));
             start = next;
         }
+
         ranges.Add(new ItemIndexRange(start, (uint)(indexes.Last() - start + 1)));
         return ranges;
     }
@@ -143,12 +149,12 @@ public sealed partial class TagsListDialog : Page
     {
         if (_watchForSelectionChange)
         {
-            foreach (var tag in args.RemovedItems.OfType<Tag>())
+            foreach (Tag tag in args.RemovedItems.OfType<Tag>())
             {
                 SelectedTags.Remove(tag);
             }
 
-            foreach (var tag in args.AddedItems.OfType<Tag>())
+            foreach (Tag tag in args.AddedItems.OfType<Tag>())
             {
                 SelectedTags.Add(tag);
             }
@@ -191,7 +197,8 @@ public sealed partial class TagsListDialog : Page
     }
 
     public static async Task<(ContentDialogResult, TagsListDialog?)> ShowDialogAsync(
-        HashSet<int>? selectedTags = null, ICollection<int>? tagsToExclude = null, bool showExtensionsAndWebsites = true)
+        HashSet<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
+        bool showExtensionsAndWebsites = true)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 

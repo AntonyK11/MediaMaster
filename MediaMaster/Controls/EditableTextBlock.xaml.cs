@@ -1,17 +1,17 @@
 using Windows.Foundation;
-using Microsoft.UI.Xaml.Input;
 using Windows.System;
 using CommunityToolkit.WinUI;
 using DependencyPropertyGenerator;
 using MediaMaster.Extensions;
 using Microsoft.UI.Input;
+using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
 
 public class TextConfirmedArgs(string oldText, string newText)
 {
-    public string OldText = oldText;
-    public string NewText = newText;
+    public readonly string NewText = newText;
+    public readonly string OldText = oldText;
 }
 
 [DependencyProperty("Text", typeof(string), DefaultValue = "")]
@@ -20,9 +20,21 @@ public class TextConfirmedArgs(string oldText, string newText)
 [DependencyProperty("ConfirmOnFocusLoss", typeof(bool), DefaultValue = true)]
 [DependencyProperty("EditOnDoubleClick", typeof(bool), DefaultValue = true)]
 [DependencyProperty("EditOnClick", typeof(bool), DefaultValue = true)]
-public sealed partial class EditableTextBlock : UserControl
+public partial class EditableTextBlock : UserControl
 {
+    private DateTime? _focusGainedTime;
     private string _text = "";
+
+    public EditableTextBlock()
+    {
+        InitializeComponent();
+        Loaded += (_, _) => SetText(_text);
+
+        TextBlock.AddHandler(DoubleTappedEvent, new DoubleTappedEventHandler(OnDoubleTapped), true);
+    }
+
+    public event TypedEventHandler<EditableTextBlock, TextConfirmedArgs>? TextConfirmed;
+    public event TypedEventHandler<EditableTextBlock, string>? EditButtonPressed;
 
     partial void OnTextChanged(string newValue)
     {
@@ -32,19 +44,6 @@ public sealed partial class EditableTextBlock : UserControl
     partial void OnPlaceholderTextChanged()
     {
         SetText(Text);
-    }
-
-    public event TypedEventHandler<EditableTextBlock, TextConfirmedArgs>? TextConfirmed;
-    public event TypedEventHandler<EditableTextBlock, string>? EditButtonPressed;
-
-    private DateTime? _focusGainedTime;
-
-    public EditableTextBlock()
-    {
-        InitializeComponent();
-        Loaded += (_, _) => SetText(_text);
-
-        TextBlock.AddHandler(DoubleTappedEvent, new DoubleTappedEventHandler(OnDoubleTapped), true);
     }
 
     private void EditButton_OnClick(object sender, RoutedEventArgs e)
@@ -83,11 +82,11 @@ public sealed partial class EditableTextBlock : UserControl
         await Task.Yield();
         if (_focusGainedTime != null && DateTime.Now - _focusGainedTime < TimeSpan.FromMilliseconds(200))
         {
-            
             TextBox.Focus(FocusState.Programmatic);
             TextBox.SelectAll();
             return;
         }
+
         _focusGainedTime = null;
 
         if (!TextBox.ContextFlyout.IsOpen && e.NewFocusedElement != TextBox)
@@ -113,7 +112,7 @@ public sealed partial class EditableTextBlock : UserControl
         TextBox.SelectAll();
     }
 
-    public void ConfirmChanges()
+    private void ConfirmChanges()
     {
         HideTextBox();
         var oldText = Text;
@@ -122,7 +121,7 @@ public sealed partial class EditableTextBlock : UserControl
         App.DispatcherQueue.EnqueueAsync(() => TextConfirmed?.Invoke(this, args));
     }
 
-    public void CancelChanges()
+    private void CancelChanges()
     {
         HideTextBox();
         SetText(Text);
@@ -180,8 +179,10 @@ public sealed partial class EditableTextBlock : UserControl
         if (TextBlock.Text != newText)
         {
             TextBlock.Text = newText;
-            VisualStateManager.GoToState(this, text.IsNullOrEmpty() ? "PlaceholderTextState" : "CurrentTextState", true);
+            VisualStateManager.GoToState(this, text.IsNullOrEmpty() ? "PlaceholderTextState" : "CurrentTextState",
+                true);
         }
+
         ResizeTextBox();
     }
 

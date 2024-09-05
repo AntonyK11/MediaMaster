@@ -15,15 +15,15 @@ namespace MediaMaster.Services.MediaInfo;
 
 public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
-    public override string TranslationKey { get; set; } = "MediaFilePath";
+    protected override string TranslationKey => "MediaFilePath";
 
-    public override void UpdateControlContent()
+    protected override void UpdateControlContent()
     {
         if (EditableTextBlock == null) return;
         EditableTextBlock.Text = Medias.FirstOrDefault()?.Uri ?? "";
     }
 
-    public override EditableTextBlock GetEditableTextBlock()
+    protected override EditableTextBlock GetEditableTextBlock()
     {
         var editableTextBlock = new EditableTextBlock
         {
@@ -42,7 +42,7 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
         return editableTextBlock;
     }
 
-    public static async void PathTextBox_OnEdit(Media media, EditableTextBlock sender, object? updateSender = null)
+    private static async void PathTextBox_OnEdit(Media media, EditableTextBlock sender, object? updateSender = null)
     {
         if (App.MainWindow == null) return;
 
@@ -57,7 +57,8 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
             dialog.NavigateToShortcut = false;
 
             // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
-            FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo? fi =
+                typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fi != null)
             {
                 var hwnd = App.MainWindow.GetWindowHandle();
@@ -77,10 +78,13 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
                         {
                             XamlRoot = App.MainWindow.Content.XamlRoot,
                             DefaultButton = ContentDialogButton.Primary,
-                            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme,
+                            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
                         };
                         Uids.SetUid(errorDialog, "/Media/FilePathAlreadyExistsDialog");
-                        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { errorDialog.RequestedTheme = theme; };
+                        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
+                        {
+                            errorDialog.RequestedTheme = theme;
+                        };
 
                         ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
 
@@ -91,7 +95,7 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
                     }
                     else
                     {
-                        UpdateMedia(media, filePath, sender.Text);
+                        UpdateMedia(media, filePath, sender.Text, updateSender);
                         sender.Text = filePath;
                     }
                 }
@@ -99,7 +103,7 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
         }
     }
 
-    public static async void UpdateMedia(Media media, string newText, string oldText = "", object? updateSender = null)
+    private static async void UpdateMedia(Media media, string newText, string oldText = "", object? updateSender = null)
     {
         if (oldText == newText) return;
 
@@ -114,13 +118,16 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
             var newExtension = Path.GetExtension(newText);
             if (oldExtension != newExtension)
             {
-                var oldExtensionTag = await database.Medias.Include(m => m.Tags).Where(m => m.MediaId == media.MediaId)
+                Tag? oldExtensionTag = await database.Medias
+                    .Include(m => m.Tags)
+                    .Where(m => m.MediaId == media.MediaId)
                     .SelectMany(m => m.Tags)
                     .FirstOrDefaultAsync(t => t.Name == oldExtension && t.Flags.HasFlag(TagFlags.Extension));
 
                 if (oldExtensionTag != null)
                 {
-                    var oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m => m.TagId == oldExtensionTag.TagId && m.MediaId == media.MediaId);
+                    MediaTag? oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m =>
+                        m.TagId == oldExtensionTag.TagId && m.MediaId == media.MediaId);
 
                     if (oldMediaTag != null)
                     {
@@ -141,32 +148,42 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
                     media.Tags.Add(newTag);
                     await MediaService.AddNewMedias([media], database);
                 }
-                
             }
+
             await database.BulkUpdateAsync([media]);
         }
 
         if (newTag != null || oldTag != null)
         {
-            MediaDbContext.InvokeMediaChange(updateSender, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged | MediaChangeFlags.TagsChanged, [media], newTag != null ? [newTag] : [], oldTag != null ? [oldTag] : []);
+            MediaDbContext.InvokeMediaChange(
+                updateSender,
+                MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged | MediaChangeFlags.TagsChanged, 
+                [media],
+                newTag != null ? [newTag] : [],
+                oldTag != null ? [oldTag] : []);
         }
         else
         {
-            MediaDbContext.InvokeMediaChange(updateSender, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, [media]);
+            MediaDbContext.InvokeMediaChange(updateSender, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged,
+                [media]);
         }
     }
 
-    public override bool ShowInfo(ICollection<Media> medias)
+    protected override bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !(IsCompact || medias.Count != 1 || medias.First().Uri.IsWebsite());
     }
 
-    public override void MediaChanged(object? sender, MediaChangeArgs args)
+    protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        var mediaIds = Medias.Select(m => m.MediaId).ToList();
-        if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any() || ReferenceEquals(sender, this) || !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        
+        if (Medias.Count == 0 ||
+            !args.MediaIds.Intersect(mediaIds).Any() ||
+            ReferenceEquals(sender, this) ||
+            !args.Flags.HasFlag(MediaChangeFlags.UriChanged)) return;
+        
         Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         UpdateControlContent();
     }
 }
-

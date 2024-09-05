@@ -1,25 +1,25 @@
 ﻿using CommunityToolkit.WinUI.Controls;
 using MediaMaster.DataBase;
-using MediaMaster.Extensions; 
+using MediaMaster.Extensions;
 
 namespace MediaMaster.Services.MediaInfo;
 
 public class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
 {
-    public override string TranslationKey { get; set; } = "MediaEditionDate";
+    protected override string TranslationKey => "MediaEditionDate";
 
-    public override void UpdateControlContent()
+    protected override void UpdateControlContent()
     {
         if (Text == null) return;
         Text.Text = GetDate(Medias);
     }
 
-    public override bool ShowInfo(ICollection<Media> medias)
+    protected override bool ShowInfo(ICollection<Media> medias)
     {
         return medias.Count != 0 && !(IsCompact || GetDate(medias).IsNullOrEmpty());
     }
 
-    public static string GetDate(ICollection<Media> medias)
+    private static string GetDate(ICollection<Media> medias)
     {
         if (medias.Count == 0) return "";
 
@@ -27,15 +27,16 @@ public class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
         return medias.Any(media => GetDate(media) != text) ? "" : text;
     }
 
-    public static string GetDate(Media media)
+    private static string GetDate(Media media)
     {
-        var modified = media.Modified.ToLocalTime();
-        var date = modified;
+        DateTime modified = media.Modified.ToLocalTime();
+        DateTime date = modified;
 
         if (Path.Exists(media.Uri))
         {
             date = File.GetLastWriteTime(media.Uri);
         }
+
         if (modified > date)
         {
             date = modified;
@@ -43,12 +44,14 @@ public class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
 
         return $"{date.ToLongDateString()} {date.ToShortTimeString()} | {date.GetTimeDifference()}";
     }
-    public override void MediaChanged(object? sender, MediaChangeArgs args)
+
+    protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        var mediaIds = Medias.Select(m => m.MediaId).ToList();
+        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        
         if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any()) return;
+        
         Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
         Initialize(Medias, IsCompact);
     }
 }
-

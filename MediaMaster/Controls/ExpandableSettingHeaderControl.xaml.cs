@@ -9,12 +9,12 @@ namespace MediaMaster.Controls;
 [DependencyProperty("Title", typeof(string), DefaultValue = "")]
 [DependencyProperty("Description", typeof(string), DefaultValue = "")]
 [DependencyProperty("Icon", typeof(IconElement))]
-public sealed partial class ExpandableSettingHeaderControl
+public partial class ExpandableSettingHeaderControl
 {
-    public FrameworkElement? SettingActionableElement { get; set; }
-
     public ExpandableSettingHeaderControl()
     {
         InitializeComponent();
     }
+
+    public FrameworkElement? SettingActionableElement { get; set; }
 }

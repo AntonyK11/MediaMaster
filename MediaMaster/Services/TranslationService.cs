@@ -1,8 +1,8 @@
-﻿using Windows.Globalization;
-using Windows.Storage;
-using MediaMaster.Interfaces.Services;
-using WinUI3Localizer;
+﻿using Windows.Storage;
 using MediaMaster.Helpers;
+using MediaMaster.Interfaces.Services;
+using Microsoft.Windows.Globalization;
+using WinUI3Localizer;
 
 namespace MediaMaster.Services;
 
@@ -11,12 +11,11 @@ namespace MediaMaster.Services;
 /// </summary>
 public class TranslationService : ITranslationService
 {
+    private const string SettingsKey = "Language";
 
     public ILocalizer? Localizer { get; private set; }
 
     public string DefaultLanguage => "en-US";
-
-    private const string SettingsKey = "Language";
 
     public async Task InitializeAsync()
     {

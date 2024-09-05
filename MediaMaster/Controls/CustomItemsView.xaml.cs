@@ -21,6 +21,7 @@ public class ItemsComparer : IComparer
         {
             return 1;
         }
+
         if (y is AddItem)
         {
             return -1;
@@ -41,15 +42,33 @@ internal partial class ItemTemplateSelector : DataTemplateSelector
     }
 }
 
-[DependencyProperty("ItemsSource", typeof(ObservableCollection<object>), DefaultValueExpression = "new ObservableCollection<object>()")]
+[DependencyProperty("ItemsSource", typeof(ObservableCollection<object>),
+    DefaultValueExpression = "new ObservableCollection<object>()")]
 [DependencyProperty("Comparer", typeof(IComparer))]
 [DependencyProperty("SelectionMode", typeof(ItemsViewSelectionMode), DefaultValue = ItemsViewSelectionMode.None)]
 [DependencyProperty("AddItemButton", typeof(bool), DefaultValue = true)]
 [DependencyProperty("ShowScrollButtons", typeof(bool), DefaultValue = true)]
-[DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
+[DependencyProperty("Layout", typeof(Layout),
+    DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
 [DependencyProperty("ItemTemplate", typeof(DataTemplate))]
-public sealed partial class CustomItemsView
+public partial class CustomItemsView
 {
+    private DateTime _lastScrollTime = DateTime.Now;
+
+    private int _operationCount;
+
+    public CustomItemsView()
+    {
+        InitializeComponent();
+        ItemsSource = [new AddItem()];
+        ItemsView.SizeChanged += (_, _) => UpdateScrollButtonsVisibility();
+    }
+
+    private ScrollView? ScrollView => ItemsView
+        .FindDescendants()
+        .OfType<ScrollView>()
+        .FirstOrDefault(i => i.Name == "PART_ScrollView");
+
     partial void OnItemsSourceChanged(ObservableCollection<object> newValue)
     {
         HandleAddItemButton();
@@ -86,17 +105,6 @@ public sealed partial class CustomItemsView
 
     public event TypedEventHandler<object, object>? RemoveItemsInvoked;
     public event TypedEventHandler<object, ICollection<object>>? SelectItemsInvoked;
-    
-    private DateTime _lastScrollTime = DateTime.Now;
-
-    private int _operationCount;
-    
-    public CustomItemsView()
-    {
-        InitializeComponent();
-        ItemsSource = [new AddItem()];
-        ItemsView.SizeChanged += (_, _) => UpdateScrollButtonsVisibility();
-    }
 
     private void HandleAddItemButton()
     {
@@ -119,9 +127,6 @@ public sealed partial class CustomItemsView
     {
         return ItemsSource.Where(e => e is T and not AddItem).Cast<T>().ToList();
     }
-    
-    private ScrollView? ScrollView => ItemsView.FindDescendants().OfType<ScrollView>()
-        .FirstOrDefault(i => i.Name == "PART_ScrollView");
 
     public void UpdateScrollButtonsVisibility(object? sender = null, SizeChangedEventArgs? args = null)
     {
@@ -164,7 +169,7 @@ public sealed partial class CustomItemsView
     private void PART_DeleteButton_OnClick(object sender, RoutedEventArgs e)
     {
         var button = (Button)sender;
-        CustomItemContainer? customItemContainer = button.FindAscendant<CustomItemContainer>();
+        var customItemContainer = button.FindAscendant<CustomItemContainer>();
         if (customItemContainer != null)
         {
             RemoveItem(customItemContainer.DataContext);
@@ -211,8 +216,6 @@ public sealed partial class CustomItemsView
         }
 
         const double minimumVelocity = 30.0;
-        //const float inertiaDecayRate = 0.95f;
-        //const double velocityNeededPerPixel = 2.995733261108394;
         const float inertiaDecayRate = 0.9995f;
         const double velocityNeededPerPixel = 7.600855902349023;
 

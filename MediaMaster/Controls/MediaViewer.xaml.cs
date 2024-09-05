@@ -17,77 +17,15 @@ namespace MediaMaster.Controls;
 [DependencyProperty("ImageMode", typeof(ImageMode), DefaultValue = ImageMode.IconAndThumbnail)]
 [DependencyProperty("DelayIconLoading", typeof(bool), DefaultValue = true)]
 [DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
-public sealed partial class MediaViewer : UserControl
+public partial class MediaViewer : UserControl
 {
-    partial void OnMediasChanged(ICollection<Media> newValue)
-    {
-        //Visibility = value != null ? Visibility.Visible : Visibility.Collapsed;
-
-        if (newValue.Count != 0)
-        {
-            ArchiveToggleButton.IsEnabled = true;
-            FavoriteToggleButton.IsEnabled = true;
-            if (ForceUpdate)
-            {
-                using (var database = new MediaDbContext())
-                {
-                    var mediaIds = newValue.Select(m => m.MediaId).ToHashSet();
-                    var foundMedias = database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToList();
-                    newValue.Clear();
-                    foreach (var foundMedia in foundMedias)
-                    {
-                        newValue.Add(foundMedia);
-                    }
-                }
-            }
-        }
-        else
-        {
-            ArchiveToggleButton.IsEnabled = false;
-            FavoriteToggleButton.IsEnabled = false;
-        }
-
-        MediaIcon.Uris = newValue.Select(m => m.Uri).ToList();
-
-        _mediaInfoService.SetMedia(newValue, IsCompact);
-
-        SetupToggleButtons(newValue);
-    }
-
-    public Media? Media
-    {
-        get => Medias.FirstOrDefault();
-        set
-        {
-            if (value != null)
-            {
-                Medias = [value];
-            }
-            else
-            {
-                Medias = [];
-            }
-        }
-    }
-
-    partial void OnIsCompactChanged(bool newValue)
-    {
-        if (newValue)
-        {
-            ScrollView.Visibility = Visibility.Collapsed;
-            DockPanelCompact.Visibility = Visibility.Visible;
-            _mediaInfoService = new MediaInfoService(DockPanelCompact);
-        }
-        else
-        {
-            ScrollView.Visibility = Visibility.Visible;
-            DockPanelCompact.Visibility = Visibility.Collapsed;
-            _mediaInfoService = new MediaInfoService(DockPanel);
-        }
-        _mediaInfoService.SetMedia([], newValue);
-    }
+    private bool _listenForCheckUncheck = true;
 
     private MediaInfoService _mediaInfoService;
+    private SpringScalarNaturalMotionAnimation? _rotationAnimation;
+    private Vector3KeyFrameAnimation? _scaleAnimation;
+
+    private SpringVector3NaturalMotionAnimation? _translationAnimation;
 
 
     public MediaViewer()
@@ -116,19 +54,85 @@ public sealed partial class MediaViewer : UserControl
         };
     }
 
-    private bool _listenForCheckUncheck = true;
+    public Media? Media
+    {
+        get => Medias.FirstOrDefault();
+        set
+        {
+            if (value != null)
+            {
+                Medias = [value];
+            }
+            else
+            {
+                Medias = [];
+            }
+        }
+    }
 
-    public void SetupToggleButtons(ICollection<Media> medias)
+    partial void OnMediasChanged(ICollection<Media> newValue)
+    {
+        if (newValue.Count != 0)
+        {
+            ArchiveToggleButton.IsEnabled = true;
+            FavoriteToggleButton.IsEnabled = true;
+            if (ForceUpdate)
+            {
+                using (var database = new MediaDbContext())
+                {
+                    HashSet<int> mediaIds = newValue.Select(m => m.MediaId).ToHashSet();
+                    List<Media> foundMedias = database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToList();
+                    newValue.Clear();
+                    foreach (Media foundMedia in foundMedias)
+                    {
+                        newValue.Add(foundMedia);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ArchiveToggleButton.IsEnabled = false;
+            FavoriteToggleButton.IsEnabled = false;
+        }
+
+        MediaIcon.Uris = newValue.Select(m => m.Uri).ToList();
+
+        _mediaInfoService.SetMedia(newValue, IsCompact);
+
+        SetupToggleButtons(newValue);
+    }
+
+    partial void OnIsCompactChanged(bool newValue)
+    {
+        if (newValue)
+        {
+            ScrollView.Visibility = Visibility.Collapsed;
+            DockPanelCompact.Visibility = Visibility.Visible;
+            _mediaInfoService = new MediaInfoService(DockPanelCompact);
+        }
+        else
+        {
+            ScrollView.Visibility = Visibility.Visible;
+            DockPanelCompact.Visibility = Visibility.Collapsed;
+            _mediaInfoService = new MediaInfoService(DockPanel);
+        }
+
+        _mediaInfoService.SetMedia([], newValue);
+    }
+
+    private void SetupToggleButtons(ICollection<Media> medias)
     {
         var checkFavorite = medias.Count != 0;
         var checkArchive = checkFavorite;
 
-        foreach (var media in medias)
+        foreach (Media media in medias)
         {
             if (!media.IsFavorite)
             {
                 checkFavorite = false;
             }
+
             if (!media.IsArchived)
             {
                 checkArchive = false;
@@ -145,12 +149,9 @@ public sealed partial class MediaViewer : UserControl
         {
             ArchiveToggleButton.IsChecked = checkArchive;
         }
+
         _listenForCheckUncheck = true;
     }
-
-    private SpringVector3NaturalMotionAnimation? _translationAnimation;
-    private SpringScalarNaturalMotionAnimation? _rotationAnimation;
-    private Vector3KeyFrameAnimation? _scaleAnimation;
 
     private void CreateOrUpdateTranslationAnimation(float? initialValue, float finalValue)
     {
@@ -215,11 +216,11 @@ public sealed partial class MediaViewer : UserControl
             {
                 ICollection<MediaTag> mediaTags = [];
 
-                foreach (var media in Medias)
+                foreach (Media media in Medias)
                 {
                     if (!media.IsFavorite)
                     {
-                        var mediaTag = new MediaTag()
+                        var mediaTag = new MediaTag
                         {
                             MediaId = media.MediaId,
                             TagId = MediaDbContext.FavoriteTag.TagId
@@ -235,7 +236,8 @@ public sealed partial class MediaViewer : UserControl
                 await database.BulkUpdateAsync(Medias);
             }
 
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias, tagsAdded: [MediaDbContext.FavoriteTag]);
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias,
+                [MediaDbContext.FavoriteTag]);
         }
     }
 
@@ -254,11 +256,13 @@ public sealed partial class MediaViewer : UserControl
         {
             await using (var database = new MediaDbContext())
             {
-                var mediaIds = Medias.Select(media => media.MediaId).ToHashSet();
-                var mediaTags = await database.MediaTags.Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.FavoriteTag.TagId).ToListAsync();
+                HashSet<int> mediaIds = Medias.Select(media => media.MediaId).ToHashSet();
+                List<MediaTag> mediaTags = await database.MediaTags
+                    .Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.FavoriteTag.TagId)
+                    .ToListAsync();
                 await database.BulkDeleteAsync(mediaTags);
 
-                foreach (var media in Medias)
+                foreach (Media media in Medias)
                 {
                     media.IsFavorite = false;
                     media.Modified = DateTime.UtcNow;
@@ -266,7 +270,9 @@ public sealed partial class MediaViewer : UserControl
 
                 await database.BulkUpdateAsync(Medias);
             }
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias, tagsRemoved: [MediaDbContext.FavoriteTag]);
+
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias,
+                tagsRemoved: [MediaDbContext.FavoriteTag]);
         }
     }
 
@@ -299,11 +305,13 @@ public sealed partial class MediaViewer : UserControl
         {
             await using (var database = new MediaDbContext())
             {
-                var mediaIds = Medias.Select(media => media.MediaId).ToHashSet();
-                var mediaTags = await database.MediaTags.Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.ArchivedTag.TagId).ToListAsync();
+                HashSet<int> mediaIds = Medias.Select(media => media.MediaId).ToHashSet();
+                List<MediaTag> mediaTags = await database.MediaTags
+                    .Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.ArchivedTag.TagId)
+                    .ToListAsync();
                 await database.BulkDeleteAsync(mediaTags);
 
-                foreach (var media in Medias)
+                foreach (Media media in Medias)
                 {
                     media.IsArchived = false;
                     media.Modified = DateTime.UtcNow;
@@ -312,7 +320,8 @@ public sealed partial class MediaViewer : UserControl
                 await database.BulkUpdateAsync(Medias);
             }
 
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias, tagsRemoved: [MediaDbContext.ArchivedTag]);
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias,
+                tagsRemoved: [MediaDbContext.ArchivedTag]);
         }
     }
 
@@ -330,11 +339,11 @@ public sealed partial class MediaViewer : UserControl
             {
                 ICollection<MediaTag> mediaTags = [];
 
-                foreach (var media in Medias)
+                foreach (Media media in Medias)
                 {
                     if (!media.IsArchived)
                     {
-                        var mediaTag = new MediaTag()
+                        var mediaTag = new MediaTag
                         {
                             MediaId = media.MediaId,
                             TagId = MediaDbContext.ArchivedTag.TagId
@@ -350,7 +359,8 @@ public sealed partial class MediaViewer : UserControl
                 await database.BulkUpdateAsync(Medias);
             }
 
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias, tagsAdded: [MediaDbContext.ArchivedTag]);
+            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, Medias,
+                [MediaDbContext.ArchivedTag]);
         }
     }
 

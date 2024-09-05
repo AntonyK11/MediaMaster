@@ -12,16 +12,17 @@ public partial class ShellViewModel : ObservableObject
 
     [ObservableProperty] private object? _selected;
 
-    public INavigationService NavigationService { get; }
-
-    public INavigationViewService NavigationViewService { get; }
-
-    public ShellViewModel(MainNavigationService mainNavigationService, MainNavigationViewService mainNavigationViewService)
+    public ShellViewModel(MainNavigationService mainNavigationService,
+        MainNavigationViewService mainNavigationViewService)
     {
         NavigationService = mainNavigationService;
         NavigationService.Navigated += OnNavigated;
         NavigationViewService = mainNavigationViewService;
     }
+
+    public INavigationService NavigationService { get; }
+
+    public INavigationViewService NavigationViewService { get; }
 
     private void OnNavigated(object sender, NavigationEventArgs args)
     {
@@ -33,7 +34,7 @@ public partial class ShellViewModel : ObservableObject
             return;
         }
 
-        var selectedItem = NavigationViewService.GetSelectedItem(args.SourcePageType);
+        NavigationViewItem? selectedItem = NavigationViewService.GetSelectedItem(args.SourcePageType);
         if (selectedItem != null)
         {
             Selected = selectedItem;

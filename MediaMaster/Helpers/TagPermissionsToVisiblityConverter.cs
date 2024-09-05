@@ -2,16 +2,15 @@
 
 namespace MediaMaster.Helpers;
 
-/// <summary>
-///     Converts a <see cref="TagPermissions" /> value to a <see cref="Visibility" /> value.
-/// </summary>
-public sealed partial class TagPermissionsToVisibilityConverter : IValueConverter
+public partial class TagPermissionsToVisibilityConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 
     public object Convert(object? value, Type targetType, object parameter, string language)
     {
-        var hasFlag = value is TagPermissions permissions && Enum.TryParse(parameter.ToString(), true, out TagPermissions permission) && permissions.HasFlag(permission);
+        var hasFlag = value is TagPermissions permissions &&
+                      Enum.TryParse(parameter.ToString(), true, out TagPermissions permission) &&
+                      permissions.HasFlag(permission);
 
         if (IsInverted)
         {

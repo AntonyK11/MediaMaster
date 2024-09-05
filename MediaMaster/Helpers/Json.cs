@@ -9,10 +9,8 @@ namespace MediaMaster.Helpers;
 [JsonSerializable(typeof(ElementTheme))]
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(string))]
-[JsonSerializable(typeof(BrowserData[]))]
-internal partial class SourceGenerationContext : JsonSerializerContext
-{
-}
+[JsonSerializable(typeof(List<BrowserData>))]
+internal partial class SourceGenerationContext : JsonSerializerContext;
 
 public static class Json
 {

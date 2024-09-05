@@ -10,24 +10,27 @@ namespace MediaMaster.DataBase.Models;
 [Index(nameof(Added))]
 [Index(nameof(IsArchived))]
 [Index(nameof(IsFavorite))]
-public class Media : IHasTimestamps
+public class Media
 {
     [Key]
-    public virtual int MediaId { get; set; }
+    public int MediaId { get; set; }
 
-    public virtual string Name { get; set; } = "";
+    [StringLength(260, MinimumLength = 0)]
+    public string Name { get; set; } = "";
 
-    public virtual string Notes { get; set; } = "";
+    [StringLength(260, MinimumLength = 0)]
+    public string Notes { get; set; } = "";
 
-    public virtual string Uri { get; set; } = "";
+    [StringLength(32767, MinimumLength = 0)]
+    public string Uri { get; set; } = "";
 
-    public virtual DateTime Modified { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
+    public DateTime Modified { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
 
-    public virtual DateTime Added { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
+    public DateTime Added { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();
 
-    public virtual ICollection<Tag> Tags { get; } = [];
+    public ICollection<Tag> Tags { get; } = [];
 
-    public virtual bool IsArchived { get; set; } = false;
+    public bool IsArchived { get; set; } = false;
 
-    public virtual bool IsFavorite { get; set; } = false;
+    public bool IsFavorite { get; set; } = false;
 }

@@ -9,17 +9,17 @@ public partial class ShellViewModel : ObservableObject
 {
     [ObservableProperty] private bool _isBackEnabled;
 
-    [ObservableProperty] private object? _selected;
-
     [ObservableProperty] private bool _isFocused;
 
-    public INavigationService NavigationService { get; }
+    [ObservableProperty] private object? _selected;
 
     public ShellViewModel(FlyoutNavigationService flyoutNavigationService)
     {
         NavigationService = flyoutNavigationService;
         NavigationService.Navigated += OnNavigated;
     }
+
+    public INavigationService NavigationService { get; }
 
     private void OnNavigated(object sender, NavigationEventArgs args)
     {

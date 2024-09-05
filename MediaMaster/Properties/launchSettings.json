@@ -1,7 +1,8 @@
 {
   "profiles": {
     "MediaMaster (Package)": {
-      "commandName": "MsixPackage"
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
     },
     "MediaMaster (Unpackaged)": {
       "commandName": "Project"

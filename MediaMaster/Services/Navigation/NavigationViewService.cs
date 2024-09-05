@@ -1,10 +1,11 @@
-﻿using MediaMaster.Interfaces.Services;
-using MediaMaster.Helpers;
+﻿using MediaMaster.Helpers;
+using MediaMaster.Interfaces.Services;
 using MediaMaster.Views;
 
 namespace MediaMaster.Services.Navigation;
 
-public class NavigationViewService(INavigationService navigationService, IPageService pageService) : INavigationViewService
+public class NavigationViewService(INavigationService navigationService, IPageService pageService)
+    : INavigationViewService
 {
     private NavigationView? _navigationView;
 
@@ -31,10 +32,14 @@ public class NavigationViewService(INavigationService navigationService, IPageSe
     {
         if (_navigationView == null) return null;
 
-        return GetSelectedItem(_navigationView.MenuItems, pageType) ?? GetSelectedItem(_navigationView.FooterMenuItems, pageType);
+        return GetSelectedItem(_navigationView.MenuItems, pageType) ??
+               GetSelectedItem(_navigationView.FooterMenuItems, pageType);
     }
 
-    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) => navigationService.GoBack();
+    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+    {
+        navigationService.GoBack();
+    }
 
     private void OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
@@ -55,14 +60,14 @@ public class NavigationViewService(INavigationService navigationService, IPageSe
 
     private NavigationViewItem? GetSelectedItem(IEnumerable<object> menuItems, Type pageType)
     {
-        foreach (var item in menuItems.OfType<NavigationViewItem>())
+        foreach (NavigationViewItem item in menuItems.OfType<NavigationViewItem>())
         {
             if (IsMenuItemForPageType(item, pageType))
             {
                 return item;
             }
 
-            var selectedChild = GetSelectedItem(item.MenuItems, pageType);
+            NavigationViewItem? selectedChild = GetSelectedItem(item.MenuItems, pageType);
             if (selectedChild != null)
             {
                 return selectedChild;

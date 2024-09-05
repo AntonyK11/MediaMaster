@@ -16,7 +16,7 @@ public partial class EnumToBooleanConverter : IValueConverter
             throw new ArgumentException("ExceptionEnumToBooleanConverterValueMustBeAnEnum");
         }
 
-        object enumValue = Enum.Parse(value.GetType(), enumString);
+        var enumValue = Enum.Parse(value.GetType(), enumString);
 
         return enumValue.Equals(value);
     }

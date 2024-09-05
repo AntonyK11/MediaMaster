@@ -11,7 +11,7 @@ using WinUIEx;
 
 namespace MediaMaster.Views.Dialog;
 
-public sealed partial class CreateMediaDialog : Page
+public partial class CreateMediaDialog : Page
 {
     public CreateMediaDialog()
     {
@@ -31,7 +31,8 @@ public sealed partial class CreateMediaDialog : Page
             dialog.ShowHiddenItems = true;
 
             // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
-            FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo? fi =
+                typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fi != null && App.MainWindow != null)
             {
                 var hwnd = App.MainWindow.GetWindowHandle();
@@ -77,9 +78,12 @@ public sealed partial class CreateMediaDialog : Page
                     {
                         XamlRoot = App.MainWindow.Content.XamlRoot,
                         DefaultButton = ContentDialogButton.Primary,
-                        RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme,
+                        RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
                     };
-                    App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { errorDialog.RequestedTheme = theme; };
+                    App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
+                    {
+                        errorDialog.RequestedTheme = theme;
+                    };
 
                     switch (validation)
                     {
@@ -118,7 +122,7 @@ public sealed partial class CreateMediaDialog : Page
         return (result, mediaDialog);
     }
 
-    public async Task<string?> ValidateMedia()
+    private async Task<string?> ValidateMedia()
     {
         switch (SelectorBar.SelectedItem.Tag)
         {
@@ -136,6 +140,7 @@ public sealed partial class CreateMediaDialog : Page
                         return "FilePathAlreadyExists";
                     }
                 }
+
                 break;
 
             case "Website":
@@ -155,17 +160,17 @@ public sealed partial class CreateMediaDialog : Page
                         return "WebsiteUrlAlreadyExists";
                     }
                 }
+
                 break;
         }
 
         return null;
     }
 
-    public async Task SaveChangesAsync()
+    private async Task SaveChangesAsync()
     {
         await using (MediaDbContext database = new())
         {
-            
             Media media = new()
             {
                 Name = NameTextBox.Text,
@@ -197,7 +202,9 @@ public sealed partial class CreateMediaDialog : Page
                 // Bulk add new tags
                 if (tagIdsToAdd.Count != 0)
                 {
-                    List<MediaTag> newMediaTags = tagIdsToAdd.Select(tagId => new MediaTag { MediaId = media.MediaId, TagId = tagId }).ToList();
+                    List<MediaTag> newMediaTags = tagIdsToAdd
+                        .Select(tagId => new MediaTag { MediaId = media.MediaId, TagId = tagId })
+                        .ToList();
                     await database.BulkInsertOrUpdateAsync(newMediaTags);
                 }
 
