@@ -186,7 +186,10 @@
   <data name="SourceCodeButton.Content" xml:space="preserve">
     <value>Code source</value>
   </data>
-  <data name="SendMediaAddedConfirmationNotification.Title" xml:space="preserve">
-    <value>Envoyer une notification confirmant l'ajout de médias</value>
+  <data name="StartTutorial.Title" xml:space="preserve">
+    <value>Recommencer le tutoriel</value>
+  </data>
+  <data name="StartTutorialButton.Content" xml:space="preserve">
+    <value>Commencer</value>
   </data>
 </root>

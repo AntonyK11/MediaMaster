@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Navigation;
+﻿using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace MediaMaster.Interfaces.Services;
 
@@ -16,7 +17,7 @@ public interface INavigationService
         get; set;
     }
 
-    bool NavigateTo(string? pageKey, object? parameter = null, bool clearNavigation = false);
+    bool NavigateTo(string? pageKey, object? parameter = null, NavigationTransitionInfo? infoOverride = null, bool clearNavigation = false);
 
     bool GoBack();
 

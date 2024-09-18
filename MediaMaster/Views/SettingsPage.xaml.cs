@@ -1,4 +1,5 @@
 using Windows.ApplicationModel;
+using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using MediaMaster.ViewModels;
 
@@ -22,4 +23,9 @@ public partial class SettingsPage
     public SettingsViewModel ViewModel { get; }
 
     public SettingsService Settings { get; }
+
+    private void StartTutorialButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        App.GetService<ITeachingService>().Start();
+    }
 }

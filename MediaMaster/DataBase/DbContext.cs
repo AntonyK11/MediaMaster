@@ -1,10 +1,10 @@
 ﻿using System.Text.Json.Nodes;
 using Windows.Foundation;
-using Windows.Storage;
 using CommunityToolkit.WinUI;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Windows.Storage;
 using WinUI3Localizer;
 using WinUICommunity;
 
@@ -44,7 +44,10 @@ public partial class MediaDbContext : DbContext
     public static Tag? ArchivedTag;
 
 
-    private static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
+    public static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
+
+    // Used for migrations
+    //public const string DbPath = @"C:\Users\Antony\AppData\Local\Packages\AntonyKonstantas.MediaMasterApp_ryx18h009e2z4\LocalState\MediaMaster.db";
 
     public DbSet<Media> Medias { get; init; }
     public DbSet<Tag> Tags { get; init; }
@@ -53,9 +56,6 @@ public partial class MediaDbContext : DbContext
     public DbSet<TagTag> TagTags { get; init; }
 
     public static event TypedEventHandler<object?, MediaChangeArgs>? MediasChanged;
-
-    // Used for migrations
-    //private const string DbPath = @"C:\Users\Antony\AppData\Local\Packages\AntonyKonstantas.MediaMasterApp_ryx18h009e2z4\LocalState\MediaMaster.db";
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -99,17 +99,14 @@ public partial class MediaDbContext : DbContext
 #else
         await Database.MigrateAsync();
 #endif
-
-
-        await SetupTags();
-        await SetupCategories();
+        Dictionary<string, Tag> tags = await Tags.GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(x => x.Name);
+        await SetupTags(tags);
+        await SetupCategories(tags);
     }
 
-    private async Task SetupTags()
+    private async Task SetupTags(Dictionary<string, Tag> tags)
     {
-        ICollection<Tag> tags = Tags.ToList();
-
-        if (tags.FirstOrDefault(t => t.Name == "File") is not { } fileTag)
+        if (!tags.TryGetValue("File", out var fileTag))
         {
             fileTag = new Tag
             {
@@ -122,7 +119,7 @@ public partial class MediaDbContext : DbContext
 
         FileTag = fileTag;
 
-        if (tags.FirstOrDefault(t => t.Name == "Website") is not { } websiteTag)
+        if (!tags.TryGetValue("Website", out var websiteTag))
         {
             websiteTag = new Tag
             {
@@ -135,7 +132,7 @@ public partial class MediaDbContext : DbContext
 
         WebsiteTag = websiteTag;
 
-        if (tags.FirstOrDefault(t => t.Name == "Favorite") is not { } favoriteTag)
+        if (!tags.TryGetValue("Favorite", out var favoriteTag))
         {
             favoriteTag = new Tag
             {
@@ -149,7 +146,7 @@ public partial class MediaDbContext : DbContext
 
         FavoriteTag = favoriteTag;
 
-        if (tags.FirstOrDefault(t => t.Name == "Archived") is not { } archivedTag)
+        if (!tags.TryGetValue("Archived", out var archivedTag))
         {
             archivedTag = new Tag
             {
@@ -166,12 +163,12 @@ public partial class MediaDbContext : DbContext
         await SaveChangesAsync();
     }
 
-    private async Task SetupCategories()
+    private async Task SetupCategories(Dictionary<string, Tag> tags)
     {
         var defaultCategoriesFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "MediaCategories.json");
 
         await using FileStream fileStream = File.OpenRead(defaultCategoriesFilePath);
-        JsonNode defaultCategories = (await JsonNode.ParseAsync(fileStream))!;
+        JsonNode? defaultCategories = await JsonNode.ParseAsync(fileStream);
 
         ICollection<Tag> newTags = [];
 
@@ -181,23 +178,27 @@ public partial class MediaDbContext : DbContext
             {
                 if (value is not JsonArray array) continue;
 
-                var category = new Tag
+                if (!tags.TryGetValue(key, out var category))
                 {
-                    Name = key,
-                    Flags = TagFlags.Extension,
-                    Permissions = TagPermissions.CannotChangeParents,
-                    FirstParentReferenceName = FileTag.ReferenceName
-                };
-                category.Parents.Add(FileTag);
-                newTags.Add(category);
+                    category = new Tag
+                    {
+                        Name = key,
+                        Flags = TagFlags.Extension,
+                        Permissions = TagPermissions.CannotChangeParents,
+                        FirstParentReferenceName = FileTag.ReferenceName
+                    };
+                    category.Parents.Add(FileTag);
+                    newTags.Add(category);
+                }
 
                 foreach (JsonNode? extension in array)
                 {
-                    if (extension != null)
+                    var name = extension?.ToString();
+                    if (name != null && !tags.TryGetValue(name, out var tag))
                     {
-                        var tag = new Tag
+                        tag = new Tag
                         {
-                            Name = extension.ToString(),
+                            Name = name,
                             Flags = TagFlags.Extension,
                             Permissions = TagPermissions.CannotChangeName | TagPermissions.CannotDelete,
                             FirstParentReferenceName = category.ReferenceName
@@ -220,6 +221,14 @@ public partial class MediaDbContext : DbContext
         await this.BulkInsertAsync(tagTags);
     }
 
+    /// <summary>
+    ///     Invokes the media change event.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="flags">The flags indicating the type of media change.</param>
+    /// <param name="media">The collection of media affected by the change.</param>
+    /// <param name="tagsAdded">The collection of tags added during the change.</param>
+    /// <param name="tagsRemoved">The collection of tags removed during the change.</param>
     public static void InvokeMediaChange(object? sender, MediaChangeFlags flags, ICollection<Media> media,
         ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
     {

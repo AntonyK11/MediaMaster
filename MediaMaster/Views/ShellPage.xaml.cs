@@ -1,7 +1,7 @@
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
-using MediaMaster.DataBase;
+using MediaMaster.Interfaces.Services;
 using MediaMaster.ViewModels;
+using MediaMaster.Views.Dialog;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views;
@@ -10,13 +10,19 @@ public partial class ShellPage
 {
     private readonly ShellViewModel ViewModel;
 
-    public ShellPage(ShellViewModel viewModel)
+    private readonly ITeachingService TeachingService;
+
+    public ShellPage(ShellViewModel viewModel, ITeachingService teachingService)
     {
         ViewModel = viewModel;
+        TeachingService = teachingService;
+
         InitializeComponent();
 
         ViewModel.NavigationService.Frame = ContentFrame;
         ViewModel.NavigationViewService.Initialize(NavView);
+
+        TeachingService.Configure(1, TeachingTip1);
 
         Loaded += (_, _) =>
         {
@@ -43,8 +49,8 @@ public partial class ShellPage
         if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
         DropGrid.Visibility = Visibility.Collapsed;
 
-        IReadOnlyList<IStorageItem>? items = await e.DataView.GetStorageItemsAsync();
-        await Task.Run(() => MediaService.AddMediaAsync(items.Select(i => i.Path)).ConfigureAwait(false));
+        ICollection<string> mediaPaths = (await e.DataView.GetStorageItemsAsync()).Select(i => i.Path).ToList();
+        await AddMediasDialog.ShowDialogAsync(mediaPaths);
     }
 
     private async void UIElement_OnDragEnter(object sender, DragEventArgs e)

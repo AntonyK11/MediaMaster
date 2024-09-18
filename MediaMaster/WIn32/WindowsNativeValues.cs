@@ -2,10 +2,12 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Windows.Win32;
 
 namespace MediaMaster.WIn32;
 
+/// <summary>
+///     Defines the native values used in Windows API.
+/// </summary>
 public static class WindowsNativeValues
 {
     public const int

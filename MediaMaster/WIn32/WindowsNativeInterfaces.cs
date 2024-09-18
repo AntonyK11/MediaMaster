@@ -4,6 +4,9 @@ using static MediaMaster.WIn32.WindowsNativeValues;
 
 namespace MediaMaster.WIn32;
 
+/// <summary>
+///     Defines the native Windows interfaces.
+/// </summary>
 public static partial class WindowsNativeInterfaces
 {
     [GeneratedComInterface]

@@ -107,7 +107,7 @@ public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
 
     protected override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count == 0 || !IsCompact;
+        return true;
     }
 
     protected override void SetupTranslations() { }

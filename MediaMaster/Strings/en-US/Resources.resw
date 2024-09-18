@@ -166,7 +166,7 @@
     <value>Generate bookmark tags according to the bookmark structure</value>
   </data>
   <data name="DropFile_TextBlock.Text" xml:space="preserve">
-    <value>Drop file here to add it</value>
+    <value>Drop a file here to add it</value>
   </data>
   <data name="BrowsersTab_TextBlock.Text" xml:space="preserve">
     <value>Browsers tabs</value>
@@ -191,5 +191,11 @@
   </data>
   <data name="PathsFromDirectory_Button.Content" xml:space="preserve">
     <value>Fill paths from directory</value>
+  </data>
+  <data name="InAppNotification_AppMinimized_Title" xml:space="preserve">
+    <value>MediaMaster is still running</value>
+  </data>
+  <data name="InAppNotification_AppMinimized_SubTitle" xml:space="preserve">
+    <value>MediaMaster is now running in the background to improve startup performance</value>
   </data>
 </root>

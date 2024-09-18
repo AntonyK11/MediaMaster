@@ -36,6 +36,11 @@
                         l:Uids.Uid="/Home/ImportBookmarks_MenuFlyoutItem"
                         Click="MenuBar_MenuFlyoutItem_OnClick"
                         Tag="Import_Bookmarks" />
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/OpenDatabaseLocation_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="Open_Database_Locations" />
                 </MenuBarItem>
                 <MenuBarItem l:Uids.Uid="/Home/Edit_MenuBarItem">
                     <MenuFlyoutItem
@@ -58,6 +63,11 @@
                         l:Uids.Uid="/Home/FixUnlinkedMedias_MenuFlyoutItem"
                         Click="MenuBar_MenuFlyoutItem_OnClick"
                         Tag="Fix_Unlinked_Medias" />
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem
+                        l:Uids.Uid="/Home/ExportSearch_MenuFlyoutItem"
+                        Click="MenuBar_MenuFlyoutItem_OnClick"
+                        Tag="Export_Search_In_Excel" />
                 </MenuBarItem>
             </MenuBar>
         </Border>
@@ -141,7 +151,7 @@
                             </DropDownButton.Flyout>
                         </DropDownButton>
 
-                        <DropDownButton Grid.Column="2" BorderThickness="0">
+                        <DropDownButton Grid.Column="2">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE8CB;" />
                                 <TextBlock l:Uids.Uid="/Home/Sort_DropDownButton" />
@@ -190,10 +200,7 @@
                             </DropDownButton.Flyout>
                         </DropDownButton>
 
-                        <DropDownButton
-                            Grid.Column="3"
-                            BorderThickness="0"
-                            Content="{winUi:FontIcon Glyph=&#xE8B3;}">
+                        <DropDownButton Grid.Column="3" Content="{winUi:FontIcon Glyph=&#xE8B3;}">
                             <DropDownButton.Flyout>
                                 <MenuFlyout Placement="Bottom">
                                     <MenuFlyoutItem
@@ -225,7 +232,6 @@
                             x:Name="MultiSelectButton"
                             Grid.Column="4"
                             l:Uids.Uid="/Home/MultiSelectButton"
-                            BorderThickness="0"
                             Content="{winUi:FontIcon Glyph=&#xE762;}" />
                     </Grid>
                 </StackPanel>
@@ -253,7 +259,6 @@
                 x:Name="MediaViewer"
                 Grid.Column="2"
                 CornerRadius="8"
-                DelayIconLoading="False"
                 IconMargin="16"
                 ImageMode="ThumbnailOnly" />
         </Grid>

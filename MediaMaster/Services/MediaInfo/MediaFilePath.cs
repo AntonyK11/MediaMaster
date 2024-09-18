@@ -46,58 +46,37 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
     {
         if (App.MainWindow == null) return;
 
-        // Cannot use System.Windows.Forms.OpenFileDialog because it makes the app crash if the window is closed after the dialog in certain situations
-        using (CommonOpenFileDialog dialog = new())
+        (CommonFileDialogResult result, var fileName) = FilePickerService.OpenFilePicker(sender.Text);
+
+        if (result == CommonFileDialogResult.Ok && fileName != null)
         {
-            dialog.InitialDirectory = Path.GetDirectoryName(sender.Text);
-            dialog.DefaultFileName = Path.GetFileNameWithoutExtension(sender.Text);
-            dialog.EnsureFileExists = true;
-            dialog.EnsurePathExists = true;
-            dialog.ShowHiddenItems = true;
-            dialog.NavigateToShortcut = false;
-
-            // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
-            FieldInfo? fi =
-                typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fi != null)
+            await using (var database = new MediaDbContext())
             {
-                var hwnd = App.MainWindow.GetWindowHandle();
-                fi.SetValue(dialog, hwnd);
-            }
-
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                var filePath = dialog.FileName;
-                if (filePath == null) return;
-
-                await using (var database = new MediaDbContext())
+                if (await database.Medias.Select(m => m.Uri).ContainsAsync(fileName))
                 {
-                    if (await database.Medias.Select(m => m.Uri).ContainsAsync(filePath))
+                    ContentDialog errorDialog = new()
                     {
-                        ContentDialog errorDialog = new()
-                        {
-                            XamlRoot = App.MainWindow.Content.XamlRoot,
-                            DefaultButton = ContentDialogButton.Primary,
-                            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
-                        };
-                        Uids.SetUid(errorDialog, "/Media/FilePathAlreadyExistsDialog");
-                        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
-                        {
-                            errorDialog.RequestedTheme = theme;
-                        };
-
-                        ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
-
-                        if (errorResult == ContentDialogResult.Primary)
-                        {
-                            PathTextBox_OnEdit(media, sender);
-                        }
-                    }
-                    else
+                        XamlRoot = App.MainWindow.Content.XamlRoot,
+                        DefaultButton = ContentDialogButton.Primary,
+                        RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+                    };
+                    Uids.SetUid(errorDialog, "/Media/FilePathAlreadyExistsDialog");
+                    App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
                     {
-                        UpdateMedia(media, filePath, sender.Text, updateSender);
-                        sender.Text = filePath;
+                        errorDialog.RequestedTheme = theme;
+                    };
+
+                    ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
+
+                    if (errorResult == ContentDialogResult.Primary)
+                    {
+                        PathTextBox_OnEdit(media, sender);
                     }
+                }
+                else
+                {
+                    UpdateMedia(media, fileName, sender.Text, updateSender);
+                    sender.Text = fileName;
                 }
             }
         }
@@ -171,7 +150,7 @@ public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
 
     protected override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count != 0 && !(IsCompact || medias.Count != 1 || medias.First().Uri.IsWebsite());
+        return medias.Count != 0 && !(medias.Count != 1 || medias.First().Uri.IsWebsite());
     }
 
     protected override void MediaChanged(object? sender, MediaChangeArgs args)

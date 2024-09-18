@@ -9,7 +9,6 @@
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:services="using:MediaMaster.Services"
-    Margin="0,48,0,0"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -42,7 +41,7 @@
     </Page.Resources>
 
     <Grid
-        Margin="16,0,16,16"
+        Margin="16,48,16,16"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch"
         RowDefinitions="*, *"

@@ -9,10 +9,11 @@ namespace MediaMaster.Services;
 
 public partial class SettingsService : ObservableObject
 {
-    [ObservableProperty] private bool _doNotSendMediaAddedConfirmationNotification;
     [ObservableProperty] private bool _leaveAppRunning;
 
     [ObservableProperty] private bool _showExtensions;
+    [ObservableProperty] private bool _tutorialWasShown;
+    [ObservableProperty] private bool _runInBackgroundPopupShown;
 
     public static async Task<T?> ReadSettingAsync<T>(string key, JsonTypeInfo<T> typeInfo)
     {
@@ -34,7 +35,7 @@ public partial class SettingsService : ObservableObject
         PropertyChanged += SettingsService_PropertyChanged;
 
         MethodInfo readMethodGeneric = typeof(SettingsService).GetMethod(nameof(ReadSettingAsync))!;
-        PropertyInfo[] properties = GetType().GetProperties();
+        PropertyInfo[] properties = typeof(SettingsService).GetProperties();
         foreach (PropertyInfo property in properties)
         {
             // Get the generic method for the property type
@@ -57,8 +58,7 @@ public partial class SettingsService : ObservableObject
         var propertyName = e.PropertyName;
         if (propertyName is null) return;
 
-        Type type = GetType();
-        PropertyInfo? property = type.GetProperty(propertyName);
+        PropertyInfo? property = typeof(SettingsService).GetProperty(propertyName);
         var value = (bool?)property?.GetValue(this);
         if (value == null) return;
 

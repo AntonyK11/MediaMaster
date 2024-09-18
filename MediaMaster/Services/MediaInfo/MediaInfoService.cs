@@ -9,7 +9,6 @@ internal class MediaInfoService
     public MediaInfoService(DockPanel parent)
     {
         Register(new MediaName(parent));
-        Register(new MediaNameCompact(parent));
         Register(new MediaDuration(parent));
         Register(new MediaFilePath(parent));
         Register(new MediaWebUrl(parent));
@@ -32,11 +31,11 @@ internal class MediaInfoService
         _mediaInfoControls.Add(mediaInfoControl);
     }
 
-    public void SetMedia(ICollection<Media> medias, bool isCompact)
+    public void SetMedia(ICollection<Media> medias)
     {
         foreach (MediaInfoControlBase mediaInfoControl in _mediaInfoControls)
         {
-            mediaInfoControl.Initialize(medias, isCompact);
+            mediaInfoControl.Initialize(medias);
         }
     }
 }

@@ -9,7 +9,6 @@ public abstract class MediaInfoControlBase
     private bool _firstShown = true;
 
     private bool _isVisible;
-    protected bool IsCompact;
     protected ICollection<Media> Medias = [];
     protected TextBlock? Title;
 
@@ -21,9 +20,8 @@ public abstract class MediaInfoControlBase
 
     protected abstract string TranslationKey { get; }
 
-    public virtual void Initialize(ICollection<Media> medias, bool isCompact)
+    public virtual void Initialize(ICollection<Media> medias)
     {
-        IsCompact = isCompact;
         if (_firstShown)
         {
             Setup();
@@ -68,7 +66,7 @@ public abstract class MediaInfoControlBase
 
     protected virtual bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count != 0 && !IsCompact;
+        return medias.Count != 0;
     }
 
     protected abstract void Setup();

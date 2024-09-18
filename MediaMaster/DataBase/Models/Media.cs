@@ -15,13 +15,10 @@ public class Media
     [Key]
     public int MediaId { get; set; }
 
-    [StringLength(260, MinimumLength = 0)]
     public string Name { get; set; } = "";
 
-    [StringLength(260, MinimumLength = 0)]
     public string Notes { get; set; } = "";
 
-    [StringLength(32767, MinimumLength = 0)]
     public string Uri { get; set; } = "";
 
     public DateTime Modified { get; set; } = DateTime.UtcNow.GetDateTimeUpToSeconds();

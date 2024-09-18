@@ -9,7 +9,7 @@
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:MediaMaster.DataBase.Models"
-    Width="400"
+    MaxWidth="400"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -44,12 +44,14 @@
         <helpers:TagPermissionsToVisibilityConverter x:Key="TagPermissionsToVisibilityConverter" />
     </Page.Resources>
 
-    <Grid RowSpacing="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBox x:Name="TextBox" TextChanged="TextBox_TextChanged" />
+    <Grid RowDefinitions="Auto, *" RowSpacing="16">
+        <!--  Forces the dialog to stretch up to its maxWidth but still allowing it to be smaller  -->
+        <Rectangle Width="400" />
+
+        <TextBox
+            x:Name="TextBox"
+            Grid.Row="0"
+            TextChanged="TextBox_TextChanged" />
         <ListView
             x:Name="ListView"
             Grid.Row="1"

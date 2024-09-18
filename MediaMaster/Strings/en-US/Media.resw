@@ -287,4 +287,19 @@ Please choose a path.</value>
   <data name="DuplicatesWillNotBeFixed.Content" xml:space="preserve">
     <value>Media with identical paths will not be fixed</value>
   </data>
+  <data name="AddMediasDialog.Title" xml:space="preserve">
+    <value>Add new medias</value>
+  </data>
+  <data name="AddMediasDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddMediasDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="AddButton_AddMediaPage.Content" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddMedias_AddMediaPage.Text" xml:space="preserve">
+    <value>Add new medias</value>
+  </data>
 </root>

@@ -1,4 +1,5 @@
 ﻿using MediaMaster.Services;
+using MediaMaster.Views;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -10,6 +11,14 @@ namespace MediaMaster.Helpers;
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(List<BrowserData>))]
+[JsonSerializable(typeof(List<StoredSearch>))]
+[JsonSerializable(typeof(ICollection<FilterObject>))]
+[JsonSerializable(typeof(ICollection<FilterType>))]
+[JsonSerializable(typeof(Filter))]
+[JsonSerializable(typeof(FilterGroup))]
+[JsonSerializable(typeof(TextOperations))]
+[JsonSerializable(typeof(DateOperations))]
+[JsonSerializable(typeof(TagsOperations))]
 internal partial class SourceGenerationContext : JsonSerializerContext;
 
 public static class Json

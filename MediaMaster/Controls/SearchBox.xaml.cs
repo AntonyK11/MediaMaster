@@ -2,7 +2,9 @@ using System.Linq.Expressions;
 using Windows.Foundation;
 using CommunityToolkit.WinUI;
 using DependencyPropertyGenerator;
+using DocumentFormat.OpenXml.Drawing;
 using MediaMaster.DataBase;
+using MediaMaster.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -32,7 +34,7 @@ public partial class SearchBox : UserControl
             (_filterNotes && EF.Functions.Like(m.Notes, $"%{_text}%")) ||
             (_filterTags && _medias.Contains(m.MediaId));
 
-        TextBox.TextChanged += async (_, args) => { await Change(); };
+        TextBox.TextChanged += async (_, args) => await Change();
     }
 
     public event TypedEventHandler<object, Expression<Func<Media, bool>>>? FilterChanged;
@@ -77,17 +79,26 @@ public partial class SearchBox : UserControl
 
     async partial void OnFilterNameChanged()
     {
-        await Change();
+        if (!_text.IsNullOrEmpty())
+        {
+            await Change();
+        }
     }
 
     async partial void OnFilterNotesChanged()
     {
-        await Change();
+        if (!_text.IsNullOrEmpty())
+        {
+            await Change();
+        }
     }
 
     async partial void OnFilterTagsChanged()
     {
-        await Change();
+        if (!_text.IsNullOrEmpty())
+        {
+            await Change();
+        }
     }
 
     private void NameButton_OnLoaded(object sender, RoutedEventArgs e)

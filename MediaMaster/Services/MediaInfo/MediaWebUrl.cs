@@ -138,7 +138,7 @@ public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
 
     protected override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count != 0 && !(IsCompact || medias.Count != 1 || !medias.First().Uri.IsWebsite());
+        return medias.Count != 0 && !(medias.Count != 1 || !medias.First().Uri.IsWebsite());
     }
 
     protected override void MediaChanged(object? sender, MediaChangeArgs args)

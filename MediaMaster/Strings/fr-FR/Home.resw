@@ -258,4 +258,22 @@
   <data name="MediasFound.Text" xml:space="preserve">
     <value>média(s) trouvé(s)</value>
   </data>
+  <data name="OpenDatabaseLocation_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Emplacement de la base de données</value>
+  </data>
+  <data name="ExportSearch_MenuFlyoutItem.Text" xml:space="preserve">
+    <value>Exporter la recherche</value>
+  </data>
+  <data name="SaveSearch_AdvancedFilterFlyout.Content" xml:space="preserve">
+    <value>Sauvegarder</value>
+  </data>
+  <data name="SearchName_AdvancedFilterFlyout.PlaceholderText" xml:space="preserve">
+    <value>Nom de la recherche</value>
+  </data>
+  <data name="SavedSearches_AdvancedFilterFlyout.PlaceholderText" xml:space="preserve">
+    <value>Recherches sauvegardées</value>
+  </data>
+  <data name="DefaultName_AdvancedFilterFlyout" xml:space="preserve">
+    <value>Nom par défaut</value>
+  </data>
 </root>

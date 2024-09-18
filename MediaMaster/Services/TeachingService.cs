@@ -1,4 +1,6 @@
 ﻿using MediaMaster.Interfaces.Services;
+using MediaMaster.Services.Navigation;
+using MediaMaster.Views;
 
 namespace MediaMaster.Services;
 
@@ -10,6 +12,12 @@ public class TeachingService : ITeachingService
     private readonly Dictionary<int, TeachingTip> _teachingTips = [];
 
     private int _teachingStep;
+
+    public void Start()
+    {
+        _teachingStep = 1;
+        Steps();
+    }
 
     public void NextStep()
     {
@@ -50,7 +58,7 @@ public class TeachingService : ITeachingService
         switch (_teachingStep)
         {
             case 1:
-                Debug.WriteLine("Step 1");
+                App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName);
                 break;
             case 2:
                 Debug.WriteLine("Step 2");
@@ -61,6 +69,11 @@ public class TeachingService : ITeachingService
         }
 
         SetTeachingTipProperty(_teachingStep, "IsOpen", true);
+
+        if (_teachingStep >= _teachingTips.Keys.Last())
+        {
+            App.GetService<SettingsService>().TutorialWasShown = true;
+        }
     }
 
     private void CloseAllTeachingTips()

@@ -11,7 +11,6 @@ using System.Text.Json;
 using MediaMaster.DataBase;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Helpers;
-using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster;
 
@@ -74,7 +73,6 @@ public partial class App : Application
                 services.AddSingleton<ShellViewModel>();
                 services.AddSingleton<ShellPage>();
                 services.AddTransient<HomePage>();
-                services.AddSingleton<CategoriesPage>();
                 services.AddTransient<SettingsViewModel>();
                 services.AddTransient<SettingsPage>();
 
@@ -83,9 +81,14 @@ public partial class App : Application
                 services.AddSingleton<ViewModels.Flyout.ShellViewModel>();
                 services.AddSingleton<Views.Flyout.HomePage>();
                 services.AddSingleton<ViewModels.Flyout.HomeViewModel>();
+                services.AddSingleton<Views.Flyout.AddMediasPage>();
+                services.AddSingleton<ViewModels.Flyout.AddMediasViewModel>();
 
                 services.AddSingleton<TrayIconService>();
                 services.AddSingleton<TasksService>();
+
+                services.AddSingleton<SearchSavingService>(); 
+                services.AddSingleton<MediaService>();
             }).Build();
 
         GetService<IAppNotificationService>().Initialize();

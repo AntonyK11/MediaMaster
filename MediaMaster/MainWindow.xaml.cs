@@ -2,6 +2,8 @@ using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using WinUIEx;
 using H.NotifyIcon.EfficiencyMode;
+using MediaMaster.Services.Navigation;
+using MediaMaster.Views;
 using static MediaMaster.WIn32.WindowsNativeValues;
 using static MediaMaster.WIn32.WindowsApiService;
 
@@ -32,11 +34,24 @@ public partial class MainWindow : WindowEx
 
             this.Minimize();
             this.Hide();
-            EfficiencyModeUtilities.SetEfficiencyMode(true);
+            App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName!);
+            App.GetService<IActivationService>().ShowAppRunningInBackgroundPopup();
+
+            if (App.Flyout == null || !App.Flyout.IsOpen)
+            {
+                EfficiencyModeUtilities.SetEfficiencyMode(true);
+            }
+        }
+        else if (App.Flyout == null || !App.Flyout.IsOpen)
+        {
+            App.Shutdown();
         }
         else
         {
-            App.Shutdown();
+            args.Handled = true;
+            this.Minimize();
+            this.Hide();
+            App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName!);
         }
     }
 

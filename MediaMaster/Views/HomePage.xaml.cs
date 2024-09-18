@@ -1,5 +1,11 @@
 using System.Linq.Expressions;
+using MediaMaster.Controls;
+using MediaMaster.DataBase;
+using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace MediaMaster.Views;
 
@@ -9,7 +15,7 @@ public partial class HomePage : Page
     {
         InitializeComponent();
 
-        MediaItemsView.AdvancedFilterFunctions.Add(SearchBox.Filter);
+        MediaItemsView.SimpleFilterFunctions.Add(SearchBox.Filter);
     }
 
     private void HomePage_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -23,9 +29,9 @@ public partial class HomePage : Page
         }
     }
 
-    private void MediaItemsView_OnSelectionChanged(object sender, ICollection<Media> args)
+    private void MediaItemsView_OnSelectionChanged(object sender, HashSet<int> args)
     {
-        MediaViewer.Medias = args;
+        MediaViewer.SetMedias(args);
     }
 
     private void SortBy_MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
@@ -82,26 +88,64 @@ public partial class HomePage : Page
                 await CreateMediaDialog.ShowDialogAsync();
                 break;
             case "New_Tag":
-                await CreateEditDeleteTagDialog.ShowDialogAsync();
+                await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot);
                 break;
             case "Manage_Tags":
-                await TagsListDialog.ShowDialogAsync();
+                await TagsListDialog.ShowDialogAsync(this.XamlRoot);
                 break;
             case "Fix_Unlinked_Medias":
                 await FixUnlinkedMediasDialog.ShowDialogAsync();
                 break;
+            case "Open_Database_Locations":
+                ProcessStartInfo startInfo = new()
+                {
+                    Arguments = $"/select, \"{MediaDbContext.DbPath}\"",
+                    FileName = "explorer.exe"
+                };
+                Process.Start(startInfo);
+                break;
+            case "Export_Search_In_Excel":
+                await ExportSearchInExcel();
+                break;
+        }
+    }
+
+    private async Task ExportSearchInExcel()
+    {
+        (CommonFileDialogResult result, var fileName) = FilePickerService.SaveFilePicker("Search-results.xlsx", "xlsx", new CommonFileDialogFilter("Excel Workbook", "*.xlsl"));
+
+        if (result == CommonFileDialogResult.Ok && fileName != null)
+        {
+            var sortFunction = MediaItemsView.SortFunction;
+            var sortAscending = MediaItemsView.SortAscending;
+            var simpleFilterFunctions = MediaItemsView.SimpleFilterFunctions;
+            var advancedFilterFunctions = MediaItemsView.AdvancedFilterFunctions;
+
+            List<Media> medias;
+            await using (var database = new MediaDbContext())
+            {
+                var mediaQuery = SearchService.GetQuery(database, sortFunction, sortAscending, simpleFilterFunctions, advancedFilterFunctions);
+
+                medias = await mediaQuery.Include(m => m.Tags).ToListAsync();
+            }
+
+            ExcelService.SaveSearchResultsToExcel(medias, fileName);
         }
     }
 
     private async void FlyoutBase_OnClosed(object? sender, object e)
     {
+        var oldCount = MediaItemsView.AdvancedFilterFunctions.Count;
         MediaItemsView.AdvancedFilterFunctions.Clear();
-        foreach (Expression<Func<Media, bool>> expression in await AdvancedFilters.GetFilterExpressions(AdvancedFilters
-                     .FilterObjects))
+        foreach (Expression<Func<Media, bool>> expression in await AdvancedFilters.GetFilterExpressions(AdvancedFilters.FilterObjects))
         {
             MediaItemsView.AdvancedFilterFunctions.Add(expression);
         }
+        var newCount = MediaItemsView.AdvancedFilterFunctions.Count;
 
-        await MediaItemsView.SetupMediaCollection();
+        if (oldCount != newCount || newCount != 0)
+        {
+            await MediaItemsView.SetupMediaCollection();
+        }
     }
 }

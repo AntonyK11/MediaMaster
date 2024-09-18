@@ -44,7 +44,7 @@ public class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
 
     protected override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count != 0 && !IsCompact;
+        return medias.Count != 0;
     }
 
     protected override void Show()

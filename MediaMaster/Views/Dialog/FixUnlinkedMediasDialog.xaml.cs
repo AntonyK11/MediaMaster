@@ -6,6 +6,7 @@ using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
+using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using WinUI3Localizer;
@@ -117,61 +118,39 @@ public partial class FixUnlinkedMediasDialog : Page
 
     private async void EditableTextBlock_OnEditButtonPressed(EditableTextBlock sender, string args)
     {
-        if (App.MainWindow == null) return;
+        (CommonFileDialogResult result, var fileName) = FilePickerService.OpenFilePicker(sender.Text);
 
-        // Cannot use System.Windows.Forms.OpenFileDialog because it makes the app crash if the window is closed after the dialog in certain situations
-        using (CommonOpenFileDialog dialog = new())
+        if (result == CommonFileDialogResult.Ok && fileName != null && App.MainWindow != null)
         {
-            dialog.InitialDirectory = Path.GetDirectoryName(sender.Text);
-            dialog.DefaultFileName = Path.GetFileNameWithoutExtension(sender.Text);
-            dialog.EnsureFileExists = true;
-            dialog.EnsurePathExists = true;
-            dialog.ShowHiddenItems = true;
-            dialog.NavigateToShortcut = false;
-
-            // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
-            FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fi != null)
+            await using (var database = new MediaDbContext())
             {
-                var hwnd = App.MainWindow.GetWindowHandle();
-                fi.SetValue(dialog, hwnd);
-            }
-
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                var filePath = dialog.FileName;
-                if (filePath == null) return;
-
-                await using (var database = new MediaDbContext())
+                if (await database.Medias.Select(m => m.Uri).ContainsAsync(fileName))
                 {
-                    if (await database.Medias.Select(m => m.Uri).ContainsAsync(filePath))
+                    ContentDialog errorDialog = new()
                     {
-                        ContentDialog errorDialog = new()
-                        {
-                            XamlRoot = App.MainWindow.Content.XamlRoot,
-                            DefaultButton = ContentDialogButton.Primary,
-                            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
-                        };
-                        Uids.SetUid(errorDialog, "/Media/FilePathAlreadyExistsDialog");
-                        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
-                        {
-                            errorDialog.RequestedTheme = theme;
-                        };
-
-                        ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
-
-                        if (errorResult == ContentDialogResult.Primary)
-                        {
-                            EditableTextBlock_OnEditButtonPressed(sender, args);
-                        }
-                    }
-                    else
+                        XamlRoot = App.MainWindow.Content.XamlRoot,
+                        DefaultButton = ContentDialogButton.Primary,
+                        RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+                    };
+                    Uids.SetUid(errorDialog, "/Media/FilePathAlreadyExistsDialog");
+                    App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
                     {
-                        sender.Text = filePath;
+                        errorDialog.RequestedTheme = theme;
+                    };
 
-                        var media = (MediaProperties)sender.Tag;
-                        UpdateMedia(media, filePath);
+                    ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
+
+                    if (errorResult == ContentDialogResult.Primary)
+                    {
+                        EditableTextBlock_OnEditButtonPressed(sender, args);
                     }
+                }
+                else
+                {
+                    sender.Text = fileName;
+
+                    var media = (MediaProperties)sender.Tag;
+                    UpdateMedia(media, fileName);
                 }
             }
         }
@@ -216,64 +195,44 @@ public partial class FixUnlinkedMediasDialog : Page
 
     private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
-        if (App.MainWindow == null) return;
+        (CommonFileDialogResult result, var folderPath) = FilePickerService.OpenFilePicker(null, true);
 
-        using (CommonOpenFileDialog dialog = new())
+        if (result == CommonFileDialogResult.Ok && folderPath != null)
         {
-            dialog.EnsureFileExists = true;
-            dialog.EnsurePathExists = true;
-            dialog.ShowHiddenItems = true;
-            dialog.NavigateToShortcut = false;
-            dialog.IsFolderPicker = true;
-
-            // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
-            FieldInfo? fi = typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fi != null)
+            ICollection<KeyValuePair<string, MediaProperties>> mediaToUpdate = [];
+            await Task.Run(() =>
             {
-                var hwnd = App.MainWindow.GetWindowHandle();
-                fi.SetValue(dialog, hwnd);
-            }
-
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                var folderPath = dialog.FileName;
-                if (folderPath == null) return;
-
-                ICollection<KeyValuePair<string, MediaProperties>> mediaToUpdate = [];
-                await Task.Run(() =>
+                EnumerationOptions opt = new()
                 {
-                    EnumerationOptions opt = new()
+                    RecurseSubdirectories = true,
+                    IgnoreInaccessible = true,
+                    ReturnSpecialDirectories = true
+                };
+                Dictionary<string, List<string>> directories = Directory.EnumerateFiles(folderPath, "*", opt)
+                    .GroupBy(Path.GetFileName)
+                    .ToDictionary(g => g.Key!, g => g.ToList());
+
+                Dictionary<string, List<MediaProperties>> mediaDictionary = _unlinkedMedias
+                    .Where(m => m.ShowValidControl != Visibility.Visible)
+                    .GroupBy(m => Path.GetFileName(m.Media.Uri))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+
+                foreach ((var name, List<MediaProperties> medias) in mediaDictionary)
+                {
+                    if (directories.TryGetValue(name, out List<string>? paths))
                     {
-                        RecurseSubdirectories = true,
-                        IgnoreInaccessible = true,
-                        ReturnSpecialDirectories = true
-                    };
-                    Dictionary<string, List<string>> directories = Directory.EnumerateFiles(folderPath, "*", opt)
-                        .GroupBy(Path.GetFileName)
-                        .ToDictionary(g => g.Key!, g => g.ToList());
-
-                    Dictionary<string, List<MediaProperties>> mediaDictionary = _unlinkedMedias
-                        .Where(m => m.ShowValidControl != Visibility.Visible)
-                        .GroupBy(m => Path.GetFileName(m.Media.Uri))
-                        .ToDictionary(g => g.Key, g => g.ToList());
-
-
-                    foreach ((var name, List<MediaProperties> medias) in mediaDictionary)
-                    {
-                        if (directories.TryGetValue(name, out List<string>? paths))
+                        List<Tuple<string, MediaProperties>> matches = PairFilePaths(medias, paths);
+                        foreach ((var path, MediaProperties mediaProperties) in matches)
                         {
-                            List<Tuple<string, MediaProperties>> matches = PairFilePaths(medias, paths);
-                            foreach ((var path, MediaProperties mediaProperties) in matches)
-                            {
-                                mediaToUpdate.Add(new KeyValuePair<string, MediaProperties>(path, mediaProperties));
-                            }
+                            mediaToUpdate.Add(new KeyValuePair<string, MediaProperties>(path, mediaProperties));
                         }
                     }
-                });
-                foreach ((var file, MediaProperties mediaProperties) in mediaToUpdate)
-                {
-                    UpdateMedia(mediaProperties, file);
                 }
+            });
+            foreach ((var file, MediaProperties mediaProperties) in mediaToUpdate)
+            {
+                UpdateMedia(mediaProperties, file);
             }
         }
     }

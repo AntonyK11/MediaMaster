@@ -9,102 +9,100 @@
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiToolkit="using:CommunityToolkit.WinUI.Controls"
-    Width="400"
+    MaxWidth="400"
     mc:Ignorable="d">
 
-
-    <StackPanel Spacing="16">
-        <TextBox
-            l:Uids.Uid="/Tag/Name_TextBox"
-            IsEnabled="{x:Bind ViewModel.CanChangeName, Mode=OneWay}"
-            Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
-        <TextBox
-            l:Uids.Uid="/Tag/Shorthand_TextBox"
-            IsEnabled="{x:Bind ViewModel.CanChangeShortHand, Mode=OneWay}"
-            Text="{x:Bind ViewModel.Shorthand, Mode=TwoWay}" />
-        <StackPanel Spacing="8">
-            <TextBlock l:Uids.Uid="/Tag/Aliases_TextBlock" />
-            <controls:EditableListView
-                x:Name="AliasesListView"
-                Height="200"
-                IsEnabled="{x:Bind ViewModel.CanChangeAliases, Mode=OneWay}" />
-        </StackPanel>
-        <Grid ColumnSpacing="16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <Rectangle
-                    Width="24"
-                    Height="24"
-                    Margin="4,0,0,0"
-                    HorizontalAlignment="Left"
-                    Fill="{x:Bind ViewModel.ColorBrush, Mode=OneWay}"
-                    RadiusX="32"
-                    RadiusY="32" />
-                <Button
-                    Padding="15"
-                    Background="Transparent"
-                    Canvas.ZIndex="0"
-                    CornerRadius="32"
-                    IsEnabled="{x:Bind ViewModel.CanChangeColor, Mode=OneWay}">
-                    <Button.Flyout>
-                        <Flyout x:Name="Flyout" Placement="Left">
-                            <StackPanel Spacing="16">
-                                <ColorPicker
-                                    x:Name="ColorPicker"
-                                    ColorChanged="ColorPicker_OnColorChanged"
-                                    IsAlphaEnabled="True"
-                                    Color="{x:Bind ViewModel.Color, Mode=OneWay}" />
-                                <Grid ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Button
-                                        Grid.Column="0"
-                                        HorizontalAlignment="Stretch"
-                                        l:Uids.Uid="/Tag/ColorPicker_ConfirmButton"
-                                        Click="Confirm_Click"
-                                        Style="{ThemeResource AccentButtonStyle}">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <TextBlock l:Uids.Uid="/Tag/ColorPicker_ConfirmButton" />
-                                            <FontIcon
-                                                x:Name="ContrastIcon"
-                                                FontSize="16"
-                                                Glyph="&#xE7BA;"
-                                                Visibility="Collapsed" />
-                                        </StackPanel>
-                                    </Button>
-                                    <Button
-                                        Grid.Column="1"
-                                        HorizontalAlignment="Stretch"
-                                        l:Uids.Uid="/Tag/ColorPicker_CancelButton"
-                                        Click="Cancel_Click" />
-                                </Grid>
-                            </StackPanel>
-                        </Flyout>
-                    </Button.Flyout>
-                </Button>
+    <ScrollView Margin="0,0,-19,0" Padding="0,0,19,0">
+        <StackPanel Spacing="16">
+            <TextBox
+                l:Uids.Uid="/Tag/Name_TextBox"
+                IsEnabled="{x:Bind ViewModel.CanChangeName, Mode=OneWay}"
+                Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
+            <TextBox
+                l:Uids.Uid="/Tag/Shorthand_TextBox"
+                IsEnabled="{x:Bind ViewModel.CanChangeShortHand, Mode=OneWay}"
+                Text="{x:Bind ViewModel.Shorthand, Mode=TwoWay}" />
+            <StackPanel Spacing="8">
+                <TextBlock l:Uids.Uid="/Tag/Aliases_TextBlock" />
+                <controls:EditableListView x:Name="AliasesListView" IsEnabled="{x:Bind ViewModel.CanChangeAliases, Mode=OneWay}" />
+            </StackPanel>
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Rectangle
+                        Width="24"
+                        Height="24"
+                        Margin="4,0,0,0"
+                        HorizontalAlignment="Left"
+                        Fill="{x:Bind ViewModel.ColorBrush, Mode=OneWay}"
+                        RadiusX="32"
+                        RadiusY="32" />
+                    <Button
+                        Padding="15"
+                        Background="Transparent"
+                        Canvas.ZIndex="0"
+                        CornerRadius="32"
+                        IsEnabled="{x:Bind ViewModel.CanChangeColor, Mode=OneWay}">
+                        <Button.Flyout>
+                            <Flyout x:Name="Flyout" Placement="Left">
+                                <StackPanel Spacing="16">
+                                    <ColorPicker
+                                        x:Name="ColorPicker"
+                                        ColorChanged="ColorPicker_OnColorChanged"
+                                        IsAlphaEnabled="True"
+                                        Color="{x:Bind ViewModel.Color, Mode=OneWay}" />
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button
+                                            Grid.Column="0"
+                                            HorizontalAlignment="Stretch"
+                                            l:Uids.Uid="/Tag/ColorPicker_ConfirmButton"
+                                            Click="Confirm_Click"
+                                            Style="{ThemeResource AccentButtonStyle}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock l:Uids.Uid="/Tag/ColorPicker_ConfirmButton" />
+                                                <FontIcon
+                                                    x:Name="ContrastIcon"
+                                                    FontSize="16"
+                                                    Glyph="&#xE7BA;"
+                                                    Visibility="Collapsed" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Stretch"
+                                            l:Uids.Uid="/Tag/ColorPicker_CancelButton"
+                                            Click="Cancel_Click" />
+                                    </Grid>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </Grid>
+                <TextBlock
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Text="{x:Bind ViewModel.ColorName, Mode=OneWay}" />
             </Grid>
-            <TextBlock
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                Text="{x:Bind ViewModel.ColorName, Mode=OneWay}" />
-        </Grid>
 
-        <StackPanel Spacing="8">
-            <TextBlock l:Uids.Uid="/Tag/Parents_TextBlock" />
+            <StackPanel Spacing="8">
+                <TextBlock l:Uids.Uid="/Tag/Parents_TextBlock" />
 
-            <controls:TagView
-                x:Name="TagView"
-                AddTagButton="True"
-                IsEnabled="{x:Bind ViewModel.CanChangeParents, Mode=OneWay}">
-                <controls:TagView.Layout>
-                    <winuiToolkit:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
-                </controls:TagView.Layout>
-            </controls:TagView>
+                <controls:TagView
+                    x:Name="TagView"
+                    AddTagButton="True"
+                    IsEnabled="{x:Bind ViewModel.CanChangeParents, Mode=OneWay}">
+                    <controls:TagView.Layout>
+                        <winuiToolkit:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
+                    </controls:TagView.Layout>
+                </controls:TagView>
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+    </ScrollView>
 </Page>

@@ -80,7 +80,7 @@ public partial class CreateEditDeleteTagDialog : Page
         ContrastIcon.Visibility = badContrast ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(int? tagId = null,
+    public static async Task<(ContentDialogResult, CreateEditDeleteTagDialog?)> ShowDialogAsync(XamlRoot xamlRoot, int? tagId = null,
         Tag? tag = null)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
@@ -88,7 +88,7 @@ public partial class CreateEditDeleteTagDialog : Page
         var tagDialog = new CreateEditDeleteTagDialog(tagId, tag);
         ContentDialog dialog = new()
         {
-            XamlRoot = App.MainWindow.Content.XamlRoot,
+            XamlRoot = xamlRoot,
             DefaultButton = ContentDialogButton.Primary,
             Content = tagDialog,
             RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
@@ -105,7 +105,14 @@ public partial class CreateEditDeleteTagDialog : Page
         ContentDialogResult result;
         do
         {
-            result = await dialog.ShowAndEnqueueAsync();
+            if (xamlRoot != App.MainWindow.Content.XamlRoot)
+            {
+                result = await dialog.ShowAndEnqueueAsync(true);
+            }
+            else
+            {
+                result = await dialog.ShowAndEnqueueAsync();
+            }
             deleteResult = null;
 
             switch (result)
@@ -119,7 +126,7 @@ public partial class CreateEditDeleteTagDialog : Page
                 {
                     if (tagId != null)
                     {
-                        deleteResult = await DeleteTag((int)tagId);
+                        deleteResult = await DeleteTag((int)tagId, xamlRoot);
                     }
 
                     break;
@@ -130,19 +137,28 @@ public partial class CreateEditDeleteTagDialog : Page
         return (result, tagDialog);
     }
 
-    public static async Task<ContentDialogResult> DeleteTag(int tagId)
+    public static async Task<ContentDialogResult> DeleteTag(int tagId, XamlRoot xamlRoot)
     {
         if (App.MainWindow == null) return ContentDialogResult.None;
 
         ContentDialog dialog = new()
         {
-            XamlRoot = App.MainWindow.Content.XamlRoot,
+            XamlRoot = xamlRoot,
             DefaultButton = ContentDialogButton.Close,
             RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
         };
         Uids.SetUid(dialog, "/Tag/DeleteDialog");
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
-        ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
+
+        ContentDialogResult result;
+        if (xamlRoot != App.MainWindow.Content.XamlRoot)
+        {
+            result = await dialog.ShowAndEnqueueAsync(true);
+        }
+        else
+        {
+            result = await dialog.ShowAndEnqueueAsync();
+        }
 
         if (result == ContentDialogResult.Primary)
         {

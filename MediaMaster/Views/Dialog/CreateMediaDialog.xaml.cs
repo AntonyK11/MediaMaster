@@ -1,13 +1,12 @@
-using System.Reflection;
 using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
+using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using WinUI3Localizer;
-using WinUIEx;
 
 namespace MediaMaster.Views.Dialog;
 
@@ -21,28 +20,11 @@ public partial class CreateMediaDialog : Page
 
     private void FileUriTextBox_OnEditButtonPressed(EditableTextBlock sender, string args)
     {
-        // Cannot use System.Windows.Forms.OpenFileDialog because it makes the app crash if the window is closed after the dialog in certain situations
-        using (CommonOpenFileDialog dialog = new())
+        (CommonFileDialogResult result, var fileName) = FilePickerService.OpenFilePicker(sender.Text);
+
+        if (result == CommonFileDialogResult.Ok && fileName != null)
         {
-            dialog.InitialDirectory = Path.GetDirectoryName(FileUriTextBox.Text);
-            dialog.DefaultFileName = Path.GetFileNameWithoutExtension(FileUriTextBox.Text);
-            dialog.EnsureFileExists = true;
-            dialog.EnsurePathExists = true;
-            dialog.ShowHiddenItems = true;
-
-            // Use reflection to set the _parentWindow handle without needing to include PresentationFrameWork
-            FieldInfo? fi =
-                typeof(CommonFileDialog).GetField("_parentWindow", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fi != null && App.MainWindow != null)
-            {
-                var hwnd = App.MainWindow.GetWindowHandle();
-                fi.SetValue(dialog, hwnd);
-            }
-
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok && dialog.FileName != null)
-            {
-                FileUriTextBox.Text = dialog.FileName;
-            }
+            FileUriTextBox.Text = fileName;
         }
     }
 

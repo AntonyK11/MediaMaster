@@ -10,10 +10,10 @@ public class PageService : IPageService
     public PageService()
     {
         Configure<HomePage>();
-        Configure<CategoriesPage>();
         Configure<SettingsPage>();
 
         Configure<Views.Flyout.HomePage>();
+        Configure<Views.Flyout.AddMediasPage>();
     }
 
     public Type GetPageType(string key)

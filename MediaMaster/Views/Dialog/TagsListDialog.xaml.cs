@@ -164,7 +164,7 @@ public partial class TagsListDialog : Page
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tag = (Tag)((FrameworkElement)sender).DataContext;
-        await CreateEditDeleteTagDialog.ShowDialogAsync(tag.TagId);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot, tag.TagId);
 
         UpdateItemSource();
     }
@@ -180,7 +180,7 @@ public partial class TagsListDialog : Page
         }
 
         tag.Permissions = 0;
-        await CreateEditDeleteTagDialog.ShowDialogAsync(tag: tag);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot, tag: tag);
 
         UpdateItemSource();
     }
@@ -188,7 +188,7 @@ public partial class TagsListDialog : Page
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tag = (Tag)((FrameworkElement)sender).DataContext;
-        ContentDialogResult result = await CreateEditDeleteTagDialog.DeleteTag(tag.TagId);
+        ContentDialogResult result = await CreateEditDeleteTagDialog.DeleteTag(tag.TagId, this.XamlRoot);
 
         if (result == ContentDialogResult.Primary)
         {
@@ -196,7 +196,7 @@ public partial class TagsListDialog : Page
         }
     }
 
-    public static async Task<(ContentDialogResult, TagsListDialog?)> ShowDialogAsync(
+    public static async Task<(ContentDialogResult, TagsListDialog?)> ShowDialogAsync(XamlRoot xamlRoot,
         HashSet<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
         bool showExtensionsAndWebsites = true)
     {
@@ -205,7 +205,7 @@ public partial class TagsListDialog : Page
         var selectTagsDialog = new TagsListDialog(selectedTags, tagsToExclude, showExtensionsAndWebsites);
         ContentDialog dialog = new()
         {
-            XamlRoot = App.MainWindow.Content.XamlRoot,
+            XamlRoot = xamlRoot,
             DefaultButton = ContentDialogButton.Primary,
             Content = selectTagsDialog,
             RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
@@ -217,11 +217,18 @@ public partial class TagsListDialog : Page
         ContentDialogResult result;
         do
         {
-            result = await dialog.ShowAndEnqueueAsync();
+            if (xamlRoot != App.MainWindow.Content.XamlRoot)
+            {
+                result = await dialog.ShowAndEnqueueAsync(true);
+            }
+            else
+            {
+                result = await dialog.ShowAndEnqueueAsync();
+            }
 
             if (result == ContentDialogResult.Secondary)
             {
-                (ContentDialogResult createResult, _) = await CreateEditDeleteTagDialog.ShowDialogAsync();
+                (ContentDialogResult createResult, _) = await CreateEditDeleteTagDialog.ShowDialogAsync(xamlRoot);
 
                 if (createResult == ContentDialogResult.Primary)
                 {

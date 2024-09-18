@@ -62,7 +62,7 @@ public partial class TagView : UserControl
     {
         HashSet<int> tagIds = Tags.Select(t => t.TagId).ToHashSet();
         (ContentDialogResult result, TagsListDialog? tagsListDialog) =
-            await TagsListDialog.ShowDialogAsync(
+            await TagsListDialog.ShowDialogAsync(this.XamlRoot,
                 tagIds,
                 TagId != null ? [(int)TagId] : [],
                 MediaIds.Count == 0);
@@ -106,7 +106,7 @@ public partial class TagView : UserControl
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tagId = (int)((FrameworkElement)sender).DataContext;
-        await CreateEditDeleteTagDialog.ShowDialogAsync(tagId);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot, tagId);
 
         await UpdateItemSource();
     }
@@ -128,7 +128,7 @@ public partial class TagView : UserControl
         }
 
         tag.Permissions = 0;
-        await CreateEditDeleteTagDialog.ShowDialogAsync(tag: tag);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot, tag: tag);
 
         await UpdateItemSource();
     }
@@ -136,7 +136,7 @@ public partial class TagView : UserControl
     private async void DeleteTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tagId = (int)((FrameworkElement)sender).DataContext;
-        ContentDialogResult result = await CreateEditDeleteTagDialog.DeleteTag(tagId);
+        ContentDialogResult result = await CreateEditDeleteTagDialog.DeleteTag(tagId, this.XamlRoot);
 
         if (result == ContentDialogResult.Primary)
         {

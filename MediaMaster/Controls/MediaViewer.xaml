@@ -252,7 +252,6 @@
                 Grid.Row="0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
-                DelayLoading="{x:Bind DelayIconLoading, Mode=OneWay}"
                 IconHeight="{x:Bind IconHeight, Mode=OneWay}"
                 IconMargin="{x:Bind IconMargin, Mode=OneWay}"
                 ImageMode="{x:Bind ImageMode, Mode=OneWay}" />
@@ -261,8 +260,7 @@
                 Margin="16"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Orientation="Horizontal"
-                Visibility="{x:Bind IsCompact, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, ConverterParameter=True}">
+                Orientation="Horizontal">
 
                 <ToggleButton
                     x:Name="ArchiveToggleButton"
@@ -327,12 +325,5 @@
         <ScrollView x:Name="ScrollView" Grid.Row="1">
             <controls:DockPanel x:Name="DockPanel" Margin="16" />
         </ScrollView>
-
-        <controls:DockPanel
-            x:Name="DockPanelCompact"
-            Grid.Row="1"
-            Margin="16"
-            Visibility="Collapsed" />
-
     </Grid>
 </UserControl>

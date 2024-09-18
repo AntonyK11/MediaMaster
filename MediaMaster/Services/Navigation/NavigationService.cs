@@ -3,6 +3,7 @@ using CommunityToolkit.WinUI.Animations;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Interfaces.ViewModels;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace MediaMaster.Services.Navigation;
@@ -33,18 +34,25 @@ public abstract class NavigationService(IPageService pageService) : INavigationS
         return true;
     }
 
-    public bool NavigateTo(string? pageKey, object? parameter = null, bool clearNavigation = false)
+    public bool NavigateTo(string? pageKey, object? parameter = null, NavigationTransitionInfo? infoOverride = null, bool clearNavigation = false)
     {
         if (pageKey == null) return false;
 
         Type pageType = pageService.GetPageType(pageKey);
 
-        if (_frame == null || (_frame.Content?.GetType() == pageType &&
-                               (parameter == null || parameter.Equals(_lastParameterUsed)))) return false;
+        if (_frame == null ||(_frame.Content?.GetType() == pageType && (parameter == null || parameter.Equals(_lastParameterUsed)))) return false;
 
         _frame.Tag = clearNavigation;
         var vmBeforeNavigation = _frame.GetPageViewModel();
-        var navigated = _frame.Navigate(pageType, parameter);
+        bool navigated;
+        if (infoOverride == null)
+        {
+            navigated = _frame.Navigate(pageType, parameter);
+        }
+        else
+        {
+            navigated = _frame.Navigate(pageType, parameter, infoOverride);
+        }
 
         if (!navigated) return false;
 

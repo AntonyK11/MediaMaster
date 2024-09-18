@@ -14,5 +14,7 @@ public interface IActivationService
 
     Task<string?> HandleActivationAsync(AppActivationArguments? activationArgs = null);
 
+    void ShowAppRunningInBackgroundPopup();
+
     Task LaunchApp(string args);
 }

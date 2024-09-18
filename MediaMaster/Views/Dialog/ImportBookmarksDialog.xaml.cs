@@ -30,7 +30,7 @@ public partial class ImportBookmarksDialog : Page
         BrowserFolders.Clear();
         foreach (IBookmarkItem? bookmark in bookmarks)
         {
-            if (bookmark is BookmarkFolder browser)
+            if (bookmark is BookmarkFolder browser && browser.Count != 0)
             {
                 BrowserFolders.Add(new BrowserFolder(browser));
             }
@@ -60,7 +60,7 @@ public partial class ImportBookmarksDialog : Page
         if (result == ContentDialogResult.Primary)
         {
             var generateBookmarkTags = importBookmarksDialog.GenerateBookmarkTags;
-            _ = Task.Run(() => MediaService.AddMediaAsync(
+            _ = Task.Run(() => App.GetService<MediaService>().AddMediaAsync(
                 browserFolders: importBookmarksDialog.SelectedBrowserFolders,
                 generateBookmarkTags: generateBookmarkTags));
         }

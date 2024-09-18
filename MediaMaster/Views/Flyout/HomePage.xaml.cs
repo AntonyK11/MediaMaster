@@ -2,6 +2,8 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using MediaMaster.DataBase;
 using MediaMaster.Services;
+using MediaMaster.Services.Navigation;
+using Microsoft.UI.Xaml.Media.Animation;
 
 namespace MediaMaster.Views.Flyout;
 
@@ -55,14 +57,18 @@ public partial class HomePage
         if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
 
         IReadOnlyList<IStorageItem>? items = await e.DataView.GetStorageItemsAsync();
-        await Task.Run(() => MediaService.AddMediaAsync(items.Select(i => i.Path)).ConfigureAwait(false));
+        App.GetService<FlyoutNavigationService>().NavigateTo(typeof(AddMediasPage).FullName!,
+            items.Select(i => i.Path).ToList(),
+            new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
     }
 
-    private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
         var tab = (BrowserTab?)TabsList.SelectedItem;
         if (tab == null) return;
 
-        await MediaService.AddMediaAsync([new KeyValuePair<string?, string>(tab.Title, tab.Url.AbsoluteUri)]);
+        ICollection<KeyValuePair<string?, string>> browserTitleUrl = [new(tab.Title, tab.Url.AbsoluteUri)];
+        App.GetService<FlyoutNavigationService>().NavigateTo(typeof(AddMediasPage).FullName!, browserTitleUrl,
+            new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
     }
 }

@@ -12,12 +12,10 @@ namespace MediaMaster.Controls;
 [DependencyProperty("LoadIcon", typeof(bool), DefaultValue = true)]
 [DependencyProperty("ContextMenu", typeof(bool), DefaultValue = true)]
 [DependencyProperty("CanOpen", typeof(bool), DefaultValue = true)]
-[DependencyProperty("DelayLoading", typeof(bool), DefaultValue = true)]
 [DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
 [DependencyProperty("IconHeight", typeof(double), DefaultValue = double.NaN)]
 public partial class MediaIcon
 {
-    private TaskCompletionSource _task = new();
     private TaskCompletionSource? _taskSource;
     
     public Image IconImage => Image;
@@ -42,9 +40,6 @@ public partial class MediaIcon
 
     partial void OnUrisChanged(ICollection<string> newValue)
     {
-        _task.SetResult();
-        _task = new TaskCompletionSource();
-
         if (_taskSource is { Task.IsCompleted: false })
         {
             _taskSource.SetResult();
@@ -82,9 +77,6 @@ public partial class MediaIcon
 
     partial void OnImageModeChanged()
     {
-        _task.SetResult();
-        _task = new TaskCompletionSource();
-
         if (_taskSource is { Task.IsCompleted: false })
         {
             _taskSource.SetResult();
@@ -170,13 +162,6 @@ public partial class MediaIcon
         if (Image.Source != null)
         {
             Image.Source = null;
-        }
-
-        if (DelayLoading)
-        {
-            await Task.WhenAny(
-                Task.Delay(500),
-                _task.Task);
         }
 
         if (uri == Uris.First() && !tcs.Task.IsCompleted)

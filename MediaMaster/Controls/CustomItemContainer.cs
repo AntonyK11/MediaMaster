@@ -1,14 +1,10 @@
-﻿namespace MediaMaster.Controls;
+﻿using DependencyPropertyGenerator;
 
+namespace MediaMaster.Controls;
+
+[DependencyProperty("DeleteButtonVisibility", typeof(Visibility), DefaultValue = Visibility.Collapsed)]
 internal partial class CustomItemContainer : ItemContainer
 {
-    public static readonly DependencyProperty DeleteButtonVisibilityProperty
-        = DependencyProperty.Register(
-            nameof(DeleteButtonVisibilityProperty),
-            typeof(Visibility),
-            typeof(CustomItemContainer),
-            new PropertyMetadata(Visibility.Collapsed));
-
     public CustomItemContainer()
     {
         Loaded += (_, _) =>
@@ -22,17 +18,12 @@ internal partial class CustomItemContainer : ItemContainer
         };
     }
 
-    public Visibility DeleteButtonVisibility
+    partial void OnDeleteButtonVisibilityChanged(Visibility newValue)
     {
-        get => (Visibility)GetValue(DeleteButtonVisibilityProperty);
-        set
-        {
-            SetValue(DeleteButtonVisibilityProperty, value);
-            VisualStateManager.GoToState(this,
-                value == Visibility.Visible ?
-                    "DeleteButtonVisible" :
-                    "DeleteButtonCollapsed",
-                true);
-        }
+        VisualStateManager.GoToState(this,
+            newValue == Visibility.Visible ?
+                "DeleteButtonVisible" :
+                "DeleteButtonCollapsed",
+            true);
     }
 }

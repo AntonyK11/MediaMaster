@@ -1,13 +1,13 @@
 using System.Linq.Expressions;
 using Windows.Foundation;
 using Windows.System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using DependencyPropertyGenerator;
 using MediaMaster.DataBase;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.Controls;
 
@@ -23,11 +23,11 @@ public partial class MediaItemsView : UserControl
     private readonly int _pageSize = 250;
     private readonly TasksService _tasksService = App.GetService<TasksService>();
     public readonly ICollection<Expression<Func<Media, bool>>> AdvancedFilterFunctions = [];
-    private readonly ICollection<Expression<Func<Media, bool>>> SimpleFilterFunctions = [];
-    
+    public readonly ICollection<Expression<Func<Media, bool>>> SimpleFilterFunctions = [];
+
     private TaskCompletionSource? _taskSource;
     
-    public event TypedEventHandler<object, ICollection<Media>>? SelectionChanged;
+    public event TypedEventHandler<object, HashSet<int>>? SelectionChanged;
 
     public MediaItemsView()
     {
@@ -41,10 +41,10 @@ public partial class MediaItemsView : UserControl
             }
             else
             {
-                var medias = (ICollection<Media>)MediaItemsViewControl.ItemsSource;
+                var medias = (ICollection<NameUri>)MediaItemsViewControl.ItemsSource;
                 foreach (Media updatedMedia in args.Medias)
                 {
-                    Media? media = medias.FirstOrDefault(m => m.MediaId == updatedMedia.MediaId);
+                    NameUri? media = medias.FirstOrDefault(m => m.MediaId == updatedMedia.MediaId);
                     if (media != null)
                     {
                         media.Name = updatedMedia.Name;
@@ -55,10 +55,6 @@ public partial class MediaItemsView : UserControl
         };
 
         Loaded += SetupMediaCollection;
-
-
-        var cacheMode = new BitmapCache();
-        MediaItemsViewControl.CacheMode = cacheMode;
     }
     
     private bool _sortAscending = true;
@@ -114,56 +110,36 @@ public partial class MediaItemsView : UserControl
         await Task.Yield();
 
         var currentPageIndex = PagerControl.SelectedPageIndex;
-        var pageCount = 1;
         var mediasCount = 0;
         var mediasFound = 0;
-        List<Media> medias = [];
+        List<NameUri> medias = [];
 
         await Task.Run(async () =>
         {
             await using (var database = new MediaDbContext())
             {
-                IQueryable<Media> mediaQuery = database.Medias;
-                if (SortFunction != null)
-                {
-                    mediaQuery = SortAscending
-                        ? SortMedias(mediaQuery).ThenBy(m => m.Name)
-                        : SortMedias(mediaQuery).ThenByDescending(m => m.Name);
-                }
-                else
-                {
-                    mediaQuery = SortAscending
-                        ? mediaQuery.OrderBy(m => m.Name)
-                        : mediaQuery.OrderByDescending(m => m.Name);
-                }
-
-                mediaQuery = SimpleFilterMedias(mediaQuery);
-                mediaQuery = AdvancedFilterMedias(mediaQuery);
-                medias = await mediaQuery.Skip(currentPageIndex * _pageSize).Take(_pageSize).ToListAsync()
-                    .ConfigureAwait(false);
-
                 mediasCount = await database.Medias.CountAsync().ConfigureAwait(false);
-                mediasFound = await mediaQuery.CountAsync().ConfigureAwait(false);
-                pageCount = (int)Math.Round((double)mediasFound / _pageSize, MidpointRounding.ToPositiveInfinity);
             }
+
+            (medias, mediasFound) = await SearchService.GetMedias(SortFunction, SortAscending, SimpleFilterFunctions, AdvancedFilterFunctions, currentPageIndex * _pageSize, _pageSize);
         });
 
         MediasCount = mediasCount;
         MediasFound = mediasFound;
         IsSearching = mediasCount != mediasFound || AdvancedFilterFunctions.Count != 0;
 
+        var pageCount = (int)Math.Round((double)mediasFound / _pageSize, MidpointRounding.ToPositiveInfinity);
         pageCount = pageCount > 0 ? pageCount : 1;
-        if (PagerControl.NumberOfPages > pageCount)
+        if (PagerControl.NumberOfPages > pageCount && PagerControl.SelectedPageIndex > pageCount - 1)
         {
             PagerControl.SelectedPageIndex = pageCount - 1;
         }
 
         PagerControl.NumberOfPages = pageCount;
 
-        HashSet<int> selectedMedias =
-            MediaItemsViewControl.SelectedItems.OfType<Media>().Select(m => m.MediaId).ToHashSet();
+        HashSet<int> selectedMedias = MediaItemsViewControl.SelectedItems.OfType<Media>().Select(m => m.MediaId).ToHashSet();
         MediaItemsViewControl.ItemsSource = medias;
-        foreach (Media media in medias.Where(media => selectedMedias.Contains(media.MediaId)))
+        foreach (var media in medias.Where(media => selectedMedias.Contains(media.MediaId)))
         {
             MediaItemsViewControl.Select(medias.IndexOf(media));
         }
@@ -181,25 +157,7 @@ public partial class MediaItemsView : UserControl
         _tasksService.RemoveMainTask();
     }
 
-    private IOrderedQueryable<Media> SortMedias(IQueryable<Media> medias)
-    {
-        var sortFunction = (KeyValuePair<bool, Expression<Func<Media, object>>>)SortFunction!;
-        return SortAscending ^ sortFunction.Key
-            ? medias.OrderByDescending(sortFunction.Value)
-            : medias.OrderBy(sortFunction.Value);
-    }
-
-    private IQueryable<Media> SimpleFilterMedias(IQueryable<Media> medias)
-    {
-        return SimpleFilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
-    }
-
-    private IQueryable<Media> AdvancedFilterMedias(IQueryable<Media> medias)
-    {
-        return AdvancedFilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
-    }
-
-    private void SetupIcons(IEnumerable<Media> medias)
+    private void SetupIcons(IEnumerable<NameUri> medias)
     {
         if (_taskSource is { Task.IsCompleted: false })
         {
@@ -212,7 +170,7 @@ public partial class MediaItemsView : UserControl
         STATask.StartSTATask(async () =>
         {
             ICollection<Task> tasks = [];
-            foreach (Media media in medias)
+            foreach (NameUri media in medias.Reverse())
             {
                 tasks.Add(IconService.GetIconAsync(media.Uri, ImageMode.IconAndThumbnail, 128, 128, tcs));
             }
@@ -224,14 +182,14 @@ public partial class MediaItemsView : UserControl
     private void MediaItemsView_OnSelectionChanged(ItemsView sender, ItemsViewSelectionChangedEventArgs args)
     {
         App.DispatcherQueue.EnqueueAsync(() =>
-            SelectionChanged?.Invoke(this, MediaItemsViewControl.SelectedItems.OfType<Media>().ToList()));
+            SelectionChanged?.Invoke(this, MediaItemsViewControl.SelectedItems.OfType<NameUri>().Select(m => m.MediaId).ToHashSet()));
         SetupSelectionPermissions();
     }
 
     private void SetupSelectionPermissions()
     {
         var selectedCount = MediaItemsViewControl.SelectedItems.Count;
-        var mediaCount = ((ICollection<Media>)MediaItemsViewControl.ItemsSource).Count;
+        var mediaCount = ((ICollection<NameUri>)MediaItemsViewControl.ItemsSource).Count;
         if (selectedCount == 0)
         {
             CanSelectAll = mediaCount != 0;
@@ -277,4 +235,11 @@ public partial class MediaItemsView : UserControl
     {
         MediaItemsViewControl.DeselectAll();
     }
+}
+
+public partial class NameUri : ObservableObject
+{
+    public int MediaId;
+    [ObservableProperty] private string _name = "";
+    [ObservableProperty] private string _uri = "";
 }

@@ -12,6 +12,12 @@ public partial class UriToListOfStringConverter : IValueConverter
             return collection;
         }
 
+        if (value is string str)
+        {
+            ICollection<string> collection = [str];
+            return collection;
+        }
+
         ICollection<string> emptyCollection = [];
         return emptyCollection;
     }

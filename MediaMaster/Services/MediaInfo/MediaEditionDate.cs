@@ -16,7 +16,7 @@ public class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
 
     protected override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count != 0 && !(IsCompact || GetDate(medias).IsNullOrEmpty());
+        return medias.Count != 0 && !GetDate(medias).IsNullOrEmpty();
     }
 
     private static string GetDate(ICollection<Media> medias)
@@ -52,6 +52,6 @@ public class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
         if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any()) return;
         
         Medias = args.Medias.Where(media => mediaIds.Contains(media.MediaId)).ToList();
-        Initialize(Medias, IsCompact);
+        Initialize(Medias);
     }
 }

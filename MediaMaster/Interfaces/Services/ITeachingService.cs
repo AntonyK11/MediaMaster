@@ -5,6 +5,8 @@
 /// </summary>
 public interface ITeachingService
 {
+    void Start();
+
     void NextStep();
 
     void PrevStep();

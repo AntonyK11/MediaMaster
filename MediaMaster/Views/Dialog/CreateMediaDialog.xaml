@@ -327,45 +327,47 @@
         </Style>
     </Page.Resources>
 
-    <StackPanel Spacing="16">
-        <TextBox x:Name="NameTextBox" l:Uids.Uid="/Media/Name_TextBox" />
-        <TextBox x:Name="NotesTextBox" l:Uids.Uid="/Media/Notes_TextBox" />
-        <SelectorBar x:Name="SelectorBar" Margin="0,8,0,0">
-            <SelectorBarItem
-                l:Uids.Uid="/Media/File_SelectorBarItem"
-                Icon="{ui:FontIcon Glyph=&#xE8A5;}"
-                IsSelected="True"
-                Tag="File" />
-            <SelectorBarItem
-                l:Uids.Uid="/Media/Website_SelectorBarItem"
-                Icon="{ui:FontIcon Glyph=&#xE774;}"
-                Tag="Website" />
-        </SelectorBar>
+    <ScrollView Margin="0,0,-19,0" Padding="0,0,19,0">
+        <StackPanel Spacing="16">
+            <TextBox x:Name="NameTextBox" l:Uids.Uid="/Media/Name_TextBox" />
+            <TextBox x:Name="NotesTextBox" l:Uids.Uid="/Media/Notes_TextBox" />
+            <SelectorBar x:Name="SelectorBar" Margin="0,8,0,0">
+                <SelectorBarItem
+                    l:Uids.Uid="/Media/File_SelectorBarItem"
+                    Icon="{ui:FontIcon Glyph=&#xE8A5;}"
+                    IsSelected="True"
+                    Tag="File" />
+                <SelectorBarItem
+                    l:Uids.Uid="/Media/Website_SelectorBarItem"
+                    Icon="{ui:FontIcon Glyph=&#xE774;}"
+                    Tag="Website" />
+            </SelectorBar>
 
-        <winuiToolkit:SwitchPresenter Value="{x:Bind SelectorBar.SelectedItem.Tag, Mode=OneWay}">
-            <winuiToolkit:Case Value="File">
-                <StackPanel Spacing="8">
-                    <TextBlock l:Uids.Uid="/Media/FileUri_TextBlock" />
-                    <controls:EditableTextBlock
-                        x:Name="FileUriTextBox"
-                        l:Uids.Uid="/Media/FileUri_EditableTextBlock"
-                        EditButtonPressed="FileUriTextBox_OnEditButtonPressed"
-                        EditOnClick="False"
-                        EditOnDoubleClick="False" />
-                </StackPanel>
-            </winuiToolkit:Case>
-            <winuiToolkit:Case Value="Website">
-                <TextBox x:Name="WebsiteUriTextBox" l:Uids.Uid="/Media/WebsiteUri_TextBox" />
-            </winuiToolkit:Case>
-        </winuiToolkit:SwitchPresenter>
+            <winuiToolkit:SwitchPresenter Value="{x:Bind SelectorBar.SelectedItem.Tag, Mode=OneWay}">
+                <winuiToolkit:Case Value="File">
+                    <StackPanel Spacing="8">
+                        <TextBlock l:Uids.Uid="/Media/FileUri_TextBlock" />
+                        <controls:EditableTextBlock
+                            x:Name="FileUriTextBox"
+                            l:Uids.Uid="/Media/FileUri_EditableTextBlock"
+                            EditButtonPressed="FileUriTextBox_OnEditButtonPressed"
+                            EditOnClick="False"
+                            EditOnDoubleClick="False" />
+                    </StackPanel>
+                </winuiToolkit:Case>
+                <winuiToolkit:Case Value="Website">
+                    <TextBox x:Name="WebsiteUriTextBox" l:Uids.Uid="/Media/WebsiteUri_TextBox" />
+                </winuiToolkit:Case>
+            </winuiToolkit:SwitchPresenter>
 
-        <StackPanel Spacing="8">
-            <TextBlock l:Uids.Uid="/Media/Tags_TextBlock" />
-            <controls:TagView x:Name="TagView" AddTagButton="True">
-                <controls:TagView.Layout>
-                    <winuiToolkit:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
-                </controls:TagView.Layout>
-            </controls:TagView>
+            <StackPanel Spacing="8">
+                <TextBlock l:Uids.Uid="/Media/Tags_TextBlock" />
+                <controls:TagView x:Name="TagView">
+                    <controls:TagView.Layout>
+                        <winuiToolkit:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
+                    </controls:TagView.Layout>
+                </controls:TagView>
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+    </ScrollView>
 </Page>

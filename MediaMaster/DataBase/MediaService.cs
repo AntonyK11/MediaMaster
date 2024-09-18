@@ -6,46 +6,42 @@ using MediaMaster.Extensions;
 using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Windows.AppNotifications;
 using WinUI3Localizer;
 using WinUICommunity;
 
 namespace MediaMaster.DataBase;
 
-public static class MediaService
+public class MediaService
 {
-    public static bool IsRunning;
+    public bool IsRunning;
+    private readonly Stopwatch _watch = new();
 
-    public static Task<int> AddMediaAsync(IEnumerable<string> uris)
+    public Task<int> AddMediaAsync(IEnumerable<string> uris, HashSet<int>? userTagsId = null, string userNotes = "")
     {
-        return AddMediaAsync(uris.Select(uri => new KeyValuePair<string?, string>(null, uri.Trim())));
+        return AddMediaAsync(uris.Select(uri => new KeyValuePair<string?, string>(null, uri.Trim())), userTagsId: userTagsId, userNotes: userNotes);
     }
 
 
-    public static async Task<int> AddMediaAsync(IEnumerable<KeyValuePair<string?, string>>? nameUris = null,
-        ICollection<BrowserFolder>? browserFolders = null, bool generateBookmarkTags = true)
+    public async Task<int> AddMediaAsync(IEnumerable<KeyValuePair<string?, string>>? nameUris = null,
+        ICollection<BrowserFolder>? browserFolders = null, HashSet<int>? userTagsId = null, string userNotes = "", bool generateBookmarkTags = true)
     {
         if (IsRunning)
         {
-            await App.DispatcherQueue.EnqueueAsync(() =>
-            {
-                Growl.Error(new GrowlInfo
-                {
-                    ShowDateTime = true,
-                    IsClosable = true,
-                    Title = string.Format("InAppNotification_Title".GetLocalizedString(), DateTimeOffset.Now),
-                    Message = "InAppNotification_CannotAddMedias".GetLocalizedString()
-                });
-            });
+            await App.DispatcherQueue.EnqueueAsync(CannotAddMedias);
             return 0;
         }
 
         IsRunning = true;
         int mediaAddedCount;
         App.GetService<TasksService>().AddGlobalTak();
+        //await App.DispatcherQueue.EnqueueAsync(AddingMedias);
         try
         {
             await using (MediaDbContext database = new())
             {
+                _watch.Restart();
+
                 Dictionary<string, Tag> tags = await database.Tags
                     .Select(t => new Tag { TagId = t.TagId, Name = t.Name })
                     .GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
@@ -56,7 +52,7 @@ public static class MediaService
 
                 if (nameUris != null)
                 {
-                    await GetMedias(nameUris, medias, newMedias, tags, newTags);
+                    await GetMedias(nameUris, medias, newMedias, tags, newTags, userNotes);
                 }
 
                 if (browserFolders != null)
@@ -75,11 +71,22 @@ public static class MediaService
                 ICollection<TagTag> tagTags = await AddNewTags(newTags, database);
 
                 mediaAddedCount = newMedias.Count;
-                Debug.WriteLine($"Media: {newMedias.Count}");
+                Debug.WriteLine($"Media: {mediaAddedCount}");
                 Debug.WriteLine($"Tags: {newTags.Count}");
                 Debug.WriteLine($"MediaTags: {mediaTags.Count}");
-                Debug.WriteLine($"MediaTags: {tagTags.Count}");
 
+                if (userTagsId != null)
+                {
+                    var mediaUserTags = await AddUserTagsToMedias(newMedias, userTagsId, database);
+                    Debug.WriteLine($"mediaUserTags: {mediaUserTags.Count}");
+                    mediaUserTags.Clear();
+                }
+
+                Debug.WriteLine($"tagTags: {tagTags.Count}");
+                Debug.WriteLine($"Added in {_watch.Elapsed}");
+                _watch.Stop();
+
+                await App.DispatcherQueue.EnqueueAsync(() => MediasAdded(mediaAddedCount));
                 MediaDbContext.InvokeMediaChange(null, MediaChangeFlags.MediaAdded, newMedias);
 
                 tags.Clear();
@@ -106,6 +113,72 @@ public static class MediaService
         return mediaAddedCount;
     }
 
+    private static void CannotAddMedias()
+    {
+        if (App.MainWindow?.Visible == true)
+
+        {
+            Growl.Error(new GrowlInfo
+            {
+                ShowDateTime = true,
+                IsClosable = true,
+                Title = string.Format("InAppNotification_Title".GetLocalizedString(), DateTimeOffset.Now),
+                Message = "InAppNotification_CannotAddMedias".GetLocalizedString()
+            });
+        }
+        else
+        {
+            var xmlPayload = $"""
+                              <toast launch="action=edit">
+                                  <visual>
+                                      <binding template="ToastGeneric">
+                                          <text>{"InAppNotification_CannotAddMedias".GetLocalizedString()}</text>
+                                      </binding>
+                                  </visual>
+                                  <actions>
+                                      <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                  </actions>
+                              </toast>
+                              """;
+
+            var notificationManager = AppNotificationManager.Default;
+            var toast = new AppNotification(xmlPayload)
+            {
+                ExpiresOnReboot = true
+            };
+
+            notificationManager.Show(toast);
+        }
+    }
+
+    private static void MediasAdded(int mediaAddedCount)
+    {
+        if (App.MainWindow?.Visible == false)
+        {
+            var xmlPayload = $"""
+                              <toast launch="action=edit">
+                                  <visual>
+                                      <binding template="ToastGeneric">
+                                          <text>{string.Format("medias_added_toast_text".GetLocalizedString(), mediaAddedCount)}</text>
+                                      </binding>
+                                  </visual>
+                                  <actions>
+                                      <action content='{"view_toast_button".GetLocalizedString()}' arguments='action=view'/>
+                                      <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                  </actions>
+                              </toast>
+                              """;
+
+            var notificationManager = AppNotificationManager.Default;
+            var toast = new AppNotification(xmlPayload)
+            {
+                ExpiresOnReboot = true
+            };
+
+            notificationManager.Show(toast);
+        }
+    }
+
     public static async Task<ICollection<MediaTag>> AddNewMedias(ICollection<Media> newMedias, MediaDbContext database)
     {
         List<MediaTag> mediaTags = newMedias.SelectMany(media => media.Tags.Select(tag => new MediaTag
@@ -128,6 +201,18 @@ public static class MediaService
 
         await database.BulkInsertOrUpdateAsync(tagTags);
         return tagTags;
+    }
+
+    public static async Task<ICollection<MediaTag>> AddUserTagsToMedias(ICollection<Media> newMedias, HashSet<int> userTagsId, MediaDbContext database)
+    {
+        List<MediaTag> mediaTags = newMedias.SelectMany(m => userTagsId.Select(tagId => new MediaTag
+        {
+            MediaId = m.MediaId,
+            TagId = tagId
+        })).ToList();
+
+        await database.BulkInsertOrUpdateAsync(mediaTags);
+        return mediaTags;
     }
 
     private static IEnumerable<KeyValuePair<string?, string>> GetFiles(KeyValuePair<string?, string> nameUris)
@@ -154,7 +239,7 @@ public static class MediaService
     }
 
     private static async Task GetMedias(IEnumerable<KeyValuePair<string?, string>> nameUris, HashSet<string> medias,
-        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags, string userNotes = "")
     {
         IEnumerable<KeyValuePair<string?, string>> mediaNameUris = [];
         foreach (KeyValuePair<string?, string> nameUri in nameUris)
@@ -175,11 +260,11 @@ public static class MediaService
         {
             if (mediaNameUri.Value.IsWebsite())
             {
-                await GetWebPage(mediaNameUri, newMedias, tags, newTags);
+                await GetWebPage(mediaNameUri, newMedias, tags, newTags, userNotes);
             }
             else
             {
-                await GetFile(mediaNameUri, newMedias, tags, newTags);
+                await GetFile(mediaNameUri, newMedias, tags, newTags, userNotes);
             }
         }
     }
@@ -228,7 +313,7 @@ public static class MediaService
     }
 
     private static async Task GetWebPage(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias,
-        IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags, string userNotes = "")
     {
         var title = nameUri.Key;
         if (title == null)
@@ -241,6 +326,7 @@ public static class MediaService
         Media media = new()
         {
             Name = title ?? "",
+            Notes = userNotes,
             Uri = nameUri.Value
         };
 
@@ -259,11 +345,12 @@ public static class MediaService
     }
 
     private static async Task GetFile(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias,
-        IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags, string userNotes = "")
     {
         Media media = new()
         {
             Name = nameUri.Key ?? Path.GetFileNameWithoutExtension(nameUri.Value),
+            Notes = userNotes,
             Uri = nameUri.Value
         };
 

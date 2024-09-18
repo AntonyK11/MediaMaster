@@ -18,27 +18,16 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
     {
         if (_tagView == null) return;
         _tagView.MediaIds = Medias.Select(m => m.MediaId).ToHashSet();
-        _tagView.AddTagButton = !IsCompact;
-        if (IsCompact)
+
+        _tagView.Layout = new WrapLayout
         {
-            _tagView.Layout = new StackLayout
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = 4
-            };
-        }
-        else
-        {
-            _tagView.Layout = new WrapLayout
-            {
-                HorizontalSpacing = 4,
-                VerticalSpacing = 4
-            };
-        }
+            HorizontalSpacing = 4,
+            VerticalSpacing = 4
+        };
 
         if (Title != null)
         {
-            Title.Visibility = IsCompact ? Visibility.Collapsed : Visibility.Visible;
+            Title.Visibility = Visibility.Visible;
         }
     }
 
@@ -53,8 +42,7 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         Title = GetTitleTextBlock();
         _tagView = new TagView
         {
-            MaxHeight = 200,
-            AddTagButton = !IsCompact
+            MaxHeight = 200
         };
         _stackPanel.Children.Add(Title);
         _stackPanel.Children.Add(_tagView);
@@ -106,7 +94,7 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
 
     protected override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count != 0 && !IsCompact;
+        return medias.Count != 0;
     }
 
     protected override void Show()

@@ -6,6 +6,8 @@ using MediaMaster.Views.Flyout;
 using Windows.Foundation;
 using Microsoft.UI.Xaml.Media.Animation;
 using CommunityToolkit.WinUI;
+using H.NotifyIcon.EfficiencyMode;
+using MediaMaster.Services;
 
 namespace MediaMaster;
 
@@ -98,7 +100,7 @@ public partial class FlyoutWindow
 
     public void Hide_Flyout()
     {
-        _isOpen = false;
+        IsOpen = false;
 
         IsAlwaysOnTop = false;
 
@@ -106,11 +108,26 @@ public partial class FlyoutWindow
 
         _hideAnimation.To = BottomY;
         _hideStoryboard.Begin();
+
+        App.GetService<FlyoutNavigationService>().NavigateTo(typeof(HomePage).FullName!);
+        if (App.MainWindow == null || !App.MainWindow.GetWindowStyle().HasFlag(WindowStyle.Visible))
+        {
+            if (App.GetService<SettingsService>().LeaveAppRunning)
+            {
+                EfficiencyModeUtilities.SetEfficiencyMode(true);
+            }
+            else
+            {
+                App.Shutdown();
+            }
+        }
     }
 
     public void Show_Flyout()
     {
-        _isOpen = true;
+        EfficiencyModeUtilities.SetEfficiencyMode(false);
+
+        IsOpen = true;
         App.DispatcherQueue.EnqueueAsync(() => VisibilityChanged?.Invoke(this, true));
 
         Activate();
@@ -123,11 +140,11 @@ public partial class FlyoutWindow
         _showStoryboard.Begin();
     }
 
-    private bool _isOpen;
+    public bool IsOpen { get; private set; }
 
     public void Toggle_Flyout()
     {
-        if (_isOpen)
+        if (IsOpen)
         {
             Hide_Flyout();
         }

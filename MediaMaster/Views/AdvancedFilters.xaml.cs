@@ -1,26 +1,32 @@
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
+using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Shapes;
+using WinUI3Localizer;
+using static CommunityToolkit.WinUI.Animations.Expressions.ExpressionValues;
 
 namespace MediaMaster.Views;
 
 public partial class AdvancedFilters : Page
 {
     public readonly ObservableCollection<FilterObject> FilterObjects = [];
+    public SearchSavingService SearchSavingService;
 
     public AdvancedFilters()
     {
         InitializeComponent();
+
+        SearchSavingService = App.GetService<SearchSavingService>();
     }
 
-    public static async Task<IList<Expression<Func<Media, bool>>>> GetFilterExpressions(
-        IList<FilterObject> filterObjects)
+    public static async Task<IList<Expression<Func<Media, bool>>>> GetFilterExpressions(IList<FilterObject> filterObjects)
     {
         IList<Expression<Func<Media, bool>>> expressions = [];
         foreach (FilterObject filterObject in filterObjects)
@@ -39,14 +45,20 @@ public partial class AdvancedFilters : Page
                 }
 
                 case FilterGroup { OrCombination: true } filterGroup:
-                    Expression<Func<Media, bool>> orExpression = BuildOrExpression(await GetFilterExpressions(filterGroup.FilterObjects));
-                    expressions.Add(orExpression);
+                    Expression<Func<Media, bool>>? orExpression = BuildOrExpression(await GetFilterExpressions(filterGroup.FilterObjects));
+                    if (orExpression != null)
+                    {
+                        expressions.Add(orExpression);
+                    }
                     break;
 
                 case FilterGroup filterGroup:
                 {
-                    Expression<Func<Media, bool>> andExpression = BuildAndExpression(await GetFilterExpressions(filterGroup.FilterObjects));
-                    expressions.Add(andExpression);
+                    Expression<Func<Media, bool>>? andExpression = BuildAndExpression(await GetFilterExpressions(filterGroup.FilterObjects));
+                    if (andExpression != null)
+                    {
+                        expressions.Add(andExpression);
+                    }
                     break;
                 }
             }
@@ -55,14 +67,18 @@ public partial class AdvancedFilters : Page
         return expressions;
     }
 
-    private static Expression<Func<Media, bool>> BuildOrExpression(IList<Expression<Func<Media, bool>>> expressions)
+    private static Expression<Func<Media, bool>>? BuildOrExpression(IList<Expression<Func<Media, bool>>> expressions)
     {
+        if (expressions.Count == 0) return null;
+
         Expression<Func<Media, bool>> retExpression = m => false;
         return expressions.Aggregate(retExpression, (current, expression) => current.Or(expression));
     }
 
-    private static Expression<Func<Media, bool>> BuildAndExpression(IList<Expression<Func<Media, bool>>> expressions)
+    private static Expression<Func<Media, bool>>? BuildAndExpression(IList<Expression<Func<Media, bool>>> expressions)
     {
+        if (expressions.Count == 0) return null;
+
         Expression<Func<Media, bool>> retExpression = m => true;
         return expressions.Aggregate(retExpression, (current, expression) => current.And(expression));
     }
@@ -70,7 +86,7 @@ public partial class AdvancedFilters : Page
     private static async Task<Expression<Func<Media, bool>>?> GetFilterExpression(Filter filter)
     {
         FilterType currentFilter = filter.FilterType;
-        AdvancedType currentOperation = currentFilter.Operations.CurrentOperation;
+        AdvancedType currentOperation = currentFilter.Operations.OperationsCollection[currentFilter.Operations.OperationIndex];
 
         DateTime currentDate = (currentFilter.Date.GetDateTimeOffsetUpToDay() + currentFilter.Time)
             .DateTime
@@ -164,16 +180,6 @@ public partial class AdvancedFilters : Page
         }
     }
 
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-    {
-        FilterObjects.Add(new Filter());
-    }
-
-    private void ButtonBase_OnClick2(object sender, RoutedEventArgs e)
-    {
-        FilterObjects.Add(new FilterGroup());
-    }
-
     private void ListView_DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = DataPackageOperation.Move;
@@ -242,27 +248,44 @@ public partial class AdvancedFilters : Page
                 }
             }
         }
+        e.Handled = true;
 
         ((ObservableCollection<FilterObject>)oldSender.ItemsSource).Remove(item);
         ((ObservableCollection<FilterObject>)target.ItemsSource).Insert(index, item);
 
-        e.Handled = true;
+        ((Grid)oldSender.Parent).MaxHeight = 0;
+        ((Grid)target.Parent).MaxHeight = 0;
+        ((Grid)oldSender.Parent).UpdateLayout();
+        ((Grid)target.Parent).UpdateLayout();
+        ((Grid)oldSender.Parent).MaxHeight = double.MaxValue;
+        ((Grid)target.Parent).MaxHeight = double.MaxValue;
     }
 
     private void UIElement_OnDrop(object sender, DragEventArgs e)
     {
         e.Handled = true;
-        DragOperationDeferral def = e.GetDeferral();
-
         var item = (FilterObject)e.Data.Properties["item"];
         var oldSender = (ListView)e.Data.Properties["sender"];
 
         ((ObservableCollection<FilterObject>)oldSender.ItemsSource).Remove(item);
 
-        def.Complete();
+        ((Grid)oldSender.Parent).MaxHeight = 0;
+        ((Grid)oldSender.Parent).UpdateLayout();
+        ((Grid)oldSender.Parent).MaxHeight = double.MaxValue;
     }
 
-    private void ButtonBase_OnClick3(object sender, RoutedEventArgs e)
+    private void AddFilter_OnClick(object sender, RoutedEventArgs e)
+    {
+        FilterObjects.Add(new Filter());
+    }
+
+    private void AddGroup_OnClick(object sender, RoutedEventArgs e)
+    {
+        FilterObjects.Add(new FilterGroup());
+    }
+
+
+    private void ClearAll_OnClick(object sender, RoutedEventArgs e)
     {
         FilterObjects.Clear();
     }
@@ -299,122 +322,238 @@ public partial class AdvancedFilters : Page
             lowerLine.Y2 = grid.RowDefinitions[3].ActualHeight - 1;
         }
     }
+
+    private void SaveSearch_OnClick(object sender, RoutedEventArgs e)
+    {
+        var name = SearchName.Text.IsNullOrEmpty() ? "/Home/DefaultName_AdvancedFilterFlyout".GetLocalizedString() : SearchName.Text;
+        SearchSavingService.AddSavedSearch(name, FilterObjects.ToList());
+    }
+
+    private async void SavedSearchesComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (SavedSearchesComboBox.SelectedIndex == -1) return;
+
+        FilterObjects.Clear();
+        foreach (var filterObject in await ((SavedSearch)SavedSearchesComboBox.SelectedItem).GetFilterObjects())
+        {
+            FilterObjects.Add(filterObject);
+        }
+
+        SavedSearchesComboBox.SelectedIndex = -1;
+    }
+
+    private async void FrameworkElement_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+        sender.MaxHeight = sender.MinHeight;
+        await Task.Yield();
+        sender.MaxHeight = double.MaxValue;
+    }
 }
 
 public partial class AdvancedType : ObservableObject
 {
-    [ObservableProperty] private string _name = null!;
-    [ObservableProperty] private string _uid = null!;
+    [ObservableProperty]
+    [JsonInclude]
+    internal string _name = null!;
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal string _uid = null!;
 }
 
 public abstract partial class Operations : AdvancedType
 {
-    [ObservableProperty] private AdvancedType _currentOperation;
+    [ObservableProperty]
+    [JsonInclude]
+    internal int _operationIndex;
 
-    protected Operations()
+    public abstract List<AdvancedType> OperationsCollection { get; set; }
+
+    [JsonIgnore]
+    public AdvancedType CurrentOperation
     {
-        CurrentOperation = OperationsCollection.First();
+        get
+        {
+            return OperationsCollection[OperationIndex];
+        }
+
+        set
+        {
+            OperationIndex = OperationsCollection.IndexOf(value);
+        }
     }
 
-    public abstract ICollection<AdvancedType> OperationsCollection { get; }
-
-    partial void OnCurrentOperationChanged(AdvancedType? oldValue, AdvancedType newValue)
+    partial void OnOperationIndexChanged(int value)
     {
-        if (!OperationsCollection.Contains(newValue))
+        if (value < 0 || value >= OperationsCollection.Count)
         {
-            CurrentOperation = oldValue ?? OperationsCollection.First();
+            OperationIndex = 0;
         }
+        OnPropertyChanged("CurrentOperation");
     }
 }
 
 public partial class TextOperations : Operations
 {
-    private static readonly ICollection<AdvancedType> StaticOperationsCollection =
+    private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
-        new AdvancedType { Uid = "/Home/Is_FilterOperation", Name = "Is" },
-        new AdvancedType { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
-        new AdvancedType { Uid = "/Home/StartWith_FilterOperation", Name = "Start_with" },
-        new AdvancedType { Uid = "/Home/EndWith_FilterOperation", Name = "End_Width" }
+        new() { Uid = "/Home/Is_FilterOperation", Name = "Is" },
+        new() { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
+        new() { Uid = "/Home/StartWith_FilterOperation", Name = "Start_With" },
+        new() { Uid = "/Home/EndWith_FilterOperation", Name = "End_Width" }
     ];
 
-    public override ICollection<AdvancedType> OperationsCollection => StaticOperationsCollection;
+    public override List<AdvancedType> OperationsCollection
+    {
+        get => StaticOperationsCollection;
+        set => StaticOperationsCollection = value;
+    }
+
+    public new string Name { get; } = "TextOperations";
 }
 
 public partial class DateOperations : Operations
 {
-    private static readonly ICollection<AdvancedType> StaticOperationsCollection =
+    private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
-        new AdvancedType { Uid = "/Home/After_FilterOperation", Name = "After" },
-        new AdvancedType { Uid = "/Home/Before_FilterOperation", Name = "Before" },
-        new AdvancedType { Uid = "/Home/From_FilterOperation", Name = "From_to" }
+        new() { Uid = "/Home/After_FilterOperation", Name = "After" },
+        new() { Uid = "/Home/Before_FilterOperation", Name = "Before" },
+        new() { Uid = "/Home/From_FilterOperation", Name = "From_to" }
     ];
 
-    public override ICollection<AdvancedType> OperationsCollection => StaticOperationsCollection;
+    public override List<AdvancedType> OperationsCollection
+    {
+        get => StaticOperationsCollection;
+        set => StaticOperationsCollection = value;
+    }
+
+    public new string Name { get; } = "DateOperations";
 }
 
 public partial class TagsOperations : Operations
 {
-    private static readonly ICollection<AdvancedType> StaticOperationsCollection =
+    private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
-        new AdvancedType { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
-        new AdvancedType { Uid = "/Home/ContainsWithoutParents_FilterOperation", Name = "Contains_Without_Parents" }
+        new() { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
+        new() { Uid = "/Home/ContainsWithoutParents_FilterOperation", Name = "Contains_Without_Parents" }
     ];
 
-    public override ICollection<AdvancedType> OperationsCollection => StaticOperationsCollection;
+    public override List<AdvancedType> OperationsCollection
+    {
+        get => StaticOperationsCollection;
+        set => StaticOperationsCollection = value;
+    }
+
+    public new string Name { get; } = "TagsOperations";
 }
 
 public partial class FilterType : AdvancedType
 {
-    [ObservableProperty] private string _category = null!;
-    [ObservableProperty] private DateTimeOffset _date = DateTimeOffset.Now;
+    [ObservableProperty]
+    [JsonInclude]
+    internal string _category = null!;
 
-    [ObservableProperty] private AdvancedType _defaultType = null!;
+    [ObservableProperty]
+    [JsonInclude]
+    internal DateTimeOffset _date = DateTimeOffset.Now;
 
-    [ObservableProperty] private bool _negate;
-    [ObservableProperty] private Operations _operations = null!;
-    [ObservableProperty] private DateTimeOffset _secondDate = DateTimeOffset.Now;
-    [ObservableProperty] private TimeSpan _secondTime;
-    [ObservableProperty] private ICollection<Tag> _tags = [];
+    [ObservableProperty]
+    [JsonInclude]
+    internal bool _negate;
 
-    [ObservableProperty] private string _text = null!;
-    [ObservableProperty] private TimeSpan _time;
+    [ObservableProperty]
+    [JsonInclude]
+    internal Operations _operations = null!;
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal DateTimeOffset _secondDate = DateTimeOffset.Now;
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal TimeSpan _secondTime;
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal string _text = null!;
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal TimeSpan _time;
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal HashSet<int> _tagsHashSet = [];
+
+    private ICollection<Tag> _tags = [];
+    [JsonIgnore]
+    public ICollection<Tag> Tags
+    {
+        get
+        {
+            if (_tags.Count == 0 && TagsHashSet.Count != 0)
+            {
+                using (var database = new MediaDbContext())
+                {
+                    Tags = database.Tags.Where(t => TagsHashSet.Contains(t.TagId)).ToList();
+                }
+            }
+
+            return _tags;
+        }
+        set
+        {
+            if (!EqualityComparer<ICollection<Tag>>.Default.Equals(_tags, value))
+            {
+                OnPropertyChanging();
+                _tags = value;
+                OnTagsChanged(value);
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private void OnTagsChanged(ICollection<Tag> value)
+    {
+        TagsHashSet = value.Select(t => t.TagId).ToHashSet();
+    }
 }
 
 public abstract class FilterObject : ObservableObject;
 
 public partial class Filter : FilterObject
 {
-    public readonly ICollection<FilterType> FiltersCollection =
+    public List<FilterType> FiltersCollection { get; set; } =
     [
-        new FilterType
-            { 
-                Uid = "/Home/Name_Filter",
-                Name = "Name",
-                Category = "Text",
-                Operations = new TextOperations()
-            },
-        new FilterType
-            { 
-                Uid = "/Home/Notes_Filter",
-                Name = "Notes",
-                Category = "Text",
-                Operations = new TextOperations() 
-            },
-        new FilterType
+        new()
+        { 
+            Uid = "/Home/Name_Filter",
+            Name = "Name",
+            Category = "Text",
+            Operations = new TextOperations()
+        },
+        new()
+        { 
+            Uid = "/Home/Notes_Filter",
+            Name = "Notes",
+            Category = "Text",
+            Operations = new TextOperations() 
+        },
+        new()
         {
             Uid = "/Home/DateAdded_Filter",
             Name = "Date_Added",
             Category = "Date",
             Operations = new DateOperations()
         },
-        new FilterType
+        new()
         {
             Uid = "/Home/DateModified_Filter",
             Name = "Date_Modifed",
             Category = "Date",
             Operations = new DateOperations()
         },
-        new FilterType
+        new()
         {
             Uid = "/Home/Tags_Filter",
             Name = "Tags",
@@ -423,26 +562,46 @@ public partial class Filter : FilterObject
         }
     ];
 
-    [ObservableProperty] private FilterType _filterType;
+    [ObservableProperty]
+    [JsonInclude]
+    internal int _filterTypeIndex;
+
+    [JsonIgnore]
+    public FilterType FilterType
+    {
+        get
+        {
+            return FiltersCollection[FilterTypeIndex];
+        }
+
+        set
+        {
+            FilterTypeIndex = FiltersCollection.IndexOf(value);
+        }
+    }
 
     public Filter()
     {
-        FilterType = FiltersCollection.First();
+        FilterTypeIndex = 0;
     }
 
-    partial void OnFilterTypeChanged(FilterType? oldValue, FilterType newValue)
+    partial void OnFilterTypeIndexChanged(int value)
     {
-        if (!FiltersCollection.Contains(newValue))
+        if (value < 0 || value >= FiltersCollection.Count)
         {
-            FilterType = oldValue ?? FiltersCollection.First();
+            FilterTypeIndex = 0;
         }
+        OnPropertyChanged("FilterType");
     }
 }
 
 public partial class FilterGroup : FilterObject
 {
-    public readonly ObservableCollection<FilterObject> FilterObjects = [];
-    [ObservableProperty] private bool _orCombination = true;
+    public ObservableCollection<FilterObject> FilterObjects { get; set; } = [];
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal bool _orCombination = true;
 }
 
 internal partial class FiltersTemplateSelector : DataTemplateSelector

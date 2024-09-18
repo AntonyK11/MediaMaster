@@ -93,5 +93,34 @@
                     Duration="0:0:0.25" />
             </animations:Implicit.HideAnimations>
         </Grid>
+
+        <TeachingTip
+            x:Name="TeachingTip1"
+            Title="THis is a teaching tip"
+            PreferredPlacement="Center"
+            Subtitle="This is the first step">
+            <TeachingTip.IconSource>
+                <SymbolIconSource Symbol="Home" />
+            </TeachingTip.IconSource>
+            <TeachingTip.Content>
+                <Grid Margin="0,16,0,0" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        Grid.Column="0"
+                        HorizontalAlignment="Stretch"
+                        Click="{x:Bind TeachingService.PrevStep}"
+                        Content="Previous" />
+                    <Button
+                        Grid.Column="1"
+                        HorizontalAlignment="Stretch"
+                        Click="{x:Bind TeachingService.NextStep}"
+                        Content="Next" />
+                </Grid>
+            </TeachingTip.Content>
+        </TeachingTip>
     </Grid>
 </Page>

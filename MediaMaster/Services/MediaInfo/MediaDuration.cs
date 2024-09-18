@@ -18,7 +18,7 @@ public class MediaDuration(DockPanel parent) : MediaInfoTextBase(parent)
 
     protected override bool ShowInfo(ICollection<Media> medias)
     {
-        return medias.Count != 0 && !(IsCompact || GetDuration(medias).IsNullOrEmpty());
+        return medias.Count != 0 && !GetDuration(medias).IsNullOrEmpty();
     }
 
     private string GetDuration(ICollection<Media> medias)
