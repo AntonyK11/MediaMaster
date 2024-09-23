@@ -417,5 +417,6 @@
     <TextBox
         x:Name="TextBox"
         l:Uids.Uid="/Home/Media_SearchBox"
+        TextChanged="TextBox_OnTextChanged"
         Template="{StaticResource SearchBoxControlTemplate}" />
 </UserControl>

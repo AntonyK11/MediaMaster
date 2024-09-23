@@ -3,6 +3,7 @@ using CommunityToolkit.WinUI;
 using EFCore.BulkExtensions;
 using HtmlAgilityPack;
 using MediaMaster.Extensions;
+using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +18,35 @@ public class MediaService
     public bool IsRunning;
     private readonly Stopwatch _watch = new();
 
+    public static async Task DeleteMedias(object sender, ICollection<Media> medias)
+    {
+        if (App.MainWindow == null) return;
+
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow.Content.XamlRoot,
+            DefaultButton = ContentDialogButton.Close,
+            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+        };
+        Uids.SetUid(dialog, "/Media/DeleteDialog");
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            await using (var database = new MediaDbContext())
+            {
+                await database.BulkDeleteAsync(medias);
+            }
+
+            MediaDbContext.InvokeMediaChange(sender, MediaChangeFlags.MediaRemoved, medias);
+        }
+    }
+
     public Task<int> AddMediaAsync(IEnumerable<string> uris, HashSet<int>? userTagsId = null, string userNotes = "")
     {
         return AddMediaAsync(uris.Select(uri => new KeyValuePair<string?, string>(null, uri.Trim())), userTagsId: userTagsId, userNotes: userNotes);
     }
-
 
     public async Task<int> AddMediaAsync(IEnumerable<KeyValuePair<string?, string>>? nameUris = null,
         ICollection<BrowserFolder>? browserFolders = null, HashSet<int>? userTagsId = null, string userNotes = "", bool generateBookmarkTags = true)
@@ -136,7 +161,7 @@ public class MediaService
                                       </binding>
                                   </visual>
                                   <actions>
-                                      <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                      <action activationType="system" arguments="dismiss" content="{"Dismiss_ToastButton".GetLocalizedString()}"/>
                                   </actions>
                               </toast>
                               """;
@@ -163,8 +188,8 @@ public class MediaService
                                       </binding>
                                   </visual>
                                   <actions>
-                                      <action content='{"view_toast_button".GetLocalizedString()}' arguments='action=view'/>
-                                      <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                                      <action content='{"View_ToastButton".GetLocalizedString()}' arguments='action=view'/>
+                                      <action activationType="system" arguments="dismiss" content="{"Dismiss_ToastButton".GetLocalizedString()}"/>
                                   </actions>
                               </toast>
                               """;

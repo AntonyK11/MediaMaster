@@ -30,11 +30,10 @@ public partial class SearchBox : UserControl
 
         Filter = m =>
             _text.Length == 0 ||
+            (!_filterName && !_filterNotes && !_filterTags) ||
             (_filterName && EF.Functions.Like(m.Name, $"%{_text}%")) ||
             (_filterNotes && EF.Functions.Like(m.Notes, $"%{_text}%")) ||
             (_filterTags && _medias.Contains(m.MediaId));
-
-        TextBox.TextChanged += async (_, args) => await Change();
     }
 
     public event TypedEventHandler<object, Expression<Func<Media, bool>>>? FilterChanged;
@@ -75,6 +74,14 @@ public partial class SearchBox : UserControl
         }
 
         await App.DispatcherQueue.EnqueueAsync(() => FilterChanged?.Invoke(this, Filter));
+    }
+
+    private async void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_filterName || _filterNotes || _filterTags)
+        {
+            await Change();
+        }
     }
 
     async partial void OnFilterNameChanged()

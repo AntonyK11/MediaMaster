@@ -1,10 +1,8 @@
 using System.Linq.Expressions;
-using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace MediaMaster.Views;
@@ -121,15 +119,18 @@ public partial class HomePage : Page
             var simpleFilterFunctions = MediaItemsView.SimpleFilterFunctions;
             var advancedFilterFunctions = MediaItemsView.AdvancedFilterFunctions;
 
-            List<Media> medias;
-            await using (var database = new MediaDbContext())
+            await Task.Run(async () =>
             {
-                var mediaQuery = SearchService.GetQuery(database, sortFunction, sortAscending, simpleFilterFunctions, advancedFilterFunctions);
+                List<Media> medias;
+                await using (var database = new MediaDbContext())
+                {
+                    var mediaQuery = SearchService.GetQuery(database, sortFunction, sortAscending, simpleFilterFunctions, advancedFilterFunctions);
 
-                medias = await mediaQuery.Include(m => m.Tags).ToListAsync();
-            }
+                    medias = await mediaQuery.Include(m => m.Tags).ToListAsync();
+                }
 
-            ExcelService.SaveSearchResultsToExcel(medias, fileName);
+                ExcelService.SaveSearchResultsToExcel(medias, fileName);
+            });
         }
     }
 

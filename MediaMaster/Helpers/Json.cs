@@ -6,7 +6,7 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace MediaMaster.Helpers;
 
-[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(FilterObjectConverter), typeof(OperationsConverter)])]
 [JsonSerializable(typeof(ElementTheme))]
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(string))]
@@ -39,5 +39,75 @@ public static class Json
             return str;
         }
         return await Task.Run(() => JsonSerializer.Serialize(value, typeInfo));
+    }
+}
+
+public class FilterObjectConverter : JsonConverter<FilterObject>
+{
+    public override FilterObject? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
+        {
+            if (doc.RootElement.TryGetProperty("_orCombination", out _))
+            {
+                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.FilterGroup);
+            }
+            else
+            {
+                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.Filter);
+            }
+        }
+    }
+
+    public override void Write(Utf8JsonWriter writer, FilterObject value, JsonSerializerOptions options)
+    {
+        if (value is FilterGroup filterGroup)
+        {
+            JsonSerializer.Serialize(writer, filterGroup, SourceGenerationContext.Default.FilterGroup);
+        }
+        else if (value is Filter filter)
+        {
+            JsonSerializer.Serialize(writer, filter, SourceGenerationContext.Default.Filter);
+        }
+    }
+}
+
+public class OperationsConverter : JsonConverter<Operations>
+{
+    public override Operations? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
+        {
+            doc.RootElement.TryGetProperty("Name", out var name);
+
+            if (name.GetString() == "TextOperations")
+            {
+                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.TextOperations);
+            }
+            else if (name.GetString() == "DateOperations")
+            {
+                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.DateOperations);
+            }
+            else
+            {
+                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.TagsOperations);
+            }
+        }
+    }
+
+    public override void Write(Utf8JsonWriter writer, Operations value, JsonSerializerOptions options)
+    {
+        if (value is TextOperations textOperations)
+        {
+            JsonSerializer.Serialize(writer, textOperations, SourceGenerationContext.Default.TextOperations);
+        }
+        else if (value is DateOperations dateOperations)
+        {
+            JsonSerializer.Serialize(writer, dateOperations, SourceGenerationContext.Default.DateOperations);
+        }
+        else if (value is TagsOperations tagsOperations)
+        {
+            JsonSerializer.Serialize(writer, tagsOperations, SourceGenerationContext.Default.TagsOperations);
+        }
     }
 }

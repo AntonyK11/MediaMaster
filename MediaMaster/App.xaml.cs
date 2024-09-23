@@ -45,6 +45,7 @@ public partial class App : Application
    [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(TextBox))]
    [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(SelectorBarItem))]
    [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(MenuBarItem))]
+   [method: DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(ComboBox))]
     public App()
     {
         this.InitializeComponent();

@@ -42,14 +42,12 @@ internal partial class ItemTemplateSelector : DataTemplateSelector
     }
 }
 
-[DependencyProperty("ItemsSource", typeof(ObservableCollection<object>),
-    DefaultValueExpression = "new ObservableCollection<object>()")]
+[DependencyProperty("ItemsSource", typeof(ObservableCollection<object>), DefaultValueExpression = "new ObservableCollection<object>()")]
 [DependencyProperty("Comparer", typeof(IComparer))]
 [DependencyProperty("SelectionMode", typeof(ItemsViewSelectionMode), DefaultValue = ItemsViewSelectionMode.None)]
 [DependencyProperty("AddItemButton", typeof(bool), DefaultValue = true)]
 [DependencyProperty("ShowScrollButtons", typeof(bool), DefaultValue = true)]
-[DependencyProperty("Layout", typeof(Layout),
-    DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
+[DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
 [DependencyProperty("ItemTemplate", typeof(DataTemplate))]
 public partial class CustomItemsView
 {

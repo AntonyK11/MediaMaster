@@ -2,6 +2,7 @@ using DependencyPropertyGenerator;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
+using Microsoft.UI.Xaml.Input;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
@@ -14,6 +15,8 @@ public partial class AddMediasDialog : Page
     {
         InitializeComponent();
         TagView.MediaIds = [-1];
+
+        FocusManager.TryFocusAsync(this, FocusState.Keyboard);
     }
 
     public static async Task<(ContentDialogResult, AddMediasDialog?)> ShowDialogAsync(ICollection<string> mediaPaths)
@@ -37,7 +40,9 @@ public partial class AddMediasDialog : Page
 
         if (result == ContentDialogResult.Primary)
         {
-            await App.GetService<MediaService>().AddMediaAsync(mediaPaths, mediaDialog.Tags.Select(t => t.TagId).ToHashSet(), mediaDialog.Notes);
+            var tagIds = mediaDialog.Tags.Select(t => t.TagId).ToHashSet();
+            var notes = mediaDialog.Notes;
+            await Task.Run(() => App.GetService<MediaService>().AddMediaAsync(mediaPaths, tagIds, notes));
         }
 
         return (result, mediaDialog);

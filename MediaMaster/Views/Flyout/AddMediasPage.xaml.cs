@@ -1,5 +1,6 @@
 using MediaMaster.Services.Navigation;
 using MediaMaster.ViewModels.Flyout;
+using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Views.Flyout;
 
@@ -12,12 +13,21 @@ public sealed partial class AddMediasPage : Page
         this.InitializeComponent();
 
         ViewModel = App.GetService<AddMediasViewModel>();
+
+        Loaded += (_, _) => FocusManager.TryFocusAsync(AddButton, FocusState.Pointer);
     }
 
-    private void AddButton_OnClick(object sender, RoutedEventArgs e)
+    private void AddButton_OnClick(object? sender = null, RoutedEventArgs? e = null)
     {
         ViewModel.AddMedias(AddMediasDialog);
-        App.GetService<FlyoutNavigationService>().GoBack();
+        if (App.Flyout?.AutoClose == true)
+        {
+            App.Flyout.HideFlyout();
+        }
+        else
+        {
+            App.GetService<FlyoutNavigationService>().GoBack();
+        }
     }
 }
 

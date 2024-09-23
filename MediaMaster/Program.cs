@@ -14,7 +14,7 @@ internal static partial class Program
     [LibraryImport("Microsoft.ui.xaml.dll")]
     private static partial void XamlCheckProcessRequirements();
 
-    // TODO: Made the Main method synchronous to allow drag and drop to work
+    // Made the Main method synchronous to allow drag and drop to work
     // https://github.com/microsoft/microsoft-ui-xaml/issues/9061#issuecomment-1925433956
 
     [STAThread]

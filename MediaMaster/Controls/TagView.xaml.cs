@@ -12,8 +12,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("SelectionMode", typeof(ItemsViewSelectionMode), DefaultValue = ItemsViewSelectionMode.None)]
 [DependencyProperty("AddTagButton", typeof(bool), DefaultValue = true)]
 [DependencyProperty("ShowScrollButtons", typeof(bool), DefaultValue = true)]
-[DependencyProperty("Layout", typeof(Layout),
-    DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
+[DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
 [DependencyProperty("MediaIds", typeof(HashSet<int>), DefaultValueExpression = "new HashSet<int>()")]
 [DependencyProperty("TagId", typeof(int?))]
 [DependencyProperty("Tags", typeof(ICollection<Tag>), DefaultValueExpression = "new List<Tag>()")]
@@ -190,12 +189,10 @@ public partial class TagView : UserControl
         const int tagCheckLimit = 100;
         var showExtensions = App.GetService<SettingsService>().ShowExtensions || MediaIds.Count == 0;
 
-        ICollection<Tag> filteredTags =
-            Tags.Where(t => showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList();
+        ICollection<Tag> filteredTags = Tags.Where(t => showExtensions || !t.Flags.HasFlag(TagFlags.Extension)).ToList();
         ICollection<Tag> itemSource = CustomItemsView.ItemsSource.OfType<Tag>().ToList();
 
-        ICollection<Tag> tagsToRemove =
-            itemSource.Except(filteredTags, TagComparer.Instance).Take(tagCheckLimit).ToList();
+        ICollection<Tag> tagsToRemove = itemSource.Except(filteredTags, TagComparer.Instance).Take(tagCheckLimit).ToList();
         ICollection<Tag> tagsToAdd = filteredTags.Except(itemSource, TagComparer.Instance).Take(tagCheckLimit).ToList();
 
         if (tagsToAdd.Count >= tagCheckLimit || tagsToRemove.Count >= tagCheckLimit)
@@ -217,7 +214,7 @@ public partial class TagView : UserControl
 
         _skipTagsChange = false;
 
-        await Task.Delay(1);
+        UpdateLayout();
         CustomItemsView.UpdateScrollButtonsVisibility();
     }
 

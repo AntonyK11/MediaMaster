@@ -117,82 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppDescription" xml:space="preserve">
-    <value>Minecraft Mod Launcher fr</value>
+  <data name="AddToApp_Title" xml:space="preserve">
+    <value>Comment ajouter des médias ?</value>
   </data>
-  <data name="View_ToastButton" xml:space="preserve">
-    <value>Voir</value>
+  <data name="DragInApp_Description" xml:space="preserve">
+    <value>Les médias peuvent être ajoutés en les glissant dans l'application.</value>
   </data>
-  <data name="Dismiss_ToastButton" xml:space="preserve">
-    <value>Ignorer</value>
+  <data name="Next" xml:space="preserve">
+    <value>Suivant</value>
   </data>
-  <data name="medias_added_toast_text" xml:space="preserve">
-    <value>{0} nouveau(x) média(s) ajouté(s)</value>
-  </data>
-  <data name="add_context_menu" xml:space="preserve">
-    <value>Ajouter à MediaMaster</value>
-  </data>
-  <data name="Close" xml:space="preserve">
-    <value>Fermer</value>
-  </data>
-  <data name="Back" xml:space="preserve">
-    <value>Retour</value>
-  </data>
-  <data name="ShellPage_MediasNavigationItem" xml:space="preserve">
-    <value>Liste des Médias</value>
-  </data>
-  <data name="ShellPage_SettingsNavigationItem" xml:space="preserve">
-    <value>Paramètres</value>
-  </data>
-  <data name="ShowWindow" xml:space="preserve">
-    <value>Afficher la fenêtre</value>
-  </data>
-  <data name="Exit" xml:space="preserve">
-    <value>Fermer</value>
-  </data>
-  <data name="ImportBookmarksDialog.CloseButtonText" xml:space="preserve">
+  <data name="Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
-  <data name="ImportBookmarksDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Importer</value>
+  <data name="Previous" xml:space="preserve">
+    <value>Précédent</value>
   </data>
-  <data name="ImportBookmarksDialog.Title" xml:space="preserve">
-    <value>Importer des favorits</value>
+  <data name="End" xml:space="preserve">
+    <value>Terminer</value>
   </data>
-  <data name="GenerateBookmarkTags_CheckBox.Content" xml:space="preserve">
-    <value>Générer des étiquettes de signets en fonction de la structure des favorits</value>
+  <data name="ContextMenu_Description" xml:space="preserve">
+    <value>Les médias peuvent être ajoutés en utilisant le menu contextuel de l'explorateur de fichiers.</value>
   </data>
-  <data name="DropFile" xml:space="preserve">
-    <value>Déposez un fichier ici pour l'ajouter</value>
-  </data>
-  <data name="BrowsersTab_TextBlock.Text" xml:space="preserve">
-    <value>Onglets des navigateurs</value>
-  </data>
-  <data name="AddTab_Button.Content" xml:space="preserve">
-    <value>Ajouter l'onglet</value>
-  </data>
-  <data name="adding_medias_toast_text" xml:space="preserve">
-    <value>Ajout de nouveau(x) média(s)</value>
-  </data>
-  <data name="InAppNotification_Title" xml:space="preserve">
-    <value>Notification {0}</value>
-  </data>
-  <data name="InAppNotification_CannotAddMedias" xml:space="preserve">
-    <value>Impossible d'ajouter de nouveaux médias pendant que des médias sont ajoutés</value>
-  </data>
-  <data name="InAppNotification_MediasRemoved" xml:space="preserve">
-    <value>{0} média(s) retiré(s)</value>
-  </data>
-  <data name="InAppNotification_MediasAdded" xml:space="preserve">
-    <value>{0} média(s) ajouté(s)</value>
-  </data>
-  <data name="PathsFromDirectory_Button.Content" xml:space="preserve">
-    <value>Remplir les chemins à partir du répertoire</value>
-  </data>
-  <data name="InAppNotification_AppMinimized_Title" xml:space="preserve">
-    <value>MediaMaster fonctionne toujours</value>
-  </data>
-  <data name="InAppNotification_AppMinimized_SubTitle" xml:space="preserve">
-    <value>MediaMaster fonctionne désormais en arrière-plan pour améliorer les performances au démarrage.</value>
+  <data name="DragInFlyout_Description" xml:space="preserve">
+    <value>Les médias peuvent être ajoutés en les glissant dans le menu volant de l'icône de la barre d'état.</value>
   </data>
 </root>

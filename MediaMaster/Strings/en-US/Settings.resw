@@ -187,7 +187,7 @@
     <value>License</value>
   </data>
   <data name="StartTutorial.Title" xml:space="preserve">
-    <value>Start the tutorial again</value>
+    <value>Start the mini tutorial</value>
   </data>
   <data name="StartTutorialButton.Content" xml:space="preserve">
     <value>Start</value>

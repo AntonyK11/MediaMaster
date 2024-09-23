@@ -35,6 +35,11 @@
                 IsInverted="True" />
             <helpers:ColorToThemeConverter x:Key="ColorToThemeConverter" />
 
+            <x:Double x:Key="TeachingTipMinHeight">0</x:Double>
+            <x:Double x:Key="TeachingTipMinWidth">0</x:Double>
+            <x:Double x:Key="TeachingTipMaxHeight">2000</x:Double>
+            <x:Double x:Key="TeachingTipMaxWidth">2000</x:Double>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

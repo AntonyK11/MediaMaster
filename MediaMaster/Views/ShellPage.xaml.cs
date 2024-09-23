@@ -3,6 +3,8 @@ using MediaMaster.Interfaces.Services;
 using MediaMaster.ViewModels;
 using MediaMaster.Views.Dialog;
 using WinUI3Localizer;
+using WinUIEx;
+using Windows.Media.Core;
 
 namespace MediaMaster.Views;
 
@@ -22,15 +24,36 @@ public partial class ShellPage
         ViewModel.NavigationService.Frame = ContentFrame;
         ViewModel.NavigationViewService.Initialize(NavView);
 
-        TeachingService.Configure(1, TeachingTip1);
+        TeachingService.Configure(1, TeachingTip);
+        MediaPlayerElement.MediaPlayer.IsLoopingEnabled = true;
+        MediaPlayerElement.MediaPlayer.IsMuted = true;
+        MediaPlayerElement.MediaPlayer.AutoPlay = true;
+
+        SetTeachingTipSource(App.GetService<IThemeSelectorService>().ActualTheme);
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => SetTeachingTipSource(theme);
 
         Loaded += (_, _) =>
         {
             if (NavView.SettingsItem is NavigationViewItem settingsItem)
             {
-                Uids.SetUid(settingsItem, "ShellPage_SettingsNavigationItem");
+                Uids.SetUid(settingsItem, "ShellPage_SettingsNavigationItem.Content");
             }
         };
+    }
+
+    private readonly MediaSource _lightSource = MediaSource.CreateFromUri(new Uri("ms-appx:///Assets/DragInApp_Light.mp4"));
+    private readonly MediaSource _darkSource = MediaSource.CreateFromUri(new Uri("ms-appx:///Assets/DragInApp_Dark.mp4"));
+
+    private void SetTeachingTipSource(ElementTheme theme)
+    {
+        if (theme == ElementTheme.Dark)
+        {
+            MediaPlayerElement.Source = _darkSource;
+        }
+        else
+        {
+            MediaPlayerElement.Source = _lightSource;
+        }
     }
 
     private void OnDisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
@@ -48,6 +71,8 @@ public partial class ShellPage
     {
         if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
         DropGrid.Visibility = Visibility.Collapsed;
+
+        App.MainWindow?.SetForegroundWindow();
 
         ICollection<string> mediaPaths = (await e.DataView.GetStorageItemsAsync()).Select(i => i.Path).ToList();
         await AddMediasDialog.ShowDialogAsync(mediaPaths);

@@ -50,7 +50,7 @@ public static class ExcelService
 
             foreach (var mediaItem in mediaItems)
             {
-                Row row = new Row() { RowIndex = rowIndex };
+                Row row = new() { RowIndex = rowIndex };
 
                 Cell nameCell = CreateCell(mediaItem.Name, CellValues.String);
 
@@ -64,7 +64,7 @@ public static class ExcelService
                 };
                 hyperlinks.Append(hyperlink);
 
-                Uri pathUri = new Uri(mediaItem.Uri, UriKind.RelativeOrAbsolute);
+                Uri pathUri = new(mediaItem.Uri, UriKind.RelativeOrAbsolute);
                 worksheetPart.AddHyperlinkRelationship(pathUri, true, relationshipId);
 
                 Cell notesCell = CreateCell(mediaItem.Notes, CellValues.String);

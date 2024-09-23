@@ -20,6 +20,7 @@
             FontWeight="SemiBold" />
         <dialog:AddMediasDialog x:Name="AddMediasDialog" Grid.Row="1" />
         <Button
+            x:Name="AddButton"
             Grid.Row="2"
             HorizontalAlignment="Stretch"
             l:Uids.Uid="/Media/AddButton_AddMediaPage"

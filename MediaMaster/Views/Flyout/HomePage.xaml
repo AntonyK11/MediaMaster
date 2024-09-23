@@ -74,7 +74,7 @@
                 VerticalAlignment="Center"
                 Spacing="16">
                 <FontIcon FontSize="32" Glyph="&#xE896;" />
-                <TextBlock l:Uids.Uid="DropFile_TextBlock" FontSize="18" />
+                <TextBlock l:Uids.Uid="DropFile.Text" FontSize="18" />
             </StackPanel>
             <Rectangle
                 RadiusX="8"

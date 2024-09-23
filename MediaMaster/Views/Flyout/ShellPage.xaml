@@ -144,14 +144,14 @@
         </Style>
     </Page.Resources>
 
-    <Grid>
+    <Grid x:Name="Grid">
         <Button
             x:Name="TitleBarCloseButton"
             Width="47"
             Height="32"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
-            l:Uids.Uid="TitleBarCloseButton"
+            l:Uids.Uid="Close.ToolTipService.ToolTip"
             Background="Transparent"
             BorderBrush="Transparent"
             Canvas.ZIndex="1"
@@ -168,6 +168,7 @@
         <Button
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
+            l:Uids.Uid="Back.ToolTipService.ToolTip"
             Canvas.ZIndex="1"
             Click="{x:Bind ViewModel.NavigationService.GoBack}"
             IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
@@ -178,5 +179,92 @@
             IsIndeterminate="True"
             Visibility="{x:Bind _tasksService.FlyoutProgressBarLoading, Mode=OneWay}" />
         <Frame x:Name="ContentFrame" />
+
+        <TeachingTip
+            x:Name="DragTeachingTip"
+            Width="225"
+            PreferredPlacement="Left"
+            ShouldConstrainToRootBounds="False"
+            Target="{x:Bind Grid}">
+            <TeachingTip.Content>
+                <Grid
+                    Width="225"
+                    RowDefinitions="Auto, *, Auto"
+                    RowSpacing="12">
+                    <StackPanel Grid.Row="0">
+                        <TextBlock
+                            l:Uids.Uid="/TeachingTip/AddToApp_Title.Text"
+                            FontWeight="SemiBold"
+                            TextWrapping="WrapWholeWords" />
+                        <TextBlock l:Uids.Uid="/TeachingTip/DragInFlyout_Description.Text" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <MediaPlayerElement
+                        x:Name="DragMediaPlayerElement"
+                        Grid.Row="1"
+                        Margin="-12,0,-12,0"
+                        AutoPlay="True" />
+
+                    <Grid
+                        Grid.Row="2"
+                        ColumnDefinitions="*, *"
+                        ColumnSpacing="8">
+                        <Button
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            l:Uids.Uid="/TeachingTip/Previous.Content"
+                            Click="{x:Bind TeachingService.PrevStep}" />
+                        <Button
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            l:Uids.Uid="/TeachingTip/Next.Content"
+                            Click="{x:Bind TeachingService.NextStep}" />
+                    </Grid>
+                </Grid>
+            </TeachingTip.Content>
+        </TeachingTip>
+
+        <TeachingTip
+            x:Name="ContextMenuTeachingTip"
+            PreferredPlacement="Left"
+            ShouldConstrainToRootBounds="False"
+            Target="{x:Bind Grid}">
+            <TeachingTip.Content>
+                <Grid
+                    Width="225"
+                    RowDefinitions="Auto, *, Auto"
+                    RowSpacing="12">
+                    <StackPanel Grid.Row="0">
+                        <TextBlock
+                            l:Uids.Uid="/TeachingTip/AddToApp_Title.Text"
+                            FontWeight="SemiBold"
+                            TextWrapping="WrapWholeWords" />
+                        <TextBlock l:Uids.Uid="/TeachingTip/ContextMenu_Description.Text" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <MediaPlayerElement
+                        x:Name="ContextMenuMediaPlayerElement"
+                        Grid.Row="1"
+                        Margin="-12,0,-12,0"
+                        AutoPlay="True" />
+
+                    <Grid
+                        Grid.Row="2"
+                        ColumnDefinitions="*, *"
+                        ColumnSpacing="8">
+                        <Button
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            Click="{x:Bind TeachingService.PrevStep}"
+                            Content="Previous" />
+                        <Button
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            l:Uids.Uid="/TeachingTip/End.Content"
+                            Click="{x:Bind TeachingService.NextStep}" />
+                    </Grid>
+                </Grid>
+            </TeachingTip.Content>
+        </TeachingTip>
     </Grid>
 </Page>

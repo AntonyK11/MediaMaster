@@ -14,12 +14,10 @@ public partial class AddMediasViewModel : INavigationAware
         if (parameter is ICollection<string> mediaPaths)
         {
             _mediaPaths = mediaPaths;
-            Debug.WriteLine("hi");
         }
         else if (parameter is ICollection<KeyValuePair<string?, string>> browserTitleUrl)
         {
             _browserTitleUrl = browserTitleUrl;
-            Debug.WriteLine("hi2");
         }
     }
 

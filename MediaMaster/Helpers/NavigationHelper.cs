@@ -3,7 +3,10 @@
 public class NavigationHelper
 {
     public static readonly DependencyProperty NavigateToProperty =
-        DependencyProperty.RegisterAttached("NavigateTo", typeof(string), typeof(NavigationHelper),
+        DependencyProperty.RegisterAttached(
+            "NavigateTo",
+            typeof(string),
+            typeof(NavigationHelper),
             new PropertyMetadata(null));
 
     public static string GetNavigateTo(NavigationViewItem item)

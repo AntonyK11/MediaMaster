@@ -28,7 +28,10 @@
         DragOver="OnDragOver"
         Drop="OnDrop">
 
-        <controls:TitleBarControl x:Name="AppTitleBar" Title="MediaMaster">
+        <controls:TitleBarControl
+            x:Name="AppTitleBar"
+            Title="MediaMaster"
+            Subtitle="Preview">
             <controls:TitleBarControl.Icon>
                 <BitmapImage UriSource="/Assets/WindowIcon.ico" />
             </controls:TitleBarControl.Icon>
@@ -47,13 +50,8 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="MediaMaster.Views.HomePage"
-                    l:Uids.Uid="ShellPage_MediasNavigationItem"
+                    l:Uids.Uid="ShellPage_MediasNavigationItem.Content"
                     Icon="{winUi:FontIcon Glyph=&#xE80F;}" />
-                <!--<NavigationViewItem helpers:NavigationHelper.NavigateTo="MediaMaster.Views.CategoriesPage" l:Uids.Uid="SettingsPage_PrivacyTermsLink">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Bullets" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>-->
             </NavigationView.MenuItems>
             <Grid>
                 <Frame x:Name="ContentFrame" IsTabStop="False" />
@@ -76,7 +74,7 @@
                 VerticalAlignment="Center"
                 Spacing="16">
                 <FontIcon FontSize="32" Glyph="&#xE896;" />
-                <TextBlock l:Uids.Uid="DropFile_TextBlock" FontSize="18" />
+                <TextBlock l:Uids.Uid="DropFile.Text" FontSize="18" />
             </StackPanel>
 
             <animations:Implicit.ShowAnimations>
@@ -94,31 +92,41 @@
             </animations:Implicit.HideAnimations>
         </Grid>
 
-        <TeachingTip
-            x:Name="TeachingTip1"
-            Title="THis is a teaching tip"
-            PreferredPlacement="Center"
-            Subtitle="This is the first step">
-            <TeachingTip.IconSource>
-                <SymbolIconSource Symbol="Home" />
-            </TeachingTip.IconSource>
+        <TeachingTip x:Name="TeachingTip" PreferredPlacement="Center">
             <TeachingTip.Content>
-                <Grid Margin="0,16,0,0" ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                <Grid
+                    Width="888"
+                    RowDefinitions="Auto, *, Auto"
+                    RowSpacing="12">
+                    <StackPanel Grid.Row="0">
+                        <TextBlock
+                            l:Uids.Uid="/TeachingTip/AddToApp_Title.Text"
+                            FontWeight="SemiBold"
+                            TextWrapping="WrapWholeWords" />
+                        <TextBlock l:Uids.Uid="/TeachingTip/DragInApp_Description.Text" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
 
-                    <Button
-                        Grid.Column="0"
-                        HorizontalAlignment="Stretch"
-                        Click="{x:Bind TeachingService.PrevStep}"
-                        Content="Previous" />
-                    <Button
-                        Grid.Column="1"
-                        HorizontalAlignment="Stretch"
-                        Click="{x:Bind TeachingService.NextStep}"
-                        Content="Next" />
+                    <MediaPlayerElement
+                        x:Name="MediaPlayerElement"
+                        Grid.Row="1"
+                        Margin="-12,0,-12,0"
+                        AutoPlay="True" />
+
+                    <Grid
+                        Grid.Row="2"
+                        ColumnDefinitions="*, *"
+                        ColumnSpacing="8">
+                        <Button
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            l:Uids.Uid="/TeachingTip/Cancel.Content"
+                            Click="{x:Bind TeachingService.PrevStep}" />
+                        <Button
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            l:Uids.Uid="/TeachingTip/Next.Content"
+                            Click="{x:Bind TeachingService.NextStep}" />
+                    </Grid>
                 </Grid>
             </TeachingTip.Content>
         </TeachingTip>

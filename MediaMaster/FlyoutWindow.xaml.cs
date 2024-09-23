@@ -6,14 +6,13 @@ using MediaMaster.Views.Flyout;
 using Windows.Foundation;
 using Microsoft.UI.Xaml.Media.Animation;
 using CommunityToolkit.WinUI;
+using DependencyPropertyGenerator;
 using H.NotifyIcon.EfficiencyMode;
 using MediaMaster.Services;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace MediaMaster;
 
-/// <summary>
-///     An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public partial class FlyoutWindow
 {
     private const int WindowMargin = 12;
@@ -29,17 +28,26 @@ public partial class FlyoutWindow
 
     private readonly bool _windows10 = Environment.OSVersion.Version.Build < 22000;
 
-    public new event TypedEventHandler<object, bool>? VisibilityChanged;
-
     private readonly Storyboard _showStoryboard = new();
     private readonly Storyboard _hideStoryboard = new();
 
     private readonly DoubleAnimation _hideAnimation;
     private readonly DoubleAnimation _showAnimation;
 
+    public new event TypedEventHandler<object, bool>? VisibilityChanged;
+    public bool AutoClose;
+
     public FlyoutWindow()
     {
         InitializeComponent();
+
+        App.GetService<FlyoutNavigationService>().Navigated += (_, args) =>
+        {
+            if (args.NavigationMode == NavigationMode.Back)
+            {
+                AutoClose = false;
+            }
+        };
 
         App.GetService<IThemeSelectorService>().ThemeChanged += Flyout_ThemeChanged;
         Flyout_ThemeChanged(null, App.GetService<IThemeSelectorService>().ActualTheme);
@@ -47,9 +55,9 @@ public partial class FlyoutWindow
         this.MoveAndResize(PosX, BottomY, WindowWidth, WindowHeight);
         ContentGrid.PosY = BottomY;
 
-        Closed += (sender, e) =>
+        Closed += (_, e) =>
         {
-            Hide_Flyout();
+            HideFlyout();
             e.Handled = true;
         };
 
@@ -98,7 +106,7 @@ public partial class FlyoutWindow
         ((FrameworkElement)Content).RequestedTheme = theme;
     }
 
-    public void Hide_Flyout()
+    public void HideFlyout()
     {
         IsOpen = false;
 
@@ -109,7 +117,7 @@ public partial class FlyoutWindow
         _hideAnimation.To = BottomY;
         _hideStoryboard.Begin();
 
-        App.GetService<FlyoutNavigationService>().NavigateTo(typeof(HomePage).FullName!);
+        App.GetService<FlyoutNavigationService>().GoBack();
         if (App.MainWindow == null || !App.MainWindow.GetWindowStyle().HasFlag(WindowStyle.Visible))
         {
             if (App.GetService<SettingsService>().LeaveAppRunning)
@@ -123,7 +131,7 @@ public partial class FlyoutWindow
         }
     }
 
-    public void Show_Flyout()
+    public void ShowFlyout()
     {
         EfficiencyModeUtilities.SetEfficiencyMode(false);
 
@@ -142,15 +150,15 @@ public partial class FlyoutWindow
 
     public bool IsOpen { get; private set; }
 
-    public void Toggle_Flyout()
+    public void ToggleFlyout()
     {
         if (IsOpen)
         {
-            Hide_Flyout();
+            HideFlyout();
         }
         else
         {
-            Show_Flyout();
+            ShowFlyout();
         }
     }
 
@@ -162,18 +170,5 @@ public partial class FlyoutWindow
     }
 }
 
-internal partial class ContentFrame : Frame
-{
-    public static readonly DependencyProperty PosYProperty
-        = DependencyProperty.Register(
-            nameof(PosY),
-            typeof(double),
-            typeof(ContentFrame),
-            new PropertyMetadata(0.0));
-
-    public double PosY
-    {
-        get => (double)GetValue(PosYProperty);
-        set => SetValue(PosYProperty, value);
-    }
-}
+[DependencyProperty("PosY", typeof(double), DefaultValue = 0.0)]
+internal partial class ContentFrame : Frame;

@@ -107,8 +107,6 @@ public partial class MediaItemsView : UserControl
     {
         _tasksService.AddMainTask();
 
-        await Task.Yield();
-
         var currentPageIndex = PagerControl.SelectedPageIndex;
         var mediasCount = 0;
         var mediasFound = 0;
@@ -138,15 +136,18 @@ public partial class MediaItemsView : UserControl
         PagerControl.NumberOfPages = pageCount;
 
         HashSet<int> selectedMedias = MediaItemsViewControl.SelectedItems.OfType<Media>().Select(m => m.MediaId).ToHashSet();
+
+        MediaItemsViewControl.SelectionChanged -= MediaItemsView_OnSelectionChanged;
         MediaItemsViewControl.ItemsSource = medias;
         foreach (var media in medias.Where(media => selectedMedias.Contains(media.MediaId)))
         {
             MediaItemsViewControl.Select(medias.IndexOf(media));
         }
+        MediaItemsViewControl.SelectionChanged += MediaItemsView_OnSelectionChanged;
+        MediaItemsView_OnSelectionChanged();
 
         MediasSelectedCount = MediaItemsViewControl.SelectedItems.Count;
 
-        MediaItemsViewControl.ScrollView.ScrollTo(0, 0);
         SetupSelectionPermissions();
 
         if (medias.Count != 0)
@@ -155,6 +156,7 @@ public partial class MediaItemsView : UserControl
         }
 
         _tasksService.RemoveMainTask();
+        MediaItemsViewControl.ScrollView.ScrollTo(0, 0);
     }
 
     private void SetupIcons(IEnumerable<NameUri> medias)
@@ -179,7 +181,7 @@ public partial class MediaItemsView : UserControl
         });
     }
 
-    private void MediaItemsView_OnSelectionChanged(ItemsView sender, ItemsViewSelectionChangedEventArgs args)
+    private void MediaItemsView_OnSelectionChanged(ItemsView? sender = null, ItemsViewSelectionChangedEventArgs? args = null)
     {
         App.DispatcherQueue.EnqueueAsync(() =>
             SelectionChanged?.Invoke(this, MediaItemsViewControl.SelectedItems.OfType<NameUri>().Select(m => m.MediaId).ToHashSet()));
@@ -209,13 +211,28 @@ public partial class MediaItemsView : UserControl
         MediasSelectedCount = selectedCount;
     }
 
-    private void MediaItemsView_OnProcessKeyboardAccelerators(UIElement sender,
+    private async void MediaItemsView_OnProcessKeyboardAccelerators(UIElement sender,
         ProcessKeyboardAcceleratorEventArgs args)
     {
         if (args is { Modifiers: VirtualKeyModifiers.Control, Key: VirtualKey.A })
         {
             args.Handled = true;
             SelectAll();
+        }
+        else if (args.Key == VirtualKey.Delete)
+        {
+            args.Handled = true;
+            var mediaIds = MediaItemsViewControl.SelectedItems.OfType<NameUri>().Select(n => n.MediaId).ToHashSet();
+
+            List<Media> medias = [];
+            await Task.Run(async () =>
+            {
+                await using (var database = new MediaDbContext())
+                {
+                    medias = await database.Medias.Where(m => mediaIds.Contains(m.MediaId)).ToListAsync();
+                }
+            });
+            await MediaService.DeleteMedias(this, medias);
         }
     }
 

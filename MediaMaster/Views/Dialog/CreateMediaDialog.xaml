@@ -330,7 +330,11 @@
     <ScrollView Margin="0,0,-19,0" Padding="0,0,19,0">
         <StackPanel Spacing="16">
             <TextBox x:Name="NameTextBox" l:Uids.Uid="/Media/Name_TextBox" />
-            <TextBox x:Name="NotesTextBox" l:Uids.Uid="/Media/Notes_TextBox" />
+            <TextBox
+                x:Name="NotesTextBox"
+                l:Uids.Uid="/Media/Notes_TextBox"
+                AcceptsReturn="True"
+                TextWrapping="Wrap" />
             <SelectorBar x:Name="SelectorBar" Margin="0,8,0,0">
                 <SelectorBarItem
                     l:Uids.Uid="/Media/File_SelectorBarItem"

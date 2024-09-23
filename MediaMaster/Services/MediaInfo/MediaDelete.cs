@@ -65,26 +65,6 @@ public class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
 
     private async void DeleteMedias()
     {
-        if (App.MainWindow == null) return;
-
-        ContentDialog dialog = new()
-        {
-            XamlRoot = App.MainWindow.Content.XamlRoot,
-            DefaultButton = ContentDialogButton.Close,
-            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
-        };
-        Uids.SetUid(dialog, "/Media/DeleteDialog");
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
-        ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            await using (var database = new MediaDbContext())
-            {
-                await database.BulkDeleteAsync(Medias);
-            }
-
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaRemoved, Medias);
-        }
+        await MediaService.DeleteMedias(this, Medias);
     }
 }

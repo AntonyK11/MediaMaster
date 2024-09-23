@@ -35,7 +35,7 @@
                 Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                 LineHeight="32">
                 <Run FontWeight="SemiBold" Text="MediaMaster" />
-                <!--<Run FontWeight="SemiLight" Text="Beta" />-->
+                <Run FontWeight="SemiLight" Text="Preview" />
             </TextBlock>
 
             <ProgressRing Grid.Row="3" IsIndeterminate="True" />

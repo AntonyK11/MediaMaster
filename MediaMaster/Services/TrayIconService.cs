@@ -368,7 +368,7 @@ internal class TrayIconService
                     }
                     case WM_LBUTTONUP:
                     {
-                        App.Flyout?.Toggle_Flyout();
+                        App.Flyout?.ToggleFlyout();
                         args.Handled = true;
                         break;
                     }

@@ -33,7 +33,9 @@ public class ActivationService : IActivationService
 
         App.GetService<ITranslationService>().LanguageChanged += async (_, _) => await ResetContextMenu();
 
+#if !DEBUG
         if (!App.GetService<SettingsService>().TutorialWasShown)
+#endif
         {
             App.GetService<ITeachingService>().Start();
         }
@@ -155,6 +157,7 @@ public class ActivationService : IActivationService
 
             if (App.MainWindow?.Visible == true)
             {
+                App.MainWindow.SetForegroundWindow();
                 await AddMediasDialog.ShowDialogAsync(mediaPaths);
             }
             else
@@ -165,9 +168,13 @@ public class ActivationService : IActivationService
                     App.GetService<TrayIconService>().SetInTray();
                 }
 
-                App.Flyout.Show_Flyout();
+                if (!App.Flyout.IsOpen)
+                {
+                    App.Flyout.AutoClose = true;
+                }
 
-                App.GetService<FlyoutNavigationService>().NavigateTo(typeof(AddMediasPage).FullName!, mediaPaths, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight});
+                App.Flyout.ShowFlyout();
+                App.GetService<FlyoutNavigationService>().NavigateTo(typeof(AddMediasPage).FullName!, mediaPaths, new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
             }
         }
 
@@ -180,7 +187,9 @@ public class ActivationService : IActivationService
 
     public void ShowAppRunningInBackgroundPopup()
     {
+#if !DEBUG
         if (App.GetService<SettingsService>().RunInBackgroundPopupShown) return;
+#endif
 
         var xmlPayload = $"""
                       <toast launch="action=edit">
@@ -191,7 +200,7 @@ public class ActivationService : IActivationService
                               </binding>
                           </visual>
                           <actions>
-                              <action activationType="system" arguments="dismiss" content="{"dismiss_toast_button".GetLocalizedString()}"/>
+                              <action activationType="system" arguments="dismiss" content="{"Dismiss_ToastButton".GetLocalizedString()}"/>
                           </actions>
                       </toast>
                       """;

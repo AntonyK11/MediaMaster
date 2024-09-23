@@ -15,21 +15,24 @@ public class TeachingService : ITeachingService
 
     public void Start()
     {
+        var previousStep = _teachingStep;
         _teachingStep = 1;
-        Steps();
+        Steps(previousStep);
     }
 
     public void NextStep()
     {
+        var previousStep = _teachingStep;
         _teachingStep++;
-        Steps();
+        Steps(previousStep);
     }
 
     public void PrevStep()
     {
         if (_teachingStep == 0) return;
+        var previousStep = _teachingStep;
         _teachingStep--;
-        Steps();
+        Steps(previousStep);
     }
 
     public void Reset()
@@ -51,9 +54,22 @@ public class TeachingService : ITeachingService
         }
     }
 
-    private void Steps()
+    private void Steps(int previousStep)
     {
         CloseAllTeachingTips();
+
+        switch (previousStep)
+        {
+            case 1:
+                //App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName);
+                break;
+            case 2:
+                App.Flyout?.HideFlyout();
+                break;
+            case 3:
+                App.Flyout?.HideFlyout();
+                break;
+        }
 
         switch (_teachingStep)
         {
@@ -61,10 +77,10 @@ public class TeachingService : ITeachingService
                 App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName);
                 break;
             case 2:
-                Debug.WriteLine("Step 2");
+                App.Flyout?.ShowFlyout();
                 break;
             case 3:
-                Debug.WriteLine("Step 3");
+                App.Flyout?.ShowFlyout();
                 break;
         }
 

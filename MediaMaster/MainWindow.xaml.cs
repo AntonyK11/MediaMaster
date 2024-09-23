@@ -6,6 +6,8 @@ using MediaMaster.Services.Navigation;
 using MediaMaster.Views;
 using static MediaMaster.WIn32.WindowsNativeValues;
 using static MediaMaster.WIn32.WindowsApiService;
+//using Microsoft.UI.Windowing;
+//using DisplayAreaFallback = Microsoft.UI.Windowing.DisplayAreaFallback;
 
 namespace MediaMaster;
 
@@ -24,6 +26,9 @@ public partial class MainWindow : WindowEx
         MinHeight = 48 + 9;
 
         InitializeTheme();
+
+        //DisplayArea displayArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest);
+        //this.Move((int)((displayArea.WorkArea.Width - Width) / 5), (int)((displayArea.WorkArea.Height - Height) / 2));
     }
 
     private void MainWindow_Closed(object sender, WindowEventArgs args)
@@ -65,7 +70,6 @@ public partial class MainWindow : WindowEx
         }
 
         this.SetForegroundWindow();
-        BringToFront();
     }
 
     public void InitializeTheme()
@@ -79,7 +83,7 @@ public partial class MainWindow : WindowEx
 
         if (Environment.OSVersion.Version.Build < 22000) return;
 
-        // TODO: Fixes the mica effect not resizing fast enough by adding it to the non-client area of the window. Does not fix the client area not resizing correctly.
+        // Fixes the mica effect not resizing fast enough by adding it to the non-client area of the window. Does not fix the client area not resizing correctly.
         // https://github.com/zhiyiYo/PyQt-Frameless-Window/blob/master/qframelesswindow/windows/window_effect.py#L85-L120
         // https://stackoverflow.com/questions/53000291/how-to-smooth-ugly-jitter-flicker-jumping-when-resizing-windows-especially-drag
         // https://github.com/microsoft/microsoft-ui-xaml/issues/5148
@@ -94,14 +98,7 @@ public partial class MainWindow : WindowEx
         var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)DwSystemBackdropType.MainWindow;
         DwmSetWindowAttribute(hWnd, attribute, ref attributeValue, sizeof(int));
 
-        if (theme == ElementTheme.Dark)
-        {
-            attributeValue = 1;
-        }
-        else
-        {
-            attributeValue = 0;
-        }
+        attributeValue = theme == ElementTheme.Dark ? 1 : 0;
         DwmSetWindowAttribute(hWnd, DwmWindowAttribute.UseImmersiveDarkMode, ref attributeValue, sizeof(int));
     }
 }
