@@ -19,12 +19,6 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         if (_tagView == null) return;
         _tagView.MediaIds = Medias.Select(m => m.MediaId).ToHashSet();
 
-        _tagView.Layout = new WrapLayout
-        {
-            HorizontalSpacing = 4,
-            VerticalSpacing = 4
-        };
-
         if (Title != null)
         {
             Title.Visibility = Visibility.Visible;
@@ -47,6 +41,12 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         _stackPanel.Children.Add(Title);
         _stackPanel.Children.Add(_tagView);
         Parent.Children.Add(_stackPanel);
+
+        _tagView.Layout = new WrapLayout
+        {
+            HorizontalSpacing = 4,
+            VerticalSpacing = 4
+        };
 
         _tagView.SelectTagsInvoked += (_, _) => SaveSelectedTags(_tagView.Tags);
         _tagView.RemoveTagsInvoked += (_, _) => SaveSelectedTags(_tagView.Tags);
