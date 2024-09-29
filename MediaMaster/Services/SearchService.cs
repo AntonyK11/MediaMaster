@@ -9,13 +9,11 @@ public static class SearchService
 {
     public static async Task<(List<CompactMedia>, int)> GetMedias(KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, ICollection<Expression<Func<Media, bool>>> simpleFilterFunctions, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions, int? skip = null, int? take = null)
     {
-        List<CompactMedia> medias;
-        int mediasFound;
         await using (var database = new MediaDbContext())
         {
             var mediaQuery = GetQuery(database, sortFunction, sortAscending, simpleFilterFunctions, advancedFilterFunctions);
 
-            mediasFound = await mediaQuery.CountAsync().ConfigureAwait(false);
+            var mediasFound = await mediaQuery.CountAsync().ConfigureAwait(false);
 
             if (skip != null)
             {
@@ -26,13 +24,13 @@ public static class SearchService
                 mediaQuery = mediaQuery.Take((int)take);
             }
 
-            medias = await mediaQuery
-                .Select(m => new CompactMedia { MediaId = m.MediaId, Name = m.Name, Uri = m.Uri })
+            List<CompactMedia> medias = await mediaQuery
+                .Select(m => new CompactMedia { MediaId = m.MediaId, Name = m.Name, Uri = m.Uri, IsFavorite = m.IsFavorite, IsArchived = m.IsArchived})
                 .ToListAsync()
                 .ConfigureAwait(false);
-        }
 
-        return (medias, mediasFound);
+            return (medias, mediasFound);
+        }
     }
 
     public static IQueryable<Media> GetQuery(MediaDbContext database, KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, ICollection<Expression<Func<Media, bool>>> simpleFilterFunctions, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions)
