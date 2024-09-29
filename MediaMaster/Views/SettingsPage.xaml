@@ -29,7 +29,7 @@
             FontWeight="SemiBold" />
 
         <ScrollView Grid.Row="1" Padding="34,0">
-            <StackPanel Spacing="{StaticResource XSmallSpacing}">
+            <StackPanel Spacing="4">
                 <StackPanel.ChildrenTransitions>
                     <RepositionThemeTransition IsStaggeringEnabled="False" />
                 </StackPanel.ChildrenTransitions>

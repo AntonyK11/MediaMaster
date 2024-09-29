@@ -84,8 +84,7 @@ public class MediaService
                 {
                     foreach (BrowserFolder browserFolder in browserFolders)
                     {
-                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags,
-                            generateBookmarkTags ? 0 : -1);
+                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags, generateBookmarkTags ? 0 : -1);
                     }
                 }
 

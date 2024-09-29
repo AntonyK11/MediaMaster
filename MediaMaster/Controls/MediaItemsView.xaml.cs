@@ -8,6 +8,7 @@ using MediaMaster.DataBase;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Input;
+using EFCore.BulkExtensions;
 
 namespace MediaMaster.Controls;
 
@@ -28,6 +29,7 @@ public partial class MediaItemsView : UserControl
     private TaskCompletionSource? _taskSource;
     
     public event TypedEventHandler<object, HashSet<int>>? SelectionChanged;
+    private bool _updateFromUser = true;
 
     public MediaItemsView()
     {
@@ -41,16 +43,20 @@ public partial class MediaItemsView : UserControl
             }
             else
             {
-                var medias = (ICollection<NameUri>)MediaItemsViewControl.ItemsSource;
+                _updateFromUser = false;
+                var medias = (ICollection<CompactMedia>)MediaItemsViewControl.ItemsSource;
                 foreach (Media updatedMedia in args.Medias)
                 {
-                    NameUri? media = medias.FirstOrDefault(m => m.MediaId == updatedMedia.MediaId);
+                    CompactMedia? media = medias.FirstOrDefault(m => m.MediaId == updatedMedia.MediaId);
                     if (media != null)
                     {
                         media.Name = updatedMedia.Name;
                         media.Uri = updatedMedia.Uri;
+                        media.IsFavorite = updatedMedia.IsFavorite;
+                        media.IsArchived = updatedMedia.IsArchived;
                     }
                 }
+                _updateFromUser = true;
             }
         };
 
@@ -110,7 +116,7 @@ public partial class MediaItemsView : UserControl
         var currentPageIndex = PagerControl.SelectedPageIndex;
         var mediasCount = 0;
         var mediasFound = 0;
-        List<NameUri> medias = [];
+        List<CompactMedia> medias = [];
 
         await Task.Run(async () =>
         {
@@ -159,7 +165,7 @@ public partial class MediaItemsView : UserControl
         MediaItemsViewControl.ScrollView.ScrollTo(0, 0);
     }
 
-    private void SetupIcons(IEnumerable<NameUri> medias)
+    private void SetupIcons(IEnumerable<CompactMedia> medias)
     {
         if (_taskSource is { Task.IsCompleted: false })
         {
@@ -172,7 +178,7 @@ public partial class MediaItemsView : UserControl
         STATask.StartSTATask(async () =>
         {
             ICollection<Task> tasks = [];
-            foreach (NameUri media in medias.Reverse())
+            foreach (CompactMedia media in medias.Reverse())
             {
                 tasks.Add(IconService.GetIconAsync(media.Uri, ImageMode.IconAndThumbnail, 128, 128, tcs));
             }
@@ -184,14 +190,14 @@ public partial class MediaItemsView : UserControl
     private void MediaItemsView_OnSelectionChanged(ItemsView? sender = null, ItemsViewSelectionChangedEventArgs? args = null)
     {
         App.DispatcherQueue.EnqueueAsync(() =>
-            SelectionChanged?.Invoke(this, MediaItemsViewControl.SelectedItems.OfType<NameUri>().Select(m => m.MediaId).ToHashSet()));
+            SelectionChanged?.Invoke(this, MediaItemsViewControl.SelectedItems.OfType<CompactMedia>().Select(m => m.MediaId).ToHashSet()));
         SetupSelectionPermissions();
     }
 
     private void SetupSelectionPermissions()
     {
         var selectedCount = MediaItemsViewControl.SelectedItems.Count;
-        var mediaCount = ((ICollection<NameUri>)MediaItemsViewControl.ItemsSource).Count;
+        var mediaCount = ((ICollection<CompactMedia>)MediaItemsViewControl.ItemsSource).Count;
         if (selectedCount == 0)
         {
             CanSelectAll = mediaCount != 0;
@@ -222,7 +228,7 @@ public partial class MediaItemsView : UserControl
         else if (args.Key == VirtualKey.Delete)
         {
             args.Handled = true;
-            var mediaIds = MediaItemsViewControl.SelectedItems.OfType<NameUri>().Select(n => n.MediaId).ToHashSet();
+            var mediaIds = MediaItemsViewControl.SelectedItems.OfType<CompactMedia>().Select(n => n.MediaId).ToHashSet();
 
             List<Media> medias = [];
             await Task.Run(async () =>
@@ -252,11 +258,182 @@ public partial class MediaItemsView : UserControl
     {
         MediaItemsViewControl.DeselectAll();
     }
+
+    private void UIElement_OnPointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        var archiveToggleButton = ((ItemContainer)sender).FindDescendant<IconToggleButton>(s => s.Name == "ArchiveToggleButton");
+        if (archiveToggleButton != null)
+        {
+            archiveToggleButton.Visibility = Visibility.Visible;
+        }
+
+        var favoriteToggleButton = ((ItemContainer)sender).FindDescendant<IconToggleButton>(s => s.Name == "FavoriteToggleButton");
+        if (favoriteToggleButton != null)
+        {
+            favoriteToggleButton.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void UIElement_OnPointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        var archiveToggleButton = ((ItemContainer)sender).FindDescendant<IconToggleButton>(s => s.Name == "ArchiveToggleButton");
+        if (archiveToggleButton != null && !archiveToggleButton.IsChecked)
+        {
+            archiveToggleButton.Visibility = Visibility.Collapsed;
+        }
+
+        var favoriteToggleButton = ((ItemContainer)sender).FindDescendant<IconToggleButton>(s => s.Name == "FavoriteToggleButton");
+        if (favoriteToggleButton != null && !favoriteToggleButton.IsChecked)
+        {
+            favoriteToggleButton.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+    {
+        ((FrameworkElement)sender).Visibility = Visibility.Visible;
+    }
+
+    private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (!_updateFromUser)
+        {
+            ((FrameworkElement)sender).Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private async void FavoriteToggleButton_OnClick(object sender, RoutedEventArgs args)
+    {
+        if (MediaDbContext.FavoriteTag != null)
+        {
+            var button = (IconToggleButton)sender;
+            var mediaId = (int)button.Tag;
+            Media? media;
+
+            await using (var database = new MediaDbContext())
+            {
+                media = await database.Medias.FirstOrDefaultAsync(m => m.MediaId == mediaId);
+                if (media != null)
+                {
+                    if (button.IsChecked)
+                    {
+                        var mediaTag = new MediaTag
+                        {
+                            MediaId = media.MediaId,
+                            TagId = MediaDbContext.FavoriteTag.TagId
+                        };
+                        await database.BulkInsertAsync([mediaTag]);
+                    }
+                    else
+                    {
+                        var mediaTag = await database.MediaTags
+                            .FirstOrDefaultAsync(m => m.MediaId == mediaId && m.TagId == MediaDbContext.FavoriteTag.TagId);
+                        if (mediaTag != null)
+                        {
+                            await database.BulkDeleteAsync([mediaTag]);
+                        }
+                    }
+
+                    media.IsFavorite = button.IsChecked;
+                    media.Modified = DateTime.UtcNow;
+
+                    await database.BulkUpdateAsync([media]);
+                }
+            }
+
+            if (media != null)
+            {
+                if (button.IsChecked)
+                {
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        [media], tagsAdded: [MediaDbContext.FavoriteTag]);
+                }
+                else
+                {
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        [media], tagsRemoved: [MediaDbContext.FavoriteTag]);
+                }
+            }
+        }
+    }
+
+    private async void ArchiveToggleButton_OnClick(object sender, RoutedEventArgs args)
+    {
+        if (MediaDbContext.ArchivedTag != null)
+        {
+            var button = (IconToggleButton)sender;
+            var mediaId = (int)button.Tag;
+            Media? media;
+
+            await using (var database = new MediaDbContext())
+            {
+                media = await database.Medias.FirstOrDefaultAsync(m => m.MediaId == mediaId);
+                if (media != null)
+                {
+                    if (button.IsChecked)
+                    {
+                        var mediaTag = new MediaTag
+                        {
+                            MediaId = media.MediaId,
+                            TagId = MediaDbContext.ArchivedTag.TagId
+                        };
+                        await database.BulkInsertAsync([mediaTag]);
+                    }
+                    else
+                    {
+                        var mediaTag = await database.MediaTags
+                            .FirstOrDefaultAsync(m => m.MediaId == mediaId && m.TagId == MediaDbContext.ArchivedTag.TagId);
+                        if (mediaTag != null)
+                        {
+                            await database.BulkDeleteAsync([mediaTag]);
+                        }
+                    }
+
+                    media.IsArchived = button.IsChecked;
+                    media.Modified = DateTime.UtcNow;
+
+                    await database.BulkUpdateAsync([media]);
+                }
+            }
+
+            if (media != null)
+            {
+                if (button.IsChecked)
+                {
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        [media], tagsAdded: [MediaDbContext.ArchivedTag]);
+                }
+                else
+                {
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        [media], tagsRemoved: [MediaDbContext.ArchivedTag]);
+                }
+            }
+        }
+    }
+
+    private void FavoriteToggleButton_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+        if (args.NewValue is CompactMedia media)
+        {
+            sender.Visibility = media.IsFavorite ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+
+    private void ArchiveToggleButton_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+        if (args.NewValue is CompactMedia media)
+        {
+            sender.Visibility = media.IsArchived ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
 }
 
-public partial class NameUri : ObservableObject
+public partial class CompactMedia : ObservableObject
 {
     public int MediaId;
     [ObservableProperty] private string _name = "";
     [ObservableProperty] private string _uri = "";
+    [ObservableProperty] private bool _isArchived = false;
+    [ObservableProperty] private bool _isFavorite = false;
 }

@@ -5,8 +5,6 @@ using MediaMaster.DataBase;
 using MediaMaster.Services;
 using MediaMaster.Services.MediaInfo;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.UI.Composition;
-using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
 
@@ -19,10 +17,6 @@ public partial class MediaViewer : UserControl
     private bool _listenForCheckUncheck = true;
 
     private MediaInfoService _mediaInfoService;
-    private SpringScalarNaturalMotionAnimation? _rotationAnimation;
-    private Vector3KeyFrameAnimation? _scaleAnimation;
-
-    private SpringVector3NaturalMotionAnimation? _translationAnimation;
 
     private List<Media> _medias = [];
 
@@ -112,63 +106,8 @@ public partial class MediaViewer : UserControl
         _listenForCheckUncheck = true;
     }
 
-    private void CreateOrUpdateTranslationAnimation(float? initialValue, float finalValue)
-    {
-        if (_translationAnimation == null)
-        {
-            _translationAnimation = App.MainWindow!.Compositor.CreateSpringVector3Animation();
-            _translationAnimation.Target = "Translation";
-            _translationAnimation.Period = TimeSpan.FromMilliseconds(32);
-            _translationAnimation.StopBehavior = AnimationStopBehavior.SetToFinalValue;
-        }
-
-        _translationAnimation.InitialValue = initialValue == null ? null : new Vector3(0, (float)initialValue, 0);
-        _translationAnimation.FinalValue = new Vector3(0, finalValue, 0);
-    }
-
-    private void CreateOrUpdateRotationAnimation(float? initialValue, float finalValue)
-    {
-        if (_rotationAnimation == null)
-        {
-            _rotationAnimation = App.MainWindow!.Compositor.CreateSpringScalarAnimation();
-            _rotationAnimation.Target = "Rotation";
-            _rotationAnimation.Period = TimeSpan.FromMilliseconds(64);
-            _rotationAnimation.StopBehavior = AnimationStopBehavior.SetToFinalValue;
-        }
-
-        _rotationAnimation.InitialValue = initialValue;
-        _rotationAnimation.FinalValue = finalValue;
-    }
-
-    private void CreateOrUpdateScaleAnimation(float initialValue, float middleValue, float finalValue)
-    {
-        if (_scaleAnimation == null)
-        {
-            _scaleAnimation = App.MainWindow!.Compositor.CreateVector3KeyFrameAnimation();
-            _scaleAnimation.Target = "Scale";
-            _scaleAnimation.Duration = TimeSpan.FromMilliseconds(256);
-            _scaleAnimation.StopBehavior = AnimationStopBehavior.SetToFinalValue;
-        }
-
-        _scaleAnimation.InsertKeyFrame(0, new Vector3(initialValue));
-        _scaleAnimation.InsertKeyFrame(0.5f, new Vector3(middleValue));
-        _scaleAnimation.InsertKeyFrame(1, new Vector3(finalValue));
-    }
-
-    private void FavoriteToggleButton_OnPointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        CreateOrUpdateTranslationAnimation(0, 2);
-        FavoriteIconGrid.StartAnimation(_translationAnimation);
-    }
-
     private async void FavoriteToggleButton_OnChecked(object sender, RoutedEventArgs e)
     {
-        CreateOrUpdateTranslationAnimation(2, 0);
-        FavoriteIconGrid.StartAnimation(_translationAnimation);
-
-        CreateOrUpdateRotationAnimation(-360, 0);
-        FavoriteIconGrid.StartAnimation(_rotationAnimation);
-
         if (MediaDbContext.FavoriteTag != null && _listenForCheckUncheck)
         {
             await using (var database = new MediaDbContext())
@@ -200,17 +139,8 @@ public partial class MediaViewer : UserControl
         }
     }
 
-    private void FavoriteToggleButton_OnPointerExited(object sender, PointerRoutedEventArgs e)
-    {
-        CreateOrUpdateTranslationAnimation(null, 0);
-        FavoriteIconGrid.StartAnimation(_translationAnimation);
-    }
-
     private async void FavoriteToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
     {
-        CreateOrUpdateTranslationAnimation(2, 0);
-        FavoriteIconGrid.StartAnimation(_translationAnimation);
-
         if (MediaDbContext.FavoriteTag != null && _listenForCheckUncheck)
         {
             await using (var database = new MediaDbContext())
@@ -235,31 +165,8 @@ public partial class MediaViewer : UserControl
         }
     }
 
-    private void FavoriteToggleButton_OnPointerEntered(object sender, PointerRoutedEventArgs e)
-    {
-        if (!e.GetCurrentPoint(FavoriteToggleButton).Properties.IsLeftButtonPressed) return;
-        CreateOrUpdateTranslationAnimation(0, 2);
-        FavoriteIconGrid.StartAnimation(_translationAnimation);
-    }
-
-    private void ArchiveToggleButton_OnPointerEntered(object sender, PointerRoutedEventArgs e)
-    {
-        if (!e.GetCurrentPoint(FavoriteToggleButton).Properties.IsLeftButtonPressed) return;
-        CreateOrUpdateTranslationAnimation(0, 2);
-        ArchiveIconGrid.StartAnimation(_translationAnimation);
-    }
-
-    private void ArchiveToggleButton_OnPointerExited(object sender, PointerRoutedEventArgs e)
-    {
-        CreateOrUpdateTranslationAnimation(null, 0);
-        ArchiveIconGrid.StartAnimation(_translationAnimation);
-    }
-
     private async void ArchiveToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
     {
-        CreateOrUpdateTranslationAnimation(2, 0);
-        ArchiveIconGrid.StartAnimation(_translationAnimation);
-
         if (MediaDbContext.ArchivedTag != null && _listenForCheckUncheck)
         {
             await using (var database = new MediaDbContext())
@@ -286,12 +193,6 @@ public partial class MediaViewer : UserControl
 
     private async void ArchiveToggleButton_OnChecked(object sender, RoutedEventArgs e)
     {
-        CreateOrUpdateTranslationAnimation(2, 0);
-        ArchiveIconGrid.StartAnimation(_translationAnimation);
-
-        CreateOrUpdateScaleAnimation(1, 1.2f, 1);
-        ArchiveIconGrid.StartAnimation(_scaleAnimation);
-
         if (MediaDbContext.ArchivedTag != null && _listenForCheckUncheck)
         {
             await using (var database = new MediaDbContext())
@@ -321,11 +222,5 @@ public partial class MediaViewer : UserControl
             MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, _medias,
                 [MediaDbContext.ArchivedTag]);
         }
-    }
-
-    private void ArchiveToggleButton_OnPointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        CreateOrUpdateTranslationAnimation(0, 2);
-        ArchiveIconGrid.StartAnimation(_translationAnimation);
     }
 }

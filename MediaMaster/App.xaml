@@ -11,10 +11,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="/Styles/TitlebarColors.xaml" />
-                <ResourceDictionary Source="/Styles/FontSizes.xaml" />
                 <ResourceDictionary Source="/Styles/Thickness.xaml" />
                 <ResourceDictionary Source="/Styles/TextBlock.xaml" />
-                <ResourceDictionary Source="/Styles/Spacing.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -27,6 +25,7 @@
             <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverterInverted" IsInverted="True" />
             <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+            <helpers:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
             <helpers:NullToBooleanConverter x:Key="NullToTrueConverter" />
             <helpers:NullToBooleanConverter x:Key="NullToFalseConverter" IsInverted="True" />
             <helpers:NullToBooleanConverter
@@ -39,7 +38,6 @@
             <x:Double x:Key="TeachingTipMinWidth">0</x:Double>
             <x:Double x:Key="TeachingTipMaxHeight">2000</x:Double>
             <x:Double x:Key="TeachingTipMaxWidth">2000</x:Double>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

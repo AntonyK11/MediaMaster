@@ -7,9 +7,9 @@ namespace MediaMaster.Services;
 
 public static class SearchService
 {
-    public static async Task<(List<NameUri>, int)> GetMedias(KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, ICollection<Expression<Func<Media, bool>>> simpleFilterFunctions, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions, int? skip = null, int? take = null)
+    public static async Task<(List<CompactMedia>, int)> GetMedias(KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, ICollection<Expression<Func<Media, bool>>> simpleFilterFunctions, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions, int? skip = null, int? take = null)
     {
-        List<NameUri> medias;
+        List<CompactMedia> medias;
         int mediasFound;
         await using (var database = new MediaDbContext())
         {
@@ -27,7 +27,7 @@ public static class SearchService
             }
 
             medias = await mediaQuery
-                .Select(m => new NameUri { MediaId = m.MediaId, Name = m.Name, Uri = m.Uri })
+                .Select(m => new CompactMedia { MediaId = m.MediaId, Name = m.Name, Uri = m.Uri })
                 .ToListAsync()
                 .ConfigureAwait(false);
         }

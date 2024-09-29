@@ -18,11 +18,6 @@ public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
     {
         if (_tagView == null) return;
         _tagView.MediaIds = Medias.Select(m => m.MediaId).ToHashSet();
-
-        if (Title != null)
-        {
-            Title.Visibility = Visibility.Visible;
-        }
     }
 
     protected override void Setup()
