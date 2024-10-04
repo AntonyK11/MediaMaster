@@ -3,7 +3,7 @@ using MediaMaster.DataBase;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaNotes(DockPanel parent) : MediaInfoTextBlockBase(parent)
+public sealed class MediaNotes(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
     protected override string TranslationKey => "MediaNotes";
 

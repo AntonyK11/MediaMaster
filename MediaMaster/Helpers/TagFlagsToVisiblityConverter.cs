@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-public partial class TagFlagsToVisibilityConverter : IValueConverter
+public sealed partial class TagFlagsToVisibilityConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
     

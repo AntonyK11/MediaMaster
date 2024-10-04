@@ -6,7 +6,7 @@ using static MediaMaster.WIn32.WindowsNativeInterfaces;
 
 namespace MediaMaster.Services;
 
-internal partial class TasksService : ObservableObject
+internal sealed partial class TasksService : ObservableObject
 {
     private static readonly ITaskbarList3 TaskbarInstance = (ITaskbarList3)new TaskbarInstance();
     [ObservableProperty] private Visibility _flyoutProgressBarLoading = Visibility.Collapsed;

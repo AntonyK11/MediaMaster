@@ -10,7 +10,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
-public partial class CreateMediaDialog : Page
+public sealed partial class CreateMediaDialog : Page
 {
     public CreateMediaDialog()
     {

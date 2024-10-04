@@ -2,7 +2,7 @@
 
 namespace MediaMaster.ViewModels.Flyout;
 
-public partial class HomeViewModel : ObservableObject
+public sealed partial class HomeViewModel : ObservableObject
 {
     [ObservableProperty] private bool _isBackEnabled;
 

@@ -13,7 +13,7 @@ using Microsoft.UI.Xaml.Navigation;
 
 namespace MediaMaster;
 
-public partial class FlyoutWindow
+public sealed partial class FlyoutWindow
 {
     private const int WindowMargin = 12;
     private const int WindowWidth = 386;

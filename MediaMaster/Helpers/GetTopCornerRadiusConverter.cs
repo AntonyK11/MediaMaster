@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-public partial class GetTopCornerRadiusConverter : IValueConverter
+public sealed partial class GetTopCornerRadiusConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

@@ -6,7 +6,7 @@ using MediaMaster.ViewModels.Flyout;
 
 namespace MediaMaster.Views.Flyout;
 
-public partial class ShellPage : Page
+public sealed partial class ShellPage : Page
 {
     public ShellViewModel ViewModel { get; }
 

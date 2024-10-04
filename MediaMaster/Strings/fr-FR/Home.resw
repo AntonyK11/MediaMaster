@@ -241,15 +241,15 @@
     <value>Mettre au négatif</value>
   </data>
   <data name="NameButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Nom</value>
+    <value>Rechercher dans le nom</value>
   </data>
   <data name="NotesButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Notes</value>
+    <value>Rechercher dans les notes</value>
   </data>
   <data name="TagsButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Étiquettes</value>
+    <value>Rechercher dans les étiquettes</value>
   </data>
-  <data name="AdvancedFilters_DropDownButton.Content" xml:space="preserve">
+  <data name="AdvancedFilters_ToggleSplitButton.Content" xml:space="preserve">
     <value>Filtres avancés</value>
   </data>
   <data name="Media_SearchBox.PlaceholderText" xml:space="preserve">
@@ -264,7 +264,7 @@
   <data name="ExportSearch_MenuFlyoutItem.Text" xml:space="preserve">
     <value>Exporter la recherche</value>
   </data>
-  <data name="SaveSearch_AdvancedFilterFlyout.Content" xml:space="preserve">
+  <data name="SaveSearch_AdvancedFilterFlyout" xml:space="preserve">
     <value>Sauvegarder</value>
   </data>
   <data name="SearchName_AdvancedFilterFlyout.PlaceholderText" xml:space="preserve">
@@ -275,5 +275,17 @@
   </data>
   <data name="DefaultName_AdvancedFilterFlyout" xml:space="preserve">
     <value>Nom par défaut</value>
+  </data>
+  <data name="AdvancedFilters_ToggleSplitButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Cliquer pour activer les filtres avancés</value>
+  </data>
+  <data name="Delete_AdvancedFilterIcon.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Glisser-déposer ici pour supprimer</value>
+  </data>
+  <data name="ClearAll_AdvancedFilterFlyout.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Efface tous les filtres et groupes actuels</value>
+  </data>
+  <data name="SaveSearch_AdvancedFilterFlyout_Tooltip" xml:space="preserve">
+    <value>Il y a des changements non sauvegardés </value>
   </data>
 </root>

@@ -7,7 +7,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
+public sealed class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
 {
     private StackPanel? _stackPanel;
     private TagView? _tagView;

@@ -14,7 +14,7 @@ public sealed partial class AddMediasPage : Page
 
         ViewModel = App.GetService<AddMediasViewModel>();
 
-        Loaded += (_, _) => FocusManager.TryFocusAsync(AddButton, FocusState.Pointer);
+        Loaded += async (_, _) => await FocusManager.TryFocusAsync(AddButton, FocusState.Pointer);
     }
 
     private void AddButton_OnClick(object? sender = null, RoutedEventArgs? e = null)

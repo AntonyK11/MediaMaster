@@ -26,7 +26,7 @@ public record struct BrowserData
     public string TabEndingString { get; set; }
 }
 
-public partial class BrowserTab : ObservableObject
+public sealed partial class BrowserTab : ObservableObject
 {
     [ObservableProperty] private BrowserData _browser;
     [ObservableProperty] private string _domain = null!;
@@ -35,7 +35,7 @@ public partial class BrowserTab : ObservableObject
     [ObservableProperty] private Uri _url = null!;
 }
 
-public class BrowserService
+public sealed class BrowserService
 {
     private readonly CUIAutomation _automation = new();
 

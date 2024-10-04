@@ -12,7 +12,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("ForceUpdate", typeof(bool), DefaultValue = true)]
 [DependencyProperty("ImageMode", typeof(ImageMode), DefaultValue = ImageMode.IconAndThumbnail)]
 [DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
-public partial class MediaViewer : UserControl
+public sealed partial class MediaViewer : UserControl
 {
     private bool _listenForCheckUncheck = true;
 

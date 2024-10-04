@@ -5,7 +5,7 @@ using ColorHelper = Microsoft.UI.ColorHelper;
 
 namespace MediaMaster.ViewModels.Dialog;
 
-public partial class EditTagDialogViewModel : ObservableObject
+public sealed partial class EditTagDialogViewModel : ObservableObject
 {
     [ObservableProperty] private bool _canChangeAliases = true;
     [ObservableProperty] private bool _canChangeColor = true;

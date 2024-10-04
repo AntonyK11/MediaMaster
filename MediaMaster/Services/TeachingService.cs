@@ -7,7 +7,7 @@ namespace MediaMaster.Services;
 /// <summary>
 ///     Service responsible for managing the teaching tips.
 /// </summary>
-public class TeachingService : ITeachingService
+public sealed class TeachingService : ITeachingService
 {
     private readonly Dictionary<int, TeachingTip> _teachingTips = [];
 

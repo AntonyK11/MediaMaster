@@ -12,7 +12,7 @@ using static MediaMaster.WIn32.WindowsApiService;
 namespace MediaMaster;
 
 
-public partial class MainWindow : WindowEx
+public sealed partial class MainWindow : WindowEx
 {
     public MainWindow()
     {

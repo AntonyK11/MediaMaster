@@ -19,7 +19,7 @@ namespace MediaMaster.Helpers;
 [JsonSerializable(typeof(TextOperations))]
 [JsonSerializable(typeof(DateOperations))]
 [JsonSerializable(typeof(TagsOperations))]
-internal partial class SourceGenerationContext : JsonSerializerContext;
+internal sealed partial class SourceGenerationContext : JsonSerializerContext;
 
 public static class Json
 {
@@ -42,7 +42,7 @@ public static class Json
     }
 }
 
-public class FilterObjectConverter : JsonConverter<FilterObject>
+public sealed class FilterObjectConverter : JsonConverter<FilterObject>
 {
     public override FilterObject? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

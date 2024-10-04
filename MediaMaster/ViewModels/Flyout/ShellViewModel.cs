@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Navigation;
 
 namespace MediaMaster.ViewModels.Flyout;
 
-public partial class ShellViewModel : ObservableObject
+public sealed partial class ShellViewModel : ObservableObject
 {
     [ObservableProperty] private bool _isBackEnabled;
 

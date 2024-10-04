@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-public partial class EnumToBooleanConverter : IValueConverter
+public sealed partial class EnumToBooleanConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

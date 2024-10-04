@@ -172,6 +172,9 @@
                     MinItemWidth="175"
                     MinRowSpacing="8" />
             </ItemsView.Layout>
+            <ItemsView.Resources>
+                <HorizontalAlignment x:Key="ItemContainerCheckboxHorizontalAlignment">Left</HorizontalAlignment>
+            </ItemsView.Resources>
         </ItemsView>
 
         <winUiCommunity:PagerControl

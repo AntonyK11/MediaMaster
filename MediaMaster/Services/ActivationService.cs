@@ -16,7 +16,7 @@ using MediaMaster.Views.Dialog;
 
 namespace MediaMaster.Services;
 
-public class ActivationService : IActivationService
+public sealed class ActivationService : IActivationService
 {
     private readonly ContextMenuService _menuService = new();
 

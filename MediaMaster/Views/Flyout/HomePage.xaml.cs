@@ -6,7 +6,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 
 namespace MediaMaster.Views.Flyout;
 
-public partial class HomePage
+public sealed partial class HomePage
 {
     private BrowserService BrowserService { get; }
 

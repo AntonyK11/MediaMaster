@@ -1,7 +1,7 @@
 ﻿namespace MediaMaster.DataBase.Models;
 
-public class MediaTag
+public sealed class MediaTag
 {
-    public virtual int MediaId { get; set; }
-    public virtual int TagId { get; set; }
+    public int MediaId { get; set; }
+    public int TagId { get; set; }
 }

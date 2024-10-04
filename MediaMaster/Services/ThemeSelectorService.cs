@@ -10,7 +10,7 @@ namespace MediaMaster.Services;
 /// <summary>
 ///     Service responsible for selecting and managing the application theme.
 /// </summary>
-public class ThemeSelectorService : IThemeSelectorService
+public sealed class ThemeSelectorService : IThemeSelectorService
 {
     public const string SettingsKey = "AppBackgroundTheme";
 

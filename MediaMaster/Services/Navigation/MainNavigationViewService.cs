@@ -2,5 +2,5 @@
 
 namespace MediaMaster.Services.Navigation;
 
-public class MainNavigationViewService(MainNavigationService navigationService, IPageService pageService)
+public sealed class MainNavigationViewService(MainNavigationService navigationService, IPageService pageService)
     : NavigationViewService(navigationService, pageService);

@@ -115,11 +115,13 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <DropDownButton
+                        <ToggleSplitButton
+                            x:Name="AdvancedFiltersToggleSplitButton"
                             Grid.Column="0"
-                            l:Uids.Uid="/Home/AdvancedFilters_DropDownButton"
-                            Content="Advanced Filters">
-                            <DropDownButton.Flyout>
+                            l:Uids.Uid="/Home/AdvancedFilters_ToggleSplitButton"
+                            Content="Advanced Filters"
+                            IsCheckedChanged="AdvancedFiltersToggleSplitButton_OnIsCheckedChanged">
+                            <ToggleSplitButton.Flyout>
                                 <Flyout Closed="FlyoutBase_OnClosed" Placement="BottomEdgeAlignedLeft">
                                     <Flyout.FlyoutPresenterStyle>
                                         <Style BasedOn="{StaticResource DefaultFlyoutPresenterStyle}" TargetType="FlyoutPresenter">
@@ -148,8 +150,8 @@
                                     </Flyout.FlyoutPresenterStyle>
                                     <views:AdvancedFilters x:Name="AdvancedFilters" />
                                 </Flyout>
-                            </DropDownButton.Flyout>
-                        </DropDownButton>
+                            </ToggleSplitButton.Flyout>
+                        </ToggleSplitButton>
 
                         <DropDownButton Grid.Column="2">
                             <StackPanel Orientation="Horizontal" Spacing="8">

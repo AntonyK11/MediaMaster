@@ -6,7 +6,7 @@ using Microsoft.Windows.AppNotifications;
 
 namespace MediaMaster.Services;
 
-public class AppNotificationService(IActivationService activationService) : IAppNotificationService
+public sealed class AppNotificationService(IActivationService activationService) : IAppNotificationService
 {
     public void Initialize()
     {

@@ -13,7 +13,7 @@ using Size = Windows.Foundation.Size;
 namespace MediaMaster.Services;
 
 // https://github.com/castorix/WinUI3_NotifyIcon/blob/master/MainWindow.xaml.cs
-internal class TrayIconService
+internal sealed class TrayIconService
 {
     public const int FW_DONTCARE = 0;
     public const int FW_THIN = 100;

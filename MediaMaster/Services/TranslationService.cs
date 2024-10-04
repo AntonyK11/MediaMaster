@@ -9,7 +9,7 @@ namespace MediaMaster.Services;
 /// <summary>
 ///     Service responsible for selecting and managing the application language.
 /// </summary>
-public class TranslationService : ITranslationService
+public sealed class TranslationService : ITranslationService
 {
     private const string SettingsKey = "Language";
 

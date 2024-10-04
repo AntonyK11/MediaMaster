@@ -36,7 +36,7 @@ public struct MediaChangeArgs(
     public readonly ICollection<Tag>? TagsRemoved = tagsRemoved;
 }
 
-public partial class MediaDbContext : DbContext
+public sealed partial class MediaDbContext : DbContext
 {
     public static Tag? FileTag;
     public static Tag? WebsiteTag;

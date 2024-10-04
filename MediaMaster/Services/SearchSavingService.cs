@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace MediaMaster.Services;
 
-public class SearchSavingService
+public sealed class SearchSavingService
 {
     public AdvancedCollectionView SavedSearches { get; }
     private readonly ObservableCollection<SavedSearch> _savedSearchesCollection = [];
@@ -30,11 +30,14 @@ public class SearchSavingService
         }
     }
 
-    public void AddSavedSearch(string name, ICollection<FilterObject> filterObjects)
+    public SavedSearch AddSavedSearch(string name, ICollection<FilterObject> filterObjects)
     {
         DeleteSavedSearch(name);
-        SavedSearches.Add(new SavedSearch(name));
+        var savedSearch = new SavedSearch(name);
+        SavedSearches.Add(savedSearch);
         SetSavedSearch(name, new StoredSearch { Name = name, FilterObjects = filterObjects });
+
+        return savedSearch;
     }
 
     public void DeleteSavedSearch(string name)

@@ -14,7 +14,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("FilterName", typeof(bool), DefaultValue = true)]
 [DependencyProperty("FilterNotes", typeof(bool), DefaultValue = false)]
 [DependencyProperty("FilterTags", typeof(bool), DefaultValue = false)]
-public partial class SearchBox : UserControl
+public sealed partial class SearchBox : UserControl
 {
     public readonly Expression<Func<Media, bool>> Filter;
     private bool _filterName = true;
@@ -132,7 +132,7 @@ public partial class SearchBox : UserControl
     }
 }
 
-public partial class PointerToggleButton : ToggleButton
+public sealed partial class PointerToggleButton : ToggleButton
 {
     public PointerToggleButton()
     {

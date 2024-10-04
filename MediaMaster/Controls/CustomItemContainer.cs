@@ -3,7 +3,7 @@
 namespace MediaMaster.Controls;
 
 [DependencyProperty("DeleteButtonVisibility", typeof(Visibility), DefaultValue = Visibility.Collapsed)]
-internal partial class CustomItemContainer : ItemContainer
+internal sealed partial class CustomItemContainer : ItemContainer
 {
     public CustomItemContainer()
     {

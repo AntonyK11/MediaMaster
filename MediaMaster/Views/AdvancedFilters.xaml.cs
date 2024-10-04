@@ -6,24 +6,30 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
+using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml.Shapes;
 using WinUI3Localizer;
-using static CommunityToolkit.WinUI.Animations.Expressions.ExpressionValues;
 
 namespace MediaMaster.Views;
 
-public partial class AdvancedFilters : Page
+public sealed partial class AdvancedFilters : Page
 {
     public readonly ObservableCollection<FilterObject> FilterObjects = [];
-    public SearchSavingService SearchSavingService;
+    public readonly SearchSavingService SearchSavingService;
+    private bool _isSearchSaved = true;
 
     public AdvancedFilters()
     {
         InitializeComponent();
 
         SearchSavingService = App.GetService<SearchSavingService>();
+        SetSearchState(_isSearchSaved);
+        App.GetService<ITranslationService>().LanguageChanged += (_, _) =>
+        {
+            SetSearchState(_isSearchSaved);
+        };
     }
 
     public static async Task<IList<Expression<Func<Media, bool>>>> GetFilterExpressions(IList<FilterObject> filterObjects)
@@ -259,6 +265,8 @@ public partial class AdvancedFilters : Page
         ((Grid)target.Parent).UpdateLayout();
         ((Grid)oldSender.Parent).MaxHeight = double.MaxValue;
         ((Grid)target.Parent).MaxHeight = double.MaxValue;
+
+        SetSearchState(false);
     }
 
     private void UIElement_OnDrop(object sender, DragEventArgs e)
@@ -272,28 +280,37 @@ public partial class AdvancedFilters : Page
         ((Grid)oldSender.Parent).MaxHeight = 0;
         ((Grid)oldSender.Parent).UpdateLayout();
         ((Grid)oldSender.Parent).MaxHeight = double.MaxValue;
+
+        SetSearchState(false);
     }
 
     private void AddFilter_OnClick(object sender, RoutedEventArgs e)
     {
         FilterObjects.Add(new Filter());
+        SetSearchState(false);
     }
 
     private void AddGroup_OnClick(object sender, RoutedEventArgs e)
     {
         FilterObjects.Add(new FilterGroup());
+        SetSearchState(false);
     }
 
 
     private void ClearAll_OnClick(object sender, RoutedEventArgs e)
     {
         FilterObjects.Clear();
+
+        SetSearchState(true);
+        SavedSearchesComboBox.SelectedIndex = -1;
+        SearchName.Text = "";
     }
 
     private void SwitchButton_OnClick(object sender, RoutedEventArgs e)
     {
         var filterGroup = (FilterGroup)((Button)sender).Tag;
         filterGroup.OrCombination = !filterGroup.OrCombination;
+        SetSearchState(false);
     }
 
     private void Canvas_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -326,7 +343,10 @@ public partial class AdvancedFilters : Page
     private void SaveSearch_OnClick(object sender, RoutedEventArgs e)
     {
         var name = SearchName.Text.IsNullOrEmpty() ? "/Home/DefaultName_AdvancedFilterFlyout".GetLocalizedString() : SearchName.Text;
-        SearchSavingService.AddSavedSearch(name, FilterObjects.ToList());
+        var savedSearch = SearchSavingService.AddSavedSearch(name, FilterObjects.ToList());
+
+        SavedSearchesComboBox.SelectedItem = savedSearch;
+        SetSearchState(true);
     }
 
     private async void SavedSearchesComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -334,12 +354,29 @@ public partial class AdvancedFilters : Page
         if (SavedSearchesComboBox.SelectedIndex == -1) return;
 
         FilterObjects.Clear();
-        foreach (var filterObject in await ((SavedSearch)SavedSearchesComboBox.SelectedItem).GetFilterObjects())
+        var savedSearch = (SavedSearch)SavedSearchesComboBox.SelectedItem;
+        foreach (var filterObject in await savedSearch.GetFilterObjects())
         {
             FilterObjects.Add(filterObject);
         }
 
-        SavedSearchesComboBox.SelectedIndex = -1;
+        SearchName.Text = savedSearch.Name;
+        SetSearchState(true);
+    }
+
+    private void SetSearchState(bool isSaved)
+    {
+        _isSearchSaved = isSaved;
+        if (isSaved)
+        {
+            SaveSearchButton.Content = "/Home/SaveSearch_AdvancedFilterFlyout".GetLocalizedString();
+            SaveSearchButton.SetValue(ToolTipService.ToolTipProperty, null);
+        }
+        else
+        {
+            SaveSearchButton.Content = "/Home/SaveSearch_AdvancedFilterFlyout".GetLocalizedString() + "*";
+            SaveSearchButton.SetValue(ToolTipService.ToolTipProperty, "/Home/SaveSearch_AdvancedFilterFlyout_Tooltip".GetLocalizedString());
+        }
     }
 
     private async void FrameworkElement_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
@@ -412,7 +449,7 @@ public partial class TextOperations : Operations
     public new string Name { get; } = "TextOperations";
 }
 
-public partial class DateOperations : Operations
+public sealed partial class DateOperations : Operations
 {
     private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
@@ -430,7 +467,7 @@ public partial class DateOperations : Operations
     public new string Name { get; } = "DateOperations";
 }
 
-public partial class TagsOperations : Operations
+public sealed partial class TagsOperations : Operations
 {
     private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
@@ -447,7 +484,7 @@ public partial class TagsOperations : Operations
     public new string Name { get; } = "TagsOperations";
 }
 
-public partial class FilterType : AdvancedType
+public sealed partial class FilterType : AdvancedType
 {
     [ObservableProperty]
     [JsonInclude]
@@ -521,7 +558,7 @@ public partial class FilterType : AdvancedType
 
 public abstract class FilterObject : ObservableObject;
 
-public partial class Filter : FilterObject
+public sealed partial class Filter : FilterObject
 {
     public List<FilterType> FiltersCollection { get; set; } =
     [
@@ -595,7 +632,7 @@ public partial class Filter : FilterObject
     }
 }
 
-public partial class FilterGroup : FilterObject
+public sealed partial class FilterGroup : FilterObject
 {
     public ObservableCollection<FilterObject> FilterObjects { get; set; } = [];
 
@@ -604,7 +641,7 @@ public partial class FilterGroup : FilterObject
     internal bool _orCombination = true;
 }
 
-internal partial class FiltersTemplateSelector : DataTemplateSelector
+internal sealed partial class FiltersTemplateSelector : DataTemplateSelector
 {
     public DataTemplate FilterTemplate { get; set; } = null!;
     public DataTemplate FilterGroupTemplate { get; set; } = null!;

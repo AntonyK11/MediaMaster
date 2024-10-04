@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Controls;
 
-public partial class ComboBoxEx : ComboBox
+public sealed partial class ComboBoxEx : ComboBox
 {
     private double _cachedWidth;
 

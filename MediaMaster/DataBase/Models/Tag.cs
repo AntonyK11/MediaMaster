@@ -26,7 +26,7 @@ public enum TagPermissions
     CannotDelete = 0x100000
 }
 
-public class Tag
+public sealed class Tag
 {
     private Color? _color;
     private int? _oldArgb;

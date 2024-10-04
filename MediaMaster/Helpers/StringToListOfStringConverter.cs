@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-public partial class UriToListOfStringConverter : IValueConverter
+public sealed partial class UriToListOfStringConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object parameter, string language)
     {

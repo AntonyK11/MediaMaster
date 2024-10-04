@@ -9,7 +9,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
-public partial class CreateEditDeleteTagDialog : Page
+public sealed partial class CreateEditDeleteTagDialog : Page
 {
     private readonly Tag? _currentTag;
     public EditTagDialogViewModel ViewModel = new();

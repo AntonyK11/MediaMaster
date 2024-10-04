@@ -4,14 +4,14 @@ using MediaMaster.Extensions;
 
 namespace MediaMaster.Controls;
 
-public partial class StringValue : ObservableObject
+public sealed partial class StringValue : ObservableObject
 {
     [ObservableProperty] public string _value = "";
 }
 
 [DependencyProperty("ItemsSource", typeof(ObservableCollection<StringValue>),
     DefaultValueExpression = "new ObservableCollection<StringValue>()")]
-public partial class EditableListView : UserControl
+public sealed partial class EditableListView : UserControl
 {
     public EditableListView()
     {

@@ -5,7 +5,7 @@ using MediaMaster.ViewModels;
 
 namespace MediaMaster.Views;
 
-public partial class SettingsPage
+public sealed partial class SettingsPage
 {
     public SettingsPage()
     {

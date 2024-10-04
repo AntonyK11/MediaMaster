@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-public partial class BoolToSelectionModeConverter : BoolToObjectConverter
+public sealed partial class BoolToSelectionModeConverter : BoolToObjectConverter
 {
     public BoolToSelectionModeConverter()
     {

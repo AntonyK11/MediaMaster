@@ -17,7 +17,7 @@ namespace MediaMaster;
 /// <summary>
 ///     Provides application-specific behavior to supplement the default Application class.
 /// </summary>
-public partial class App : Application
+public sealed partial class App : Application
 {
     private IHost Host { get; }
 

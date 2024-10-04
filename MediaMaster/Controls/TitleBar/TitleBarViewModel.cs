@@ -22,7 +22,7 @@ namespace MediaMaster.Controls;
 // https://gist.github.com/rounk-ctrl/b04e5622e30e0d62956870d5c22b7017
 // https://learn.microsoft.com/en-us/windows/apps/develop/title-bar?tabs=wasdk#interactive-content
 // https://stackoverflow.com/questions/21825352/how-to-open-window-system-menu-on-right-click
-public partial class TitleBarViewModel : ObservableObject
+public sealed partial class TitleBarViewModel : ObservableObject
 {
     private static readonly AppWindow? AppWindow = App.MainWindow?.AppWindow;
 

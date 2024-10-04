@@ -10,7 +10,7 @@ using WinUI3Localizer;
 namespace MediaMaster.Views.Dialog;
 
 [DependencyProperty("GenerateBookmarkTags", typeof(bool), DefaultValue = true, IsReadOnly = true)]
-public partial class ImportBookmarksDialog : Page
+public sealed partial class ImportBookmarksDialog : Page
 {
     private static readonly ICollection<BrowserFolder> BrowserFolders = [];
 
@@ -57,12 +57,19 @@ public partial class ImportBookmarksDialog : Page
 
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
 
-        if (result == ContentDialogResult.Primary)
+        while (result == ContentDialogResult.Primary)
         {
+
             var generateBookmarkTags = importBookmarksDialog.GenerateBookmarkTags;
-            _ = Task.Run(() => App.GetService<MediaService>().AddMediaAsync(
-                browserFolders: importBookmarksDialog.SelectedBrowserFolders,
-                generateBookmarkTags: generateBookmarkTags));
+            (result, _) = await AddMediasDialog.ShowDialogAsync(importBookmarksDialog.SelectedBrowserFolders, generateBookmarkTags);
+
+            if (result == ContentDialogResult.Primary)
+            {
+                break;
+            }
+
+            result = await dialog.ShowAndEnqueueAsync();
+
         }
 
         return (result, importBookmarksDialog);
@@ -74,7 +81,7 @@ public partial class ImportBookmarksDialog : Page
     }
 }
 
-public class BrowserFolder
+public sealed class BrowserFolder
 {
     public BrowserFolder(BookmarkFolder bookmarkFolder)
     {
@@ -92,7 +99,7 @@ public class BrowserFolder
     public ImageSource? Icon { get; set; }
 }
 
-internal partial class BookmarksTemplateSelector : DataTemplateSelector
+public sealed partial class BookmarksTemplateSelector : DataTemplateSelector
 {
     public DataTemplate BrowserFolderTemplate { get; set; } = null!;
     public DataTemplate BookmarkFolderTemplate { get; set; } = null!;

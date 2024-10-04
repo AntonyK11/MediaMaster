@@ -8,7 +8,7 @@ using Windows.Media.Core;
 
 namespace MediaMaster.Views;
 
-public partial class ShellPage
+public sealed partial class ShellPage
 {
     private readonly ShellViewModel ViewModel;
 

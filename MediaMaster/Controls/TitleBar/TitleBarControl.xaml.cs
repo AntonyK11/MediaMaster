@@ -7,7 +7,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("Title", typeof(string), DefaultValue = "")]
 [DependencyProperty("Subtitle", typeof(string), DefaultValue = "")]
 [DependencyProperty("Icon", typeof(BitmapImage))]
-public partial class TitleBarControl
+public sealed partial class TitleBarControl
 {
     public TitleBarControl()
     {

@@ -4,7 +4,7 @@ using MediaMaster.Extensions;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
+public sealed class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(parent)
 {
     protected override string TranslationKey => "MediaEditionDate";
 

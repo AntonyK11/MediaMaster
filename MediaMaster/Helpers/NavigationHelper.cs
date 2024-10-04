@@ -1,6 +1,6 @@
 ﻿namespace MediaMaster.Helpers;
 
-public class NavigationHelper
+public sealed class NavigationHelper
 {
     public static readonly DependencyProperty NavigateToProperty =
         DependencyProperty.RegisterAttached(

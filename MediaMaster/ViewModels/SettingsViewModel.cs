@@ -7,7 +7,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.ViewModels;
 
-public partial class SettingsViewModel : ObservableObject
+public sealed partial class SettingsViewModel : ObservableObject
 {
     private readonly ITranslationService _translationService;
 

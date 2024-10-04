@@ -10,7 +10,7 @@ namespace MediaMaster.DataBase.Models;
 [Index(nameof(Added))]
 [Index(nameof(IsArchived))]
 [Index(nameof(IsFavorite))]
-public class Media
+public sealed class Media
 {
     [Key]
     public int MediaId { get; set; }

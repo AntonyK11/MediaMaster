@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Services.Navigation;
 
-public class FlyoutNavigationService(IPageService pageService) : NavigationService(pageService)
+public sealed class FlyoutNavigationService(IPageService pageService) : NavigationService(pageService)
 {
     public override Frame? Frame
     {

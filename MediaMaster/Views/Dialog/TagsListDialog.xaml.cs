@@ -9,7 +9,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
-public partial class TagsListDialog : Page
+public sealed partial class TagsListDialog : Page
 {
     private readonly bool _showExtensionsAndWebsites;
 
@@ -241,7 +241,7 @@ public partial class TagsListDialog : Page
     }
 }
 
-public class TagsExtensionComparer : IComparer
+public sealed  class TagsExtensionComparer : IComparer
 {
     public static readonly IComparer Instance = new TagsExtensionComparer();
 

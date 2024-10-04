@@ -1,13 +1,10 @@
 ﻿using CommunityToolkit.WinUI.Controls;
-using EFCore.BulkExtensions;
 using MediaMaster.DataBase;
-using MediaMaster.Extensions;
-using MediaMaster.Interfaces.Services;
 using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
+public sealed class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
 {
     private Button? _button;
 

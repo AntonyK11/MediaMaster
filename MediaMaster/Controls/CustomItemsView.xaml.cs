@@ -9,9 +9,9 @@ using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
 
-public class AddItem;
+public sealed class AddItem;
 
-public class ItemsComparer : IComparer
+public sealed class ItemsComparer : IComparer
 {
     public static readonly IComparer Instance = new ItemsComparer();
 
@@ -31,7 +31,7 @@ public class ItemsComparer : IComparer
     }
 }
 
-internal partial class ItemTemplateSelector : DataTemplateSelector
+internal sealed partial class ItemTemplateSelector : DataTemplateSelector
 {
     public DataTemplate ItemTemplate { get; set; } = null!;
     public DataTemplate AddItemTemplate { get; set; } = null!;
@@ -49,7 +49,7 @@ internal partial class ItemTemplateSelector : DataTemplateSelector
 [DependencyProperty("ShowScrollButtons", typeof(bool), DefaultValue = true)]
 [DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
 [DependencyProperty("ItemTemplate", typeof(DataTemplate))]
-public partial class CustomItemsView
+public sealed partial class CustomItemsView
 {
     private DateTime _lastScrollTime = DateTime.Now;
 

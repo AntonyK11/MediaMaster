@@ -19,7 +19,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("MediasFound", typeof(int), DefaultValue = 0, IsReadOnly = true)]
 [DependencyProperty("MediasSelectedCount", typeof(int), DefaultValue = 0, IsReadOnly = true)]
 [DependencyProperty("IsSearching", typeof(bool), DefaultValue = false, IsReadOnly = true)]
-public partial class MediaItemsView : UserControl
+public sealed partial class MediaItemsView : UserControl
 {
     private readonly int _pageSize = 250;
     private readonly TasksService _tasksService = App.GetService<TasksService>();
@@ -429,7 +429,7 @@ public partial class MediaItemsView : UserControl
     }
 }
 
-public partial class CompactMedia : ObservableObject
+public sealed partial class CompactMedia : ObservableObject
 {
     public int MediaId;
     [ObservableProperty] private string _name = "";

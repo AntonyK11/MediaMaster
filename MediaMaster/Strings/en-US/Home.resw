@@ -241,15 +241,15 @@
     <value>Negate</value>
   </data>
   <data name="NameButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Name</value>
+    <value>Search in name</value>
   </data>
   <data name="NotesButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Notes</value>
+    <value>Search in notes</value>
   </data>
   <data name="TagsButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Tags</value>
+    <value>Search in tags</value>
   </data>
-  <data name="AdvancedFilters_DropDownButton.Content" xml:space="preserve">
+  <data name="AdvancedFilters_ToggleSplitButton.Content" xml:space="preserve">
     <value>Advanced Filters</value>
   </data>
   <data name="Media_SearchBox.PlaceholderText" xml:space="preserve">
@@ -264,7 +264,7 @@
   <data name="ExportSearch_MenuFlyoutItem.Text" xml:space="preserve">
     <value>Export search</value>
   </data>
-  <data name="SaveSearch_AdvancedFilterFlyout.Content" xml:space="preserve">
+  <data name="SaveSearch_AdvancedFilterFlyout" xml:space="preserve">
     <value>Save</value>
   </data>
   <data name="SearchName_AdvancedFilterFlyout.PlaceholderText" xml:space="preserve">
@@ -275,5 +275,17 @@
   </data>
   <data name="DefaultName_AdvancedFilterFlyout" xml:space="preserve">
     <value>Default name</value>
+  </data>
+  <data name="AdvancedFilters_ToggleSplitButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Toggle to activate the advanced filters</value>
+  </data>
+  <data name="Delete_AdvancedFilterIcon.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Drag and drop here to delete</value>
+  </data>
+  <data name="ClearAll_AdvancedFilterFlyout.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Clears all the current filters and groups</value>
+  </data>
+  <data name="SaveSearch_AdvancedFilterFlyout_Tooltip" xml:space="preserve">
+    <value>There are unsaved changes</value>
   </data>
 </root>

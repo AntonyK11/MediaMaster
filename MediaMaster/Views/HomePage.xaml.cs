@@ -7,7 +7,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace MediaMaster.Views;
 
-public partial class HomePage : Page
+public sealed partial class HomePage : Page
 {
     public HomePage()
     {
@@ -142,11 +142,20 @@ public partial class HomePage : Page
         {
             MediaItemsView.AdvancedFilterFunctions.Add(expression);
         }
+
         var newCount = MediaItemsView.AdvancedFilterFunctions.Count;
 
-        if (oldCount != newCount || newCount != 0)
+        if (AdvancedFiltersToggleSplitButton.IsChecked)
         {
-            await MediaItemsView.SetupMediaCollection();
+            if (oldCount != newCount || newCount != 0)
+            {
+                await MediaItemsView.SetupMediaCollection();
+            }
         }
+    }
+
+    private async void AdvancedFiltersToggleSplitButton_OnIsCheckedChanged(ToggleSplitButton sender, ToggleSplitButtonIsCheckedChangedEventArgs args)
+    {
+        await MediaItemsView.SetupMediaCollection();
     }
 }

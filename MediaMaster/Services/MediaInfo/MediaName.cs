@@ -8,7 +8,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
+public sealed class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
 {
     private Border? _border;
     private EditableTextBlock? _editableTextBlock;

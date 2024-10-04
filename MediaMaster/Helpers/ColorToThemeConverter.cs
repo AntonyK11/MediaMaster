@@ -1,11 +1,10 @@
-﻿using System.Drawing;
-using MediaMaster.Extensions;
+﻿using MediaMaster.Extensions;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 
 namespace MediaMaster.Helpers;
 
-public partial class ColorToThemeConverter : IValueConverter
+public sealed partial class ColorToThemeConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 

@@ -6,7 +6,7 @@ using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaDuration(DockPanel parent) : MediaInfoTextBase(parent)
+public sealed class MediaDuration(DockPanel parent) : MediaInfoTextBase(parent)
 {
     protected override string TranslationKey => "MediaDuration";
 

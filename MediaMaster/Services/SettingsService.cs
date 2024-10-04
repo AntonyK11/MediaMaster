@@ -7,7 +7,7 @@ using MediaMaster.Helpers;
 
 namespace MediaMaster.Services;
 
-public partial class SettingsService : ObservableObject
+public sealed partial class SettingsService : ObservableObject
 {
     [ObservableProperty] private bool _leaveAppRunning;
 

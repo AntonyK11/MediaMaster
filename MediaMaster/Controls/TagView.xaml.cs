@@ -16,7 +16,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("MediaIds", typeof(HashSet<int>), DefaultValueExpression = "new HashSet<int>()")]
 [DependencyProperty("TagId", typeof(int?))]
 [DependencyProperty("Tags", typeof(ICollection<Tag>), DefaultValueExpression = "new List<Tag>()")]
-public partial class TagView : UserControl
+public sealed partial class TagView : UserControl
 {
     private bool _skipTagsChange;
 
@@ -252,7 +252,7 @@ public partial class TagView : UserControl
     }
 }
 
-public class TagsComparer : IComparer
+public sealed class TagsComparer : IComparer
 {
     public static readonly IComparer Instance = new TagsComparer();
 
@@ -277,7 +277,7 @@ public class TagsComparer : IComparer
     }
 }
 
-public class TagComparer : IEqualityComparer<Tag>
+public sealed class TagComparer : IEqualityComparer<Tag>
 {
     public static readonly IEqualityComparer<Tag> Instance = new TagComparer();
 

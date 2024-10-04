@@ -115,7 +115,10 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FilterGroup" x:DataType="views:FilterGroup">
-            <ListViewItem MinWidth="750" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <ListViewItem
+                MinWidth="750"
+                AllowDrop="False"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <Grid MinHeight="128" DataContextChanged="FrameworkElement_OnDataContextChanged">
                     <Rectangle
                         Margin="-12,2,-8,2"
@@ -281,8 +284,8 @@
                 Grid.Column="1"
                 l:Uids.Uid="/Home/SearchName_AdvancedFilterFlyout" />
             <Button
+                x:Name="SaveSearchButton"
                 Grid.Column="3"
-                l:Uids.Uid="/Home/SaveSearch_AdvancedFilterFlyout"
                 Click="SaveSearch_OnClick" />
         </Grid>
 
@@ -304,6 +307,7 @@
             Grid.Row="2"
             Padding="8"
             HorizontalAlignment="Center"
+            l:Uids.Uid="/Home/Delete_AdvancedFilterIcon"
             AllowDrop="True"
             DragOver="ListView_DragOver"
             Drop="UIElement_OnDrop">

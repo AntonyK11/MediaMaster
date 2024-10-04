@@ -14,7 +14,7 @@ namespace MediaMaster.Controls;
 [DependencyProperty("CanOpen", typeof(bool), DefaultValue = true)]
 [DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
 [DependencyProperty("IconHeight", typeof(double), DefaultValue = double.NaN)]
-public partial class MediaIcon
+public sealed partial class MediaIcon
 {
     private TaskCompletionSource? _taskSource;
     

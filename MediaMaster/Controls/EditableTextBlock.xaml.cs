@@ -8,7 +8,7 @@ using Microsoft.UI.Xaml.Input;
 
 namespace MediaMaster.Controls;
 
-public class TextConfirmedArgs(string oldText, string newText)
+public sealed class TextConfirmedArgs(string oldText, string newText)
 {
     public readonly string NewText = newText;
     public readonly string OldText = oldText;
@@ -20,7 +20,7 @@ public class TextConfirmedArgs(string oldText, string newText)
 [DependencyProperty("ConfirmOnFocusLoss", typeof(bool), DefaultValue = true)]
 [DependencyProperty("EditOnDoubleClick", typeof(bool), DefaultValue = true)]
 [DependencyProperty("EditOnClick", typeof(bool), DefaultValue = true)]
-public partial class EditableTextBlock : UserControl
+public sealed partial class EditableTextBlock : UserControl
 {
     private DateTime? _focusGainedTime;
     private string _text = "";

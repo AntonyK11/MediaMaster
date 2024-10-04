@@ -3,7 +3,7 @@ using MediaMaster.Views;
 
 namespace MediaMaster.Services.Navigation;
 
-public class PageService : IPageService
+public sealed class PageService : IPageService
 {
     private readonly Dictionary<string, Type> _pages = [];
 

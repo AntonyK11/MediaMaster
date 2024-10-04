@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Services.MediaInfo;
 
-internal class MediaInfoService
+internal sealed class MediaInfoService
 {
     private readonly ICollection<MediaInfoControlBase> _mediaInfoControls = [];
 

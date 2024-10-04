@@ -10,11 +10,10 @@ using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using WinUI3Localizer;
-using WinUIEx;
 
 namespace MediaMaster.Views.Dialog;
 
-public partial class MediaProperties : ObservableObject
+public sealed partial class MediaProperties : ObservableObject
 {
     [ObservableProperty] private Media _media = null!;
     [ObservableProperty] private string _path = null!;
@@ -24,7 +23,7 @@ public partial class MediaProperties : ObservableObject
 }
 
 [DependencyProperty("GenerateBookmarkTags", typeof(bool), DefaultValue = true, IsReadOnly = true)]
-public partial class FixUnlinkedMediasDialog : Page
+public sealed partial class FixUnlinkedMediasDialog : Page
 {
     private ICollection<MediaProperties> _unlinkedMedias = [];
 

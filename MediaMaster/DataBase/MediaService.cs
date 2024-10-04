@@ -8,12 +8,14 @@ using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Windows.AppNotifications;
+using System.IO.Compression;
+using System.Linq;
 using WinUI3Localizer;
 using WinUICommunity;
 
 namespace MediaMaster.DataBase;
 
-public class MediaService
+public sealed class MediaService
 {
     public bool IsRunning;
     private readonly Stopwatch _watch = new();
@@ -60,7 +62,20 @@ public class MediaService
         IsRunning = true;
         int mediaAddedCount;
         App.GetService<TasksService>().AddGlobalTak();
-        //await App.DispatcherQueue.EnqueueAsync(AddingMedias);
+
+        var isFavorite = false;
+        var isArchive = false;
+
+        if (MediaDbContext.FavoriteTag != null)
+        {
+            isFavorite = userTagsId?.Contains(MediaDbContext.FavoriteTag.TagId) is true;
+        }
+
+        if (MediaDbContext.ArchivedTag != null)
+        {
+            isArchive = userTagsId?.Contains(MediaDbContext.ArchivedTag.TagId) is true;
+        }
+
         try
         {
             await using (MediaDbContext database = new())
@@ -77,14 +92,14 @@ public class MediaService
 
                 if (nameUris != null)
                 {
-                    await GetMedias(nameUris, medias, newMedias, tags, newTags, userNotes);
+                    await GetMedias(nameUris, medias, newMedias, tags, newTags, isFavorite, isArchive, userNotes);
                 }
 
                 if (browserFolders != null)
                 {
                     foreach (BrowserFolder browserFolder in browserFolders)
                     {
-                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags, generateBookmarkTags ? 0 : -1);
+                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags, isFavorite, isArchive, userNotes, generateBookmarkTags ? 0 : -1);
                     }
                 }
 
@@ -263,7 +278,7 @@ public class MediaService
     }
 
     private static async Task GetMedias(IEnumerable<KeyValuePair<string?, string>> nameUris, HashSet<string> medias,
-        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags, string userNotes = "")
+        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags, bool isFavorite, bool isArchive, string userNotes = "")
     {
         IEnumerable<KeyValuePair<string?, string>> mediaNameUris = [];
         foreach (KeyValuePair<string?, string> nameUri in nameUris)
@@ -284,17 +299,17 @@ public class MediaService
         {
             if (mediaNameUri.Value.IsWebsite())
             {
-                await GetWebPage(mediaNameUri, newMedias, tags, newTags, userNotes);
+                await GetWebPage(mediaNameUri, newMedias, tags, newTags, isFavorite, isArchive, userNotes);
             }
             else
             {
-                await GetFile(mediaNameUri, newMedias, tags, newTags, userNotes);
+                await GetFile(mediaNameUri, newMedias, tags, newTags, isFavorite, isArchive, userNotes);
             }
         }
     }
 
     private static async Task GetBookmarks(BookmarkFolder bookmarkFolder, Tag? parentTag, HashSet<string> medias,
-        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags, int depth)
+        ICollection<Media> newMedias, IDictionary<string, Tag> tags, ICollection<Tag> newTags, bool isFavorite, bool isArchive, string userNotes, int depth)
     {
         if (depth > 1)
         {
@@ -324,20 +339,19 @@ public class MediaService
             switch (bookmarkItem)
             {
                 case BookmarkFolder newBookmarkFolder:
-                    await GetBookmarks(newBookmarkFolder, parentTag, medias, newMedias, tags, newTags,
-                        depth != -1 ? depth + 1 : -1);
+                    await GetBookmarks(newBookmarkFolder, parentTag, medias, newMedias, tags, newTags, isFavorite, isArchive, userNotes, depth != -1 ? depth + 1 : -1);
                     break;
 
                 case BookmarkLink bookmarkLink when !medias.Contains(bookmarkLink.Url) &&
                                                     !newMedias.Select(m => m.Uri).Contains(bookmarkLink.Url):
-                    await GetBookmark(bookmarkLink, parentTag, newMedias, tags, newTags);
+                    await GetBookmark(bookmarkLink, parentTag, newMedias, tags, newTags, isFavorite, isArchive, userNotes);
                     break;
             }
         }
     }
 
     private static async Task GetWebPage(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias,
-        IDictionary<string, Tag> tags, ICollection<Tag> newTags, string userNotes = "")
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags, bool isFavorite, bool isArchive, string userNotes = "")
     {
         var title = nameUri.Key;
         if (title == null)
@@ -351,7 +365,9 @@ public class MediaService
         {
             Name = title ?? "",
             Notes = userNotes,
-            Uri = nameUri.Value
+            Uri = nameUri.Value,
+            IsFavorite = isFavorite,
+            IsArchived = isArchive
         };
 
         (var isNew, Tag? tag) = await GetWebsiteTag(nameUri.Value, tags);
@@ -369,13 +385,15 @@ public class MediaService
     }
 
     private static async Task GetFile(KeyValuePair<string?, string> nameUri, ICollection<Media> newMedias,
-        IDictionary<string, Tag> tags, ICollection<Tag> newTags, string userNotes = "")
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags, bool isFavorite, bool isArchive, string userNotes = "")
     {
         Media media = new()
         {
             Name = nameUri.Key ?? Path.GetFileNameWithoutExtension(nameUri.Value),
             Notes = userNotes,
-            Uri = nameUri.Value
+            Uri = nameUri.Value,
+            IsFavorite = isFavorite,
+            IsArchived = isArchive
         };
 
         (var isNew, Tag? tag) = await GetFileTag(nameUri.Value, tags);
@@ -393,13 +411,25 @@ public class MediaService
     }
 
     private static async Task GetBookmark(BookmarkLink bookBookmarkLink, Tag? parentTag, ICollection<Media> newMedias,
-        IDictionary<string, Tag> tags, ICollection<Tag> newTags)
+        IDictionary<string, Tag> tags, ICollection<Tag> newTags, bool isFavorite, bool isArchive, string userNotes)
     {
+        var notes = bookBookmarkLink.Description;
+        if (notes == null)
+        {
+            notes = userNotes;
+        }
+        else
+        {
+            notes += "\n\n" + userNotes;
+        }
+
         Media media = new()
         {
             Name = bookBookmarkLink.Title,
-            Notes = bookBookmarkLink.Description ?? "",
-            Uri = bookBookmarkLink.Url
+            Notes = notes,
+            Uri = bookBookmarkLink.Url,
+            IsFavorite = isFavorite,
+            IsArchived = isArchive,
         };
 
         (var isNew, Tag? tag) = await GetWebsiteTag(bookBookmarkLink.Url, tags);

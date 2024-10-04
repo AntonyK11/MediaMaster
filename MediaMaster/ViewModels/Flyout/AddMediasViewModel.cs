@@ -4,7 +4,7 @@ using MediaMaster.Views.Dialog;
 
 namespace MediaMaster.ViewModels.Flyout;
 
-public partial class AddMediasViewModel : INavigationAware
+public sealed class AddMediasViewModel : INavigationAware
 {
     private ICollection<string>? _mediaPaths;
     private ICollection<KeyValuePair<string?, string>>? _browserTitleUrl;

@@ -8,12 +8,11 @@ using MediaMaster.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using WinUI3Localizer;
-using WinUIEx;
 using HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
+public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
     protected override string TranslationKey => "MediaFilePath";
 

@@ -9,7 +9,7 @@ using WinUI3Localizer;
 
 namespace MediaMaster.Services.MediaInfo;
 
-public class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
+public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(parent)
 {
     protected override string TranslationKey => "MediaWebUrl";
 

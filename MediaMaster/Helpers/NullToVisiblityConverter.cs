@@ -2,7 +2,7 @@
 
 namespace MediaMaster.Helpers;
 
-public partial class NullToVisibilityConverter : IValueConverter
+public sealed partial class NullToVisibilityConverter : IValueConverter
 {
     public bool IsInverted { get; set; }
 
