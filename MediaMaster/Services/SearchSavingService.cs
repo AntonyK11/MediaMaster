@@ -78,7 +78,14 @@ public sealed class SearchSavingService
         var storageItem = await ApplicationData.Current.LocalFolder.CreateFileAsync("Searches.json", CreationCollisionOption.OpenIfExists);
         var browsersDataString = await File.ReadAllTextAsync(storageItem.Path);
         if (browsersDataString.IsNullOrEmpty()) return [];
-        return JsonSerializer.Deserialize(browsersDataString, SourceGenerationContext.Default.ListStoredSearch) ?? [];
+        try
+        {
+            return JsonSerializer.Deserialize(browsersDataString, SourceGenerationContext.Default.ListStoredSearch) ?? [];
+        }
+        catch (Exception)
+        {
+            return [];
+        }
     }
 
     private static async Task StoreSearches(List<StoredSearch> storedSearches)

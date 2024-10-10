@@ -78,7 +78,7 @@
 
                                     <controls:SwitchPresenter Grid.Column="1" Value="{x:Bind FilterType.Operations.CurrentOperation.Name, Mode=OneWay}">
 
-                                        <controls:Case Value="From_to">
+                                        <controls:Case Value="Date_From_to">
                                             <StackPanel Orientation="Horizontal" Spacing="12">
                                                 <TextBlock VerticalAlignment="Center" l:Uids.Uid="/Home/To_FilterOperation" />
 
@@ -94,21 +94,47 @@
                             </controls:Case>
 
                             <controls:Case Value="Tags">
-                                <Canvas
-                                    x:Name="Canvas"
-                                    Height="{Binding ActualHeight, ElementName=TagView, Mode=OneWay}"
-                                    SizeChanged="Canvas_OnSizeChanged">
-                                    <mcontrols:TagView x:Name="TagView" Tags="{x:Bind FilterType.Tags, Mode=TwoWay}" />
-                                </Canvas>
+                                <controls:SwitchPresenter Value="{x:Bind FilterType.Operations.CurrentOperation.Name, Mode=OneWay}">
+
+                                    <controls:Case Value="Tags_Contain">
+                                        <Canvas
+                                            x:Name="Canvas"
+                                            Height="{Binding ActualHeight, ElementName=TagView, Mode=OneWay}"
+                                            SizeChanged="Canvas_OnSizeChanged">
+                                            <mcontrols:TagView x:Name="TagView" Tags="{x:Bind FilterType.Tags, Mode=TwoWay}" />
+                                        </Canvas>
+                                    </controls:Case>
+
+                                    <controls:Case Value="Tags_Name_Contains">
+                                        <TextBox VerticalAlignment="Center" Text="{x:Bind FilterType.Text, Mode=TwoWay}" />
+                                    </controls:Case>
+
+                                </controls:SwitchPresenter>
+
                             </controls:Case>
 
                         </controls:SwitchPresenter>
 
-                        <CheckBox
+                        <Grid
                             Grid.Column="4"
                             Margin="0,0,8,0"
-                            l:Uids.Uid="/Home/Negate_Filter"
-                            IsChecked="{x:Bind FilterType.Negate, Mode=TwoWay}" />
+                            VerticalAlignment="Center"
+                            RowDefinitions="Auto, Auto">
+
+                            <CheckBox
+                                Grid.Row="0"
+                                l:Uids.Uid="/Home/Negate_Filter"
+                                IsChecked="{x:Bind FilterType.Negate, Mode=TwoWay}" />
+
+                            <controls:SwitchPresenter Grid.Row="1" Value="{x:Bind FilterType.Category, Mode=OneWay}">
+                                <controls:Case Value="Tags">
+                                    <CheckBox
+                                        Margin="0,4,0,0"
+                                        l:Uids.Uid="/Home/WithParents_Filter"
+                                        IsChecked="{x:Bind FilterType.WithParents, Mode=TwoWay}" />
+                                </controls:Case>
+                            </controls:SwitchPresenter>
+                        </Grid>
                     </Grid>
                 </Grid>
             </ListViewItem>

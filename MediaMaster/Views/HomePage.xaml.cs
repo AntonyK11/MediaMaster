@@ -134,28 +134,26 @@ public sealed partial class HomePage : Page
         }
     }
 
-    private async void FlyoutBase_OnClosed(object? sender, object e)
+    private async void UpdateMedias(object? sender, object e)
     {
         var oldCount = MediaItemsView.AdvancedFilterFunctions.Count;
+        var newCount = 0;
         MediaItemsView.AdvancedFilterFunctions.Clear();
-        foreach (Expression<Func<Media, bool>> expression in await AdvancedFilters.GetFilterExpressions(AdvancedFilters.FilterObjects))
-        {
-            MediaItemsView.AdvancedFilterFunctions.Add(expression);
-        }
-
-        var newCount = MediaItemsView.AdvancedFilterFunctions.Count;
 
         if (AdvancedFiltersToggleSplitButton.IsChecked)
         {
-            if (oldCount != newCount || newCount != 0)
+            foreach (Expression<Func<Media, bool>> expression in await AdvancedFilters.GetFilterExpressions(
+                         AdvancedFilters.FilterObjects))
             {
-                await MediaItemsView.SetupMediaCollection();
+                MediaItemsView.AdvancedFilterFunctions.Add(expression);
             }
-        }
-    }
 
-    private async void AdvancedFiltersToggleSplitButton_OnIsCheckedChanged(ToggleSplitButton sender, ToggleSplitButtonIsCheckedChangedEventArgs args)
-    {
-        await MediaItemsView.SetupMediaCollection();
+            newCount = MediaItemsView.AdvancedFilterFunctions.Count;
+        }
+
+        if (oldCount != newCount || newCount != 0)
+        {
+            await MediaItemsView.SetupMediaCollection();
+        }
     }
 }

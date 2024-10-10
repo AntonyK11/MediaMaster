@@ -120,9 +120,9 @@
                             Grid.Column="0"
                             l:Uids.Uid="/Home/AdvancedFilters_ToggleSplitButton"
                             Content="Advanced Filters"
-                            IsCheckedChanged="AdvancedFiltersToggleSplitButton_OnIsCheckedChanged">
+                            IsCheckedChanged="UpdateMedias">
                             <ToggleSplitButton.Flyout>
-                                <Flyout Closed="FlyoutBase_OnClosed" Placement="BottomEdgeAlignedLeft">
+                                <Flyout Closed="UpdateMedias" Placement="BottomEdgeAlignedLeft">
                                     <Flyout.FlyoutPresenterStyle>
                                         <Style BasedOn="{StaticResource DefaultFlyoutPresenterStyle}" TargetType="FlyoutPresenter">
                                             <Setter Property="MaxWidth" Value="9000" />

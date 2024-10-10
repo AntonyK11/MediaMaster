@@ -141,4 +141,7 @@
   <data name="DragInFlyout_Description" xml:space="preserve">
     <value>Les médias peuvent être ajoutés en les glissant dans le menu volant de l'icône de la barre d'état.</value>
   </data>
+  <data name="AddToApp_Win10Warning" xml:space="preserve">
+    <value>Non disponible pour Windows 10</value>
+  </data>
 </root>

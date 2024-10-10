@@ -14,6 +14,8 @@ public sealed partial class ShellPage : Page
 
     private readonly ITeachingService TeachingService;
 
+    private readonly bool _windows10 = Environment.OSVersion.Version.Build < 22000;
+
     public ShellPage()
     {
         InitializeComponent();

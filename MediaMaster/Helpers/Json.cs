@@ -6,7 +6,7 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace MediaMaster.Helpers;
 
-[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(FilterObjectConverter), typeof(OperationsConverter)])]
+[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(FilterObjectConverter), typeof(OperationsConverter)], DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
 [JsonSerializable(typeof(ElementTheme))]
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(string))]
@@ -16,7 +16,8 @@ namespace MediaMaster.Helpers;
 [JsonSerializable(typeof(ICollection<FilterType>))]
 [JsonSerializable(typeof(Filter))]
 [JsonSerializable(typeof(FilterGroup))]
-[JsonSerializable(typeof(TextOperations))]
+[JsonSerializable(typeof(NameOperations))]
+[JsonSerializable(typeof(NotesOperations))]
 [JsonSerializable(typeof(DateOperations))]
 [JsonSerializable(typeof(TagsOperations))]
 internal sealed partial class SourceGenerationContext : JsonSerializerContext;
@@ -80,9 +81,13 @@ public class OperationsConverter : JsonConverter<Operations>
         {
             doc.RootElement.TryGetProperty("Name", out var name);
 
-            if (name.GetString() == "TextOperations")
+            if (name.GetString() == "NameOperations")
             {
-                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.TextOperations);
+                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NameOperations);
+            }
+            else if (name.GetString() == "NotesOperations")
+            {
+                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NotesOperations);
             }
             else if (name.GetString() == "DateOperations")
             {
@@ -97,9 +102,13 @@ public class OperationsConverter : JsonConverter<Operations>
 
     public override void Write(Utf8JsonWriter writer, Operations value, JsonSerializerOptions options)
     {
-        if (value is TextOperations textOperations)
+        if (value is NameOperations nameOperations)
         {
-            JsonSerializer.Serialize(writer, textOperations, SourceGenerationContext.Default.TextOperations);
+            JsonSerializer.Serialize(writer, nameOperations, SourceGenerationContext.Default.NameOperations);
+        }
+        else if (value is NotesOperations notesOperations)
+        {
+            JsonSerializer.Serialize(writer, notesOperations, SourceGenerationContext.Default.NotesOperations);
         }
         else if (value is DateOperations dateOperations)
         {

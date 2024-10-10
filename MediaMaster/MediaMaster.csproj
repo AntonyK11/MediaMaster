@@ -24,7 +24,7 @@
 		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
-		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<GenerateTestArtifacts>False</GenerateTestArtifacts>
 		<AppxBundle>Always</AppxBundle>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
@@ -108,7 +108,7 @@
 		<PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
 		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.9.0" />
 		<PackageReference Include="WinUIEx" Version="2.4.2" />
-		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.3" />
+		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.5" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -108,10 +108,10 @@ public sealed partial class AdvancedFilters : Page
             case "Name":
                 expression = currentOperation.Name switch
                 {
-                    "Is" => m => EF.Functions.Like(m.Name, $"{currentFilter.Text}"),
-                    "Contains" => m => EF.Functions.Like(m.Name, $"%{currentFilter.Text}%"),
-                    "Start_With" => m => EF.Functions.Like(m.Name, $"{currentFilter.Text}%"),
-                    "End_Width" => m => EF.Functions.Like(m.Name, $"%{currentFilter.Text}"),
+                    "Name_Is" => m => EF.Functions.Like(m.Name, $"{currentFilter.Text}"),
+                    "Name_Contains" => m => EF.Functions.Like(m.Name, $"%{currentFilter.Text}%"),
+                    "Name_Starts_With" => m => EF.Functions.Like(m.Name, $"{currentFilter.Text}%"),
+                    "Name_Ends_Width" => m => EF.Functions.Like(m.Name, $"%{currentFilter.Text}"),
                     _ => null
                 };
                 break;
@@ -119,10 +119,7 @@ public sealed partial class AdvancedFilters : Page
             case "Notes":
                 expression = currentOperation.Name switch
                 {
-                    "Is" => m => EF.Functions.Like(m.Notes, $"{currentFilter.Text}"),
-                    "Contains" => m => EF.Functions.Like(m.Notes, $"%{currentFilter.Text}%"),
-                    "Start_With" => m => EF.Functions.Like(m.Notes, $"{currentFilter.Text}%"),
-                    "End_Width" => m => EF.Functions.Like(m.Notes, $"%{currentFilter.Text}"),
+                    "Notes_Contain" => m => EF.Functions.Like(m.Notes, $"%{currentFilter.Text}%"),
                     _ => null
                 };
                 break;
@@ -130,9 +127,9 @@ public sealed partial class AdvancedFilters : Page
             case "Date_Added":
                 expression = currentOperation.Name switch
                 {
-                    "After" => m => m.Added > currentDate,
-                    "Before" => m => m.Added < currentDate,
-                    "From_to" => m => currentDate < m.Added && m.Added < currentSecondaryDate,
+                    "Date_After" => m => m.Added > currentDate,
+                    "Date_Before" => m => m.Added < currentDate,
+                    "Date_From_to" => m => currentDate < m.Added && m.Added < currentSecondaryDate,
                     _ => null
                 };
                 break;
@@ -140,15 +137,21 @@ public sealed partial class AdvancedFilters : Page
             case "Date_Modified":
                 expression = currentOperation.Name switch
                 {
-                    "After" => m => m.Modified > currentDate,
-                    "Before" => m => m.Modified < currentDate,
-                    "From_to" => m => currentDate < m.Modified && m.Modified < currentSecondaryDate,
+                    "Date_After" => m => m.Modified > currentDate,
+                    "Date_Before" => m => m.Modified < currentDate,
+                    "Date_From_to" => m => currentDate < m.Modified && m.Modified < currentSecondaryDate,
                     _ => null
                 };
                 break;
 
             case "Tags":
-                HashSet<int> mediaIds = await GetMediasFromTags(currentFilter.Tags, currentOperation.Name == "Contains_Without_Parents");
+                HashSet<int> mediaIds = currentOperation.Name switch
+                {
+                    "Tags_Contain" => await GetMediasFromTags(currentFilter.Tags, currentFilter.WithParents),
+                    "Tags_Name_Contains" => await GetMediasFromTagName(currentFilter.Text, currentFilter.WithParents),
+                    _ => []
+                };
+
                 expression = m => mediaIds.Contains(m.MediaId);
                 break;
         }
@@ -161,13 +164,38 @@ public sealed partial class AdvancedFilters : Page
         return expression;
     }
 
-    private static async Task<HashSet<int>> GetMediasFromTags(ICollection<Tag> tags, bool getTagsChildren = false)
+    private static async Task<HashSet<int>> GetMediasFromTags(ICollection<Tag> tags, bool getTagsChildren = true)
     {
         await using (var database = new MediaDbContext())
         {
             HashSet<int> tagsId = tags.Select(t => t.TagId).ToHashSet();
 
-            if (!getTagsChildren)
+            if (getTagsChildren)
+            {
+                ICollection<TagTag> tagTags = await database.TagTags.ToListAsync();
+
+                int oldCount;
+                do
+                {
+                    oldCount = tagsId.Count;
+                    foreach (TagTag tagTag in tagTags.Where(t => tagsId.Contains(t.ParentsTagId)))
+                    {
+                        tagsId.Add(tagTag.ChildrenTagId);
+                    }
+                } while (oldCount != tagsId.Count);
+            }
+
+            return database.MediaTags.Where(m => tagsId.Contains(m.TagId)).Select(m => m.MediaId).ToHashSet();
+        }
+    }
+
+    private static async Task<HashSet<int>> GetMediasFromTagName(string name, bool getTagsChildren = true)
+    {
+        await using (var database = new MediaDbContext())
+        {
+            HashSet<int> tagsId = database.Tags.Where(t => EF.Functions.Like(t.Name, $"%{name}%")).Select(t => t.TagId).ToHashSet();
+
+            if (getTagsChildren)
             {
                 ICollection<TagTag> tagTags = await database.TagTags.ToListAsync();
 
@@ -391,11 +419,11 @@ public partial class AdvancedType : ObservableObject
 {
     [ObservableProperty]
     [JsonInclude]
-    internal string _name = null!;
+    internal string _name = string.Empty;
 
     [ObservableProperty]
     [JsonInclude]
-    internal string _uid = null!;
+    internal string _uid = string.Empty;
 }
 
 public abstract partial class Operations : AdvancedType
@@ -407,7 +435,7 @@ public abstract partial class Operations : AdvancedType
     public abstract List<AdvancedType> OperationsCollection { get; set; }
 
     [JsonIgnore]
-    public AdvancedType CurrentOperation
+    public AdvancedType? CurrentOperation
     {
         get
         {
@@ -416,7 +444,10 @@ public abstract partial class Operations : AdvancedType
 
         set
         {
-            OperationIndex = OperationsCollection.IndexOf(value);
+            if (value != null)
+            {
+                OperationIndex = OperationsCollection.IndexOf(value);
+            }
         }
     }
 
@@ -430,14 +461,14 @@ public abstract partial class Operations : AdvancedType
     }
 }
 
-public partial class TextOperations : Operations
+public partial class NameOperations : Operations
 {
     private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
-        new() { Uid = "/Home/Is_FilterOperation", Name = "Is" },
-        new() { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
-        new() { Uid = "/Home/StartWith_FilterOperation", Name = "Start_With" },
-        new() { Uid = "/Home/EndWith_FilterOperation", Name = "End_Width" }
+        new() { Uid = "/Home/Name_Is_FilterOperation", Name = "Name_Is" },
+        new() { Uid = "/Home/Name_Contains_FilterOperation", Name = "Name_Contains" },
+        new() { Uid = "/Home/Name_StartsWith_FilterOperation", Name = "Name_Starts_With" },
+        new() { Uid = "/Home/Name_EndsWith_FilterOperation", Name = "Name_Ends_Width" }
     ];
 
     public override List<AdvancedType> OperationsCollection
@@ -446,16 +477,32 @@ public partial class TextOperations : Operations
         set => StaticOperationsCollection = value;
     }
 
-    public new string Name { get; } = "TextOperations";
+    public new string Name { get; } = "NameOperations";
+}
+
+public partial class NotesOperations : Operations
+{
+    private static List<AdvancedType> StaticOperationsCollection { get; set; } =
+    [
+        new() { Uid = "/Home/Notes_Contain_FilterOperation", Name = "Notes_Contain" }
+    ];
+
+    public override List<AdvancedType> OperationsCollection
+    {
+        get => StaticOperationsCollection;
+        set => StaticOperationsCollection = value;
+    }
+
+    public new string Name { get; } = "NotesOperations";
 }
 
 public sealed partial class DateOperations : Operations
 {
     private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
-        new() { Uid = "/Home/After_FilterOperation", Name = "After" },
-        new() { Uid = "/Home/Before_FilterOperation", Name = "Before" },
-        new() { Uid = "/Home/From_FilterOperation", Name = "From_to" }
+        new() { Uid = "/Home/Date_After_FilterOperation", Name = "Date_After" },
+        new() { Uid = "/Home/Date_Before_FilterOperation", Name = "Date_Before" },
+        new() { Uid = "/Home/Date_From_FilterOperation", Name = "Date_From_to" }
     ];
 
     public override List<AdvancedType> OperationsCollection
@@ -471,8 +518,8 @@ public sealed partial class TagsOperations : Operations
 {
     private static List<AdvancedType> StaticOperationsCollection { get; set; } =
     [
-        new() { Uid = "/Home/Contains_FilterOperation", Name = "Contains" },
-        new() { Uid = "/Home/ContainsWithoutParents_FilterOperation", Name = "Contains_Without_Parents" }
+        new() { Uid = "/Home/Tags_Contain_FilterOperation", Name = "Tags_Contain" },
+        new() { Uid = "/Home/Tags_NameContains_FilterOperation", Name = "Tags_Name_Contains" }
     ];
 
     public override List<AdvancedType> OperationsCollection
@@ -512,11 +559,15 @@ public sealed partial class FilterType : AdvancedType
 
     [ObservableProperty]
     [JsonInclude]
-    internal string _text = null!;
+    internal string _text = string.Empty;
 
     [ObservableProperty]
     [JsonInclude]
     internal TimeSpan _time;
+
+    [ObservableProperty]
+    [JsonInclude]
+    internal bool _withParents = true;
 
     [ObservableProperty]
     [JsonInclude]
@@ -567,14 +618,14 @@ public sealed partial class Filter : FilterObject
             Uid = "/Home/Name_Filter",
             Name = "Name",
             Category = "Text",
-            Operations = new TextOperations()
+            Operations = new NameOperations()
         },
         new()
         { 
             Uid = "/Home/Notes_Filter",
             Name = "Notes",
             Category = "Text",
-            Operations = new TextOperations() 
+            Operations = new NotesOperations() 
         },
         new()
         {
@@ -586,7 +637,7 @@ public sealed partial class Filter : FilterObject
         new()
         {
             Uid = "/Home/DateModified_Filter",
-            Name = "Date_Modifed",
+            Name = "Date_Modified",
             Category = "Date",
             Operations = new DateOperations()
         },

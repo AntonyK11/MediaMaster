@@ -232,7 +232,7 @@
             <TeachingTip.Content>
                 <Grid
                     Width="225"
-                    RowDefinitions="Auto, *, Auto"
+                    RowDefinitions="Auto, Auto, *, Auto"
                     RowSpacing="12">
                     <StackPanel Grid.Row="0">
                         <TextBlock
@@ -242,21 +242,29 @@
                         <TextBlock l:Uids.Uid="/TeachingTip/ContextMenu_Description.Text" TextWrapping="WrapWholeWords" />
                     </StackPanel>
 
+                    <InfoBar
+                        Grid.Row="1"
+                        Margin="-8"
+                        l:Uids.Uid="/TeachingTip/AddToApp_Win10Warning.Message"
+                        IsClosable="False"
+                        IsOpen="{x:Bind _windows10}"
+                        Severity="Warning" />
+
                     <MediaPlayerElement
                         x:Name="ContextMenuMediaPlayerElement"
-                        Grid.Row="1"
+                        Grid.Row="2"
                         Margin="-12,0,-12,0"
                         AutoPlay="True" />
 
                     <Grid
-                        Grid.Row="2"
+                        Grid.Row="3"
                         ColumnDefinitions="*, *"
                         ColumnSpacing="8">
                         <Button
                             Grid.Column="0"
                             HorizontalAlignment="Stretch"
-                            Click="{x:Bind TeachingService.PrevStep}"
-                            Content="Previous" />
+                            l:Uids.Uid="/TeachingTip/Previous.Content"
+                            Click="{x:Bind TeachingService.PrevStep}" />
                         <Button
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"

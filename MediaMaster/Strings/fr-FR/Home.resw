@@ -180,29 +180,29 @@
   <data name="FixUnlinkedMedias_MenuFlyoutItem.Text" xml:space="preserve">
     <value>Réparer les médias non liés</value>
   </data>
-  <data name="Is_FilterOperation.Text" xml:space="preserve">
+  <data name="Name_Is_FilterOperation.Text" xml:space="preserve">
     <value>Est</value>
   </data>
-  <data name="Contains_FilterOperation.Text" xml:space="preserve">
+  <data name="Name_Contains_FilterOperation.Text" xml:space="preserve">
     <value>Contient</value>
   </data>
-  <data name="StartWith_FilterOperation.Text" xml:space="preserve">
+  <data name="Name_StartsWith_FilterOperation.Text" xml:space="preserve">
     <value>Commence avec</value>
   </data>
-  <data name="EndWith_FilterOperation.Text" xml:space="preserve">
+  <data name="Name_EndsWith_FilterOperation.Text" xml:space="preserve">
     <value>Finit avec</value>
   </data>
-  <data name="After_FilterOperation.Text" xml:space="preserve">
+  <data name="Date_After_FilterOperation.Text" xml:space="preserve">
     <value>Après</value>
   </data>
-  <data name="Before_FilterOperation.Text" xml:space="preserve">
+  <data name="Date_Before_FilterOperation.Text" xml:space="preserve">
     <value>Avant</value>
   </data>
-  <data name="From_FilterOperation.Text" xml:space="preserve">
+  <data name="Date_From_FilterOperation.Text" xml:space="preserve">
     <value>Du</value>
   </data>
-  <data name="ContainsWithoutParents_FilterOperation.Text" xml:space="preserve">
-    <value>Contient (sans parents)</value>
+  <data name="Tags_NameContains_FilterOperation.Text" xml:space="preserve">
+    <value>Nom contient</value>
   </data>
   <data name="To_FilterOperation.Text" xml:space="preserve">
     <value>Au</value>
@@ -286,6 +286,15 @@
     <value>Efface tous les filtres et groupes actuels</value>
   </data>
   <data name="SaveSearch_AdvancedFilterFlyout_Tooltip" xml:space="preserve">
-    <value>Il y a des changements non sauvegardés </value>
+    <value>Il y a des changements non sauvegardés</value>
+  </data>
+  <data name="Tags_Contain_FilterOperation.Text" xml:space="preserve">
+    <value>Contiennent</value>
+  </data>
+  <data name="Notes_Contain_FilterOperation.Text" xml:space="preserve">
+    <value>Contiennent</value>
+  </data>
+  <data name="WithParents_Filter.Content" xml:space="preserve">
+    <value>Avec parents</value>
   </data>
 </root>
