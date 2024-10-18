@@ -212,7 +212,7 @@ public sealed partial class TagsListDialog : Page
         };
 
         Uids.SetUid(dialog, selectedTags == null ? "/Tag/ManageDialog" : "/Tag/SelectDialog");
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
 
         ContentDialogResult result;
         do

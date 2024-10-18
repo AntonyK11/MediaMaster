@@ -43,7 +43,7 @@ public sealed partial class CreateMediaDialog : Page
         Uids.SetUid(dialog, "/Media/CreateMediaDialog");
 
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
 
         ContentDialogResult result;
         while (true)

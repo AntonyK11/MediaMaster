@@ -53,7 +53,7 @@ public sealed partial class ImportBookmarksDialog : Page
         };
 
         Uids.SetUid(dialog, "ImportBookmarksDialog");
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
 
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
 

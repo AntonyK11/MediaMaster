@@ -100,8 +100,8 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             dialog.SecondaryButtonText = "";
         }
 
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
-        ContentDialogResult? deleteResult;
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
+        ContentDialogResult? secondaryResult;
         ContentDialogResult result;
         do
         {
@@ -113,26 +113,58 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             {
                 result = await dialog.ShowAndEnqueueAsync();
             }
-            deleteResult = null;
+            secondaryResult = null;
 
             switch (result)
             {
                 case ContentDialogResult.Primary:
                 {
-                    await tagDialog.SaveChangesAsync();
+                    await using (var database = new MediaDbContext())
+                    {
+                        var foundTag = await database.Tags.Select(t => t.Name).FirstOrDefaultAsync(id => id == tagDialog.ViewModel.Name);
+                        if (foundTag != null)
+                        {
+
+                            ContentDialog tagAlreadyExistsDialog = new()
+                            {
+                                XamlRoot = xamlRoot,
+                                DefaultButton = ContentDialogButton.Close,
+                                RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+                            };
+                            Uids.SetUid(tagAlreadyExistsDialog, "/Tag/TagAlreadyExistsDialog");
+                            App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => tagAlreadyExistsDialog.RequestedTheme = theme;
+                            if (xamlRoot != App.MainWindow.Content.XamlRoot)
+                            {
+                                secondaryResult = await tagAlreadyExistsDialog.ShowAndEnqueueAsync(true);
+                            }
+                            else
+                            {
+                                secondaryResult = await tagAlreadyExistsDialog.ShowAndEnqueueAsync();
+                            }
+
+                            if (secondaryResult == ContentDialogResult.Primary)
+                            {
+                                await tagDialog.SaveChangesAsync();
+                            }
+                        }
+                        else
+                        {
+                            await tagDialog.SaveChangesAsync();
+                        }
+                    }
                     break;
                 }
                 case ContentDialogResult.Secondary:
                 {
                     if (tagId != null)
                     {
-                        deleteResult = await DeleteTag((int)tagId, xamlRoot);
+                        secondaryResult = await DeleteTag((int)tagId, xamlRoot);
                     }
 
                     break;
                 }
             }
-        } while (deleteResult == ContentDialogResult.None);
+        } while (secondaryResult == ContentDialogResult.None);
 
         return (result, tagDialog);
     }
@@ -148,7 +180,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
         };
         Uids.SetUid(dialog, "/Tag/DeleteDialog");
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
 
         ContentDialogResult result;
         if (xamlRoot != App.MainWindow.Content.XamlRoot)

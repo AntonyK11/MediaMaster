@@ -51,10 +51,7 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
                     newText.IsNullOrEmpty()
                         ? "/Media/MissingWebsiteUrlDialog"
                         : "/Media/WebsiteUrlAlreadyExistsDialog");
-                App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
-                {
-                    errorDialog.RequestedTheme = theme;
-                };
+                App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => errorDialog.RequestedTheme = theme;
 
                 ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
 

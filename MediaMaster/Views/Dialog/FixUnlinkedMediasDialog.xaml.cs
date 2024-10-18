@@ -66,7 +66,7 @@ public sealed partial class FixUnlinkedMediasDialog : Page
         };
 
         Uids.SetUid(dialog, "/Media/FixUnlinkedMediasDialog");
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
 
         ContentDialogResult result;
         var errorResult = ContentDialogResult.Primary;

@@ -214,4 +214,17 @@ Cette action est permanente et ne peut être annulée.</value>
   <data name="Parents_TextBlock.Text" xml:space="preserve">
     <value>Parents</value>
   </data>
+  <data name="TagAlreadyExistsDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Créer de toute façon</value>
+  </data>
+  <data name="TagAlreadyExistsDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="TagAlreadyExistsDialog.Content" xml:space="preserve">
+    <value>Une étiquette portant ce nom existe déjà.
+Etes-vous sûr de vouloir créer une nouvelle étiquette avec le même nom ?</value>
+  </data>
+  <data name="TagAlreadyExistsDialog.Title" xml:space="preserve">
+    <value>L'étiquette existe déjà</value>
+  </data>
 </root>

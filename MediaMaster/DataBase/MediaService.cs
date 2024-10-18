@@ -8,8 +8,6 @@ using MediaMaster.Services;
 using MediaMaster.Views.Dialog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Windows.AppNotifications;
-using System.IO.Compression;
-using System.Linq;
 using WinUI3Localizer;
 using WinUICommunity;
 
@@ -31,7 +29,7 @@ public sealed class MediaService
             RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
         };
         Uids.SetUid(dialog, "/Media/DeleteDialog");
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
 
         if (result == ContentDialogResult.Primary)

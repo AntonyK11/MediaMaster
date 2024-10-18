@@ -60,10 +60,7 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
                         RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
                     };
                     Uids.SetUid(errorDialog, "/Media/FilePathAlreadyExistsDialog");
-                    App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
-                    {
-                        errorDialog.RequestedTheme = theme;
-                    };
+                    App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => errorDialog.RequestedTheme = theme;
 
                     ContentDialogResult errorResult = await errorDialog.ShowAndEnqueueAsync();
 

@@ -34,7 +34,7 @@ public sealed partial class AddMediasDialog : Page
         Uids.SetUid(dialog, "/Media/AddMediasDialog");
 
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
 
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
 
@@ -63,7 +63,7 @@ public sealed partial class AddMediasDialog : Page
         Uids.SetUid(dialog, "/Media/AddMediasDialog");
 
         dialog.RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme;
-        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => { dialog.RequestedTheme = theme; };
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
 
         ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
 
