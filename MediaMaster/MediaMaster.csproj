@@ -85,7 +85,7 @@
 		<PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="8.1.1" />
 		<PackageReference Include="FaviconFetcher" Version="1.4.0" />
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.4" />
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.68" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.69" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
@@ -99,7 +99,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-		<PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
+		<PackageReference Include="WindowsAPICodePack" Version="8.0.6" />
 		<PackageReference Include="WinUI3Localizer" Version="2.3.0-alpha" />
 		<PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
 		<PackageReference Include="WinUICommunity.ContextMenuExtensions" Version="6.9.0" />
