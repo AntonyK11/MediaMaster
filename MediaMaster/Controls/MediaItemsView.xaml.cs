@@ -412,19 +412,18 @@ public sealed partial class MediaItemsView : UserControl
         }
     }
 
-    private void FavoriteToggleButton_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    private void ToggleButton_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
     {
-        if (args.NewValue is CompactMedia media)
+        if (args.NewValue is bool shouldBeVisible)
         {
-            sender.Visibility = media.IsFavorite ? Visibility.Visible : Visibility.Collapsed;
-        }
-    }
-
-    private void ArchiveToggleButton_OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-    {
-        if (args.NewValue is CompactMedia media)
-        {
-            sender.Visibility = media.IsArchived ? Visibility.Visible : Visibility.Collapsed;
+            if (((IconToggleButton)sender).IsUnderPointer)
+            {
+                sender.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                sender.Visibility = shouldBeVisible ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
     }
 }

@@ -26,11 +26,18 @@ public sealed partial class MediaViewer : UserControl
 
         MediaDbContext.MediasChanged += (sender, args) =>
         {
-            if (!args.MediaIds.Intersect(_medias.Select(m => m.MediaId)).Any() || ReferenceEquals(sender, this)) return;
+            var intersection = args.MediaIds.Intersect(_medias.Select(m => m.MediaId)).ToHashSet();
+            if (intersection.Count == 0 || ReferenceEquals(sender, this)) return;
 
             if (args.Flags.HasFlag(MediaChangeFlags.TagsChanged))
             {
-                SetupToggleButtons(args.Medias);
+                foreach (var media in _medias.Where(media => intersection.Contains(media.MediaId)).ToList())
+                {
+                    _medias.Remove(media);
+                    _medias.Add(args.Medias.First(m => m.MediaId == media.MediaId));
+                }
+
+                SetupToggleButtons(_medias);
             }
 
             if (args.Flags.HasFlag(MediaChangeFlags.UriChanged))

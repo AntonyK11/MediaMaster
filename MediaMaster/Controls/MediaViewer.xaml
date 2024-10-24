@@ -55,63 +55,6 @@
                 Orientation="Horizontal"
                 Spacing="16">
 
-                <!--<ToggleButton
-                    x:Name="ArchiveToggleButton"
-                    Width="32"
-                    Height="32"
-                    Checked="ArchiveToggleButton_OnChecked"
-                    PointerEntered="ArchiveToggleButton_OnPointerEntered"
-                    PointerExited="ArchiveToggleButton_OnPointerExited"
-                    Template="{StaticResource ToggleButtonControlTemplate}"
-                    Unchecked="ArchiveToggleButton_OnUnchecked">
-                    <Grid
-                        x:Name="ArchiveIconGrid"
-                        Padding="4"
-                        Background="Transparent"
-                        CenterPoint="14, 14, 0"
-                        PointerPressed="ArchiveToggleButton_OnPointerPressed">
-                        <Viewbox Visibility="{x:Bind ArchiveToggleButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
-                            <PathIcon Data="{StaticResource PackageIcon}" />
-                        </Viewbox>
-                        <Viewbox Visibility="{x:Bind ArchiveToggleButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <PathIcon Data="{StaticResource PackageIconFilled}" Foreground="#c42b1c" />
-                        </Viewbox>
-                        <Viewbox Visibility="{x:Bind ArchiveToggleButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <PathIcon Data="{StaticResource PackageIcon}" Foreground="Black" />
-                        </Viewbox>
-                    </Grid>
-                </ToggleButton>
-
-                <ToggleButton
-                    x:Name="FavoriteToggleButton"
-                    Width="32"
-                    Height="32"
-                    Margin="16,0,0,0"
-                    HorizontalAlignment="Right"
-                    Checked="FavoriteToggleButton_OnChecked"
-                    PointerEntered="FavoriteToggleButton_OnPointerEntered"
-                    PointerExited="FavoriteToggleButton_OnPointerExited"
-                    Template="{StaticResource ToggleButtonControlTemplate}"
-                    Unchecked="FavoriteToggleButton_OnUnchecked">
-                    <Grid
-                        x:Name="FavoriteIconGrid"
-                        Background="Transparent"
-                        CenterPoint="10, 10, 0"
-                        PointerPressed="FavoriteToggleButton_OnPointerPressed">
-                        <IconSourceElement Visibility="{x:Bind FavoriteToggleButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
-                            <FontIconSource Glyph="&#xE734;" />
-                        </IconSourceElement>
-                        <IconSourceElement Visibility="{x:Bind FavoriteToggleButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <FontIconSource
-                                FontSize="18"
-                                Foreground="#fce100"
-                                Glyph="&#xE735;" />
-                        </IconSourceElement>
-                        <IconSourceElement Visibility="{x:Bind FavoriteToggleButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <FontIconSource Foreground="Black" Glyph="&#xE734;" />
-                        </IconSourceElement>
-                    </Grid>
-                </ToggleButton>-->
                 <local:IconToggleButton
                     x:Name="ArchiveToggleButton"
                     ButtonType="Archive"

@@ -47,13 +47,12 @@
                                 ButtonType="Archive"
                                 Checked="ToggleButton_OnChecked"
                                 Click="ArchiveToggleButton_OnClick"
-                                DataContext="{x:Bind}"
-                                DataContextChanged="ArchiveToggleButton_OnDataContextChanged"
+                                DataContext="{x:Bind IsArchived, Mode=OneWay}"
+                                DataContextChanged="ToggleButton_OnDataContextChanged"
                                 IsChecked="{x:Bind IsArchived, Mode=OneWay}"
                                 RelativePanel.LeftOf="FavoriteToggleButton"
                                 Tag="{x:Bind MediaId}"
-                                Unchecked="ToggleButton_OnUnchecked"
-                                Visibility="Collapsed">
+                                Unchecked="ToggleButton_OnUnchecked">
                                 <animations:Implicit.ShowAnimations>
                                     <animations:TranslationAnimation
                                         From="0, 17, 0"
@@ -89,13 +88,12 @@
                                 ButtonType="Favorite"
                                 Checked="ToggleButton_OnChecked"
                                 Click="FavoriteToggleButton_OnClick"
-                                DataContext="{x:Bind}"
-                                DataContextChanged="FavoriteToggleButton_OnDataContextChanged"
+                                DataContext="{x:Bind IsFavorite, Mode=OneWay}"
+                                DataContextChanged="ToggleButton_OnDataContextChanged"
                                 IsChecked="{x:Bind IsFavorite, Mode=OneWay}"
                                 RelativePanel.AlignRightWithPanel="True"
                                 Tag="{x:Bind MediaId}"
-                                Unchecked="ToggleButton_OnUnchecked"
-                                Visibility="Collapsed">
+                                Unchecked="ToggleButton_OnUnchecked">
                                 <animations:Implicit.ShowAnimations>
                                     <animations:TranslationAnimation
                                         From="0, 17, 0"

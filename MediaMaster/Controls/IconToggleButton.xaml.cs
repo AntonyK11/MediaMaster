@@ -14,6 +14,7 @@ public enum ButtonType
 
 [DependencyProperty("ButtonType", typeof(ButtonType), DefaultValue = ButtonType.Favorite)] 
 [DependencyProperty("IsChecked", typeof(bool), DefaultValue = false)]
+[DependencyProperty("IsUnderPointer", typeof(bool), DefaultValue = false)]
 public sealed partial class IconToggleButton : UserControl
 {
     private SpringScalarNaturalMotionAnimation? _rotationAnimation;
@@ -28,6 +29,9 @@ public sealed partial class IconToggleButton : UserControl
     public IconToggleButton()
     {
         this.InitializeComponent();
+
+        PointerEntered += (_, _) => IsUnderPointer = true;
+        PointerExited += (_, _) => IsUnderPointer = false;
     }
 
     private void CreateOrUpdateTranslationAnimation(float? initialValue, float finalValue)

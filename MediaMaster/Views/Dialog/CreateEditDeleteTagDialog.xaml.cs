@@ -228,7 +228,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 trackedTag.FirstParentReferenceName = TagView.GetItemSource().MinBy(t => t.Name)?.ReferenceName ?? "";
 
                 trackedTag.Color = ViewModel.Color.ToSystemColor();
-                trackedTag.Aliases = AliasesListView.Strings.ToList();
+                trackedTag.Aliases = [.. AliasesListView.Strings];
 
                 if (_currentTag == null)
                 {
