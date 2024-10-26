@@ -302,4 +302,18 @@ Please choose a path.</value>
   <data name="AddMedias_AddMediaPage.Text" xml:space="preserve">
     <value>Add new medias</value>
   </data>
+  <data name="DeleteUnlinkedDialog.Content" xml:space="preserve">
+    <value>Are you sure you want to delete this media?
+Once you click to fix the unlinked medias,
+this action will be permanent and cannot be undone.</value>
+  </data>
+  <data name="DeleteUnlinkedDialog.Title" xml:space="preserve">
+    <value>Delete media</value>
+  </data>
+  <data name="DeleteUnlinkedDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteUnlinkedDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

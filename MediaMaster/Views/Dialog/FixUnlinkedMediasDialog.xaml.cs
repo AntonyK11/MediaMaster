@@ -1,14 +1,14 @@
-using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.WinUI;
 using DependencyPropertyGenerator;
 using EFCore.BulkExtensions;
-using MediaMaster.Controls;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Windows.Devices.Geolocation;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
@@ -17,9 +17,11 @@ public sealed partial class MediaProperties : ObservableObject
 {
     [ObservableProperty] private Media _media = null!;
     [ObservableProperty] private string _path = null!;
+    public string OldPath = "";
     [ObservableProperty] private Visibility _showDuplicateControl = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showNotValidControl = Visibility.Visible;
     [ObservableProperty] private Visibility _showValidControl = Visibility.Collapsed;
+    [ObservableProperty] private bool _isDeleted;
 }
 
 [DependencyProperty("GenerateBookmarkTags", typeof(bool), DefaultValue = true, IsReadOnly = true)]
@@ -44,7 +46,7 @@ public sealed partial class FixUnlinkedMediasDialog : Page
                     .Select(m => new Media { MediaId = m.MediaId, Name = m.Name, Notes = m.Notes, Uri = m.Uri })
                     .ToListAsync();
                 
-                _unlinkedMedias = unlinkedMediaList.Where(m => !m.Uri.IsWebsite() && !Path.Exists(m.Uri)).Select(m => new MediaProperties { Media = m, Path = m.Uri }).ToList();
+                _unlinkedMedias = unlinkedMediaList.Where(m => !m.Uri.IsWebsite() && !Path.Exists(m.Uri)).Select(m => new MediaProperties { Media = m, Path = m.Uri, OldPath = m.Uri }).ToList();
             }
         });
 
@@ -97,17 +99,7 @@ public sealed partial class FixUnlinkedMediasDialog : Page
 
                 if (errorResult == ContentDialogResult.Primary)
                 {
-                    await using (var database = new MediaDbContext())
-                    {
-                        await database
-                            .BulkUpdateAsync(
-                                fixUnlinkedMediasDialog
-                                    ._unlinkedMedias
-                                    .Where(m => m.ShowValidControl == Visibility.Visible)
-                                    .Select(m => m.Media)
-                                    .ToList()
-                            );
-                    }
+                    await fixUnlinkedMediasDialog.UpdateMedias();
                 }
             }
         } while (result == ContentDialogResult.Primary && errorResult == ContentDialogResult.None);
@@ -115,9 +107,103 @@ public sealed partial class FixUnlinkedMediasDialog : Page
         return (result, fixUnlinkedMediasDialog);
     }
 
-    private async void EditableTextBlock_OnEditButtonPressed(EditableTextBlock sender, string args)
+    private async Task UpdateMedias()
     {
-        (CommonFileDialogResult result, var fileName) = FilePickerService.OpenFilePicker(sender.Text);
+        await using (var database = new MediaDbContext())
+        {
+            var mediaPropertiesChanged = _unlinkedMedias
+                .Where(m => m is { ShowValidControl: Visibility.Visible, IsDeleted: false })
+                .ToList();
+
+            var newTags = new Collection<Tag>();
+            var oldTags = new Collection<Tag>();
+
+            Tag? newTag = null;
+            Tag? oldTag = null;
+
+            foreach (var media in mediaPropertiesChanged)
+            {
+                media.Media.Modified = DateTime.UtcNow;
+
+                var oldExtension = Path.GetExtension(media.OldPath);
+                var newExtension = Path.GetExtension(media.Path);
+                if (oldExtension != newExtension)
+                {
+                    oldTag = await database.Medias
+                        .Include(m => m.Tags)
+                        .Where(m => m.MediaId == media.Media.MediaId)
+                        .SelectMany(m => m.Tags)
+                        .FirstOrDefaultAsync(t =>
+                            t.Name == oldExtension && t.Flags.HasFlag(TagFlags.Extension));
+
+                    if (oldTag != null)
+                    {
+                        MediaTag? oldMediaTag = await database.MediaTags
+                            .FirstOrDefaultAsync(m => m.TagId == oldTag.TagId && m.MediaId == media.Media.MediaId);
+
+                        if (oldMediaTag != null)
+                        {
+                            oldTags.Add(oldTag);
+                        }
+                    }
+
+                    (var isNew, newTag) = await MediaService.GetFileTag(media.Path, database: database);
+                    if (newTag != null)
+                    {
+                        if (isNew)
+                        {
+                            newTags.Add(newTag);
+                        }
+
+                        media.Media.Tags.Add(newTag);
+                    }
+                }
+
+                if (newTag != null || oldTag != null)
+                {
+                    MediaDbContext.InvokeMediaChange(
+                        this,
+                        MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        [media.Media],
+                        newTag != null ? [newTag] : [],
+                        oldTag != null ? [oldTag] : []);
+                }
+            }
+
+            await database.BulkDeleteAsync(oldTags);
+            await database.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
+            await MediaService.AddNewTagTags(newTags, database);
+
+            if (mediaPropertiesChanged.Count != 0)
+            {
+                var mediaChanged = mediaPropertiesChanged.Select(m => m.Media).ToList();
+
+                await MediaService.AddNewMediaTags(mediaChanged, database);
+                await database.BulkUpdateAsync(mediaChanged);
+
+                MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, mediaChanged);
+            }
+
+            var mediaDeleted = _unlinkedMedias
+                .Where(m => m.IsDeleted)
+                .Select(m => m.Media)
+                .ToList();
+
+            if (mediaDeleted.Count != 0)
+            {
+                await database.BulkDeleteAsync(mediaDeleted);
+
+                MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaRemoved, mediaDeleted);
+            }
+        }
+    }
+
+    private async void EditPathButton_OnClick(object sender, RoutedEventArgs? routedEventArgs = null)
+    {
+        TextBlock? textBlock = ((FrameworkElement)((FrameworkElement)sender).Parent).FindDescendant<TextBlock>(d => d.Name == "MediaPath");
+        if (textBlock == null) return;
+
+        (CommonFileDialogResult result, var fileName) = FilePickerService.OpenFilePicker(textBlock.Text);
 
         if (result == CommonFileDialogResult.Ok && fileName != null && App.MainWindow != null)
         {
@@ -141,21 +227,21 @@ public sealed partial class FixUnlinkedMediasDialog : Page
 
                     if (errorResult == ContentDialogResult.Primary)
                     {
-                        EditableTextBlock_OnEditButtonPressed(sender, args);
+                        EditPathButton_OnClick(sender);
                     }
                 }
                 else
                 {
-                    sender.Text = fileName;
+                    textBlock.Text = fileName;
 
-                    var media = (MediaProperties)sender.Tag;
-                    UpdateMedia(media, fileName);
+                    var media = (MediaProperties)textBlock.Tag;
+                    UpdateMediaProperties(media, fileName);
                 }
             }
         }
     }
 
-    private void UpdateMedia(MediaProperties media, string newPath)
+    private void UpdateMediaProperties(MediaProperties media, string newPath)
     {
         media.ShowNotValidControl = Visibility.Collapsed;
 
@@ -192,7 +278,30 @@ public sealed partial class FixUnlinkedMediasDialog : Page
         media.Path = newPath;
     }
 
-    private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    private async void DeleteMediaButton_OnClick(object sender, RoutedEventArgs? routedEventArgs = null)
+    {
+        TextBlock? textBlock = ((FrameworkElement)((FrameworkElement)sender).Parent).FindDescendant<TextBlock>(d => d.Name == "MediaPath");
+        if (textBlock == null) return;
+
+        if (App.MainWindow == null) return;
+
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow.Content.XamlRoot,
+            DefaultButton = ContentDialogButton.Close,
+            RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+        };
+        Uids.SetUid(dialog, "/Media/DeleteUnlinkedDialog");
+        App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => dialog.RequestedTheme = theme;
+        ContentDialogResult result = await dialog.ShowAndEnqueueAsync();
+
+        if (result != ContentDialogResult.Primary) return;
+
+        var media = (MediaProperties)textBlock.Tag;
+        media.IsDeleted = true;
+    }
+
+    private async void PathsFromDirectoryButton_OnClick(object sender, RoutedEventArgs e)
     {
         (CommonFileDialogResult result, var folderPath) = FilePickerService.OpenFilePicker(null, true);
 
@@ -231,7 +340,7 @@ public sealed partial class FixUnlinkedMediasDialog : Page
             });
             foreach ((var file, MediaProperties mediaProperties) in mediaToUpdate)
             {
-                UpdateMedia(mediaProperties, file);
+                UpdateMediaProperties(mediaProperties, file);
             }
         }
     }

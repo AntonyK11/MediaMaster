@@ -156,4 +156,10 @@ public sealed partial class HomePage : Page
             await MediaItemsView.SetupMediaCollection();
         }
     }
+
+    private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        IconService.ClearCache();
+        await MediaItemsView.SetupMediaCollection();
+    }
 }

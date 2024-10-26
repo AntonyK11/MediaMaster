@@ -104,7 +104,20 @@
                     CornerRadius="8"
                     Spacing="8">
 
-                    <customControls:SearchBox x:Name="SearchBox" FilterChanged="SearchBox_OnFilterChanged" />
+
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8">
+                        <Button
+                            Grid.Column="0"
+                            Padding="7"
+                            Click="RefreshButton_OnClick"
+                            Content="{winUi:FontIcon Glyph=&#xE72C;,
+                                                     FontSize=16}" />
+
+                        <customControls:SearchBox
+                            x:Name="SearchBox"
+                            Grid.Column="1"
+                            FilterChanged="SearchBox_OnFilterChanged" />
+                    </Grid>
 
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>

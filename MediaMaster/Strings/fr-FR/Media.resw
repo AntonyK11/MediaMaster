@@ -302,4 +302,18 @@ Veuillez choisir un chemin.</value>
   <data name="AddMedias_AddMediaPage.Text" xml:space="preserve">
     <value>Ajouter des nouveaux médias</value>
   </data>
+  <data name="DeleteUnlinkedDialog.Title" xml:space="preserve">
+    <value>Supprimer un média</value>
+  </data>
+  <data name="DeleteUnlinkedDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="DeleteUnlinkedDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="DeleteUnlinkedDialog.Content" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ce média ?
+Une fois que vous aurez cliqué pour réparer les médias non liés,
+cette action sera permanente et ne pourra pas être annulée.</value>
+  </data>
 </root>

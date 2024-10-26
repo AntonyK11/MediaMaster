@@ -148,8 +148,7 @@ public sealed partial class MediaIcon
 
         var uri = Uris.First();
 
-        BitmapSource? icon = await IconService.GetIconAsync(uri, ImageMode | ImageMode.CacheOnly, (int)ActualWidth,
-            (int)ActualHeight);
+        BitmapSource? icon = await IconService.GetIconAsync(uri, ImageMode | ImageMode.CacheOnly, (int)ActualWidth, (int)ActualHeight);
 
         if (tcs.Task.IsCompleted) return;
 

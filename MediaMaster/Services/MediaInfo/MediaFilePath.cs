@@ -41,7 +41,7 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
         return editableTextBlock;
     }
 
-    private static async void PathTextBox_OnEdit(Media media, EditableTextBlock sender, object? updateSender = null)
+    private static async void PathTextBox_OnEdit(Media media, EditableTextBlock sender, object updateSender)
     {
         if (App.MainWindow == null) return;
 
@@ -66,7 +66,7 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
 
                     if (errorResult == ContentDialogResult.Primary)
                     {
-                        PathTextBox_OnEdit(media, sender);
+                        PathTextBox_OnEdit(media, sender, updateSender);
                     }
                 }
                 else
@@ -78,19 +78,19 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
         }
     }
 
-    private static async void UpdateMedia(Media media, string newText, string oldText = "", object? updateSender = null)
+    private static async void UpdateMedia(Media media, string newPath, string oldPath, object updateSender)
     {
-        if (oldText == newText) return;
+        if (oldPath == newPath) return;
 
         Tag? newTag = null;
         Tag? oldTag = null;
         await using (var database = new MediaDbContext())
         {
-            media.Uri = newText;
+            media.Uri = newPath;
             media.Modified = DateTime.UtcNow;
 
-            var oldExtension = Path.GetExtension(oldText);
-            var newExtension = Path.GetExtension(newText);
+            var oldExtension = Path.GetExtension(oldPath);
+            var newExtension = Path.GetExtension(newPath);
             if (oldExtension != newExtension)
             {
                 Tag? oldExtensionTag = await database.Medias
@@ -111,17 +111,17 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
                     }
                 }
 
-                (var isNew, newTag) = await MediaService.GetFileTag(newText, database: database);
+                (var isNew, newTag) = await MediaService.GetFileTag(newPath, database: database);
                 if (newTag != null)
                 {
                     if (isNew)
                     {
                         await database.BulkInsertAsync([newTag], new BulkConfig { SetOutputIdentity = true });
-                        await MediaService.AddNewTags([newTag], database);
+                        await MediaService.AddNewTagTags([newTag], database);
                     }
 
                     media.Tags.Add(newTag);
-                    await MediaService.AddNewMedias([media], database);
+                    await MediaService.AddNewMediaTags([media], database);
                 }
             }
 
@@ -139,8 +139,7 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
         }
         else
         {
-            MediaDbContext.InvokeMediaChange(updateSender, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged,
-                [media]);
+            MediaDbContext.InvokeMediaChange(updateSender, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, [media]);
         }
     }
 
@@ -151,7 +150,7 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
 
     protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        var mediaIds = Medias.Select(m => m.MediaId).ToHashSet();
         
         if (Medias.Count == 0 ||
             !args.MediaIds.Intersect(mediaIds).Any() ||

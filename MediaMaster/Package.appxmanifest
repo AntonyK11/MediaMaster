@@ -17,7 +17,7 @@
 	<Identity 
 			Name="AntonyKonstantas.MediaMasterApp" 
 			Publisher="CN=0EB75C35-165C-4A6B-882E-AE20F61FAACA" 
-			Version="1.3.2.0" />
+			Version="1.4.0.0" />
 
 	<Properties>
 		<DisplayName>MediaMaster App</DisplayName>

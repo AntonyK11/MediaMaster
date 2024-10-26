@@ -83,20 +83,19 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
             var newDomain = new Uri(newText).Host;
             if (oldDomain != newDomain)
             {
-                Tag? oldDomainTag = await database.Medias
+                oldTag = await database.Medias
                     .Include(m => m.Tags)
                     .Where(m => m.MediaId == media.MediaId)
                     .SelectMany(m => m.Tags)
                     .FirstOrDefaultAsync(t => t.Name == oldDomain && t.Flags.HasFlag(TagFlags.Website));
 
-                if (oldDomainTag != null)
+                if (oldTag != null)
                 {
                     MediaTag? oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m =>
-                        m.TagId == oldDomainTag.TagId && m.MediaId == media.MediaId);
+                        m.TagId == oldTag.TagId && m.MediaId == media.MediaId);
 
                     if (oldMediaTag != null)
                     {
-                        oldTag = oldDomainTag;
                         await database.BulkDeleteAsync([oldMediaTag]);
                     }
                 }
@@ -107,11 +106,11 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
                     if (isNew)
                     {
                         await database.BulkInsertAsync([newTag], new BulkConfig { SetOutputIdentity = true });
-                        await MediaService.AddNewTags([newTag], database);
+                        await MediaService.AddNewTagTags([newTag], database);
                     }
 
                     media.Tags.Add(newTag);
-                    await MediaService.AddNewMedias([media], database);
+                    await MediaService.AddNewMediaTags([media], database);
                 }
             }
 
@@ -140,7 +139,7 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
 
     protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        HashSet<int> mediaIds = Medias.Select(m => m.MediaId).ToHashSet();
         
         if (Medias.Count == 0 ||
             !args.MediaIds.Intersect(mediaIds).Any() ||
