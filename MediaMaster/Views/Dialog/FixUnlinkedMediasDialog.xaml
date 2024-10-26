@@ -18,7 +18,8 @@
             <ListViewItem
                 Padding="2"
                 AllowDrop="False"
-                CanDrag="False">
+                CanDrag="False"
+                Visibility="{x:Bind IsDeleted, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
                 <Grid>
                     <Rectangle
                         Fill="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
@@ -44,13 +45,34 @@
                                 Text="{x:Bind Media.Notes}"
                                 Visibility="{x:Bind Media.Notes, Converter={StaticResource NullToVisibilityConverterInverted}}" />
                         </StackPanel>
-                        <controls:EditableTextBlock
-                            Margin="0,0,4,0"
-                            EditButtonPressed="EditableTextBlock_OnEditButtonPressed"
-                            EditOnClick="False"
-                            EditOnDoubleClick="False"
-                            Tag="{x:Bind}"
-                            Text="{x:Bind Path, Mode=OneWay}" />
+
+                        <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="4">
+                            <TextBlock
+                                x:Name="MediaPath"
+                                Grid.Column="0"
+                                Padding="11,6,12,7"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                CharacterSpacing="23"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                IsTextSelectionEnabled="True"
+                                Tag="{x:Bind}"
+                                Text="{x:Bind Path, Mode=OneWay}"
+                                TextWrapping="WrapWholeWords" />
+                            <Button
+                                Grid.Column="1"
+                                BorderThickness="0"
+                                Click="EditPathButton_OnClick"
+                                Content="{winUi:FontIcon Glyph=&#xE70F;,
+                                                         FontSize=16}" />
+                            <Button
+                                Grid.Column="2"
+                                BorderThickness="0"
+                                Click="DeleteMediaButton_OnClick"
+                                Content="{winUi:FontIcon Glyph=&#xE74D;,
+                                                         FontSize=16}" />
+                        </Grid>
+
                     </StackPanel>
                 </Grid>
             </ListViewItem>
@@ -69,7 +91,7 @@
         <Button
             Grid.Row="1"
             l:Uids.Uid="PathsFromDirectory_Button"
-            Click="ButtonBase_OnClick" />
+            Click="PathsFromDirectoryButton_OnClick" />
 
         <ProgressBar x:Name="ProgressBar" IsIndeterminate="True" />
     </Grid>

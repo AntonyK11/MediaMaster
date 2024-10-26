@@ -168,7 +168,7 @@ public sealed class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
 
     protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        HashSet<int> mediaIds = Medias.Select(m => m.MediaId).ToHashSet();
         
         if (Medias.Count == 0 ||
             !args.MediaIds.Intersect(mediaIds).Any() ||

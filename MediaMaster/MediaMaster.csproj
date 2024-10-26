@@ -85,7 +85,7 @@
 		<PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="8.1.1" />
 		<PackageReference Include="FaviconFetcher" Version="1.4.0" />
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.4" />
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.69" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.70" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
@@ -175,6 +175,19 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Assets\CloseLight.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+
+		<Content Include="Assets\DefaultIcon.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\DefaultFileIcon.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\DefaultWebsiteIcon.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\UnlinkedMediaIcon.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

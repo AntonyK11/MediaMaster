@@ -47,7 +47,7 @@ public sealed class MediaEditionDate(DockPanel parent) : MediaInfoTextBase(paren
 
     protected override void MediaChanged(object? sender, MediaChangeArgs args)
     {
-        List<int> mediaIds = Medias.Select(m => m.MediaId).ToList();
+        HashSet<int> mediaIds = Medias.Select(m => m.MediaId).ToHashSet();
         
         if (Medias.Count == 0 || !args.MediaIds.Intersect(mediaIds).Any()) return;
         

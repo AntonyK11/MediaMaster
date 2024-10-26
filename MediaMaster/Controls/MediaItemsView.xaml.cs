@@ -141,7 +141,7 @@ public sealed partial class MediaItemsView : UserControl
 
         PagerControl.NumberOfPages = pageCount;
 
-        HashSet<int> selectedMedias = MediaItemsViewControl.SelectedItems.OfType<Media>().Select(m => m.MediaId).ToHashSet();
+        HashSet<int> selectedMedias = MediaItemsViewControl.SelectedItems.OfType<CompactMedia>().Select(m => m.MediaId).ToHashSet();
 
         MediaItemsViewControl.SelectionChanged -= MediaItemsView_OnSelectionChanged;
         MediaItemsViewControl.ItemsSource = medias;

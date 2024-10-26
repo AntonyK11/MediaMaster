@@ -104,8 +104,8 @@ public sealed class MediaService
                 await database.BulkInsertAsync(newMedias, new BulkConfig { SetOutputIdentity = true });
                 await database.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
 
-                ICollection<MediaTag> mediaTags = await AddNewMedias(newMedias, database);
-                ICollection<TagTag> tagTags = await AddNewTags(newTags, database);
+                ICollection<MediaTag> mediaTags = await AddNewMediaTags(newMedias, database);
+                ICollection<TagTag> tagTags = await AddNewTagTags(newTags, database);
 
                 mediaAddedCount = newMedias.Count;
                 Debug.WriteLine($"Media: {mediaAddedCount}");
@@ -216,7 +216,7 @@ public sealed class MediaService
         }
     }
 
-    public static async Task<ICollection<MediaTag>> AddNewMedias(ICollection<Media> newMedias, MediaDbContext database)
+    public static async Task<ICollection<MediaTag>> AddNewMediaTags(ICollection<Media> newMedias, MediaDbContext database)
     {
         List<MediaTag> mediaTags = newMedias.SelectMany(media => media.Tags.Select(tag => new MediaTag
         {
@@ -228,7 +228,7 @@ public sealed class MediaService
         return mediaTags;
     }
 
-    public static async Task<ICollection<TagTag>> AddNewTags(ICollection<Tag> newTags, MediaDbContext database)
+    public static async Task<ICollection<TagTag>> AddNewTagTags(ICollection<Tag> newTags, MediaDbContext database)
     {
         List<TagTag> tagTags = newTags.SelectMany(tag => tag.Parents.Select(parent => new TagTag
         {

@@ -31,9 +31,10 @@ public readonly struct CachedIcon
 public static class IconService
 {
     private const int CacheLength = 2001;
-    private static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
-    private static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
     private static readonly BitmapImage DefaultIcon = new(new Uri("ms-appx:///Assets/DefaultIcon.png"));
+    private static readonly BitmapImage FileIcon = new(new Uri("ms-appx:///Assets/DefaultFileIcon.png"));
+    private static readonly BitmapImage WebsiteIcon = new(new Uri("ms-appx:///Assets/DefaultWebsiteIcon.png"));
+    private static readonly BitmapImage UnlinkedMediaIcon = new(new Uri("ms-appx:///Assets/UnlinkedMediaIcon.png"));
 
     private static readonly ConcurrentDictionary<string, ICollection<CachedIcon>> ThumbnailCache = [];
     private static readonly ConcurrentQueue<string> ThumbnailCacheKeys = [];
@@ -46,6 +47,15 @@ public static class IconService
     };
 
     private static Fetcher? _fetcher;
+
+    public static void ClearCache()
+    {
+        ThumbnailCache.Clear();
+        ThumbnailCacheKeys.Clear();
+
+        IconCache.Clear();
+        IconCacheKeys.Clear();
+    }
 
     public static async Task<BitmapSource?> GetIcon(string? path, ImageMode imageMode, int width, int height,
         TaskCompletionSource? tcs = null)
@@ -109,7 +119,12 @@ public static class IconService
             return FileIcon;
         }
 
-        return DefaultIcon;
+        if (path.IsNullOrEmpty())
+        {
+            return DefaultIcon;
+        }
+
+        return UnlinkedMediaIcon;
     }
 
     public static async Task<BitmapSource?> GetIconAsync(string path, ImageMode imageMode, int width, int height,
@@ -120,6 +135,16 @@ public static class IconService
         if (imageMode.HasFlag(ImageMode.IconOnly) && !path.IsWebsite())
         {
             IconCache.TryGetValue(path, out cachedIconCollection);
+        }
+
+        if (path.IsNullOrEmpty())
+        {
+            return DefaultIcon;
+        }
+
+        if (!path.IsWebsite() && !File.Exists(path))
+        {
+            return UnlinkedMediaIcon;
         }
 
         if (cachedIconCollection != null)
