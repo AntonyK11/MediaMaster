@@ -13,13 +13,6 @@
     xmlns:winUiCommunity="using:WinUICommunity"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <Style BasedOn="{StaticResource GrowlStyle}" TargetType="winUiCommunity:Growl" />
-        <Style x:Key="GrowlStyle" TargetType="winUiCommunity:Growl">
-            <Setter Property="IsOpen" Value="True" />
-        </Style>
-    </Page.Resources>
-
     <Grid
         AllowDrop="True"
         Background="Transparent"
@@ -60,7 +53,14 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
                     winUiCommunity:Growl.GrowlParent="True"
-                    Orientation="Vertical" />
+                    Orientation="Vertical">
+                    <StackPanel.Resources>
+                        <Style BasedOn="{StaticResource GrowlStyle}" TargetType="winUiCommunity:Growl" />
+                        <Style x:Key="GrowlStyle" TargetType="winUiCommunity:Growl">
+                            <Setter Property="IsOpen" Value="True" />
+                        </Style>
+                    </StackPanel.Resources>
+                </StackPanel>
             </Grid>
         </NavigationView>
 

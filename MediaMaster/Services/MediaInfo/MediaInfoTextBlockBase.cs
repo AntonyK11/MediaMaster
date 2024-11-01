@@ -75,10 +75,13 @@ public abstract class MediaInfoTextBlockBase(DockPanel parent) : MediaInfoContro
 
         await using (var database = new MediaDbContext())
         {
-            await database.BulkUpdateAsync(Medias);
-        }
+            await Transaction.Try(database, async () =>
+            {
+                await database.BulkUpdateAsync(Medias);
 
-        InvokeMediaChange();
+                InvokeMediaChange();
+            });
+        }
     }
 
     protected virtual void UpdateMediaProperty(Media medias, string text) { }

@@ -313,45 +313,48 @@ public sealed partial class MediaItemsView : UserControl
             await using (var database = new MediaDbContext())
             {
                 media = await database.Medias.FirstOrDefaultAsync(m => m.MediaId == mediaId);
+            
                 if (media != null)
                 {
-                    if (button.IsChecked)
+                    await Transaction.Try(database, async () =>
                     {
-                        var mediaTag = new MediaTag
+                        if (button.IsChecked)
                         {
-                            MediaId = media.MediaId,
-                            TagId = MediaDbContext.FavoriteTag.TagId
-                        };
-                        await database.BulkInsertAsync([mediaTag]);
-                    }
-                    else
-                    {
-                        var mediaTag = await database.MediaTags
-                            .FirstOrDefaultAsync(m => m.MediaId == mediaId && m.TagId == MediaDbContext.FavoriteTag.TagId);
-                        if (mediaTag != null)
-                        {
-                            await database.BulkDeleteAsync([mediaTag]);
+                            var mediaTag = new MediaTag
+                            {
+                                MediaId = media.MediaId,
+                                TagId = MediaDbContext.FavoriteTag.TagId
+                            };
+                            await database.BulkInsertAsync([mediaTag]);
                         }
-                    }
+                        else
+                        {
+                            var mediaTag = await database.MediaTags
+                                .FirstOrDefaultAsync(m =>
+                                    m.MediaId == mediaId &&
+                                    m.TagId == MediaDbContext.FavoriteTag.TagId);
+                            if (mediaTag != null)
+                            {
+                                await database.BulkDeleteAsync([mediaTag]);
+                            }
+                        }
 
-                    media.IsFavorite = button.IsChecked;
-                    media.Modified = DateTime.UtcNow;
+                        media.IsFavorite = button.IsChecked;
+                        media.Modified = DateTime.UtcNow;
 
-                    await database.BulkUpdateAsync([media]);
-                }
-            }
+                        await database.BulkUpdateAsync([media]);
 
-            if (media != null)
-            {
-                if (button.IsChecked)
-                {
-                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
-                        [media], tagsAdded: [MediaDbContext.FavoriteTag]);
-                }
-                else
-                {
-                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
-                        [media], tagsRemoved: [MediaDbContext.FavoriteTag]);
+                        if (button.IsChecked)
+                        {
+                            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                                [media], tagsAdded: [MediaDbContext.FavoriteTag]);
+                        }
+                        else
+                        {
+                            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                                [media], tagsRemoved: [MediaDbContext.FavoriteTag]);
+                        }
+                    });
                 }
             }
         }
@@ -370,43 +373,44 @@ public sealed partial class MediaItemsView : UserControl
                 media = await database.Medias.FirstOrDefaultAsync(m => m.MediaId == mediaId);
                 if (media != null)
                 {
-                    if (button.IsChecked)
+                    await Transaction.Try(database, async () =>
                     {
-                        var mediaTag = new MediaTag
+                        if (button.IsChecked)
                         {
-                            MediaId = media.MediaId,
-                            TagId = MediaDbContext.ArchivedTag.TagId
-                        };
-                        await database.BulkInsertAsync([mediaTag]);
-                    }
-                    else
-                    {
-                        var mediaTag = await database.MediaTags
-                            .FirstOrDefaultAsync(m => m.MediaId == mediaId && m.TagId == MediaDbContext.ArchivedTag.TagId);
-                        if (mediaTag != null)
-                        {
-                            await database.BulkDeleteAsync([mediaTag]);
+                            var mediaTag = new MediaTag
+                            {
+                                MediaId = media.MediaId,
+                                TagId = MediaDbContext.ArchivedTag.TagId
+                            };
+                            await database.BulkInsertAsync([mediaTag]);
                         }
-                    }
+                        else
+                        {
+                            var mediaTag = await database.MediaTags
+                                .FirstOrDefaultAsync(m =>
+                                    m.MediaId == mediaId && m.TagId == MediaDbContext.ArchivedTag.TagId);
+                            if (mediaTag != null)
+                            {
+                                await database.BulkDeleteAsync([mediaTag]);
+                            }
+                        }
 
-                    media.IsArchived = button.IsChecked;
-                    media.Modified = DateTime.UtcNow;
+                        media.IsArchived = button.IsChecked;
+                        media.Modified = DateTime.UtcNow;
 
-                    await database.BulkUpdateAsync([media]);
-                }
-            }
+                        await database.BulkUpdateAsync([media]);
 
-            if (media != null)
-            {
-                if (button.IsChecked)
-                {
-                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
-                        [media], tagsAdded: [MediaDbContext.ArchivedTag]);
-                }
-                else
-                {
-                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
-                        [media], tagsRemoved: [MediaDbContext.ArchivedTag]);
+                        if (button.IsChecked)
+                        {
+                            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                                [media], tagsAdded: [MediaDbContext.ArchivedTag]);
+                        }
+                        else
+                        {
+                            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                                [media], tagsRemoved: [MediaDbContext.ArchivedTag]);
+                        }
+                    });
                 }
             }
         }

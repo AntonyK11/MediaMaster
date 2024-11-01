@@ -195,4 +195,7 @@
   <data name="InAppNotification_AppMinimized_SubTitle" xml:space="preserve">
     <value>MediaMaster is now running in the background to improve startup performance.</value>
   </data>
+  <data name="InAppNotification_Error" xml:space="preserve">
+    <value>An error has occurred</value>
+  </data>
 </root>

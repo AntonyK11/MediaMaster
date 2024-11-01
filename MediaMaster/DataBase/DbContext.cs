@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WinUI3Localizer;
 using WinUICommunity;
+using DocumentFormat.OpenXml.InkML;
+using MediaMaster.Services;
 
 namespace MediaMaster.DataBase;
 
@@ -100,8 +102,11 @@ public sealed partial class MediaDbContext : DbContext
         await Database.MigrateAsync();
 #endif
         Dictionary<string, Tag> tags = await Tags.GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(x => x.Name);
-        await SetupTags(tags);
-        await SetupCategories(tags);
+        await Transaction.Try(this, async () =>
+        {
+            await SetupTags(tags);
+            await SetupCategories(tags);
+        });
     }
 
     private async Task SetupTags(Dictionary<string, Tag> tags)

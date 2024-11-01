@@ -195,4 +195,7 @@
   <data name="InAppNotification_AppMinimized_SubTitle" xml:space="preserve">
     <value>MediaMaster fonctionne désormais en arrière-plan pour améliorer les performances au démarrage.</value>
   </data>
+  <data name="InAppNotification_Error" xml:space="preserve">
+    <value>Une erreur s'est produite</value>
+  </data>
 </root>

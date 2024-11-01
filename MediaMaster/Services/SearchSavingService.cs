@@ -5,6 +5,9 @@ using MediaMaster.Views;
 using Windows.Storage;
 using MediaMaster.Extensions;
 using System.Text.Json;
+using CommunityToolkit.WinUI;
+using WinUI3Localizer;
+using WinUICommunity;
 
 namespace MediaMaster.Services;
 
@@ -82,8 +85,19 @@ public sealed class SearchSavingService
         {
             return JsonSerializer.Deserialize(browsersDataString, SourceGenerationContext.Default.ListStoredSearch) ?? [];
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Debug.WriteLine(e);
+            await App.DispatcherQueue.EnqueueAsync(() =>
+            {
+                Growl.Error(new GrowlInfo
+                {
+                    ShowDateTime = true,
+                    IsClosable = true,
+                    Title = string.Format("InAppNotification_Title".GetLocalizedString(), DateTimeOffset.Now),
+                    Message = $"{"InAppNotification_Error".GetLocalizedString()}\n\n{e.Message}\n{e.InnerException}"
+                });
+            });
             return [];
         }
     }

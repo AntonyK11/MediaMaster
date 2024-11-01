@@ -111,90 +111,94 @@ public sealed partial class FixUnlinkedMediasDialog : Page
     {
         await using (var database = new MediaDbContext())
         {
-            var mediaPropertiesChanged = _unlinkedMedias
-                .Where(m => m is { ShowValidControl: Visibility.Visible, IsDeleted: false })
-                .ToList();
-
-            var newTags = new Collection<Tag>();
-            var oldTags = new Collection<Tag>();
-
-            Tag? newTag = null;
-            Tag? oldTag = null;
-
-            foreach (var media in mediaPropertiesChanged)
+            await Transaction.Try(database, async () =>
             {
-                media.Media.Modified = DateTime.UtcNow;
+                var mediaPropertiesChanged = _unlinkedMedias
+                    .Where(m => m is { ShowValidControl: Visibility.Visible, IsDeleted: false })
+                    .ToList();
 
-                var oldExtension = Path.GetExtension(media.OldPath);
-                var newExtension = Path.GetExtension(media.Path);
-                if (oldExtension != newExtension)
+                var newTags = new Collection<Tag>();
+                var oldTags = new Collection<Tag>();
+
+                Tag? newTag = null;
+                Tag? oldTag = null;
+
+                foreach (var media in mediaPropertiesChanged)
                 {
-                    oldTag = await database.Medias
-                        .Include(m => m.Tags)
-                        .Where(m => m.MediaId == media.Media.MediaId)
-                        .SelectMany(m => m.Tags)
-                        .FirstOrDefaultAsync(t =>
-                            t.Name == oldExtension && t.Flags.HasFlag(TagFlags.Extension));
+                    media.Media.Modified = DateTime.UtcNow;
 
-                    if (oldTag != null)
+                    var oldExtension = Path.GetExtension(media.OldPath);
+                    var newExtension = Path.GetExtension(media.Path);
+                    if (oldExtension != newExtension)
                     {
-                        MediaTag? oldMediaTag = await database.MediaTags
-                            .FirstOrDefaultAsync(m => m.TagId == oldTag.TagId && m.MediaId == media.Media.MediaId);
+                        oldTag = await database.Medias
+                            .Include(m => m.Tags)
+                            .Where(m => m.MediaId == media.Media.MediaId)
+                            .SelectMany(m => m.Tags)
+                            .FirstOrDefaultAsync(t =>
+                                t.Name == oldExtension && t.Flags.HasFlag(TagFlags.Extension));
 
-                        if (oldMediaTag != null)
+                        if (oldTag != null)
                         {
-                            oldTags.Add(oldTag);
+                            MediaTag? oldMediaTag = await database.MediaTags
+                                .FirstOrDefaultAsync(m => m.TagId == oldTag.TagId && m.MediaId == media.Media.MediaId);
+
+                            if (oldMediaTag != null)
+                            {
+                                oldTags.Add(oldTag);
+                            }
+                        }
+
+                        (var isNew, newTag) = await MediaService.GetFileTag(media.Path, database: database);
+                        if (newTag != null)
+                        {
+                            if (isNew)
+                            {
+                                newTags.Add(newTag);
+                            }
+
+                            media.Media.Tags.Add(newTag);
                         }
                     }
 
-                    (var isNew, newTag) = await MediaService.GetFileTag(media.Path, database: database);
-                    if (newTag != null)
+                    if (newTag != null || oldTag != null)
                     {
-                        if (isNew)
-                        {
-                            newTags.Add(newTag);
-                        }
-
-                        media.Media.Tags.Add(newTag);
+                        MediaDbContext.InvokeMediaChange(
+                            this,
+                            MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                            [media.Media],
+                            newTag != null ? [newTag] : [],
+                            oldTag != null ? [oldTag] : []);
                     }
                 }
 
-                if (newTag != null || oldTag != null)
+                await database.BulkDeleteAsync(oldTags);
+                await database.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
+                await MediaService.AddNewTagTags(newTags, database);
+
+                if (mediaPropertiesChanged.Count != 0)
                 {
-                    MediaDbContext.InvokeMediaChange(
-                        this,
-                        MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
-                        [media.Media],
-                        newTag != null ? [newTag] : [],
-                        oldTag != null ? [oldTag] : []);
+                    var mediaChanged = mediaPropertiesChanged.Select(m => m.Media).ToList();
+
+                    await MediaService.AddNewMediaTags(mediaChanged, database);
+                    await database.BulkUpdateAsync(mediaChanged);
+
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged,
+                        mediaChanged);
                 }
-            }
 
-            await database.BulkDeleteAsync(oldTags);
-            await database.BulkInsertAsync(newTags, new BulkConfig { SetOutputIdentity = true });
-            await MediaService.AddNewTagTags(newTags, database);
+                var mediaDeleted = _unlinkedMedias
+                    .Where(m => m.IsDeleted)
+                    .Select(m => m.Media)
+                    .ToList();
 
-            if (mediaPropertiesChanged.Count != 0)
-            {
-                var mediaChanged = mediaPropertiesChanged.Select(m => m.Media).ToList();
+                if (mediaDeleted.Count != 0)
+                {
+                    await database.BulkDeleteAsync(mediaDeleted);
 
-                await MediaService.AddNewMediaTags(mediaChanged, database);
-                await database.BulkUpdateAsync(mediaChanged);
-
-                MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, mediaChanged);
-            }
-
-            var mediaDeleted = _unlinkedMedias
-                .Where(m => m.IsDeleted)
-                .Select(m => m.Media)
-                .ToList();
-
-            if (mediaDeleted.Count != 0)
-            {
-                await database.BulkDeleteAsync(mediaDeleted);
-
-                MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaRemoved, mediaDeleted);
-            }
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaRemoved, mediaDeleted);
+                }
+            });
         }
     }
 

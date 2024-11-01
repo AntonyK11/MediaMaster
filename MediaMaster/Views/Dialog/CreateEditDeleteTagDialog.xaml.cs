@@ -3,6 +3,7 @@ using EFCore.BulkExtensions;
 using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
+using MediaMaster.Services;
 using MediaMaster.ViewModels.Dialog;
 using Microsoft.EntityFrameworkCore;
 using WinUI3Localizer;
@@ -205,62 +206,66 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
     private async Task SaveChangesAsync()
     {
-        await using (MediaDbContext database = new())
+        await using (var database = new MediaDbContext())
         {
-            Tag? trackedTag;
-            if (_currentTag == null)
+            await Transaction.Try(database, async () =>
             {
-                trackedTag = new Tag();
-            }
-            else
-            {
-                trackedTag = await database.Tags
-                    .AsTracking()
-                    .Include(m => m.Parents)
-                    .FirstOrDefaultAsync(t => t.TagId == _currentTag.TagId);
-            }
-
-            if (trackedTag != null)
-            {
-                trackedTag.Name = ViewModel.Name;
-                trackedTag.Shorthand = ViewModel.Shorthand;
-
-                trackedTag.FirstParentReferenceName = TagView.GetItemSource().MinBy(t => t.Name)?.ReferenceName ?? "";
-
-                trackedTag.Color = ViewModel.Color.ToSystemColor();
-                trackedTag.Aliases = [.. AliasesListView.Strings];
-
+                Tag? trackedTag;
                 if (_currentTag == null)
                 {
-                    await database.Tags.AddAsync(trackedTag);
+                    trackedTag = new Tag();
                 }
-
-                await database.SaveChangesAsync();
-
-
-                HashSet<int> currentTagIds = trackedTag.Parents.Select(t => t.TagId).ToHashSet();
-                HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
-
-                List<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToList();
-                List<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToList();
-
-                // Bulk add new tags
-                if (tagsToAdd.Count != 0)
+                else
                 {
-                    List<TagTag> newTagTags = tagsToAdd.Select(tagId => new TagTag
-                        { ParentsTagId = tagId, ChildrenTagId = trackedTag.TagId }).ToList();
-                    await database.BulkInsertAsync(newTagTags);
+                    trackedTag = await database.Tags
+                        .AsTracking()
+                        .Include(m => m.Parents)
+                        .FirstOrDefaultAsync(t => t.TagId == _currentTag.TagId);
                 }
 
-                // Bulk remove old tags
-                if (tagsToRemove.Count != 0)
+                if (trackedTag != null)
                 {
-                    List<TagTag> tagTagsToRemove = await database.TagTags
-                        .Where(t => t.ChildrenTagId == trackedTag.TagId && tagsToRemove.Contains(t.ParentsTagId))
-                        .ToListAsync();
-                    await database.BulkDeleteAsync(tagTagsToRemove);
+                    trackedTag.Name = ViewModel.Name;
+                    trackedTag.Shorthand = ViewModel.Shorthand;
+
+                    trackedTag.FirstParentReferenceName =
+                        TagView.GetItemSource().MinBy(t => t.Name)?.ReferenceName ?? "";
+
+                    trackedTag.Color = ViewModel.Color.ToSystemColor();
+                    trackedTag.Aliases = [.. AliasesListView.Strings];
+
+                    if (_currentTag == null)
+                    {
+                        await database.Tags.AddAsync(trackedTag);
+                    }
+
+                    await database.SaveChangesAsync();
+
+
+                    HashSet<int> currentTagIds = trackedTag.Parents.Select(t => t.TagId).ToHashSet();
+                    HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
+
+                    List<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToList();
+                    List<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToList();
+
+                    // Bulk add new tags
+                    if (tagsToAdd.Count != 0)
+                    {
+                        List<TagTag> newTagTags = tagsToAdd.Select(tagId => new TagTag
+                            { ParentsTagId = tagId, ChildrenTagId = trackedTag.TagId }).ToList();
+                        await database.BulkInsertAsync(newTagTags);
+                    }
+
+                    // Bulk remove old tags
+                    if (tagsToRemove.Count != 0)
+                    {
+                        List<TagTag> tagTagsToRemove = await database.TagTags
+                            .Where(t => t.ChildrenTagId == trackedTag.TagId && tagsToRemove.Contains(t.ParentsTagId))
+                            .ToListAsync();
+                        await database.BulkDeleteAsync(tagTagsToRemove);
+                    }
                 }
-            }
+            });
         }
     }
 }

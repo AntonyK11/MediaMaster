@@ -76,59 +76,62 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
         Tag? oldTag = null;
         await using (var database = new MediaDbContext())
         {
-            media.Uri = newText;
-            media.Modified = DateTime.UtcNow;
-
-            var oldDomain = new Uri(oldText).Host;
-            var newDomain = new Uri(newText).Host;
-            if (oldDomain != newDomain)
+            await Transaction.Try(database, async () =>
             {
-                oldTag = await database.Medias
-                    .Include(m => m.Tags)
-                    .Where(m => m.MediaId == media.MediaId)
-                    .SelectMany(m => m.Tags)
-                    .FirstOrDefaultAsync(t => t.Name == oldDomain && t.Flags.HasFlag(TagFlags.Website));
+                media.Uri = newText;
+                media.Modified = DateTime.UtcNow;
 
-                if (oldTag != null)
+                var oldDomain = new Uri(oldText).Host;
+                var newDomain = new Uri(newText).Host;
+                if (oldDomain != newDomain)
                 {
-                    MediaTag? oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m =>
-                        m.TagId == oldTag.TagId && m.MediaId == media.MediaId);
+                    oldTag = await database.Medias
+                        .Include(m => m.Tags)
+                        .Where(m => m.MediaId == media.MediaId)
+                        .SelectMany(m => m.Tags)
+                        .FirstOrDefaultAsync(t => t.Name == oldDomain && t.Flags.HasFlag(TagFlags.Website));
 
-                    if (oldMediaTag != null)
+                    if (oldTag != null)
                     {
-                        await database.BulkDeleteAsync([oldMediaTag]);
+                        MediaTag? oldMediaTag = await database.MediaTags.FirstOrDefaultAsync(m =>
+                            m.TagId == oldTag.TagId && m.MediaId == media.MediaId);
+
+                        if (oldMediaTag != null)
+                        {
+                            await database.BulkDeleteAsync([oldMediaTag]);
+                        }
+                    }
+
+                    (var isNew, newTag) = await MediaService.GetWebsiteTag(newText, database: database);
+                    if (newTag != null)
+                    {
+                        if (isNew)
+                        {
+                            await database.BulkInsertAsync([newTag], new BulkConfig { SetOutputIdentity = true });
+                            await MediaService.AddNewTagTags([newTag], database);
+                        }
+
+                        media.Tags.Add(newTag);
+                        await MediaService.AddNewMediaTags([media], database);
                     }
                 }
 
-                (var isNew, newTag) = await MediaService.GetWebsiteTag(newText, database: database);
-                if (newTag != null)
+                await database.BulkUpdateAsync(Medias);
+
+                if (newTag != null || oldTag != null)
                 {
-                    if (isNew)
-                    {
-                        await database.BulkInsertAsync([newTag], new BulkConfig { SetOutputIdentity = true });
-                        await MediaService.AddNewTagTags([newTag], database);
-                    }
-
-                    media.Tags.Add(newTag);
-                    await MediaService.AddNewMediaTags([media], database);
+                    MediaDbContext.InvokeMediaChange(
+                        this,
+                        MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged | MediaChangeFlags.TagsChanged,
+                        Medias,
+                        newTag != null ? [newTag] : [],
+                        oldTag != null ? [oldTag] : []);
                 }
-            }
-
-            await database.BulkUpdateAsync(Medias);
-        }
-
-        if (newTag != null || oldTag != null)
-        {
-            MediaDbContext.InvokeMediaChange(
-                this,
-                MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged | MediaChangeFlags.TagsChanged,
-                Medias,
-                newTag != null ? [newTag] : [],
-                oldTag != null ? [oldTag] : []);
-        }
-        else
-        {
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Medias);
+                else
+                {
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Medias);
+                }
+            });
         }
     }
 

@@ -140,10 +140,13 @@ public sealed class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
 
         await using (var database = new MediaDbContext())
         {
-            await database.BulkUpdateAsync(Medias);
-        }
+            await Transaction.Try(database, async () =>
+            {
+                await database.BulkUpdateAsync(Medias);
 
-        InvokeMediaChange();
+                InvokeMediaChange();
+            });
+        }
     }
 
     private async void SetMediaExtensionIcon(Media media, TaskCompletionSource tcs)

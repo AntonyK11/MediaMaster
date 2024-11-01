@@ -148,7 +148,7 @@ public sealed partial class TagView : UserControl
         _skipTagsChange = true;
         if (tags == null)
         {
-            await using (MediaDbContext database = new())
+            await using (var database = new MediaDbContext())
             {
                 if (MediaIds.Count != 0)
                 {

@@ -119,30 +119,33 @@ public sealed partial class MediaViewer : UserControl
         {
             await using (var database = new MediaDbContext())
             {
-                ICollection<MediaTag> mediaTags = [];
-
-                foreach (Media media in _medias)
+                await Transaction.Try(database, async () =>
                 {
-                    if (!media.IsFavorite)
+                    ICollection<MediaTag> mediaTags = [];
+
+                    foreach (Media media in _medias)
                     {
-                        var mediaTag = new MediaTag
+                        if (!media.IsFavorite)
                         {
-                            MediaId = media.MediaId,
-                            TagId = MediaDbContext.FavoriteTag.TagId
-                        };
-                        mediaTags.Add(mediaTag);
+                            var mediaTag = new MediaTag
+                            {
+                                MediaId = media.MediaId,
+                                TagId = MediaDbContext.FavoriteTag.TagId
+                            };
+                            mediaTags.Add(mediaTag);
+                        }
+
+                        media.IsFavorite = true;
+                        media.Modified = DateTime.UtcNow;
                     }
 
-                    media.IsFavorite = true;
-                    media.Modified = DateTime.UtcNow;
-                }
+                    await database.BulkInsertAsync(mediaTags);
+                    await database.BulkUpdateAsync(_medias);
 
-                await database.BulkInsertAsync(mediaTags);
-                await database.BulkUpdateAsync(_medias);
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        _medias, [MediaDbContext.FavoriteTag]);
+                });
             }
-
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, _medias,
-                [MediaDbContext.FavoriteTag]);
         }
     }
 
@@ -152,23 +155,27 @@ public sealed partial class MediaViewer : UserControl
         {
             await using (var database = new MediaDbContext())
             {
-                HashSet<int> mediaIds = _medias.Select(media => media.MediaId).ToHashSet();
-                List<MediaTag> mediaTags = await database.MediaTags
-                    .Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.FavoriteTag.TagId)
-                    .ToListAsync();
-                await database.BulkDeleteAsync(mediaTags);
-
-                foreach (Media media in _medias)
+                await Transaction.Try(database, async () =>
                 {
-                    media.IsFavorite = false;
-                    media.Modified = DateTime.UtcNow;
-                }
+                    HashSet<int> mediaIds = _medias.Select(media => media.MediaId).ToHashSet();
+                    List<MediaTag> mediaTags = await database.MediaTags
+                        .Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.FavoriteTag.TagId)
+                        .ToListAsync();
+                    await database.BulkDeleteAsync(mediaTags);
 
-                await database.BulkUpdateAsync(_medias);
+                    foreach (Media media in _medias)
+                    {
+                        media.IsFavorite = false;
+                        media.Modified = DateTime.UtcNow;
+                    }
+
+                    await database.BulkUpdateAsync(_medias);
+
+
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        _medias, tagsRemoved: [MediaDbContext.FavoriteTag]);
+                });
             }
-
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, _medias,
-                tagsRemoved: [MediaDbContext.FavoriteTag]);
         }
     }
 
@@ -178,23 +185,27 @@ public sealed partial class MediaViewer : UserControl
         {
             await using (var database = new MediaDbContext())
             {
-                HashSet<int> mediaIds = _medias.Select(media => media.MediaId).ToHashSet();
-                List<MediaTag> mediaTags = await database.MediaTags
-                    .Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.ArchivedTag.TagId)
-                    .ToListAsync();
-                await database.BulkDeleteAsync(mediaTags);
-
-                foreach (Media media in _medias)
+                await Transaction.Try(database, async () =>
                 {
-                    media.IsArchived = false;
-                    media.Modified = DateTime.UtcNow;
-                }
+                    HashSet<int> mediaIds = _medias.Select(media => media.MediaId).ToHashSet();
+                    List<MediaTag> mediaTags = await database.MediaTags
+                        .Where(m => mediaIds.Contains(m.MediaId) && m.TagId == MediaDbContext.ArchivedTag.TagId)
+                        .ToListAsync();
+                    await database.BulkDeleteAsync(mediaTags);
 
-                await database.BulkUpdateAsync(_medias);
+                    foreach (Media media in _medias)
+                    {
+                        media.IsArchived = false;
+                        media.Modified = DateTime.UtcNow;
+                    }
+
+                    await database.BulkUpdateAsync(_medias);
+
+
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        _medias, tagsRemoved: [MediaDbContext.ArchivedTag]);
+                });
             }
-
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, _medias,
-                tagsRemoved: [MediaDbContext.ArchivedTag]);
         }
     }
 
@@ -204,30 +215,33 @@ public sealed partial class MediaViewer : UserControl
         {
             await using (var database = new MediaDbContext())
             {
-                ICollection<MediaTag> mediaTags = [];
-
-                foreach (Media media in _medias)
+                await Transaction.Try(database, async () =>
                 {
-                    if (!media.IsArchived)
+                    ICollection<MediaTag> mediaTags = [];
+
+                    foreach (Media media in _medias)
                     {
-                        var mediaTag = new MediaTag
+                        if (!media.IsArchived)
                         {
-                            MediaId = media.MediaId,
-                            TagId = MediaDbContext.ArchivedTag.TagId
-                        };
-                        mediaTags.Add(mediaTag);
+                            var mediaTag = new MediaTag
+                            {
+                                MediaId = media.MediaId,
+                                TagId = MediaDbContext.ArchivedTag.TagId
+                            };
+                            mediaTags.Add(mediaTag);
+                        }
+
+                        media.IsArchived = true;
+                        media.Modified = DateTime.UtcNow;
                     }
 
-                    media.IsArchived = true;
-                    media.Modified = DateTime.UtcNow;
-                }
+                    await database.BulkInsertAsync(mediaTags);
+                    await database.BulkUpdateAsync(_medias);
 
-                await database.BulkInsertAsync(mediaTags);
-                await database.BulkUpdateAsync(_medias);
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        _medias, [MediaDbContext.ArchivedTag]);
+                });
             }
-
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged, _medias,
-                [MediaDbContext.ArchivedTag]);
         }
     }
 }

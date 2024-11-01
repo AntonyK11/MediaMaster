@@ -151,80 +151,83 @@ public sealed partial class CreateMediaDialog : Page
 
     private async Task SaveChangesAsync()
     {
-        await using (MediaDbContext database = new())
+        await using (var database = new MediaDbContext())
         {
-            Media media = new()
+            await Transaction.Try(database, async () =>
             {
-                Name = NameTextBox.Text,
-                Notes = NotesTextBox.Text
-            };
-
-            switch (SelectorBar.SelectedItem.Tag)
-            {
-                case "File":
-                    media.Uri = FileUriTextBox.Text;
-                    break;
-
-                case "Website":
-                    media.Uri = WebsiteUriTextBox.Text.FormatAsWebsite();
-                    break;
-            }
-
-            await database.Medias.AddAsync(media);
-            await database.SaveChangesAsync();
-
-            HashSet<int> currentTagIds = media.Tags.Select(t => t.TagId).ToHashSet();
-            HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
-
-            List<int> tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToList();
-            List<int> tagIdsToRemove = currentTagIds.Except(selectedTagIds).ToList();
-
-            if (tagIdsToAdd.Count != 0 || tagIdsToRemove.Count != 0)
-            {
-                // Bulk add new tags
-                if (tagIdsToAdd.Count != 0)
+                Media media = new()
                 {
-                    List<MediaTag> newMediaTags = tagIdsToAdd
-                        .Select(tagId => new MediaTag { MediaId = media.MediaId, TagId = tagId })
-                        .ToList();
-                    await database.BulkInsertOrUpdateAsync(newMediaTags);
+                    Name = NameTextBox.Text,
+                    Notes = NotesTextBox.Text
+                };
+
+                switch (SelectorBar.SelectedItem.Tag)
+                {
+                    case "File":
+                        media.Uri = FileUriTextBox.Text;
+                        break;
+
+                    case "Website":
+                        media.Uri = WebsiteUriTextBox.Text.FormatAsWebsite();
+                        break;
                 }
 
-                // Bulk remove old tags
-                if (tagIdsToRemove.Count != 0)
+                await database.Medias.AddAsync(media);
+                await database.SaveChangesAsync();
+
+                HashSet<int> currentTagIds = media.Tags.Select(t => t.TagId).ToHashSet();
+                HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
+
+                List<int> tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToList();
+                List<int> tagIdsToRemove = currentTagIds.Except(selectedTagIds).ToList();
+
+                if (tagIdsToAdd.Count != 0 || tagIdsToRemove.Count != 0)
                 {
-                    List<MediaTag> mediaTagsToRemove = await database.MediaTags
-                        .Where(mt => mt.MediaId == media.MediaId && tagIdsToRemove.Contains(mt.TagId))
-                        .ToListAsync();
-                    await database.BulkDeleteAsync(mediaTagsToRemove);
+                    // Bulk add new tags
+                    if (tagIdsToAdd.Count != 0)
+                    {
+                        List<MediaTag> newMediaTags = tagIdsToAdd
+                            .Select(tagId => new MediaTag { MediaId = media.MediaId, TagId = tagId })
+                            .ToList();
+                        await database.BulkInsertOrUpdateAsync(newMediaTags);
+                    }
+
+                    // Bulk remove old tags
+                    if (tagIdsToRemove.Count != 0)
+                    {
+                        List<MediaTag> mediaTagsToRemove = await database.MediaTags
+                            .Where(mt => mt.MediaId == media.MediaId && tagIdsToRemove.Contains(mt.TagId))
+                            .ToListAsync();
+                        await database.BulkDeleteAsync(mediaTagsToRemove);
+                    }
+
+                    if (MediaDbContext.ArchivedTag != null)
+                    {
+                        if (tagIdsToAdd.Contains(MediaDbContext.ArchivedTag.TagId))
+                        {
+                            media.IsArchived = true;
+                        }
+                        else if (tagIdsToRemove.Contains(MediaDbContext.ArchivedTag.TagId))
+                        {
+                            media.IsArchived = false;
+                        }
+                    }
+
+                    if (MediaDbContext.FavoriteTag != null)
+                    {
+                        if (tagIdsToAdd.Contains(MediaDbContext.FavoriteTag.TagId))
+                        {
+                            media.IsFavorite = true;
+                        }
+                        else if (tagIdsToRemove.Contains(MediaDbContext.FavoriteTag.TagId))
+                        {
+                            media.IsFavorite = false;
+                        }
+                    }
                 }
 
-                if (MediaDbContext.ArchivedTag != null)
-                {
-                    if (tagIdsToAdd.Contains(MediaDbContext.ArchivedTag.TagId))
-                    {
-                        media.IsArchived = true;
-                    }
-                    else if (tagIdsToRemove.Contains(MediaDbContext.ArchivedTag.TagId))
-                    {
-                        media.IsArchived = false;
-                    }
-                }
-
-                if (MediaDbContext.FavoriteTag != null)
-                {
-                    if (tagIdsToAdd.Contains(MediaDbContext.FavoriteTag.TagId))
-                    {
-                        media.IsFavorite = true;
-                    }
-                    else if (tagIdsToRemove.Contains(MediaDbContext.FavoriteTag.TagId))
-                    {
-                        media.IsFavorite = false;
-                    }
-                }
-            }
-
-            MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaAdded, [media]);
+                MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaAdded, [media]);
+            });
         }
     }
 }

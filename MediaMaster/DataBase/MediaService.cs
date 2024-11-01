@@ -36,10 +36,13 @@ public sealed class MediaService
         {
             await using (var database = new MediaDbContext())
             {
-                await database.BulkDeleteAsync(medias);
-            }
+                await Transaction.Try(database, async () =>
+                {
+                    await database.BulkDeleteAsync(medias);
 
-            MediaDbContext.InvokeMediaChange(sender, MediaChangeFlags.MediaRemoved, medias);
+                    MediaDbContext.InvokeMediaChange(sender, MediaChangeFlags.MediaRemoved, medias);
+                });
+            }
         }
     }
 
@@ -58,7 +61,7 @@ public sealed class MediaService
         }
 
         IsRunning = true;
-        int mediaAddedCount;
+        int mediaAddedCount = 0;
         App.GetService<TasksService>().AddGlobalTak();
 
         var isFavorite = false;
@@ -74,12 +77,12 @@ public sealed class MediaService
             isArchive = userTagsId?.Contains(MediaDbContext.ArchivedTag.TagId) is true;
         }
 
-        try
+        await using (var database = new MediaDbContext())
         {
-            await using (MediaDbContext database = new())
-            {
-                _watch.Restart();
+            _watch.Restart();
 
+            await Transaction.Try(database, async () =>
+            {
                 Dictionary<string, Tag> tags = await database.Tags
                     .Select(t => new Tag { TagId = t.TagId, Name = t.Name })
                     .GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
@@ -97,7 +100,8 @@ public sealed class MediaService
                 {
                     foreach (BrowserFolder browserFolder in browserFolders)
                     {
-                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags, isFavorite, isArchive, userNotes, generateBookmarkTags ? 0 : -1);
+                        await GetBookmarks(browserFolder.BookmarkFolder, null, medias, newMedias, tags, newTags,
+                            isFavorite, isArchive, userNotes, generateBookmarkTags ? 0 : -1);
                     }
                 }
 
@@ -131,21 +135,14 @@ public sealed class MediaService
                 newTags.Clear();
                 newMedias.Clear();
                 mediaTags.Clear();
-            }
+            });
+        }
 
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e);
-            return -1;
-        }
-        finally
-        {
-            IsRunning = false;
-            App.GetService<TasksService>().RemoveGlobalTak();
-        }
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        
+        IsRunning = false;
+        App.GetService<TasksService>().RemoveGlobalTak();
 
         return mediaAddedCount;
     }

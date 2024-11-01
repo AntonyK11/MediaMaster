@@ -92,7 +92,7 @@ public sealed class ActivationService : IActivationService
 
     public async Task LoadServices()
     {
-        await using (MediaDbContext database = new())
+        await using (var database = new MediaDbContext())
         {
             await database.InitializeAsync();
         }
