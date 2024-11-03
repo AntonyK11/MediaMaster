@@ -153,14 +153,14 @@ public sealed partial class CreateMediaDialog : Page
     {
         await using (var database = new MediaDbContext())
         {
-            await Transaction.Try(database, async () =>
+            Media media = new()
             {
-                Media media = new()
-                {
-                    Name = NameTextBox.Text,
-                    Notes = NotesTextBox.Text
-                };
+                Name = NameTextBox.Text,
+                Notes = NotesTextBox.Text
+            };
 
+            var transactionSuccessful = await Transaction.Try(database, async () =>
+            {
                 switch (SelectorBar.SelectedItem.Tag)
                 {
                     case "File":
@@ -178,8 +178,8 @@ public sealed partial class CreateMediaDialog : Page
                 HashSet<int> currentTagIds = media.Tags.Select(t => t.TagId).ToHashSet();
                 HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
 
-                List<int> tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToList();
-                List<int> tagIdsToRemove = currentTagIds.Except(selectedTagIds).ToList();
+                HashSet<int> tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToHashSet();
+                HashSet<int> tagIdsToRemove = currentTagIds.Except(selectedTagIds).ToHashSet();
 
                 if (tagIdsToAdd.Count != 0 || tagIdsToRemove.Count != 0)
                 {
@@ -225,9 +225,12 @@ public sealed partial class CreateMediaDialog : Page
                         }
                     }
                 }
-
-                MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaAdded, [media]);
             });
+
+            if (transactionSuccessful)
+            {
+                MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaAdded, [media]);
+            }
         }
     }
 }

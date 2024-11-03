@@ -86,7 +86,7 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
         Tag? oldTag = null;
         await using (var database = new MediaDbContext())
         {
-            await Transaction.Try(database, async () =>
+            var transactionSuccessful = await Transaction.Try(database, async () =>
             {
                 media.Uri = newPath;
                 media.Modified = DateTime.UtcNow;
@@ -129,6 +129,11 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
 
                 await database.BulkUpdateAsync([media]);
 
+
+            });
+
+            if (transactionSuccessful)
+            {
                 if (newTag != null || oldTag != null)
                 {
                     MediaDbContext.InvokeMediaChange(
@@ -142,7 +147,7 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
                 {
                     MediaDbContext.InvokeMediaChange(updateSender, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, [media]);
                 }
-            });
+            }
         }
     }
 

@@ -50,7 +50,7 @@ public sealed class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         {
             if (!args.MediaIds.Intersect(_tagView.MediaIds).Any() || ReferenceEquals(sender, this) ||
                 !args.Flags.HasFlag(MediaChangeFlags.TagsChanged)) return;
-            List<int> currentTagIds = _tagView.Tags.Select(t => t.TagId).ToList();
+            HashSet<int> currentTagIds = _tagView.Tags.Select(t => t.TagId).ToHashSet();
 
             if (args.TagsAdded != null)
             {
@@ -114,7 +114,10 @@ public sealed class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
         {
             await using (var database = new MediaDbContext())
             {
-                await Transaction.Try(database, async () =>
+                ICollection<Tag> tagsToAdd = [];
+                ICollection<Tag> tagsToRemove = [];
+
+                var transactionSuccessful = await Transaction.Try(database, async () =>
                 {
                     Medias = database.Medias.Include(m => m.Tags)
                         .Where(media => Medias.Select(m => m.MediaId).Contains(media.MediaId)).ToList();
@@ -129,8 +132,8 @@ public sealed class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
 
                         HashSet<int> selectedTagIds = selectedTags.Select(t => t.TagId).ToHashSet();
 
-                        List<int> tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToList();
-                        List<int> tagIdsToRemove = currentTagIds.Except(selectedTagIds).ToList();
+                        HashSet<int> tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToHashSet();
+                        HashSet<int> tagIdsToRemove = currentTagIds.Except(selectedTagIds).ToHashSet();
 
                         if (tagIdsToAdd.Count != 0 || tagIdsToRemove.Count != 0)
                         {
@@ -181,20 +184,23 @@ public sealed class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
                             }
 
                             await database.BulkUpdateAsync(Medias);
+
+                            tagsToAdd =
+                                selectedTags.Where(tag => tagIdsToAdd.Contains(tag.TagId)).ToList();
+                            tagsToRemove = Medias
+                                .SelectMany(m => m.Tags)
+                                .Where(tag => tagIdsToRemove.Contains(tag.TagId))
+                                .ToList();
                         }
-
-                        ICollection<Tag> tagsToAdd =
-                            selectedTags.Where(tag => tagIdsToAdd.Contains(tag.TagId)).ToList();
-                        ICollection<Tag> tagsToRemove = Medias
-                            .SelectMany(m => m.Tags)
-                            .Where(tag => tagIdsToRemove.Contains(tag.TagId))
-                            .ToList();
-
-                        MediaDbContext.InvokeMediaChange(this,
-                            MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
-                            Medias, tagsToAdd, tagsToRemove);
                     }
                 });
+
+                if (transactionSuccessful)
+                {
+                    MediaDbContext.InvokeMediaChange(this,
+                        MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
+                        Medias, tagsToAdd, tagsToRemove);
+                }
             }
         }
     }

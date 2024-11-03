@@ -76,7 +76,7 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
         Tag? oldTag = null;
         await using (var database = new MediaDbContext())
         {
-            await Transaction.Try(database, async () =>
+            var transactionSuccessful = await Transaction.Try(database, async () =>
             {
                 media.Uri = newText;
                 media.Modified = DateTime.UtcNow;
@@ -117,7 +117,10 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
                 }
 
                 await database.BulkUpdateAsync(Medias);
+            });
 
+            if (transactionSuccessful)
+            {
                 if (newTag != null || oldTag != null)
                 {
                     MediaDbContext.InvokeMediaChange(
@@ -131,7 +134,7 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
                 {
                     MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.UriChanged, Medias);
                 }
-            });
+            }
         }
     }
 

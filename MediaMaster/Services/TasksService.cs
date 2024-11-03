@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using MediaMaster.WIn32;
+using Windows.Foundation;
 using WinUIEx;
 using static MediaMaster.WIn32.WindowsNativeInterfaces;
 
@@ -14,42 +15,83 @@ internal sealed partial class TasksService : ObservableObject
     [ObservableProperty] private Visibility _mainProgressBarLoading = Visibility.Collapsed;
     [ObservableProperty] private int _mainTasksNumber;
 
-    public void AddMainTask()
+    public event TypedEventHandler<object, object?>? MainTaskAdded;
+    public event TypedEventHandler<object, object?>? FlyoutTaskAdded;
+    public event TypedEventHandler<object, object?>? NoMoreTasksRunning;
+
+    public async Task AddMainTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() => { MainTasksNumber += 1; });
+        await App.DispatcherQueue.EnqueueAsync(() =>
+        {
+            MainTasksNumber += 1;
+            MainTaskAdded?.Invoke(this, null);
+        });
     }
 
-    public void AddFlyoutTask()
+    public async Task AddFlyoutTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() => { FlyoutTasksNumber += 1; });
+        await App.DispatcherQueue.EnqueueAsync(() =>
+        {
+            FlyoutTasksNumber += 1;
+            FlyoutTaskAdded?.Invoke(this, null);
+        });
     }
 
-    public void AddGlobalTak()
+    public async Task AddGlobalTak()
     {
-        App.DispatcherQueue.EnqueueAsync(() =>
+        await App.DispatcherQueue.EnqueueAsync(() =>
         {
             MainTasksNumber += 1;
             FlyoutTasksNumber += 1;
+
+            MainTaskAdded?.Invoke(this, null);
+            FlyoutTaskAdded?.Invoke(this, null);
         });
     }
 
-    public void RemoveMainTask()
+    public async Task RemoveMainTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() => { MainTasksNumber -= 1; });
+        await App.DispatcherQueue.EnqueueAsync(() =>
+        {
+            MainTasksNumber -= 1;
+
+            if (!IsTaskRunning())
+            {
+                NoMoreTasksRunning?.Invoke(this, null);
+            }
+        });
     }
 
-    public void RemoveFlyoutTask()
+    public async Task RemoveFlyoutTask()
     {
-        App.DispatcherQueue.EnqueueAsync(() => { FlyoutTasksNumber -= 1; });
+        await App.DispatcherQueue.EnqueueAsync(() =>
+        {
+            FlyoutTasksNumber -= 1;
+
+            if (!IsTaskRunning())
+            {
+                NoMoreTasksRunning?.Invoke(this, null);
+            }
+        });
     }
 
-    public void RemoveGlobalTak()
+    public async Task RemoveGlobalTak()
     {
-        App.DispatcherQueue.EnqueueAsync(() =>
+        await App.DispatcherQueue.EnqueueAsync(() =>
         {
             MainTasksNumber -= 1;
             FlyoutTasksNumber -= 1;
+
+            if (!IsTaskRunning())
+            {
+                NoMoreTasksRunning?.Invoke(this, null);
+            }
         });
+    }
+
+    public bool IsTaskRunning()
+    {
+        return MainTasksNumber != 0 || FlyoutTasksNumber != 0;
     }
 
     partial void OnMainTasksNumberChanged(int oldValue, int newValue)

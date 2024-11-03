@@ -11,6 +11,8 @@ using System.Text.Json;
 using MediaMaster.DataBase;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Helpers;
+using H.NotifyIcon.EfficiencyMode;
+using WinUIEx;
 
 namespace MediaMaster;
 
@@ -126,7 +128,20 @@ public sealed partial class App : Application
 
     public static void Shutdown()
     {
-        ((App)Current).Exit();
-        Environment.Exit(0);
+        if (!GetService<TasksService>().IsTaskRunning())
+        {
+            ((App)Current).Exit();
+            Environment.Exit(0);
+        }
+        else
+        {
+            GetService<TasksService>().NoMoreTasksRunning += (_, _) =>
+            {
+                if (MainWindow?.GetWindowStyle().HasFlag(WindowStyle.Visible) == false && Flyout?.IsOpen == false && !GetService<SettingsService>().LeaveAppRunning)
+                {
+                    Shutdown();
+                }
+            };
+        }
     }
 }

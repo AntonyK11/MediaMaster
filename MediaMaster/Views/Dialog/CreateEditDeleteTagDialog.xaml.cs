@@ -245,8 +245,8 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                     HashSet<int> currentTagIds = trackedTag.Parents.Select(t => t.TagId).ToHashSet();
                     HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
 
-                    List<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToList();
-                    List<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToList();
+                    HashSet<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToHashSet();
+                    HashSet<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToHashSet();
 
                     // Bulk add new tags
                     if (tagsToAdd.Count != 0)

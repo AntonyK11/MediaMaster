@@ -36,12 +36,12 @@ public sealed class MediaService
         {
             await using (var database = new MediaDbContext())
             {
-                await Transaction.Try(database, async () =>
-                {
-                    await database.BulkDeleteAsync(medias);
+                var transactionSuccessful = await Transaction.Try(database, () => database.BulkDeleteAsync(medias));
 
+                if (transactionSuccessful)
+                {
                     MediaDbContext.InvokeMediaChange(sender, MediaChangeFlags.MediaRemoved, medias);
-                });
+                }
             }
         }
     }
@@ -61,8 +61,8 @@ public sealed class MediaService
         }
 
         IsRunning = true;
-        int mediaAddedCount = 0;
-        App.GetService<TasksService>().AddGlobalTak();
+        var mediaAddedCount = 0;
+        await App.GetService<TasksService>().AddGlobalTak();
 
         var isFavorite = false;
         var isArchive = false;
@@ -81,15 +81,14 @@ public sealed class MediaService
         {
             _watch.Restart();
 
-            await Transaction.Try(database, async () =>
+            ICollection<Tag> newTags = [];
+            ICollection<Media> newMedias = [];
+            var transactionSuccessful = await Transaction.Try(database, async () =>
             {
                 Dictionary<string, Tag> tags = await database.Tags
                     .Select(t => new Tag { TagId = t.TagId, Name = t.Name })
                     .GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
                 HashSet<string> medias = database.Medias.Select(m => m.Uri).ToHashSet();
-
-                ICollection<Tag> newTags = [];
-                ICollection<Media> newMedias = [];
 
                 if (nameUris != null)
                 {
@@ -128,7 +127,6 @@ public sealed class MediaService
                 _watch.Stop();
 
                 await App.DispatcherQueue.EnqueueAsync(() => MediasAdded(mediaAddedCount));
-                MediaDbContext.InvokeMediaChange(null, MediaChangeFlags.MediaAdded, newMedias);
 
                 tags.Clear();
                 medias.Clear();
@@ -136,13 +134,18 @@ public sealed class MediaService
                 newMedias.Clear();
                 mediaTags.Clear();
             });
+
+            if (transactionSuccessful)
+            {
+                MediaDbContext.InvokeMediaChange(null, MediaChangeFlags.MediaAdded, newMedias);
+            }
         }
 
         GC.Collect();
         GC.WaitForPendingFinalizers();
         
         IsRunning = false;
-        App.GetService<TasksService>().RemoveGlobalTak();
+        await App.GetService<TasksService>().RemoveGlobalTak();
 
         return mediaAddedCount;
     }

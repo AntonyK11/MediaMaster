@@ -140,12 +140,12 @@ public sealed class MediaName(DockPanel parent) : MediaInfoControlBase(parent)
 
         await using (var database = new MediaDbContext())
         {
-            await Transaction.Try(database, async () =>
-            {
-                await database.BulkUpdateAsync(Medias);
+            var transactionSuccessful = await Transaction.Try(database, () => database.BulkUpdateAsync(Medias));
 
+            if (transactionSuccessful)
+            {
                 InvokeMediaChange();
-            });
+            }
         }
     }
 

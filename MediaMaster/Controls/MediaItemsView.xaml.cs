@@ -111,7 +111,7 @@ public sealed partial class MediaItemsView : UserControl
 
     public async Task SetupMediaCollection()
     {
-        _tasksService.AddMainTask();
+        await _tasksService.AddMainTask();
 
         var currentPageIndex = PagerControl.SelectedPageIndex;
         var mediasCount = 0;
@@ -161,7 +161,7 @@ public sealed partial class MediaItemsView : UserControl
             SetupIcons(medias);
         }
 
-        _tasksService.RemoveMainTask();
+        await _tasksService.RemoveMainTask();
         MediaItemsViewControl.ScrollView.ScrollTo(0, 0);
     }
 
@@ -316,7 +316,7 @@ public sealed partial class MediaItemsView : UserControl
             
                 if (media != null)
                 {
-                    await Transaction.Try(database, async () =>
+                    var transactionSuccessful = await Transaction.Try(database, async () =>
                     {
                         if (button.IsChecked)
                         {
@@ -343,7 +343,10 @@ public sealed partial class MediaItemsView : UserControl
                         media.Modified = DateTime.UtcNow;
 
                         await database.BulkUpdateAsync([media]);
+                    });
 
+                    if (transactionSuccessful)
+                    {
                         if (button.IsChecked)
                         {
                             MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
@@ -354,7 +357,7 @@ public sealed partial class MediaItemsView : UserControl
                             MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
                                 [media], tagsRemoved: [MediaDbContext.FavoriteTag]);
                         }
-                    });
+                    }
                 }
             }
         }
@@ -373,7 +376,7 @@ public sealed partial class MediaItemsView : UserControl
                 media = await database.Medias.FirstOrDefaultAsync(m => m.MediaId == mediaId);
                 if (media != null)
                 {
-                    await Transaction.Try(database, async () =>
+                    var transactionSuccessful = await Transaction.Try(database, async () =>
                     {
                         if (button.IsChecked)
                         {
@@ -399,7 +402,10 @@ public sealed partial class MediaItemsView : UserControl
                         media.Modified = DateTime.UtcNow;
 
                         await database.BulkUpdateAsync([media]);
+                    });
 
+                    if (transactionSuccessful)
+                    {
                         if (button.IsChecked)
                         {
                             MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
@@ -410,7 +416,7 @@ public sealed partial class MediaItemsView : UserControl
                             MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaChanged | MediaChangeFlags.TagsChanged,
                                 [media], tagsRemoved: [MediaDbContext.ArchivedTag]);
                         }
-                    });
+                    }
                 }
             }
         }

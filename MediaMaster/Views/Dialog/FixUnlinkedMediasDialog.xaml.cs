@@ -6,6 +6,7 @@ using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
+using MediaMaster.Services.MediaInfo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Windows.Devices.Geolocation;
@@ -111,7 +112,9 @@ public sealed partial class FixUnlinkedMediasDialog : Page
     {
         await using (var database = new MediaDbContext())
         {
-            await Transaction.Try(database, async () =>
+
+            List<Media> mediaDeleted = [];
+            var transactionSuccessful = await Transaction.Try(database, async () =>
             {
                 var mediaPropertiesChanged = _unlinkedMedias
                     .Where(m => m is { ShowValidControl: Visibility.Visible, IsDeleted: false })
@@ -187,7 +190,7 @@ public sealed partial class FixUnlinkedMediasDialog : Page
                         mediaChanged);
                 }
 
-                var mediaDeleted = _unlinkedMedias
+                mediaDeleted = _unlinkedMedias
                     .Where(m => m.IsDeleted)
                     .Select(m => m.Media)
                     .ToList();
@@ -195,10 +198,16 @@ public sealed partial class FixUnlinkedMediasDialog : Page
                 if (mediaDeleted.Count != 0)
                 {
                     await database.BulkDeleteAsync(mediaDeleted);
-
-                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaRemoved, mediaDeleted);
                 }
             });
+
+            if (transactionSuccessful)
+            {
+                if (mediaDeleted.Count != 0)
+                {
+                    MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaRemoved, mediaDeleted);
+                }
+            }
         }
     }
 

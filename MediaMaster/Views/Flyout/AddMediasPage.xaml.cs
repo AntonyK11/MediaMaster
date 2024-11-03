@@ -1,3 +1,4 @@
+using MediaMaster.Services;
 using MediaMaster.Services.Navigation;
 using MediaMaster.ViewModels.Flyout;
 using Microsoft.UI.Xaml.Input;
@@ -20,6 +21,12 @@ public sealed partial class AddMediasPage : Page
     private void AddButton_OnClick(object? sender = null, RoutedEventArgs? e = null)
     {
         ViewModel.AddMedias(AddMediasDialog);
+        App.GetService<TasksService>().FlyoutTaskAdded += NewFlyoutTask;
+    }
+
+    private static void NewFlyoutTask(object sender, object? args)
+    {
+        App.GetService<TasksService>().FlyoutTaskAdded -= NewFlyoutTask;
         if (App.Flyout?.AutoClose == true)
         {
             App.Flyout.HideFlyout();
