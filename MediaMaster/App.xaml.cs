@@ -135,13 +135,16 @@ public sealed partial class App : Application
         }
         else
         {
-            GetService<TasksService>().NoMoreTasksRunning += (_, _) =>
-            {
-                if (MainWindow?.GetWindowStyle().HasFlag(WindowStyle.Visible) == false && Flyout?.IsOpen == false && !GetService<SettingsService>().LeaveAppRunning)
-                {
-                    Shutdown();
-                }
-            };
+            GetService<TasksService>().NoMoreTasksRunning += RegisteredShutdown;
+        }
+    }
+
+    private static void RegisteredShutdown(object sender, object? args)
+    {
+        GetService<TasksService>().NoMoreTasksRunning -= RegisteredShutdown;
+        if (MainWindow?.GetWindowStyle().HasFlag(WindowStyle.Visible) == false && Flyout?.IsOpen == false && !GetService<SettingsService>().LeaveAppRunning)
+        {
+            Shutdown();
         }
     }
 }
