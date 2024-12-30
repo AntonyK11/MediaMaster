@@ -6,11 +6,10 @@ namespace MediaMaster.Controls;
 
 public sealed partial class StringValue : ObservableObject
 {
-    [ObservableProperty] public string _value = "";
+    [ObservableProperty] public partial string Value { get; set; } = "";
 }
 
-[DependencyProperty("ItemsSource", typeof(ObservableCollection<StringValue>),
-    DefaultValueExpression = "new ObservableCollection<StringValue>()")]
+[DependencyProperty("ItemsSource", typeof(ObservableCollection<StringValue>), DefaultValueExpression = "new ObservableCollection<StringValue>()")]
 public sealed partial class EditableListView : UserControl
 {
     public EditableListView()

@@ -4,6 +4,7 @@
     x:Class="MediaMaster.Views.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:customControls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -254,6 +255,7 @@
                 <customControls:MediaItemsView
                     x:Name="MediaItemsView"
                     Grid.Row="1"
+                    IsSearching="{x:Bind SearchBox.IsSearching, Mode=OneWay}"
                     SelectionChanged="MediaItemsView_OnSelectionChanged"
                     SelectionMode="{x:Bind MultiSelectButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToSelectionModeConverter}}" />
             </Grid>
@@ -297,43 +299,91 @@
             <StackPanel
                 Orientation="Horizontal"
                 Spacing="8"
-                Visibility="{x:Bind MediaItemsView.IsSearching, Mode=OneWay}">
+                Visibility="{x:Bind MediaItemsView.MediasFound, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}">
+
                 <Border
                     Width="1"
                     Height="18"
-                    Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                    Visibility="{x:Bind MediaItemsView.MediasFound, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
                 <TextBlock
                     VerticalAlignment="Center"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="{x:Bind MediaItemsView.MediasFound, Mode=OneWay}"
-                    Visibility="{x:Bind MediaItemsView.MediasFound, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+                    Text="{x:Bind MediaItemsView.MediasFound, Mode=OneWay}" />
 
                 <TextBlock
                     VerticalAlignment="Center"
                     l:Uids.Uid="/Home/MediasFound"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Visibility="{x:Bind MediaItemsView.MediasFound, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                <animations:Implicit.ShowAnimations>
+                    <animations:TranslationAnimation
+                        From="-17, 0, 0"
+                        To="0"
+                        Duration="0:0:0.25" />
+                    <animations:OpacityAnimation
+                        From="2"
+                        To="1"
+                        Duration="0:0:0.25" />
+                </animations:Implicit.ShowAnimations>
+                <animations:Implicit.HideAnimations>
+                    <animations:TranslationAnimation
+                        From="0"
+                        To="-17, 0, 0"
+                        Duration="0:0:0.25" />
+                    <animations:OpacityAnimation
+                        From="1"
+                        To="0"
+                        Duration="0:0:0.25" />
+                </animations:Implicit.HideAnimations>
+                <animations:Implicit.Animations>
+                    <animations:OffsetAnimation Duration="0:0:0.25" />
+                </animations:Implicit.Animations>
             </StackPanel>
 
-            <Border
-                Width="1"
-                Height="18"
-                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                Visibility="{x:Bind MediaItemsView.MediasSelectedCount, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="8"
+                Visibility="{x:Bind MediaItemsView.MediasSelectedCount, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}">
+                <Border
+                    Width="1"
+                    Height="18"
+                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-            <TextBlock
-                VerticalAlignment="Center"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="{x:Bind MediaItemsView.MediasSelectedCount, Mode=OneWay}"
-                Visibility="{x:Bind MediaItemsView.MediasSelectedCount, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="{x:Bind MediaItemsView.MediasSelectedCount, Mode=OneWay}" />
 
-            <TextBlock
-                VerticalAlignment="Center"
-                l:Uids.Uid="/Home/SelectedMediasCount"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Visibility="{x:Bind MediaItemsView.MediasSelectedCount, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    l:Uids.Uid="/Home/SelectedMediasCount"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                <animations:Implicit.ShowAnimations>
+                    <animations:TranslationAnimation
+                        From="-17, 0, 0"
+                        To="0"
+                        Duration="0:0:0.25" />
+                    <animations:OpacityAnimation
+                        From="0"
+                        To="1"
+                        Duration="0:0:0.25" />
+                </animations:Implicit.ShowAnimations>
+                <animations:Implicit.HideAnimations>
+                    <animations:TranslationAnimation
+                        From="0"
+                        To="-17, 0, 0"
+                        Duration="0:0:0.25" />
+                    <animations:OpacityAnimation
+                        From="1"
+                        To="0"
+                        Duration="0:0:0.25" />
+                </animations:Implicit.HideAnimations>
+                <animations:Implicit.Animations>
+                    <animations:OffsetAnimation Duration="0:0:0.25" />
+                </animations:Implicit.Animations>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

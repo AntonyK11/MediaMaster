@@ -36,7 +36,7 @@ public sealed class MediaDuration(DockPanel parent) : MediaInfoTextBase(parent)
 
         using (ShellObject? shell = ShellObject.FromParsingName(media.Uri))
         {
-            IShellProperty? prop = shell?.Properties?.System?.Media.Duration;
+            ShellProperty<ulong?>? prop = shell?.Properties?.System.Media.Duration;
             var t = (ulong?)prop?.ValueAsObject;
             if (t == null) return "";
 

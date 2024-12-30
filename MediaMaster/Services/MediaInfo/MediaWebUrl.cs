@@ -102,7 +102,8 @@ public sealed class MediaWebUrl(DockPanel parent) : MediaInfoTextBlockBase(paren
                         }
                     }
 
-                    (var isNew, newTag) = await MediaService.GetWebsiteTag(newText, database: database);
+                    var tags = await database.Tags.GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
+                    (var isNew, newTag) = MediaService.GetWebsiteTag(newText, tags);
                     if (newTag != null)
                     {
                         if (isNew)

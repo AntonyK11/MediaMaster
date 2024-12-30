@@ -223,10 +223,9 @@ public sealed class ActivationService : IActivationService
             ContextMenuItem menu = new()
             {
                 Title = $"{"add_context_menu".GetLocalizedString()}",
-                AcceptDirectory = true,
-                AcceptFileFlag = 1,
-                AcceptExts = "*",
-                AcceptMultipleFilesFlag = 2,
+                AcceptFileFlag = (int)FileMatchFlagEnum.All,
+                AcceptDirectoryFlag = 0b1111,
+                AcceptMultipleFilesFlag = (int)FilesMatchFlagEnum.Join,
                 PathDelimiter = ", ",
                 Exe = "MediaMaster.exe",
                 Param = "--Files \"{path}\" --NoWindow",

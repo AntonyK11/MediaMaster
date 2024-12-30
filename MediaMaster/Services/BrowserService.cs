@@ -28,11 +28,11 @@ public record struct BrowserData
 
 public sealed partial class BrowserTab : ObservableObject
 {
-    [ObservableProperty] private BrowserData _browser;
-    [ObservableProperty] private string _domain = null!;
-    [ObservableProperty] private ImageSource _icon = null!;
-    [ObservableProperty] private string _title = null!;
-    [ObservableProperty] private Uri _url = null!;
+    [ObservableProperty] public partial BrowserData Browser { get; set; }
+    [ObservableProperty] public partial string Domain { get; set; } = null!;
+    [ObservableProperty] public partial ImageSource Icon { get; set; } = null!;
+    [ObservableProperty] public partial string Title { get; set; } = null!;
+    [ObservableProperty] public partial Uri Url { get; set; } = null!;
 }
 
 public sealed class BrowserService

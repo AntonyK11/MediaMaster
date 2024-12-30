@@ -282,7 +282,8 @@
                     Text="{x:Bind Name, Mode=OneWay}" />
                 <Button
                     Grid.Column="1"
-                    Padding="2"
+                    Margin="0, -2, 0, -4"
+                    Padding="5"
                     Background="Transparent"
                     BorderThickness="0"
                     Click="{x:Bind Delete}"

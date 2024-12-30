@@ -8,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MediaMaster.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:uniformGridLayout="using:MediaMaster.UniformGridLayout"
     xmlns:winUiCommunity="using:WinUICommunity"
     mc:Ignorable="d">
 
@@ -163,12 +164,11 @@
             SelectionChanged="MediaItemsView_OnSelectionChanged"
             SelectionMode="{x:Bind SelectionMode, Mode=OneWay}">
             <ItemsView.Layout>
-                <UniformGridLayout
-                    ItemsStretch="Fill"
-                    MinColumnSpacing="8"
-                    MinItemHeight="222"
-                    MinItemWidth="175"
-                    MinRowSpacing="8" />
+                <uniformGridLayout:UniformGridLayout
+                    ColumnSpacing="8"
+                    DesiredColumnWidth="175"
+                    ItemHeight="222"
+                    RowSpacing="8" />
             </ItemsView.Layout>
             <ItemsView.Resources>
                 <HorizontalAlignment x:Key="ItemContainerCheckboxHorizontalAlignment">Left</HorizontalAlignment>

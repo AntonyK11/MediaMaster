@@ -5,17 +5,7 @@ public static class ContentDialogExtensions
     private static readonly Stack<Dialog> DialogStack = new();
     private static readonly Stack<Dialog> SecondaryDialogStack = new();
 
-
-    public static Task<ContentDialogResult> ShowAndEnqueueAsync(this ContentDialog newContentDialog, bool useSecondaryStack = false)
-    {
-        if (!useSecondaryStack)
-        {
-            return newContentDialog.ShowAndEnqueueAsync();
-        }
-        return newContentDialog.ShowAndEnqueueSecondaryAsync();
-    }
-
-    private static async Task<ContentDialogResult> ShowAndEnqueueAsync(this ContentDialog newContentDialog)
+    public static async Task<ContentDialogResult> ShowAndEnqueueAsync(this ContentDialog newContentDialog)
     {
         Dialog newDialog = new(newContentDialog);
 
@@ -47,7 +37,7 @@ public static class ContentDialogExtensions
         return (ContentDialogResult)result;
     }
 
-    private static async Task<ContentDialogResult> ShowAndEnqueueSecondaryAsync(this ContentDialog newContentDialog)
+    public static async Task<ContentDialogResult> ShowAndEnqueueSecondaryAsync(this ContentDialog newContentDialog)
     {
         Dialog newDialog = new(newContentDialog);
 

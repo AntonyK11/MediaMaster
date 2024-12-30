@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using CommunityToolkit.WinUI.Controls;
+﻿using CommunityToolkit.WinUI.Controls;
 using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
@@ -113,7 +112,8 @@ public sealed class MediaFilePath(DockPanel parent) : MediaInfoTextBlockBase(par
                         }
                     }
 
-                    (var isNew, newTag) = await MediaService.GetFileTag(newPath, database: database);
+                    var tags = await database.Tags.GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
+                    (var isNew, newTag) = MediaService.GetFileTag(newPath, tags);
                     if (newTag != null)
                     {
                         if (isNew)

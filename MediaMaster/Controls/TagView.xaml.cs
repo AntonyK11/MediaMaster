@@ -9,15 +9,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MediaMaster.Controls;
 
+
+
 [DependencyProperty("SelectionMode", typeof(ItemsViewSelectionMode), DefaultValue = ItemsViewSelectionMode.None)]
 [DependencyProperty("AddTagButton", typeof(bool), DefaultValue = true)]
 [DependencyProperty("ShowScrollButtons", typeof(bool), DefaultValue = true)]
 [DependencyProperty("Layout", typeof(Layout), DefaultValueExpression = "new StackLayout { Orientation = Orientation.Horizontal, Spacing = 8 }")]
 [DependencyProperty("MediaIds", typeof(HashSet<int>), DefaultValueExpression = "new HashSet<int>()")]
-[DependencyProperty("TagId", typeof(int?))]
+[DependencyProperty("CurrentTag", typeof(Tag))]
 [DependencyProperty("Tags", typeof(ICollection<Tag>), DefaultValueExpression = "new List<Tag>()")]
 public sealed partial class TagView : UserControl
 {
+    public bool SelectTagChildren = false;
+
     private bool _skipTagsChange;
 
     public TagView()
@@ -41,7 +45,7 @@ public sealed partial class TagView : UserControl
         await UpdateItemSource();
     }
 
-    async partial void OnTagIdChanged()
+    async partial void OnCurrentTagChanged()
     {
         await UpdateItemSource(refreshAll: true);
     }
@@ -63,8 +67,10 @@ public sealed partial class TagView : UserControl
         (ContentDialogResult result, TagsListDialog? tagsListDialog) =
             await TagsListDialog.ShowDialogAsync(this.XamlRoot,
                 tagIds,
-                TagId != null ? [(int)TagId] : [],
-                MediaIds.Count == 0);
+                CurrentTag?.TagId != null ? [CurrentTag.TagId] : [],
+                MediaIds.Count == 0,
+                CurrentTag?.Permissions.HasFlag(TagPermissions.CannotChangeChildren) == true,
+                CurrentTag?.Permissions.HasFlag(TagPermissions.CannotChangeParents) == true);
 
         if (tagsListDialog != null)
         {
@@ -122,7 +128,7 @@ public sealed partial class TagView : UserControl
         Tag? tag;
         await using (var database = new MediaDbContext())
         {
-            tag = await database.Tags.Include(t => t.Parents).FirstOrDefaultAsync(t => t.TagId == tagId);
+            tag = await database.Tags.Include(t => t.Parents).Include(t => t.Children).FirstOrDefaultAsync(t => t.TagId == tagId);
             if (tag == null) return;
         }
 
@@ -163,13 +169,22 @@ public sealed partial class TagView : UserControl
                             .ToListAsync();
                     }
                 }
-                else if (TagId != null)
+                else if (CurrentTag?.TagId != null)
                 {
                     if (refreshAll)
                     {
-                        Tags = database.Tags
-                            .Select(t => new { t.TagId, t.Parents })
-                            .FirstOrDefault(t => t.TagId == TagId)?.Parents.ToList() ?? [];
+                        if (SelectTagChildren)
+                        {
+                            Tags = database.Tags
+                                .Select(t => new { t.TagId, t.Children })
+                                .FirstOrDefault(t => t.TagId == CurrentTag.TagId)?.Children.ToList() ?? [];
+                        }
+                        else
+                        {
+                            Tags = database.Tags
+                                .Select(t => new { t.TagId, t.Parents })
+                                .FirstOrDefault(t => t.TagId == CurrentTag.TagId)?.Parents.ToList() ?? [];
+                        }
                     }
                     else if (GetItemSource().Count != 0)
                     {
@@ -225,13 +240,35 @@ public sealed partial class TagView : UserControl
 
         if (tag == null) return;
 
-        if (MediaIds.Count == 0 || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
+        if (CurrentTag != null)
         {
             sender.Visibility = Visibility.Visible;
+
+            if (SelectTagChildren)
+            {
+                if (tag.Permissions.HasFlag(TagPermissions.CannotChangeParents) && CurrentTag.Permissions.HasFlag(TagPermissions.CannotChangeChildren))
+                {
+                    sender.Visibility = Visibility.Collapsed;
+                }
+            }
+            else 
+            {
+                if (tag.Permissions.HasFlag(TagPermissions.CannotChangeChildren) && CurrentTag.Permissions.HasFlag(TagPermissions.CannotChangeParents))
+                {
+                    sender.Visibility = Visibility.Collapsed;
+                }
+            }
         }
         else
         {
-            sender.Visibility = Visibility.Collapsed;
+            if (tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website))
+            {
+                sender.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                sender.Visibility = Visibility.Visible;
+            }
         }
     }
 
@@ -241,13 +278,36 @@ public sealed partial class TagView : UserControl
         Tag? tag = GetItemSource().FirstOrDefault(t => t.TagId == tagId);
 
         if (tag == null) return;
-        if (MediaIds.Count == 0 || !(tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website)))
+
+        if (CurrentTag != null)
         {
             ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Visible;
+
+            if (SelectTagChildren)
+            {
+                if (tag.Permissions.HasFlag(TagPermissions.CannotChangeParents) && CurrentTag.Permissions.HasFlag(TagPermissions.CannotChangeChildren))
+                {
+                    ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Collapsed;
+                }
+            }
+            else
+            {
+                if (tag.Permissions.HasFlag(TagPermissions.CannotChangeChildren) && CurrentTag.Permissions.HasFlag(TagPermissions.CannotChangeParents))
+                {
+                    ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Collapsed;
+                }
+            }
         }
         else
         {
-            ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Collapsed;
+            if (tag.Flags.HasFlag(TagFlags.Extension) || tag.Flags.HasFlag(TagFlags.Website))
+            {
+                ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                ((CustomItemContainer)sender).DeleteButtonVisibility = Visibility.Visible;
+            }
         }
     }
 }

@@ -18,12 +18,13 @@ public enum TagFlags
 [Flags]
 public enum TagPermissions
 {
-    CannotChangeName = 0x000001,
-    CannotChangeShorthand = 0x000010,
-    CannotChangeAliases = 0x000100,
-    CannotChangeColor = 0x001000,
-    CannotChangeParents = 0x010000,
-    CannotDelete = 0x100000
+    CannotChangeName = 0x0000001,
+    CannotChangeShorthand = 0x0000010,
+    CannotChangeAliases = 0x0000100,
+    CannotChangeColor = 0x0001000,
+    CannotChangeParents = 0x0010000,
+    CannotDelete = 0x0100000,
+    CannotChangeChildren = 0x1000000
 }
 
 public sealed class Tag

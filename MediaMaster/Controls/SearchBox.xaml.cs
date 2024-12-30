@@ -3,7 +3,6 @@ using Windows.Foundation;
 using CommunityToolkit.WinUI;
 using DependencyPropertyGenerator;
 using MediaMaster.DataBase;
-using MediaMaster.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -12,14 +11,17 @@ using Microsoft.UI.Xaml.Data;
 namespace MediaMaster.Controls;
 
 [DependencyProperty("FilterName", typeof(bool), DefaultValue = true)]
-[DependencyProperty("FilterNotes", typeof(bool), DefaultValue = false)]
-[DependencyProperty("FilterTags", typeof(bool), DefaultValue = false)]
+[DependencyProperty("FilterNotes", typeof(bool), DefaultValue = true)]
+[DependencyProperty("FilterTags", typeof(bool), DefaultValue = true)]
+[DependencyProperty("FilterPath", typeof(bool), DefaultValue = true)]
+[DependencyProperty("IsSearching", typeof(bool), DefaultValue = false, IsReadOnly = true)]
 public sealed partial class SearchBox : UserControl
 {
     public readonly Expression<Func<Media, bool>> Filter;
     private bool _filterName = true;
-    private bool _filterNotes;
-    private bool _filterTags;
+    private bool _filterNotes = true;
+    private bool _filterPath = true;
+    private bool _filterTags = true;
     private HashSet<int> _medias = [];
     private string _text = "";
 
@@ -32,6 +34,7 @@ public sealed partial class SearchBox : UserControl
             (!_filterName && !_filterNotes && !_filterTags) ||
             (_filterName && EF.Functions.Like(m.Name, $"%{_text}%")) ||
             (_filterNotes && EF.Functions.Like(m.Notes, $"%{_text}%")) ||
+            (_filterPath && EF.Functions.Like(m.Uri, $"%{_text}%")) ||
             (_filterTags && _medias.Contains(m.MediaId));
     }
 
@@ -41,10 +44,10 @@ public sealed partial class SearchBox : UserControl
     {
         await using (var database = new MediaDbContext())
         {
-            HashSet<int> tagsId = database.Tags
+            HashSet<int> tagsId = await database.Tags
                 .Where(t => EF.Functions.Like(t.Name, $"%{tagName}%"))
                 .Select(t => t.TagId)
-                .ToHashSet();
+                .ToHashSetAsync();
 
             ICollection<TagTag> tagTags = await database.TagTags.ToListAsync();
             int oldCount;
@@ -57,7 +60,7 @@ public sealed partial class SearchBox : UserControl
                 }
             } while (oldCount != tagsId.Count);
 
-            return database.MediaTags.Where(m => tagsId.Contains(m.TagId)).Select(m => m.MediaId).ToHashSet();
+            return await database.MediaTags.Where(m => tagsId.Contains(m.TagId)).Select(m => m.MediaId).ToHashSetAsync();
         }
     }
 
@@ -65,6 +68,7 @@ public sealed partial class SearchBox : UserControl
     {
         _filterName = FilterName;
         _filterNotes = FilterNotes;
+        _filterPath = FilterPath;
         _filterTags = FilterTags;
         _text = TextBox.Text;
         if (_filterTags)
@@ -73,38 +77,33 @@ public sealed partial class SearchBox : UserControl
         }
 
         await App.DispatcherQueue.EnqueueAsync(() => FilterChanged?.Invoke(this, Filter));
+
+        IsSearching = (_filterName || _filterNotes || _filterPath || _filterTags) && _text.Length != 0;
     }
 
     private async void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        if (_filterName || _filterNotes || _filterTags)
-        {
-            await Change();
-        }
+        await Change();
     }
 
     async partial void OnFilterNameChanged()
     {
-        if (!_text.IsNullOrEmpty())
-        {
-            await Change();
-        }
+        await Change();
     }
 
     async partial void OnFilterNotesChanged()
     {
-        if (!_text.IsNullOrEmpty())
-        {
-            await Change();
-        }
+        await Change();
     }
 
     async partial void OnFilterTagsChanged()
     {
-        if (!_text.IsNullOrEmpty())
-        {
-            await Change();
-        }
+        await Change();
+    }
+
+    async partial void OnFilterPathChanged()
+    {
+        await Change();
     }
 
     private void NameButton_OnLoaded(object sender, RoutedEventArgs e)
@@ -128,6 +127,14 @@ public sealed partial class SearchBox : UserControl
         ((ToggleButton)sender).DataContext = this;
 
         var binding = new Binding { Path = new PropertyPath("FilterTags"), Mode = BindingMode.TwoWay };
+        ((ToggleButton)sender).SetBinding(ToggleButton.IsCheckedProperty, binding);
+    }
+
+    private void PathButton_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        ((ToggleButton)sender).DataContext = this;
+
+        var binding = new Binding { Path = new PropertyPath("FilterPath"), Mode = BindingMode.TwoWay };
         ((ToggleButton)sender).SetBinding(ToggleButton.IsCheckedProperty, binding);
     }
 }

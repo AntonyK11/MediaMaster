@@ -111,7 +111,7 @@ public sealed class SearchSavingService
 
 public partial class SavedSearch : ObservableObject
 {
-    [ObservableProperty] private string _name;
+    [ObservableProperty] public partial string Name { get; set; }
 
     public SavedSearch(string name)
     {

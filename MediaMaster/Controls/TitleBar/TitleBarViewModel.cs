@@ -30,8 +30,8 @@ public sealed partial class TitleBarViewModel : ObservableObject
 
     private readonly TitleBarControl _titleBar;
 
-    [ObservableProperty] private bool _isFocused;
-    [ObservableProperty] private Thickness _margin;
+    [ObservableProperty] public partial bool IsFocused { get; set; }
+    [ObservableProperty] public partial Thickness Margin { get; set; }
 
     public TitleBarViewModel(TitleBarControl titleBar)
     {

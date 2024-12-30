@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:flyout="using:MediaMaster.Views.Flyout"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mediaMaster="using:MediaMaster"
     xmlns:winuiex="using:WinUIEx"
@@ -22,13 +21,13 @@
         <!--  HACK: https://github.com/microsoft/microsoft-ui-xaml/issues/7629  -->
         <!--  W11 grey border, W10: no border  -->
         <i:Interaction.Behaviors>
-            <ic:DataTriggerBehavior
+            <i:DataTriggerBehavior
                 Binding="{x:Bind _windows10}"
                 ComparisonCondition="Equal"
                 Value="True">
-                <ic:ChangePropertyAction PropertyName="BorderThickness" Value="1" />
-                <ic:ChangePropertyAction PropertyName="BorderBrush" Value="{ThemeResource SurfaceStrokeColorDefaultBrush}" />
-            </ic:DataTriggerBehavior>
+                <i:ChangePropertyAction PropertyName="BorderThickness" Value="1" />
+                <i:ChangePropertyAction PropertyName="BorderBrush" Value="{ThemeResource SurfaceStrokeColorDefaultBrush}" />
+            </i:DataTriggerBehavior>
         </i:Interaction.Behaviors>
 
         <flyout:ShellPage />

@@ -77,7 +77,7 @@ public sealed partial class FlyoutWindow
         Storyboard.SetTarget(_hideAnimation, ContentGrid);
         Storyboard.SetTargetProperty(_hideAnimation, "PosY");
 
-        _hideStoryboard.Completed += (sender, e) =>
+        _hideStoryboard.Completed += (_, _) =>
         {
             this.Hide();
             App.DispatcherQueue.EnqueueAsync(() => VisibilityChanged?.Invoke(this, false));
@@ -94,7 +94,7 @@ public sealed partial class FlyoutWindow
         Storyboard.SetTarget(_showAnimation, ContentGrid);
         Storyboard.SetTargetProperty(_showAnimation, "PosY");
 
-        _showStoryboard.Completed += (sender, e) =>
+        _showStoryboard.Completed += (_, _) =>
         {
             IsAlwaysOnTop = true;
         };

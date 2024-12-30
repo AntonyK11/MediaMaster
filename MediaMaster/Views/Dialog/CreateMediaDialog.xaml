@@ -4,6 +4,7 @@
     x:Class="MediaMaster.Views.Dialog.CreateMediaDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:controls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:l="using:WinUI3Localizer"
@@ -349,7 +350,7 @@
 
             <winuiToolkit:SwitchPresenter Value="{x:Bind SelectorBar.SelectedItem.Tag, Mode=OneWay}">
                 <winuiToolkit:Case Value="File">
-                    <StackPanel Spacing="8">
+                    <StackPanel Loaded="FileSelector_OnLoaded" Spacing="8">
                         <TextBlock l:Uids.Uid="/Media/FileUri_TextBlock" />
                         <controls:EditableTextBlock
                             x:Name="FileUriTextBox"
@@ -360,7 +361,28 @@
                     </StackPanel>
                 </winuiToolkit:Case>
                 <winuiToolkit:Case Value="Website">
-                    <TextBox x:Name="WebsiteUriTextBox" l:Uids.Uid="/Media/WebsiteUri_TextBox" />
+                    <TextBox x:Name="WebsiteUriTextBox" l:Uids.Uid="/Media/WebsiteUri_TextBox">
+                        <animations:Implicit.ShowAnimations>
+                            <animations:TranslationAnimation
+                                From="400, 0, 0"
+                                To="0"
+                                Duration="0:0:0.25" />
+                            <animations:OpacityAnimation
+                                From="0"
+                                To="1"
+                                Duration="0:0:0.25" />
+                        </animations:Implicit.ShowAnimations>
+                        <animations:Implicit.HideAnimations>
+                            <animations:TranslationAnimation
+                                From="0"
+                                To="400, 0, 0"
+                                Duration="0:0:0.25" />
+                            <animations:OpacityAnimation
+                                From="1"
+                                To="0"
+                                Duration="0:0:0.25" />
+                        </animations:Implicit.HideAnimations>
+                    </TextBox>
                 </winuiToolkit:Case>
             </winuiToolkit:SwitchPresenter>
 

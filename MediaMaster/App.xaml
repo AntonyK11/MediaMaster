@@ -16,7 +16,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-            <converters:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter" GreaterThan="0" />
+            <converters:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter" GreaterThan="-1" />
             <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
             <helpers:BoolToSelectionModeConverter x:Key="BoolToSelectionModeConverter" />

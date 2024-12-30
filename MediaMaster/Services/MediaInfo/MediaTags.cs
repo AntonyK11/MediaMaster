@@ -27,6 +27,7 @@ public sealed class MediaTags(DockPanel parent) : MediaInfoControlBase(parent)
             Spacing = 10
         };
         _stackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+        AddAnimation(_stackPanel);
 
         Title = GetTitleTextBlock();
         _tagView = new TagView

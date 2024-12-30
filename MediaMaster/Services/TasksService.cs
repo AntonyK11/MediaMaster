@@ -10,10 +10,10 @@ namespace MediaMaster.Services;
 internal sealed partial class TasksService : ObservableObject
 {
     private static readonly ITaskbarList3 TaskbarInstance = (ITaskbarList3)new TaskbarInstance();
-    [ObservableProperty] private Visibility _flyoutProgressBarLoading = Visibility.Collapsed;
-    [ObservableProperty] private int _flyoutTasksNumber;
-    [ObservableProperty] private Visibility _mainProgressBarLoading = Visibility.Collapsed;
-    [ObservableProperty] private int _mainTasksNumber;
+    [ObservableProperty] public partial Visibility FlyoutProgressBarLoading { get; set; } = Visibility.Collapsed;
+    [ObservableProperty] public partial int FlyoutTasksNumber { get; set; }
+    [ObservableProperty] public partial Visibility MainProgressBarLoading { get; set; } = Visibility.Collapsed;
+    [ObservableProperty] public partial int MainTasksNumber { get; set; }
 
     public event TypedEventHandler<object, object?>? MainTaskAdded;
     public event TypedEventHandler<object, object?>? FlyoutTaskAdded;

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 using Windows.ApplicationModel.DataTransfer;
@@ -25,11 +26,11 @@ public sealed partial class AdvancedFilters : Page
         InitializeComponent();
 
         SearchSavingService = App.GetService<SearchSavingService>();
-        SetSearchState(_isSearchSaved);
         App.GetService<ITranslationService>().LanguageChanged += (_, _) =>
         {
             SetSearchState(_isSearchSaved);
         };
+        Loaded += (_, _) => { SetSearchState(_isSearchSaved); };
     }
 
     public static async Task<IList<Expression<Func<Media, bool>>>> GetFilterExpressions(IList<FilterObject> filterObjects)
@@ -124,6 +125,14 @@ public sealed partial class AdvancedFilters : Page
                 };
                 break;
 
+            case "Path":
+                expression = currentOperation.Name switch
+                {
+                    "Path_Contain" => m => EF.Functions.Like(m.Uri, $"%{currentFilter.Text}%"),
+                    _ => null
+                };
+                break;
+
             case "Date_Added":
                 expression = currentOperation.Name switch
                 {
@@ -185,7 +194,7 @@ public sealed partial class AdvancedFilters : Page
                 } while (oldCount != tagsId.Count);
             }
 
-            return database.MediaTags.Where(m => tagsId.Contains(m.TagId)).Select(m => m.MediaId).ToHashSet();
+            return await database.MediaTags.Where(m => tagsId.Contains(m.TagId)).Select(m => m.MediaId).ToHashSetAsync();
         }
     }
 
@@ -193,7 +202,7 @@ public sealed partial class AdvancedFilters : Page
     {
         await using (var database = new MediaDbContext())
         {
-            HashSet<int> tagsId = database.Tags.Where(t => EF.Functions.Like(t.Name, $"%{name}%")).Select(t => t.TagId).ToHashSet();
+            HashSet<int> tagsId = await database.Tags.Where(t => EF.Functions.Like(t.Name, $"%{name}%")).Select(t => t.TagId).ToHashSetAsync();
 
             if (getTagsChildren)
             {
@@ -210,7 +219,7 @@ public sealed partial class AdvancedFilters : Page
                 } while (oldCount != tagsId.Count);
             }
 
-            return database.MediaTags.Where(m => tagsId.Contains(m.TagId)).Select(m => m.MediaId).ToHashSet();
+            return await database.MediaTags.Where(m => tagsId.Contains(m.TagId)).Select(m => m.MediaId).ToHashSetAsync();
         }
     }
 
@@ -415,27 +424,32 @@ public sealed partial class AdvancedFilters : Page
     }
 }
 
+public partial class SimpleType : ObservableObject
+{
+    public string Name { get; set; } = string.Empty;
+}
+
 public partial class AdvancedType : ObservableObject
 {
     [ObservableProperty]
-    [JsonInclude]
-    internal string _name = string.Empty;
-
+    [JsonPropertyName("_name")]
+    public partial string Name { get; set; } = string.Empty;
+    
     [ObservableProperty]
-    [JsonInclude]
-    internal string _uid = string.Empty;
+    [JsonPropertyName("_uid")]
+    public partial string Uid { get; set; } = string.Empty;
 }
 
-public abstract partial class Operations : AdvancedType
+public abstract partial class Operations : SimpleType
 {
     [ObservableProperty]
-    [JsonInclude]
-    internal int _operationIndex;
-
+    [JsonPropertyName("_operationIndex")]
+    public partial int OperationIndex { get; set; }
+    
     public abstract List<AdvancedType> OperationsCollection { get; set; }
-
+    
     [JsonIgnore]
-    public AdvancedType? CurrentOperation
+    public AdvancedType CurrentOperation
     {
         get
         {
@@ -444,10 +458,7 @@ public abstract partial class Operations : AdvancedType
 
         set
         {
-            if (value != null)
-            {
-                OperationIndex = OperationsCollection.IndexOf(value);
-            }
+            OperationIndex = OperationsCollection.IndexOf(value);
         }
     }
 
@@ -457,7 +468,7 @@ public abstract partial class Operations : AdvancedType
         {
             OperationIndex = 0;
         }
-        OnPropertyChanged("CurrentOperation");
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(CurrentOperation)));
     }
 }
 
@@ -477,7 +488,7 @@ public partial class NameOperations : Operations
         set => StaticOperationsCollection = value;
     }
 
-    public new string Name { get; } = "NameOperations";
+    public new string Name { get; set; } = "NameOperations";
 }
 
 public partial class NotesOperations : Operations
@@ -493,7 +504,23 @@ public partial class NotesOperations : Operations
         set => StaticOperationsCollection = value;
     }
 
-    public new string Name { get; } = "NotesOperations";
+    public new string Name { get; set; } = "NotesOperations";
+}
+
+public partial class PathOperations : Operations
+{
+    private static List<AdvancedType> StaticOperationsCollection { get; set; } =
+    [
+        new() { Uid = "/Home/Path_Contain_FilterOperation", Name = "Path_Contain" }
+    ];
+
+    public override List<AdvancedType> OperationsCollection
+    {
+        get => StaticOperationsCollection;
+        set => StaticOperationsCollection = value;
+    }
+
+    public new string Name { get; set; } = "PathOperations";
 }
 
 public sealed partial class DateOperations : Operations
@@ -511,7 +538,7 @@ public sealed partial class DateOperations : Operations
         set => StaticOperationsCollection = value;
     }
 
-    public new string Name { get; } = "DateOperations";
+    public new string Name { get; set; } = "DateOperations";
 }
 
 public sealed partial class TagsOperations : Operations
@@ -528,58 +555,57 @@ public sealed partial class TagsOperations : Operations
         set => StaticOperationsCollection = value;
     }
 
-    public new string Name { get; } = "TagsOperations";
+    public new string Name { get; set; } = "TagsOperations";
 }
 
 public sealed partial class FilterType : AdvancedType
 {
     [ObservableProperty]
-    [JsonInclude]
-    internal string _category = null!;
+    [JsonPropertyName("_category")]
+    public partial string Category { get; set; } = null!;
 
     [ObservableProperty]
-    [JsonInclude]
-    internal DateTimeOffset _date = DateTimeOffset.Now;
+    [JsonPropertyName("_date")]
+    public partial DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
 
     [ObservableProperty]
-    [JsonInclude]
-    internal bool _negate;
+    [JsonPropertyName("_negate")]
+    public partial bool Negate { get; set; }
 
     [ObservableProperty]
-    [JsonInclude]
-    internal Operations _operations = null!;
+    [JsonPropertyName("_operations")]
+    public partial Operations Operations { get; set; } = null!;
 
     [ObservableProperty]
-    [JsonInclude]
-    internal DateTimeOffset _secondDate = DateTimeOffset.Now;
+    [JsonPropertyName("_secondDate")]
+    public partial DateTimeOffset SecondDate { get; set; } = DateTimeOffset.Now;
 
     [ObservableProperty]
-    [JsonInclude]
-    internal TimeSpan _secondTime;
+    [JsonPropertyName("_secondTime")]
+    public partial TimeSpan SecondTime { get; set; }
 
     [ObservableProperty]
-    [JsonInclude]
-    internal string _text = string.Empty;
+    [JsonPropertyName("_text")]
+    public partial string Text { get; set; } = string.Empty;
 
     [ObservableProperty]
-    [JsonInclude]
-    internal TimeSpan _time;
+    [JsonPropertyName("_time")]
+    public partial TimeSpan Time { get; set; }
 
     [ObservableProperty]
-    [JsonInclude]
-    internal bool _withParents = true;
+    [JsonPropertyName("_withParents")]
+    public partial bool WithParents { get; set; } = true;
 
     [ObservableProperty]
-    [JsonInclude]
-    internal HashSet<int> _tagsHashSet = [];
+    [JsonPropertyName("_tagsHashSet")]
+    public partial HashSet<int> TagsHashSet { get; set; } = [];
 
-    private ICollection<Tag> _tags = [];
     [JsonIgnore]
     public ICollection<Tag> Tags
     {
         get
         {
-            if (_tags.Count == 0 && TagsHashSet.Count != 0)
+            if (field.Count == 0 && TagsHashSet.Count != 0)
             {
                 using (var database = new MediaDbContext())
                 {
@@ -587,24 +613,18 @@ public sealed partial class FilterType : AdvancedType
                 }
             }
 
-            return _tags;
+            return field;
         }
         set
         {
-            if (!EqualityComparer<ICollection<Tag>>.Default.Equals(_tags, value))
+            if (!EqualityComparer<ICollection<Tag>>.Default.Equals(field, value))
             {
-                OnPropertyChanging();
-                _tags = value;
-                OnTagsChanged(value);
-                OnPropertyChanged();
+                field = value;
+                TagsHashSet = value.Select(t => t.TagId).ToHashSet();
+                OnPropertyChanged(new PropertyChangedEventArgs(nameof(Tags)));
             }
         }
-    }
-
-    private void OnTagsChanged(ICollection<Tag> value)
-    {
-        TagsHashSet = value.Select(t => t.TagId).ToHashSet();
-    }
+    } = [];
 }
 
 public abstract class FilterObject : ObservableObject;
@@ -626,6 +646,13 @@ public sealed partial class Filter : FilterObject
             Name = "Notes",
             Category = "Text",
             Operations = new NotesOperations() 
+        },
+        new()
+        {
+            Uid = "/Home/Path_Filter",
+            Name = "Path",
+            Category = "Text",
+            Operations = new PathOperations()
         },
         new()
         {
@@ -651,8 +678,8 @@ public sealed partial class Filter : FilterObject
     ];
 
     [ObservableProperty]
-    [JsonInclude]
-    internal int _filterTypeIndex;
+    [JsonPropertyName("_filterTypeIndex")]
+    public partial int FilterTypeIndex { get; set; }
 
     [JsonIgnore]
     public FilterType FilterType
@@ -679,7 +706,7 @@ public sealed partial class Filter : FilterObject
         {
             FilterTypeIndex = 0;
         }
-        OnPropertyChanged("FilterType");
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(FilterType)));
     }
 }
 
@@ -688,8 +715,8 @@ public sealed partial class FilterGroup : FilterObject
     public ObservableCollection<FilterObject> FilterObjects { get; set; } = [];
 
     [ObservableProperty]
-    [JsonInclude]
-    internal bool _orCombination = true;
+    [JsonPropertyName("_orCombination")]
+    public partial bool OrCombination { get; set; } = true;
 }
 
 internal sealed partial class FiltersTemplateSelector : DataTemplateSelector

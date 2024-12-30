@@ -4,10 +4,8 @@ using Windows.Storage;
 using CommunityToolkit.WinUI;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using WinUI3Localizer;
 using WinUICommunity;
-using DocumentFormat.OpenXml.InkML;
 using MediaMaster.Services;
 
 namespace MediaMaster.DataBase;
@@ -40,10 +38,10 @@ public struct MediaChangeArgs(
 
 public sealed partial class MediaDbContext : DbContext
 {
-    public static Tag? FileTag;
-    public static Tag? WebsiteTag;
-    public static Tag? FavoriteTag;
-    public static Tag? ArchivedTag;
+    public static Tag? FileTag { get; private set; }
+    public static Tag? WebsiteTag { get; private set; }
+    public static Tag? FavoriteTag { get; private set; }
+    public static Tag? ArchivedTag { get; private set; }
 
 
     public static readonly string DbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "MediaMaster.db");
@@ -62,11 +60,11 @@ public sealed partial class MediaDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite($"Data Source={DbPath}");
-#if DEBUG
-        optionsBuilder.EnableDetailedErrors();
-        optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
-#endif
+//#if DEBUG
+//        optionsBuilder.EnableDetailedErrors();
+//        optionsBuilder.EnableSensitiveDataLogging();
+//        optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
+//#endif
 
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     }
@@ -93,6 +91,15 @@ public sealed partial class MediaDbContext : DbContext
                 j => { j.HasKey(t => new { t.ChildrenTagId, t.ParentsTagId }); });
     }
 
+    //public MediaDbContext()
+    //{
+    //    Medias = Set<Media>();
+    //    Tags = Set<Tag>();
+
+    //    MediaTags = Set<MediaTag>();
+    //    TagTags = Set<TagTag>();
+    //}
+
     public async Task InitializeAsync()
     {
 #if DEBUG
@@ -117,7 +124,7 @@ public sealed partial class MediaDbContext : DbContext
             {
                 Name = "File",
                 Shorthand = "file",
-                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotChangeChildren | TagPermissions.CannotDelete
             };
             await Tags.AddAsync(fileTag);
         }
@@ -130,7 +137,7 @@ public sealed partial class MediaDbContext : DbContext
             {
                 Name = "Website",
                 Shorthand = "web",
-                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotDelete
+                Permissions = TagPermissions.CannotChangeParents | TagPermissions.CannotChangeChildren | TagPermissions.CannotDelete
             };
             await Tags.AddAsync(websiteTag);
         }
@@ -234,10 +241,11 @@ public sealed partial class MediaDbContext : DbContext
     /// <param name="media">The collection of media affected by the change.</param>
     /// <param name="tagsAdded">The collection of tags added during the change.</param>
     /// <param name="tagsRemoved">The collection of tags removed during the change.</param>
-    public static void InvokeMediaChange(object? sender, MediaChangeFlags flags, ICollection<Media> media,
-        ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null)
+    /// <param name="mediaCount">The count of media affected by the change.</param>
+    public static void InvokeMediaChange(object? sender, MediaChangeFlags flags, ICollection<Media>? media = null,
+        ICollection<Tag>? tagsAdded = null, ICollection<Tag>? tagsRemoved = null, int mediaCount = 0)
     {
-        var args = new MediaChangeArgs(flags, media, tagsAdded, tagsRemoved);
+        var args = new MediaChangeArgs(flags, media ?? [], tagsAdded, tagsRemoved);
         App.DispatcherQueue.EnqueueAsync(() => MediasChanged?.Invoke(sender, args));
 
         if (flags.HasFlag(MediaChangeFlags.MediaAdded) || flags.HasFlag(MediaChangeFlags.MediaRemoved))
@@ -252,11 +260,11 @@ public sealed partial class MediaDbContext : DbContext
 
             if (flags.HasFlag(MediaChangeFlags.MediaAdded))
             {
-                growlInfo.Message = string.Format("InAppNotification_MediasAdded".GetLocalizedString(), media.Count);
+                growlInfo.Message = string.Format("InAppNotification_MediasAdded".GetLocalizedString(), media?.Count ?? mediaCount);
             }
             else if (flags.HasFlag(MediaChangeFlags.MediaRemoved))
             {
-                growlInfo.Message = string.Format("InAppNotification_MediasRemoved".GetLocalizedString(), media.Count);
+                growlInfo.Message = string.Format("InAppNotification_MediasRemoved".GetLocalizedString(), media?.Count ?? mediaCount);
             }
 
 

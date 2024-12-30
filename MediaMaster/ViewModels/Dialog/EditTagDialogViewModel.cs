@@ -7,16 +7,15 @@ namespace MediaMaster.ViewModels.Dialog;
 
 public sealed partial class EditTagDialogViewModel : ObservableObject
 {
-    [ObservableProperty] private bool _canChangeAliases = true;
-    [ObservableProperty] private bool _canChangeColor = true;
-    [ObservableProperty] private bool _canChangeName = true;
-    [ObservableProperty] private bool _canChangeParents = true;
-    [ObservableProperty] private bool _canChangeShortHand = true;
+    [ObservableProperty] public partial bool CanChangeAliases { get; set; } = true;
+    [ObservableProperty] public partial bool CanChangeColor { get; set; } = true;
+    [ObservableProperty] public partial bool CanChangeName { get; set; } = true;
+    [ObservableProperty] public partial bool CanChangeShortHand { get; set; } = true;
     
-    [ObservableProperty] private SolidColorBrush _colorBrush = new();
-    [ObservableProperty] private string _colorName = "";
-    [ObservableProperty] private string _name = "";
-    [ObservableProperty] private string _shorthand = "";
+    [ObservableProperty] public partial SolidColorBrush ColorBrush { get; set; } = new();
+    [ObservableProperty] public partial string ColorName { get; set; } = "";
+    [ObservableProperty] public partial string Name { get; set; } = "";
+    [ObservableProperty] public partial string Shorthand { get; set; } = "";
     
     private Color _color;
 
@@ -37,6 +36,5 @@ public sealed partial class EditTagDialogViewModel : ObservableObject
         CanChangeShortHand = !permissions.HasFlag(TagPermissions.CannotChangeShorthand);
         CanChangeAliases = !permissions.HasFlag(TagPermissions.CannotChangeAliases);
         CanChangeColor = !permissions.HasFlag(TagPermissions.CannotChangeColor);
-        CanChangeParents = !permissions.HasFlag(TagPermissions.CannotChangeParents);
     }
 }

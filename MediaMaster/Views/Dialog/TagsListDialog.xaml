@@ -16,7 +16,33 @@
         <DataTemplate x:Key="TagListViewTemplate" x:DataType="models:Tag">
             <ListViewItem Height="36" ToolTipService.ToolTip="{x:Bind Name}">
                 <Grid>
-                    <!--  TODO: Fix rectangle size when selection mode is none  -->
+                    <Rectangle
+                        Margin="-12,-9,-8,-8"
+                        Fill="{x:Bind ColorBrush}"
+                        RadiusX="4"
+                        RadiusY="4" />
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{x:Bind TextColorBrush}"
+                        Text="{x:Bind DisplayName}" />
+                </Grid>
+                <ListViewItem.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem l:Uids.Uid="/Tag/Flyout_Edit" Click="EditTagFlyout_OnClick" />
+                        <MenuFlyoutItem l:Uids.Uid="/Tag/Flyout_Duplicate" Click="DuplicateTagFlyout_OnClick" />
+                        <MenuFlyoutSeparator Visibility="{x:Bind Permissions, Converter={StaticResource TagPermissionsToVisibilityConverter}, ConverterParameter=CannotDelete}" />
+                        <MenuFlyoutItem
+                            l:Uids.Uid="/Tag/Flyout_Delete"
+                            Click="DeleteTagFlyout_OnClick"
+                            Visibility="{x:Bind Permissions, Converter={StaticResource TagPermissionsToVisibilityConverter}, ConverterParameter=CannotDelete}" />
+                    </MenuFlyout>
+                </ListViewItem.ContextFlyout>
+            </ListViewItem>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="TagSelectionListViewTemplate" x:DataType="models:Tag">
+            <ListViewItem Height="36" ToolTipService.ToolTip="{x:Bind Name}">
+                <Grid>
                     <Rectangle
                         Margin="-40,-9,-8,-8"
                         Fill="{x:Bind ColorBrush}"
@@ -40,7 +66,7 @@
                 </ListViewItem.ContextFlyout>
             </ListViewItem>
         </DataTemplate>
-
+        
         <helpers:TagPermissionsToVisibilityConverter x:Key="TagPermissionsToVisibilityConverter" />
     </Page.Resources>
 
@@ -55,7 +81,6 @@
         <ListView
             x:Name="ListView"
             Grid.Row="1"
-            ItemTemplate="{StaticResource TagListViewTemplate}"
             SelectionChanged="ListView_OnSelectionChanged" />
     </Grid>
 </Page>

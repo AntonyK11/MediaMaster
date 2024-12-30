@@ -209,12 +209,13 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <ContentPresenter
                     x:Name="HeaderContentPresenter"
                     Grid.Row="0"
                     Grid.Column="0"
-                    Grid.ColumnSpan="5"
+                    Grid.ColumnSpan="6"
                     Margin="{ThemeResource TextBoxTopHeaderMargin}"
                     VerticalAlignment="Top"
                     x:DeferLoadStrategy="Lazy"
@@ -228,7 +229,7 @@
                     x:Name="BorderElement"
                     Grid.Row="1"
                     Grid.Column="0"
-                    Grid.ColumnSpan="5"
+                    Grid.ColumnSpan="6"
                     MinWidth="{TemplateBinding MinWidth}"
                     MinHeight="{TemplateBinding MinHeight}"
                     Background="{TemplateBinding Background}"
@@ -257,7 +258,7 @@
                     x:Name="PlaceholderTextContentPresenter"
                     Grid.Row="1"
                     Grid.Column="0"
-                    Grid.ColumnSpan="5"
+                    Grid.ColumnSpan="6"
                     Margin="{TemplateBinding BorderThickness}"
                     Padding="{TemplateBinding Padding}"
                     Foreground="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={ThemeResource TextControlPlaceholderForeground}}"
@@ -313,9 +314,25 @@
                     Style="{StaticResource ToggleButtonStyle}"
                     Tag="&#xE70B;" />
                 <controls:PointerToggleButton
-                    x:Name="TagsButton"
+                    x:Name="PathButton"
                     Grid.Row="1"
                     Grid.Column="4"
+                    Width="30"
+                    Padding="{ThemeResource HelperButtonThemePadding}"
+                    VerticalAlignment="Stretch"
+                    l:Uids.Uid="/Home/PathButton_SearchBox"
+                    AutomationProperties.AccessibilityView="Raw"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    FontSize="{TemplateBinding FontSize}"
+                    IsTabStop="False"
+                    Loaded="PathButton_OnLoaded"
+                    Style="{StaticResource ToggleButtonStyle}"
+                    Tag="&#xE71B;" />
+                <controls:PointerToggleButton
+                    x:Name="TagsButton"
+                    Grid.Row="1"
+                    Grid.Column="5"
                     Width="30"
                     Padding="{ThemeResource HelperButtonThemePadding}"
                     VerticalAlignment="Stretch"
@@ -417,6 +434,6 @@
     <TextBox
         x:Name="TextBox"
         l:Uids.Uid="/Home/Media_SearchBox"
-        TextChanged="TextBox_OnTextChanged"
-        Template="{StaticResource SearchBoxControlTemplate}" />
+        Template="{StaticResource SearchBoxControlTemplate}"
+        TextChanged="TextBox_OnTextChanged" />
 </UserControl>

@@ -7,11 +7,11 @@ namespace MediaMaster.Services;
 
 public static class SearchService
 {
-    public static async Task<(List<CompactMedia>, int)> GetMedias(KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, ICollection<Expression<Func<Media, bool>>> simpleFilterFunctions, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions, int? skip = null, int? take = null)
+    public static async Task<(List<CompactMedia>, int)> GetMedias(KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, Expression<Func<Media, bool>>? simpleFilterFunction, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions, int? skip = null, int? take = null)
     {
         await using (var database = new MediaDbContext())
         {
-            var mediaQuery = GetQuery(database, sortFunction, sortAscending, simpleFilterFunctions, advancedFilterFunctions);
+            var mediaQuery = GetQuery(database, sortFunction, sortAscending, simpleFilterFunction, advancedFilterFunctions);
 
             var mediasFound = await mediaQuery.CountAsync().ConfigureAwait(false);
 
@@ -33,7 +33,7 @@ public static class SearchService
         }
     }
 
-    public static IQueryable<Media> GetQuery(MediaDbContext database, KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, ICollection<Expression<Func<Media, bool>>> simpleFilterFunctions, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions)
+    public static IQueryable<Media> GetQuery(MediaDbContext database, KeyValuePair<bool, Expression<Func<Media, object>>>? sortFunction, bool sortAscending, Expression<Func<Media, bool>>? simpleFilterFunction, ICollection<Expression<Func<Media, bool>>> advancedFilterFunctions)
     {
         IQueryable<Media> mediaQuery = database.Medias;
         if (sortFunction != null)
@@ -49,7 +49,10 @@ public static class SearchService
                 : mediaQuery.OrderByDescending(m => m.Name);
         }
 
-        mediaQuery = SimpleFilterMedias(mediaQuery, simpleFilterFunctions);
+        if (simpleFilterFunction != null)
+        {
+            mediaQuery = mediaQuery.Where(simpleFilterFunction);
+        }
         mediaQuery = AdvancedFilterMedias(mediaQuery, advancedFilterFunctions);
 
         return mediaQuery;
@@ -61,11 +64,6 @@ public static class SearchService
         return sortAscending ^ sortFunction.Key
             ? medias.OrderByDescending(sortFunction.Value)
             : medias.OrderBy(sortFunction.Value);
-    }
-
-    private static IQueryable<Media> SimpleFilterMedias(IQueryable<Media> medias, ICollection<Expression<Func<Media, bool>>>  simpleFilterFunctions)
-    {
-        return simpleFilterFunctions.Aggregate(medias, (current, filter) => current.Where(filter));
     }
 
     private static IQueryable<Media> AdvancedFilterMedias(IQueryable<Media> medias, ICollection<Expression<Func<Media, bool>>>  advancedFilterFunctions)

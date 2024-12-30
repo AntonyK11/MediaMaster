@@ -12,6 +12,8 @@ namespace MediaMaster.Views.Dialog;
 public sealed partial class TagsListDialog : Page
 {
     private readonly bool _showExtensionsAndWebsites;
+    private readonly bool _removeTagsWithoutParentPermissions;
+    private readonly bool _removeTagsWithoutChildrenPermissions;
 
     private readonly ICollection<int> _tagsToExclude;
 
@@ -19,13 +21,26 @@ public sealed partial class TagsListDialog : Page
     private bool _watchForSelectionChange = true;
 
     public TagsListDialog(HashSet<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
-        bool showExtensionsAndWebsites = true)
+        bool showExtensionsAndWebsites = true, bool removeTagsWithoutParentPermissions = false, bool removeTagsWithoutChildrenPermissions = false)
     {
         InitializeComponent();
 
-        ListView.SelectionMode = selectedTags == null ? ListViewSelectionMode.None : ListViewSelectionMode.Multiple;
+        if (selectedTags == null)
+        {
+            ListView.SelectionMode = ListViewSelectionMode.None;
+            ListView.ItemTemplate = Resources["TagListViewTemplate"] as DataTemplate;
+        }
+        else
+        {
+            ListView.SelectionMode = ListViewSelectionMode.Multiple;
+            ListView.ItemTemplate = Resources["TagSelectionListViewTemplate"] as DataTemplate;
+        }
+        
 
         _showExtensionsAndWebsites = showExtensionsAndWebsites;
+        _removeTagsWithoutParentPermissions = removeTagsWithoutParentPermissions;
+        _removeTagsWithoutChildrenPermissions = removeTagsWithoutChildrenPermissions;
+
         _tagsToExclude = tagsToExclude ?? [];
 
         UpdateItemSource(selectedTags);
@@ -50,12 +65,33 @@ public sealed partial class TagsListDialog : Page
             Tags = database.Tags.Where(tag => !_tagsToExclude.Contains(tag.TagId)).ToList();
         }
 
-        _advancedCollectionView = new AdvancedCollectionView(
-            Tags
+        IList tags;
+
+        if (_removeTagsWithoutParentPermissions || _removeTagsWithoutChildrenPermissions)
+        {
+            if (_removeTagsWithoutParentPermissions)
+            {
+                tags = Tags
+                    .Where(t => !t.Permissions.HasFlag(TagPermissions.CannotChangeParents))
+                    .ToList();
+            }
+            else
+            {
+                tags = Tags
+                    .Where(t => !t.Permissions.HasFlag(TagPermissions.CannotChangeChildren))
+                    .ToList();
+            }
+        }
+        else
+        {
+            tags = Tags
                 .Where(t => _showExtensionsAndWebsites ||
-                            (!t.Flags.HasFlag(TagFlags.Extension) &&
-                             !t.Flags.HasFlag(TagFlags.Website)))
-                .ToList());
+                    !t.Flags.HasFlag(TagFlags.Extension) &&
+                    !t.Flags.HasFlag(TagFlags.Website))
+                .ToList();
+        }
+
+        _advancedCollectionView = new AdvancedCollectionView(tags);
 
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("DisplayName", SortDirection.Descending, TagsExtensionComparer.Instance));
         _advancedCollectionView.SortDescriptions.Add(new SortDescription("DisplayName", SortDirection.Ascending));
@@ -164,7 +200,7 @@ public sealed partial class TagsListDialog : Page
     private async void EditTagFlyout_OnClick(object sender, RoutedEventArgs e)
     {
         var tag = (Tag)((FrameworkElement)sender).DataContext;
-        await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot, tag.TagId);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(XamlRoot, tag.TagId);
 
         UpdateItemSource();
     }
@@ -175,12 +211,12 @@ public sealed partial class TagsListDialog : Page
 
         await using (var database = new MediaDbContext())
         {
-            tag = await database.Tags.Include(t => t.Parents).FirstOrDefaultAsync(t => t.TagId == tag.TagId);
+            tag = await database.Tags.Include(t => t.Parents).Include(t => t.Parents).FirstOrDefaultAsync(t => t.TagId == tag.TagId);
             if (tag == null) return;
         }
 
         tag.Permissions = 0;
-        await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot, tag: tag);
+        await CreateEditDeleteTagDialog.ShowDialogAsync(XamlRoot, tag: tag);
 
         UpdateItemSource();
     }
@@ -198,11 +234,11 @@ public sealed partial class TagsListDialog : Page
 
     public static async Task<(ContentDialogResult, TagsListDialog?)> ShowDialogAsync(XamlRoot xamlRoot,
         HashSet<int>? selectedTags = null, ICollection<int>? tagsToExclude = null,
-        bool showExtensionsAndWebsites = true)
+        bool showExtensionsAndWebsites = true, bool removeTagsWithoutParentPermissions = false, bool removeTagsWithoutChildrenPermissions = false)
     {
         if (App.MainWindow == null) return (ContentDialogResult.None, null);
 
-        var selectTagsDialog = new TagsListDialog(selectedTags, tagsToExclude, showExtensionsAndWebsites);
+        var selectTagsDialog = new TagsListDialog(selectedTags, tagsToExclude, showExtensionsAndWebsites, removeTagsWithoutParentPermissions, removeTagsWithoutChildrenPermissions);
         ContentDialog dialog = new()
         {
             XamlRoot = xamlRoot,
@@ -219,7 +255,7 @@ public sealed partial class TagsListDialog : Page
         {
             if (xamlRoot != App.MainWindow.Content.XamlRoot)
             {
-                result = await dialog.ShowAndEnqueueAsync(true);
+                result = await dialog.ShowAndEnqueueSecondaryAsync();
             }
             else
             {

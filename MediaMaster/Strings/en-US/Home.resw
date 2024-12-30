@@ -297,4 +297,13 @@
   <data name="WithParents_Filter.Content" xml:space="preserve">
     <value>With parents</value>
   </data>
+  <data name="PathButton_SearchBox.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Search in path/URL</value>
+  </data>
+  <data name="Path_Contain_FilterOperation.Text" xml:space="preserve">
+    <value>Contain</value>
+  </data>
+  <data name="Path_Filter.Text" xml:space="preserve">
+    <value>Path/URL</value>
+  </data>
 </root>

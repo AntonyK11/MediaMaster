@@ -1,3 +1,4 @@
+using CommunityToolkit.WinUI.Animations;
 using EFCore.BulkExtensions;
 using MediaMaster.Controls;
 using MediaMaster.DataBase;
@@ -232,5 +233,21 @@ public sealed partial class CreateMediaDialog : Page
                 MediaDbContext.InvokeMediaChange(this, MediaChangeFlags.MediaAdded, [media]);
             }
         }
+    }
+
+    // Adds the animations after it is loaded to prevent a crash
+    private void FileSelector_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        ImplicitAnimationSet showSet = [
+            new TranslationAnimation { Duration = TimeSpan.FromSeconds(0.25), From = "-400, 0, 0", To = "0, 0, 0" },
+            new OpacityAnimation { Duration = TimeSpan.FromSeconds(0.25), From = 0, To = 1 }
+        ];
+        ((FrameworkElement)sender).SetValue(Implicit.ShowAnimationsProperty, showSet);
+
+        ImplicitAnimationSet hideSet = [
+            new TranslationAnimation { Duration = TimeSpan.FromSeconds(0.25), From = "0, 0, 0", To = "-400, 0, 0" },
+            new OpacityAnimation { Duration = TimeSpan.FromSeconds(0.25), From = 1, To = 0 },
+        ];
+        ((FrameworkElement)sender).SetValue(Implicit.HideAnimationsProperty, hideSet);
     }
 }

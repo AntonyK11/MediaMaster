@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.WinUI.Controls;
+﻿using CommunityToolkit.WinUI.Animations;
+using CommunityToolkit.WinUI.Controls;
 using MediaMaster.DataBase;
 
 namespace MediaMaster.Services.MediaInfo;
@@ -20,7 +21,7 @@ public abstract class MediaInfoControlBase
 
     protected abstract string TranslationKey { get; }
 
-    public virtual void Initialize(ICollection<Media> medias)
+    public void Initialize(ICollection<Media> medias)
     {
         if (_firstShown)
         {
@@ -80,4 +81,28 @@ public abstract class MediaInfoControlBase
     protected virtual void InvokeMediaChange() { }
 
     protected virtual void MediaChanged(object? sender, MediaChangeArgs args) { }
+
+    protected static void AddAnimation(FrameworkElement element, bool offsetAnimation = true)
+    {
+        ImplicitAnimationSet showSet = [
+            new TranslationAnimation { Duration = TimeSpan.FromSeconds(0.1), From = "0, 17, 0", To = "0, 0, 0" },
+            new OpacityAnimation { Duration = TimeSpan.FromSeconds(0.1), From = 0, To = 1 }
+        ];
+        element.SetValue(Implicit.ShowAnimationsProperty, showSet);
+
+        ImplicitAnimationSet hideSet = [
+            new TranslationAnimation { Duration = TimeSpan.FromSeconds(0.1), From = "0, 0, 0", To = "0, 17, 0" },
+            new OpacityAnimation { Duration = TimeSpan.FromSeconds(0.1), From = 1, To = 0 },
+        ];
+        element.SetValue(Implicit.HideAnimationsProperty, hideSet);
+
+        if (offsetAnimation)
+        {
+            ImplicitAnimationSet moveSet =
+            [
+                new OffsetAnimation { Duration = TimeSpan.FromSeconds(0.1) }
+            ];
+            element.SetValue(Implicit.AnimationsProperty, moveSet);
+        }
+    }
 }

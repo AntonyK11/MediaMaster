@@ -42,7 +42,7 @@ public sealed partial class AddMediasDialog : Page
         {
             var tagIds = mediaDialog.Tags.Select(t => t.TagId).ToHashSet();
             var notes = mediaDialog.Notes;
-            await Task.Run(() => App.GetService<MediaService>().AddMediaAsync(mediaPaths, tagIds, notes));
+            await Task.Run(() => FileWebsiteService.AddMediaAsync(mediaPaths, tagIds, notes));
         }
 
         return (result, mediaDialog);
@@ -71,9 +71,8 @@ public sealed partial class AddMediasDialog : Page
         {
             var tagIds = mediaDialog.Tags.Select(t => t.TagId).ToHashSet();
             var notes = mediaDialog.Notes;
-            await Task.Run(() => App.GetService<MediaService>().AddMediaAsync(
-                browserFolders: browserFolders,
-                generateBookmarkTags: generateBookmarkTags, userTagsId: tagIds, userNotes: notes));
+            await Task.Run(() =>BookmarkService.AddBookmarksAsync(
+                browserFolders, tagIds, notes, generateBookmarkTags));
         }
 
         return (result, mediaDialog);

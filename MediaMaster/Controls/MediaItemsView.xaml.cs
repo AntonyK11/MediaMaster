@@ -18,13 +18,13 @@ namespace MediaMaster.Controls;
 [DependencyProperty("MediasCount", typeof(int), DefaultValue = 0, IsReadOnly = true)]
 [DependencyProperty("MediasFound", typeof(int), DefaultValue = 0, IsReadOnly = true)]
 [DependencyProperty("MediasSelectedCount", typeof(int), DefaultValue = 0, IsReadOnly = true)]
-[DependencyProperty("IsSearching", typeof(bool), DefaultValue = false, IsReadOnly = true)]
+[DependencyProperty("IsSearching", typeof(bool), DefaultValue = false)]
 public sealed partial class MediaItemsView : UserControl
 {
     private readonly int _pageSize = 250;
     private readonly TasksService _tasksService = App.GetService<TasksService>();
     public readonly ICollection<Expression<Func<Media, bool>>> AdvancedFilterFunctions = [];
-    public readonly ICollection<Expression<Func<Media, bool>>> SimpleFilterFunctions = [];
+    public Expression<Func<Media, bool>>? SimpleFilterFunction;
 
     private TaskCompletionSource? _taskSource;
     
@@ -125,12 +125,15 @@ public sealed partial class MediaItemsView : UserControl
                 mediasCount = await database.Medias.CountAsync().ConfigureAwait(false);
             }
 
-            (medias, mediasFound) = await SearchService.GetMedias(SortFunction, SortAscending, SimpleFilterFunctions, AdvancedFilterFunctions, currentPageIndex * _pageSize, _pageSize);
+            (medias, mediasFound) = await SearchService.GetMedias(SortFunction, SortAscending, SimpleFilterFunction, AdvancedFilterFunctions, currentPageIndex * _pageSize, _pageSize);
         });
 
         MediasCount = mediasCount;
         MediasFound = mediasFound;
-        IsSearching = mediasCount != mediasFound || AdvancedFilterFunctions.Count != 0;
+        if (AdvancedFilterFunctions.Count == 0 && !IsSearching)
+        {
+            MediasFound = -1;
+        }
 
         var pageCount = (int)Math.Round((double)mediasFound / _pageSize, MidpointRounding.ToPositiveInfinity);
         pageCount = pageCount > 0 ? pageCount : 1;
@@ -153,6 +156,10 @@ public sealed partial class MediaItemsView : UserControl
         MediaItemsView_OnSelectionChanged();
 
         MediasSelectedCount = MediaItemsViewControl.SelectedItems.Count;
+        if (MediaItemsViewControl.SelectedItems.Count == 0)
+        {
+            MediasSelectedCount = -1;
+        }
 
         SetupSelectionPermissions();
 
@@ -215,6 +222,10 @@ public sealed partial class MediaItemsView : UserControl
         }
 
         MediasSelectedCount = selectedCount;
+        if (selectedCount == 0)
+        {
+            MediasSelectedCount = -1;
+        }
     }
 
     private async void MediaItemsView_OnProcessKeyboardAccelerators(UIElement sender,
@@ -441,8 +452,8 @@ public sealed partial class MediaItemsView : UserControl
 public sealed partial class CompactMedia : ObservableObject
 {
     public int MediaId;
-    [ObservableProperty] private string _name = "";
-    [ObservableProperty] private string _uri = "";
-    [ObservableProperty] private bool _isArchived = false;
-    [ObservableProperty] private bool _isFavorite = false;
+    [ObservableProperty] public partial string Name { get; set; } = "";
+    [ObservableProperty] public partial string Uri { get; set; } = "";
+    [ObservableProperty] public partial bool IsArchived { get; set; } = false;
+    [ObservableProperty] public partial bool IsFavorite { get; set; } = false;
 }

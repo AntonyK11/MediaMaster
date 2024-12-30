@@ -13,7 +13,7 @@ public sealed partial class HomePage : Page
     {
         InitializeComponent();
 
-        MediaItemsView.SimpleFilterFunctions.Add(SearchBox.Filter);
+        MediaItemsView.SimpleFilterFunction = SearchBox.Filter;
     }
 
     private void HomePage_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -86,10 +86,10 @@ public sealed partial class HomePage : Page
                 await CreateMediaDialog.ShowDialogAsync();
                 break;
             case "New_Tag":
-                await CreateEditDeleteTagDialog.ShowDialogAsync(this.XamlRoot);
+                await CreateEditDeleteTagDialog.ShowDialogAsync(XamlRoot);
                 break;
             case "Manage_Tags":
-                await TagsListDialog.ShowDialogAsync(this.XamlRoot);
+                await TagsListDialog.ShowDialogAsync(XamlRoot);
                 break;
             case "Fix_Unlinked_Medias":
                 await FixUnlinkedMediasDialog.ShowDialogAsync();
@@ -116,7 +116,7 @@ public sealed partial class HomePage : Page
         {
             var sortFunction = MediaItemsView.SortFunction;
             var sortAscending = MediaItemsView.SortAscending;
-            var simpleFilterFunctions = MediaItemsView.SimpleFilterFunctions;
+            var simpleFilterFunctions = MediaItemsView.SimpleFilterFunction;
             var advancedFilterFunctions = MediaItemsView.AdvancedFilterFunctions;
 
             await Task.Run(async () =>

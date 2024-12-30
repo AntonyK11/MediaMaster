@@ -6,6 +6,7 @@ namespace MediaMaster.DataBase.Models;
 
 [Index(nameof(Uri), IsUnique = true)]
 [Index(nameof(Name))]
+[Index(nameof(Notes))]
 [Index(nameof(Modified))]
 [Index(nameof(Added))]
 [Index(nameof(IsArchived))]

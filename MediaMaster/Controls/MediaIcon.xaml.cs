@@ -14,11 +14,11 @@ namespace MediaMaster.Controls;
 [DependencyProperty("CanOpen", typeof(bool), DefaultValue = true)]
 [DependencyProperty("IconMargin", typeof(Thickness), DefaultValueExpression = "new Thickness(0)")]
 [DependencyProperty("IconHeight", typeof(double), DefaultValue = double.NaN)]
-public sealed partial class MediaIcon
+public sealed partial class MediaIcon : UserControl
 {
     private TaskCompletionSource? _taskSource;
     
-    public Image IconImage => Image;
+    public Image IconImage => Icon;
 
     public MediaIcon()
     {
@@ -142,7 +142,7 @@ public sealed partial class MediaIcon
     {
         if (Uris.Count != 1)
         {
-            Image.Source = IconService.GetDefaultIcon(null);
+            Icon.Source = IconService.GetDefaultIcon(null);
             return;
         }
 
@@ -154,18 +154,18 @@ public sealed partial class MediaIcon
 
         if (icon != null)
         {
-            await App.DispatcherQueue.EnqueueAsync(() => Image.Source = icon);
+            await App.DispatcherQueue.EnqueueAsync(() => Icon.Source = icon);
             return;
         }
 
-        if (Image.Source != null)
+        if (Icon.Source != null)
         {
-            Image.Source = null;
+            Icon.Source = null;
         }
 
         if (uri == Uris.First() && !tcs.Task.IsCompleted)
         {
-            IconService.SetIcon(Uris.First(), ImageMode, (int)ActualWidth, (int)ActualHeight, Image, tcs);
+            IconService.SetIcon(Uris.First(), ImageMode, (int)ActualWidth, (int)ActualHeight, Icon, tcs);
         }
     }
 }

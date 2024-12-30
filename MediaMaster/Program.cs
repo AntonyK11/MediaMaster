@@ -16,7 +16,6 @@ internal static partial class Program
 
     // Made the Main method synchronous to allow drag and drop to work
     // https://github.com/microsoft/microsoft-ui-xaml/issues/9061#issuecomment-1925433956
-
     [STAThread]
     public static int Main(string[] args)
     {

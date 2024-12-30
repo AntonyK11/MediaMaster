@@ -32,11 +32,11 @@ public sealed class AddMediasViewModel : INavigationAware
         {
             if (_mediaPaths != null)
             {
-                await App.GetService<MediaService>().AddMediaAsync(_mediaPaths, tagIds, notes);
+                await FileWebsiteService.AddMediaAsync(_mediaPaths, tagIds, notes);
             }
             else if (_browserTitleUrl != null)
             {
-                await App.GetService<MediaService>().AddMediaAsync(_browserTitleUrl, null, tagIds, notes);
+                await FileWebsiteService.AddMediaAsync(_browserTitleUrl, tagIds, notes);
             }
         });
     }

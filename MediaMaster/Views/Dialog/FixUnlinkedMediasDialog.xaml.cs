@@ -6,23 +6,21 @@ using MediaMaster.DataBase;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
-using MediaMaster.Services.MediaInfo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using Windows.Devices.Geolocation;
 using WinUI3Localizer;
 
 namespace MediaMaster.Views.Dialog;
 
 public sealed partial class MediaProperties : ObservableObject
 {
-    [ObservableProperty] private Media _media = null!;
-    [ObservableProperty] private string _path = null!;
+    [ObservableProperty] public partial Media Media { get; set; } = null!;
+    [ObservableProperty] public partial string Path { get; set; } = null!;
     public string OldPath = "";
-    [ObservableProperty] private Visibility _showDuplicateControl = Visibility.Collapsed;
-    [ObservableProperty] private Visibility _showNotValidControl = Visibility.Visible;
-    [ObservableProperty] private Visibility _showValidControl = Visibility.Collapsed;
-    [ObservableProperty] private bool _isDeleted;
+    [ObservableProperty] public partial Visibility ShowDuplicateControl { get; set; } = Visibility.Collapsed;
+    [ObservableProperty] public partial Visibility ShowNotValidControl { get; set; } = Visibility.Visible;
+    [ObservableProperty] public partial Visibility ShowValidControl { get; set; } = Visibility.Collapsed;
+    [ObservableProperty] public partial bool IsDeleted { get; set; }
 }
 
 [DependencyProperty("GenerateBookmarkTags", typeof(bool), DefaultValue = true, IsReadOnly = true)]
@@ -152,7 +150,8 @@ public sealed partial class FixUnlinkedMediasDialog : Page
                             }
                         }
 
-                        (var isNew, newTag) = await MediaService.GetFileTag(media.Path, database: database);
+                        var tags = await database.Tags.GroupBy(t => t.Name).Select(g => g.First()).ToDictionaryAsync(t => t.Name);
+                        (var isNew, newTag) = MediaService.GetFileTag(media.Path, tags);
                         if (newTag != null)
                         {
                             if (isNew)

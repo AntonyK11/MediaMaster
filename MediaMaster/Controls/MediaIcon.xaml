@@ -35,11 +35,11 @@
                 x:Name="ProgressRing"
                 x:Load="{x:Bind LoadIcon}"
                 IsActive="True"
-                Visibility="{x:Bind Image.Source, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}" />
+                Visibility="{x:Bind Icon.Source, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}" />
             <Image
-                Name="Image"
+                Name="Icon"
                 Margin="{x:Bind Padding, Mode=OneWay}"
-                Visibility="{x:Bind Image.Source, Converter={StaticResource NullToVisibilityConverterInverted}, Mode=OneWay}" />
+                Visibility="{x:Bind Icon.Source, Converter={StaticResource NullToVisibilityConverterInverted}, Mode=OneWay}" />
         </Grid>
 
         <VisualStateManager.VisualStateGroups>

@@ -16,6 +16,7 @@ public abstract class MediaInfoTextBase(DockPanel parent) : MediaInfoControlBase
             Spacing = 4
         };
         _stackPanel.SetValue(DockPanel.DockProperty, Dock.Top);
+        AddAnimation(_stackPanel);
 
         Title = GetTitleTextBlock();
         Text = new TextBlock

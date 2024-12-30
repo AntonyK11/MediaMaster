@@ -110,24 +110,6 @@ public static class WindowsNativeValues
         public int SizeOfData;
     }
 
-    // [StructLayout(LayoutKind.Sequential)]
-    // public struct Point
-    // {
-    //     public int x;
-    //     
-    //     public int y;
-    //
-    //     //public static implicit operator Point(POINT point)
-    //     //{
-    //     //    return new Point(point.x, point.y);
-    //     //}
-    //
-    //     //public static implicit operator POINT(Point point)
-    //     //{
-    //     //    return new POINT { x = point.X, y = point.Y };
-    //     //}
-    // }
-
     [StructLayout(LayoutKind.Sequential)]
     public struct ImageListDrawParams
     {

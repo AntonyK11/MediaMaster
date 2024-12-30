@@ -56,7 +56,7 @@
         </Grid.ColumnDefinitions>
 
         <animations:Implicit.Animations>
-            <animations:OffsetAnimation Duration="0:0:0.3" />
+            <animations:OffsetAnimation Duration="0:0:0.25" />
         </animations:Implicit.Animations>
 
         <Image

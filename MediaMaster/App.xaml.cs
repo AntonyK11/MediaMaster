@@ -11,7 +11,6 @@ using System.Text.Json;
 using MediaMaster.DataBase;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Helpers;
-using H.NotifyIcon.EfficiencyMode;
 using WinUIEx;
 
 namespace MediaMaster;
@@ -28,16 +27,15 @@ public sealed partial class App : Application
     {
         if ((Current as App)!.Host.Services.GetService(typeof(T)) is not T service)
         {
-            throw new ArgumentException(
-                $"{typeof(T)} needs to be registered in ConfigureServices within App.xaml.cs.");
+            throw new ArgumentException($"{typeof(T)} needs to be registered in ConfigureServices within App.xaml.cs.");
         }
 
         return service;
     }
 
-    public static MainWindow? MainWindow;
+    public static MainWindow? MainWindow { get; set; }
 
-    public static FlyoutWindow? Flyout;
+    public static FlyoutWindow? Flyout { get; set; }
 
     public static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
@@ -91,7 +89,6 @@ public sealed partial class App : Application
                 services.AddSingleton<TasksService>();
 
                 services.AddSingleton<SearchSavingService>(); 
-                services.AddSingleton<MediaService>();
             }).Build();
 
         GetService<IAppNotificationService>().Initialize();
@@ -101,13 +98,15 @@ public sealed partial class App : Application
         {
             var theme = JsonSerializer.Deserialize((string)obj, SourceGenerationContext.Default.ElementTheme);
 
-            if (theme is ElementTheme.Dark)
+            switch (theme)
             {
-                RequestedTheme = ApplicationTheme.Dark;
-            }
-            else if (theme is ElementTheme.Light)
-            {
-                RequestedTheme = ApplicationTheme.Light;
+                case ElementTheme.Dark:
+                    RequestedTheme = ApplicationTheme.Dark;
+                    break;
+                
+                case ElementTheme.Light:
+                    RequestedTheme = ApplicationTheme.Light;
+                    break;
             }
         }
 

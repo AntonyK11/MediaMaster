@@ -11,13 +11,14 @@
 	  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
 	  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
 	  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+	  xmlns:desktop10="http://schemas.microsoft.com/appx/manifest/desktop/windows10/10"
 	  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-	  IgnorableNamespaces="desktop desktop4 desktop5 com uap uap2 uap3 uap5 rescap">
+	  IgnorableNamespaces="desktop desktop4 desktop5 desktop10 com uap uap2 uap3 uap5 rescap">
 
 	<Identity 
 			Name="AntonyKonstantas.MediaMasterApp" 
 			Publisher="CN=0EB75C35-165C-4A6B-882E-AE20F61FAACA" 
-			Version="1.4.2.0" />
+			Version="1.5.0.0" />
 
 	<Properties>
 		<DisplayName>MediaMaster App</DisplayName>
@@ -62,21 +63,24 @@
 			<desktop4:Extension Category="windows.fileExplorerContextMenus">
 				<desktop4:FileExplorerContextMenus>
 					<desktop5:ItemType Type="Directory"  >
-						<desktop5:Verb Id="CustomMenu" Clsid="7D72951C-E734-4B83-8185-30A94D7A2E36" />
+						<desktop5:Verb Id="MediaMasterContextMenu" Clsid="293FA9E8-3EFD-4CEB-B444-A67BB077FFDF" />
 					</desktop5:ItemType>
 					<desktop5:ItemType Type="*"  >
-						<desktop5:Verb Id="CustomMenu" Clsid="7D72951C-E734-4B83-8185-30A94D7A2E36" />
+						<desktop5:Verb Id="MediaMasterContextMenu" Clsid="293FA9E8-3EFD-4CEB-B444-A67BB077FFDF" />
 					</desktop5:ItemType>
 					<desktop5:ItemType Type="Directory\Background">
-						<desktop5:Verb Id="CustomMenu" Clsid="7D72951C-E734-4B83-8185-30A94D7A2E36" />
+						<desktop5:Verb Id="MediaMasterContextMenu" Clsid="293FA9E8-3EFD-4CEB-B444-A67BB077FFDF" />
 					</desktop5:ItemType>
+					<desktop10:ItemType Type="Drive">
+						<desktop10:Verb Id="MediaMasterContextMenu" Clsid="293FA9E8-3EFD-4CEB-B444-A67BB077FFDF" />
+					</desktop10:ItemType>
 				</desktop4:FileExplorerContextMenus>
 			</desktop4:Extension>
 			
 			<com:Extension Category="windows.comServer">
 				<com:ComServer>
 					<com:SurrogateServer  DisplayName="MediaMaster Context Menu">
-						<com:Class Id="7D72951C-E734-4B83-8185-30A94D7A2E36" Path="ContextMenuCustomHost.dll" ThreadingModel="STA"/>
+						<com:Class Id="293FA9E8-3EFD-4CEB-B444-A67BB077FFDF" Path="ContextMenuCustomHost.dll" ThreadingModel="STA"/>
 					</com:SurrogateServer>
 				</com:ComServer>
 			</com:Extension>

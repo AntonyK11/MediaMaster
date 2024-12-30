@@ -13,17 +13,17 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public readonly ICommand SwitchThemeCommand;
 
-    [ObservableProperty] private ICollection<LanguageItem> _availableLanguages;
+    [ObservableProperty] public partial ICollection<LanguageItem> AvailableLanguages { get; set; }
 
-    [ObservableProperty] private bool _canOpenOnWindowsStartup;
+    [ObservableProperty] public partial bool CanOpenOnWindowsStartup { get; set; }
 
-    [ObservableProperty] private ElementTheme _elementTheme;
+    [ObservableProperty] public partial ElementTheme ElementTheme { get; set; }
 
-    [ObservableProperty] private bool _openOnWindowsStartup;
+    [ObservableProperty] public partial bool OpenOnWindowsStartup { get; set; }
 
-    [ObservableProperty] private LanguageItem _selectedLanguage;
+    [ObservableProperty] public partial LanguageItem SelectedLanguage { get; set; }
 
-    [ObservableProperty] private string _versionDescription;
+    [ObservableProperty] public partial string VersionDescription { get; set; }
 
     public SettingsViewModel(IThemeSelectorService themeSelectorService, ITranslationService translationService)
     {

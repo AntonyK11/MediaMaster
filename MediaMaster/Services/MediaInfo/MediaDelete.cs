@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.WinUI.Controls;
+﻿using CommunityToolkit.WinUI.Animations;
+using CommunityToolkit.WinUI.Controls;
 using MediaMaster.DataBase;
 using WinUI3Localizer;
 
@@ -6,19 +7,22 @@ namespace MediaMaster.Services.MediaInfo;
 
 public sealed class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
 {
+    private Grid? _grid;
     private Button? _button;
 
     protected override string TranslationKey => "MediaDelete";
 
     protected override void Setup()
     {
-        var grid = new Grid
+        _grid = new Grid
         {
             Padding = new Thickness(0, 16, 0, 0)
         };
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.SetValue(DockPanel.DockProperty, Dock.Bottom);
+        _grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _grid.SetValue(DockPanel.DockProperty, Dock.Bottom);
+
+        AddAnimation(_grid, false);
 
         _button = new Button
         {
@@ -27,8 +31,8 @@ public sealed class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
         _button.SetValue(Grid.RowProperty, 1);
         _button.Click += (_, _) => DeleteMedias();
 
-        grid.Children.Add(_button);
-        Parent.Children.Add(grid);
+        _grid.Children.Add(_button);
+        Parent.Children.Add(_grid);
     }
 
     protected override void SetupTranslations()
@@ -46,17 +50,17 @@ public sealed class MediaDelete(DockPanel parent) : MediaInfoControlBase(parent)
 
     protected override void Show()
     {
-        if (_button != null)
+        if (_grid != null)
         {
-            _button.Visibility = Visibility.Visible;
+            _grid.Visibility = Visibility.Visible;
         }
     }
 
     protected override void Hide()
     {
-        if (_button != null)
+        if (_grid != null)
         {
-            _button.Visibility = Visibility.Collapsed;
+            _grid.Visibility = Visibility.Collapsed;
         }
     }
 

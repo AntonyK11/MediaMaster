@@ -9,6 +9,8 @@ public static class Transaction
 {
     public static async Task<bool> Try(MediaDbContext database, Func<Task> func)
     {
+        await App.GetService<TasksService>().AddGlobalTak();
+
         await using var transaction = await database.Database.BeginTransactionAsync();
 
         try
@@ -32,6 +34,11 @@ public static class Transaction
             });
             return false;
         }
+        finally
+        {
+            await App.GetService<TasksService>().RemoveGlobalTak();
+        }
+
         return true;
     }
 }

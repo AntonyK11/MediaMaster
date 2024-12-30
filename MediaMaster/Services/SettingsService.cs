@@ -9,11 +9,11 @@ namespace MediaMaster.Services;
 
 public sealed partial class SettingsService : ObservableObject
 {
-    [ObservableProperty] private bool _leaveAppRunning;
+    [ObservableProperty] public partial bool LeaveAppRunning { get; set; }
 
-    [ObservableProperty] private bool _showExtensions;
-    [ObservableProperty] private bool _tutorialWasShown;
-    [ObservableProperty] private bool _runInBackgroundPopupShown;
+    [ObservableProperty] public partial bool ShowExtensions { get; set; }
+    [ObservableProperty] public partial bool TutorialWasShown { get; set; }
+    [ObservableProperty] public partial bool RunInBackgroundPopupShown { get; set; }
 
     public static async Task<T?> ReadSettingAsync<T>(string key, JsonTypeInfo<T> typeInfo)
     {

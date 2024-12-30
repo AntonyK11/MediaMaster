@@ -18,6 +18,7 @@ namespace MediaMaster.Helpers;
 [JsonSerializable(typeof(FilterGroup))]
 [JsonSerializable(typeof(NameOperations))]
 [JsonSerializable(typeof(NotesOperations))]
+[JsonSerializable(typeof(PathOperations))]
 [JsonSerializable(typeof(DateOperations))]
 [JsonSerializable(typeof(TagsOperations))]
 internal sealed partial class SourceGenerationContext : JsonSerializerContext;
@@ -53,22 +54,22 @@ public sealed class FilterObjectConverter : JsonConverter<FilterObject>
             {
                 return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.FilterGroup);
             }
-            else
-            {
-                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.Filter);
-            }
+
+            return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.Filter);
         }
     }
 
     public override void Write(Utf8JsonWriter writer, FilterObject value, JsonSerializerOptions options)
     {
-        if (value is FilterGroup filterGroup)
+        switch (value)
         {
-            JsonSerializer.Serialize(writer, filterGroup, SourceGenerationContext.Default.FilterGroup);
-        }
-        else if (value is Filter filter)
-        {
-            JsonSerializer.Serialize(writer, filter, SourceGenerationContext.Default.Filter);
+            case FilterGroup filterGroup:
+                JsonSerializer.Serialize(writer, filterGroup, SourceGenerationContext.Default.FilterGroup);
+                break;
+
+            case Filter filter:
+                JsonSerializer.Serialize(writer, filter, SourceGenerationContext.Default.Filter);
+                break;
         }
     }
 }
@@ -81,42 +82,40 @@ public class OperationsConverter : JsonConverter<Operations>
         {
             doc.RootElement.TryGetProperty("Name", out var name);
 
-            if (name.GetString() == "NameOperations")
+            return name.GetRawText() switch
             {
-                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NameOperations);
-            }
-            else if (name.GetString() == "NotesOperations")
-            {
-                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NotesOperations);
-            }
-            else if (name.GetString() == "DateOperations")
-            {
-                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.DateOperations);
-            }
-            else
-            {
-                return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.TagsOperations);
-            }
+                "NameOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NameOperations),
+                "NotesOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NotesOperations),
+                "PathOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.PathOperations),
+                "DateOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.DateOperations),
+                _ => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.TagsOperations)
+            };
         }
     }
 
     public override void Write(Utf8JsonWriter writer, Operations value, JsonSerializerOptions options)
     {
-        if (value is NameOperations nameOperations)
+        switch (value)
         {
-            JsonSerializer.Serialize(writer, nameOperations, SourceGenerationContext.Default.NameOperations);
-        }
-        else if (value is NotesOperations notesOperations)
-        {
-            JsonSerializer.Serialize(writer, notesOperations, SourceGenerationContext.Default.NotesOperations);
-        }
-        else if (value is DateOperations dateOperations)
-        {
-            JsonSerializer.Serialize(writer, dateOperations, SourceGenerationContext.Default.DateOperations);
-        }
-        else if (value is TagsOperations tagsOperations)
-        {
-            JsonSerializer.Serialize(writer, tagsOperations, SourceGenerationContext.Default.TagsOperations);
+            case NameOperations nameOperations:
+                JsonSerializer.Serialize(writer, nameOperations, SourceGenerationContext.Default.NameOperations);
+                break;
+
+            case NotesOperations notesOperations:
+                JsonSerializer.Serialize(writer, notesOperations, SourceGenerationContext.Default.NotesOperations);
+                break;
+
+            case PathOperations pathOperations:
+                JsonSerializer.Serialize(writer, pathOperations, SourceGenerationContext.Default.PathOperations);
+                break;
+
+            case DateOperations dateOperations:
+                JsonSerializer.Serialize(writer, dateOperations, SourceGenerationContext.Default.DateOperations);
+                break;
+
+            case TagsOperations tagsOperations:
+                JsonSerializer.Serialize(writer, tagsOperations, SourceGenerationContext.Default.TagsOperations);
+                break;
         }
     }
 }

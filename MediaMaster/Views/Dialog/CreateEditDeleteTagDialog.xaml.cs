@@ -14,6 +14,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 {
     private readonly Tag? _currentTag;
     public EditTagDialogViewModel ViewModel = new();
+    private static readonly Random Rand = new();
 
     public CreateEditDeleteTagDialog(int? tagId = null, Tag? tagParam = null)
     {
@@ -26,18 +27,22 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                 tagParam = database.Tags.FirstOrDefault(t => t.TagId == tagId);
             }
 
-            TagView.TagId = tagId;
+            ParentTagView.CurrentTag = tagParam;
+
+            ChildrenTagView.SelectTagChildren = true;
+            ChildrenTagView.CurrentTag = tagParam;
+
             _currentTag = tagParam;
         }
         else if (tagParam != null)
         {
-            _ = TagView.UpdateItemSource(tagParam.Parents);
+            _ = ParentTagView.UpdateItemSource(tagParam.Parents);
+            _ = ChildrenTagView.UpdateItemSource(tagParam.Children);
         }
 
         if (tagParam == null)
         {
-            Windows.UI.Color emptyColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);
-            ViewModel.Color = emptyColor;
+            ViewModel.Color = $"{Rand.NextInt64()}".CalculateColor().ToWindowsColor();
             return;
         }
 
@@ -49,6 +54,16 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
         Color color = ViewModel.Color.ToSystemColor();
         CheckColorContrast(color);
+    }
+
+    private void Flyout_OnOpening(object? sender, object e)
+    {
+        ColorPicker.Color = ViewModel.Color;
+    }
+
+    private void RandomizeColor_Click(object sender, RoutedEventArgs e)
+    {
+        ColorPicker.Color = $"{Rand.NextInt64()}".CalculateColor().ToWindowsColor();
     }
 
     private void Confirm_Click(object sender, RoutedEventArgs e)
@@ -108,7 +123,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         {
             if (xamlRoot != App.MainWindow.Content.XamlRoot)
             {
-                result = await dialog.ShowAndEnqueueAsync(true);
+                result = await dialog.ShowAndEnqueueSecondaryAsync();
             }
             else
             {
@@ -120,38 +135,47 @@ public sealed partial class CreateEditDeleteTagDialog : Page
             {
                 case ContentDialogResult.Primary:
                 {
-                    await using (var database = new MediaDbContext())
+                    if (tagDialog.ViewModel.Name != tagDialog._currentTag?.Name)
                     {
-                        var foundTag = await database.Tags.Select(t => t.Name).FirstOrDefaultAsync(id => id == tagDialog.ViewModel.Name);
-                        if (foundTag != null)
+                        await using (var database = new MediaDbContext())
                         {
+                            var foundTag = await database.Tags.Select(t => t.Name)
+                                .FirstOrDefaultAsync(id => id == tagDialog.ViewModel.Name);
+                            if (foundTag != null)
+                            {
 
-                            ContentDialog tagAlreadyExistsDialog = new()
-                            {
-                                XamlRoot = xamlRoot,
-                                DefaultButton = ContentDialogButton.Close,
-                                RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
-                            };
-                            Uids.SetUid(tagAlreadyExistsDialog, "/Tag/TagAlreadyExistsDialog");
-                            App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => tagAlreadyExistsDialog.RequestedTheme = theme;
-                            if (xamlRoot != App.MainWindow.Content.XamlRoot)
-                            {
-                                secondaryResult = await tagAlreadyExistsDialog.ShowAndEnqueueAsync(true);
+                                ContentDialog tagAlreadyExistsDialog = new()
+                                {
+                                    XamlRoot = xamlRoot,
+                                    DefaultButton = ContentDialogButton.Close,
+                                    RequestedTheme = App.GetService<IThemeSelectorService>().ActualTheme
+                                };
+                                Uids.SetUid(tagAlreadyExistsDialog, "/Tag/TagAlreadyExistsDialog");
+                                App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) =>
+                                    tagAlreadyExistsDialog.RequestedTheme = theme;
+                                if (xamlRoot != App.MainWindow.Content.XamlRoot)
+                                {
+                                    secondaryResult = await tagAlreadyExistsDialog.ShowAndEnqueueSecondaryAsync();
+                                }
+                                else
+                                {
+                                    secondaryResult = await tagAlreadyExistsDialog.ShowAndEnqueueAsync();
+                                }
+
+                                if (secondaryResult == ContentDialogResult.Primary)
+                                {
+                                    await tagDialog.SaveChangesAsync();
+                                }
                             }
                             else
-                            {
-                                secondaryResult = await tagAlreadyExistsDialog.ShowAndEnqueueAsync();
-                            }
-
-                            if (secondaryResult == ContentDialogResult.Primary)
                             {
                                 await tagDialog.SaveChangesAsync();
                             }
                         }
-                        else
-                        {
-                            await tagDialog.SaveChangesAsync();
-                        }
+                    }
+                    else
+                    {
+                        await tagDialog.SaveChangesAsync();
                     }
                     break;
                 }
@@ -186,7 +210,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
         ContentDialogResult result;
         if (xamlRoot != App.MainWindow.Content.XamlRoot)
         {
-            result = await dialog.ShowAndEnqueueAsync(true);
+            result = await dialog.ShowAndEnqueueSecondaryAsync();
         }
         else
         {
@@ -220,6 +244,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                     trackedTag = await database.Tags
                         .AsTracking()
                         .Include(m => m.Parents)
+                        .Include(m => m.Children)
                         .FirstOrDefaultAsync(t => t.TagId == _currentTag.TagId);
                 }
 
@@ -228,8 +253,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                     trackedTag.Name = ViewModel.Name;
                     trackedTag.Shorthand = ViewModel.Shorthand;
 
-                    trackedTag.FirstParentReferenceName =
-                        TagView.GetItemSource().MinBy(t => t.Name)?.ReferenceName ?? "";
+                    trackedTag.FirstParentReferenceName = ParentTagView.GetItemSource().MinBy(t => t.Name)?.ReferenceName ?? "";
 
                     trackedTag.Color = ViewModel.Color.ToSystemColor();
                     trackedTag.Aliases = [.. AliasesListView.Strings];
@@ -243,7 +267,7 @@ public sealed partial class CreateEditDeleteTagDialog : Page
 
 
                     HashSet<int> currentTagIds = trackedTag.Parents.Select(t => t.TagId).ToHashSet();
-                    HashSet<int> selectedTagIds = TagView.GetItemSource().Select(t => t.TagId).ToHashSet();
+                    HashSet<int> selectedTagIds = ParentTagView.GetItemSource().Select(t => t.TagId).ToHashSet();
 
                     HashSet<int> tagsToAdd = selectedTagIds.Except(currentTagIds).ToHashSet();
                     HashSet<int> tagsToRemove = currentTagIds.Except(selectedTagIds).ToHashSet();
@@ -263,6 +287,45 @@ public sealed partial class CreateEditDeleteTagDialog : Page
                             .Where(t => t.ChildrenTagId == trackedTag.TagId && tagsToRemove.Contains(t.ParentsTagId))
                             .ToListAsync();
                         await database.BulkDeleteAsync(tagTagsToRemove);
+                    }
+
+                    currentTagIds = trackedTag.Children.Select(t => t.TagId).ToHashSet();
+                    selectedTagIds = ChildrenTagView.GetItemSource().Select(t => t.TagId).ToHashSet();
+
+                    tagsToAdd = selectedTagIds.Except(currentTagIds).ToHashSet();
+                    tagsToRemove = currentTagIds.Except(selectedTagIds).ToHashSet();
+
+                    // Bulk add new tags
+                    if (tagsToAdd.Count != 0)
+                    {
+                        List<TagTag> newTagTags = tagsToAdd.Select(tagId => new TagTag
+                            { ParentsTagId = trackedTag.TagId, ChildrenTagId = tagId }).ToList();
+                        await database.BulkInsertAsync(newTagTags);
+                    }
+
+                    // Bulk remove old tags
+                    if (tagsToRemove.Count != 0)
+                    {
+                        List<TagTag> tagTagsToRemove = await database.TagTags
+                            .Where(t => t.ParentsTagId == trackedTag.TagId && tagsToRemove.Contains(t.ChildrenTagId))
+                            .ToListAsync();
+                        await database.BulkDeleteAsync(tagTagsToRemove);
+                    }
+
+                    // Update children first parent reference name
+                    ICollection<Tag> tagsToModify = [];
+                    foreach (var tag in ChildrenTagView.GetItemSource())
+                    {
+                        if (tag.FirstParentReferenceName.IsNullOrEmpty() || string.CompareOrdinal(tag.FirstParentReferenceName, trackedTag.ReferenceName) > 0)
+                        {
+                            tag.FirstParentReferenceName = trackedTag.ReferenceName;
+                            tagsToModify.Add(tag);
+                        }
+                    }
+
+                    if (tagsToModify.Count != 0)
+                    {
+                        await database.BulkUpdateAsync(tagsToModify);
                     }
                 }
             });

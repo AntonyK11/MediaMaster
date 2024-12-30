@@ -95,7 +95,7 @@ public sealed partial class MainWindow : WindowEx
         DwmWindowAttribute attribute = (Environment.OSVersion.Version.Build < 22523)
             ? DwmWindowAttribute.SystemBackdropTypeDeprecated // Undocumented Backdrop attribute
             : DwmWindowAttribute.DwmWindowAttribute;
-        var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)DwSystemBackdropType.MainWindow;
+        var attributeValue = Environment.OSVersion.Version.Build < 22523 ? 1 : (int)DwSystemBackdropType.MainWindow;
         DwmSetWindowAttribute(hWnd, attribute, ref attributeValue, sizeof(int));
 
         attributeValue = theme == ElementTheme.Dark ? 1 : 0;

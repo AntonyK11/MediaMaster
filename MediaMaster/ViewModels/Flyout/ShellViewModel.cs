@@ -7,11 +7,11 @@ namespace MediaMaster.ViewModels.Flyout;
 
 public sealed partial class ShellViewModel : ObservableObject
 {
-    [ObservableProperty] private bool _isBackEnabled;
+    [ObservableProperty] public partial bool IsBackEnabled { get; set; }
 
-    [ObservableProperty] private bool _isFocused;
+    [ObservableProperty] public partial bool IsFocused { get; set; }
 
-    [ObservableProperty] private object? _selected;
+    [ObservableProperty] public partial object? Selected { get; set; }
 
     public ShellViewModel(FlyoutNavigationService flyoutNavigationService)
     {

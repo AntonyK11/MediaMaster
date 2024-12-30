@@ -227,4 +227,10 @@ Are you sure you want to create a new tag with the same name ?</value>
   <data name="TagAlreadyExistsDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ColorPicker_RandomizeColorButton.Content" xml:space="preserve">
+    <value>Randomize color</value>
+  </data>
+  <data name="Children_TextBlock.Text" xml:space="preserve">
+    <value>Children</value>
+  </data>
 </root>
