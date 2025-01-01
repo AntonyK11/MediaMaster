@@ -165,7 +165,7 @@ public sealed partial class FlyoutWindow
     private void OnPropertyChanged(DependencyObject sender, DependencyProperty dp)
     {
         this.SetForegroundWindow();
-        this.Move((int)PosX, (int)ContentGrid.PosY);
+        this.MoveAndResize(PosX, ContentGrid.PosY, WindowWidth, WindowHeight);
         sender.SetValue(dp, ContentGrid.PosY);
     }
 }

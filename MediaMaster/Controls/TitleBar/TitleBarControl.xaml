@@ -102,7 +102,7 @@
                 <VisualState x:Name="WindowDeactivated">
                     <VisualState.Setters>
                         <Setter Target="TitleText.Foreground" Value="{ThemeResource TitleBarDeactivatedForegroundBrush}" />
-                        <!--<Setter Target="SubtitleText.Foreground" Value="{ThemeResource SubtitleBarDeactivatedForegroundBrush}" />-->
+                        <Setter Target="SubtitleText.Foreground" Value="{ThemeResource SubtitleBarDeactivatedForegroundBrush}" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
