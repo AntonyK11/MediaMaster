@@ -52,13 +52,13 @@ public sealed class SearchSavingService
         }
     }
 
-    public async Task<ICollection<FilterObject>?> GetSavedSearch(string name)
+    public static async Task<ICollection<FilterObject>?> GetSavedSearch(string name)
     {
         var savedSearch = (await GetStoredSearches()).FirstOrDefault(s => s.Name == name);
         return savedSearch?.FilterObjects;
     }
 
-    public async void SetSavedSearch(string name, StoredSearch? addStoredSearch = null)
+    public static async void SetSavedSearch(string name, StoredSearch? addStoredSearch = null)
     {
         List<StoredSearch> storedSearches = await GetStoredSearches();
 
@@ -79,11 +79,37 @@ public sealed class SearchSavingService
     private static async Task<List<StoredSearch>> GetStoredSearches()
     {
         var storageItem = await ApplicationData.Current.LocalFolder.CreateFileAsync("Searches.json", CreationCollisionOption.OpenIfExists);
-        var browsersDataString = await File.ReadAllTextAsync(storageItem.Path);
-        if (browsersDataString.IsNullOrEmpty()) return [];
+        var searchDataString = await File.ReadAllTextAsync(storageItem.Path);
+        if (searchDataString.IsNullOrEmpty()) return [];
         try
         {
-            return JsonSerializer.Deserialize(browsersDataString, SourceGenerationContext.Default.ListStoredSearch) ?? [];
+            var oldFormat = searchDataString.Contains("_orCombination");
+            if (oldFormat)
+            {
+                searchDataString = searchDataString.Replace("_orCombination", "_andCombination");
+            }
+
+            var result = JsonSerializer.Deserialize(searchDataString, SourceGenerationContext.Default.ListStoredSearch) ?? [];
+
+            // Convert the old format with _orCombination to the new format with _andCombination
+            if (oldFormat)
+            {
+                foreach (var filterGroups in result.Select(s => s.FilterObjects.OfType<FilterGroup>().ToList()))
+                {
+                    foreach (var filterGroup in filterGroups)
+                    {
+                        filterGroup.AndCombination = !filterGroup.AndCombination;
+                    }
+                    foreach (var filterGroup in filterGroups.SelectMany(g => g.FilterObjects.OfType<FilterGroup>()))
+                    {
+                        filterGroup.AndCombination = !filterGroup.AndCombination;
+                    }
+                }
+
+                await StoreSearches(result);
+            }
+
+            return result;
         }
         catch (Exception e)
         {
@@ -121,12 +147,12 @@ public partial class SavedSearch : ObservableObject
     public void Delete()
     {
         App.GetService<SearchSavingService>().DeleteSavedSearch(Name);
-        App.GetService<SearchSavingService>().SetSavedSearch(Name);
+        SearchSavingService.SetSavedSearch(Name);
     }
 
     public async Task<ICollection<FilterObject>> GetFilterObjects()
     {
-        return await App.GetService<SearchSavingService>().GetSavedSearch(Name) ?? [];
+        return await SearchSavingService.GetSavedSearch(Name) ?? [];
     }
 }
 

@@ -223,7 +223,7 @@
                                 Grid.Row="2"
                                 HorizontalAlignment="Center"
                                 TargetType="x:Boolean"
-                                Value="{x:Bind OrCombination, Mode=OneWay}">
+                                Value="{x:Bind AndCombination, Mode=OneWay}">
 
                                 <controls:Case Value="True">
                                     <Button
@@ -231,7 +231,7 @@
                                         Click="SwitchButton_OnClick"
                                         Tag="{x:Bind}">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <TextBlock l:Uids.Uid="/Home/Or_FilterGroup" FontSize="14" />
+                                            <TextBlock l:Uids.Uid="/Home/And_FilterGroup" FontSize="14" />
                                             <FontIcon FontSize="12" Glyph="&#xE8AB;" />
                                         </StackPanel>
                                     </Button>
@@ -243,7 +243,7 @@
                                         Click="SwitchButton_OnClick"
                                         Tag="{x:Bind}">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <TextBlock l:Uids.Uid="/Home/And_FilterGroup" FontSize="14" />
+                                            <TextBlock l:Uids.Uid="/Home/Or_FilterGroup" FontSize="14" />
                                             <FontIcon FontSize="12" Glyph="&#xE8AB;" />
                                         </StackPanel>
                                     </Button>
@@ -282,7 +282,7 @@
                     Text="{x:Bind Name, Mode=OneWay}" />
                 <Button
                     Grid.Column="1"
-                    Margin="0, -2, 0, -4"
+                    Margin="0,-2,0,-4"
                     Padding="5"
                     Background="Transparent"
                     BorderThickness="0"

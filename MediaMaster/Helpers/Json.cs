@@ -50,7 +50,7 @@ public sealed class FilterObjectConverter : JsonConverter<FilterObject>
     {
         using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
         {
-            if (doc.RootElement.TryGetProperty("_orCombination", out _))
+            if (!doc.RootElement.TryGetProperty("FiltersCollection", out _))
             {
                 return JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.FilterGroup);
             }
@@ -84,11 +84,12 @@ public class OperationsConverter : JsonConverter<Operations>
 
             return name.GetRawText() switch
             {
-                "NameOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NameOperations),
-                "NotesOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NotesOperations),
-                "PathOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.PathOperations),
-                "DateOperations" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.DateOperations),
-                _ => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.TagsOperations)
+                "\"NameOperations\"" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NameOperations),
+                "\"NotesOperations\"" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.NotesOperations),
+                "\"PathOperations\"" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.PathOperations),
+                "\"DateOperations\"" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.DateOperations),
+                "\"TagsOperations\"" => JsonSerializer.Deserialize(doc.RootElement.GetRawText(), SourceGenerationContext.Default.TagsOperations),
+                _ => null
             };
         }
     }

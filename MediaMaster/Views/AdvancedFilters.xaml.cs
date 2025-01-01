@@ -51,23 +51,26 @@ public sealed partial class AdvancedFilters : Page
                     break;
                 }
 
-                case FilterGroup { OrCombination: true } filterGroup:
-                    Expression<Func<Media, bool>>? orExpression = BuildOrExpression(await GetFilterExpressions(filterGroup.FilterObjects));
-                    if (orExpression != null)
-                    {
-                        expressions.Add(orExpression);
-                    }
-                    break;
-
-                case FilterGroup filterGroup:
+                case FilterGroup { AndCombination: true } filterGroup:
                 {
                     Expression<Func<Media, bool>>? andExpression = BuildAndExpression(await GetFilterExpressions(filterGroup.FilterObjects));
                     if (andExpression != null)
                     {
                         expressions.Add(andExpression);
                     }
+
                     break;
                 }
+
+                case FilterGroup filterGroup:
+                {
+                    Expression<Func<Media, bool>>? orExpression = BuildOrExpression(await GetFilterExpressions(filterGroup.FilterObjects));
+                    if (orExpression != null)
+                    {
+                        expressions.Add(orExpression);
+                    }
+                    break;
+                    }
             }
         }
 
@@ -346,7 +349,7 @@ public sealed partial class AdvancedFilters : Page
     private void SwitchButton_OnClick(object sender, RoutedEventArgs e)
     {
         var filterGroup = (FilterGroup)((Button)sender).Tag;
-        filterGroup.OrCombination = !filterGroup.OrCombination;
+        filterGroup.AndCombination = !filterGroup.AndCombination;
         SetSearchState(false);
     }
 
@@ -715,8 +718,8 @@ public sealed partial class FilterGroup : FilterObject
     public ObservableCollection<FilterObject> FilterObjects { get; set; } = [];
 
     [ObservableProperty]
-    [JsonPropertyName("_orCombination")]
-    public partial bool OrCombination { get; set; } = true;
+    [JsonPropertyName("_andCombination")]
+    public partial bool AndCombination { get; set; }
 }
 
 internal sealed partial class FiltersTemplateSelector : DataTemplateSelector
