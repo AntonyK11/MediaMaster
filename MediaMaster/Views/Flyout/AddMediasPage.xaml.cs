@@ -29,7 +29,7 @@ public sealed partial class AddMediasPage : Page
         App.GetService<TasksService>().FlyoutTaskAdded -= NewFlyoutTask;
         if (App.Flyout?.AutoClose == true)
         {
-            App.Flyout.HideFlyout();
+            App.Flyout.CloseFlyout();
         }
         else
         {

@@ -64,10 +64,10 @@ public sealed class TeachingService : ITeachingService
                 //App.GetService<MainNavigationService>().NavigateTo(typeof(HomePage).FullName);
                 break;
             case 2:
-                App.Flyout?.HideFlyout();
+                App.Flyout?.CloseFlyout();
                 break;
             case 3:
-                App.Flyout?.HideFlyout();
+                App.Flyout?.CloseFlyout();
                 break;
         }
 

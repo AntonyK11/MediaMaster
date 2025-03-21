@@ -64,7 +64,7 @@ public sealed partial class ShellPage : Page
 
     private void Hide_Flyout(object sender, RoutedEventArgs routedEventArgs)
     {
-        App.Flyout?.HideFlyout();
+        App.Flyout?.CloseFlyout();
     }
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)

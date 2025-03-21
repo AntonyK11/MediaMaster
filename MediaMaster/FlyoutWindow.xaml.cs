@@ -55,11 +55,11 @@ public sealed partial class FlyoutWindow
         this.MoveAndResize(PosX, BottomY, WindowWidth, WindowHeight);
         ContentGrid.PosY = BottomY;
 
-        Closed += (_, e) =>
-        {
-            HideFlyout();
-            e.Handled = true;
-        };
+        //Closed += (_, e) =>
+        //{
+        //    HideFlyout();
+        //    e.Handled = true;
+        //};
 
         ContentGrid.RegisterPropertyChangedCallback(ContentFrame.PosYProperty, OnPropertyChanged);
 
@@ -106,8 +106,28 @@ public sealed partial class FlyoutWindow
         ((FrameworkElement)Content).RequestedTheme = theme;
     }
 
-    public void HideFlyout()
+    public void CloseFlyout()
     {
+        if (App.MainWindow == null || !App.MainWindow.GetWindowStyle().HasFlag(WindowStyle.Visible))
+        {
+            if (App.GetService<SettingsService>().LeaveAppRunning)
+            {
+                HideFlyout();
+            }
+            else
+            {
+                App.Shutdown();
+            }
+        }
+        else
+        {
+            HideFlyout();
+        }
+    }
+
+    private void HideFlyout()
+    {
+        EfficiencyModeUtilities.SetEfficiencyMode(true);
         IsOpen = false;
 
         IsAlwaysOnTop = false;
@@ -118,17 +138,6 @@ public sealed partial class FlyoutWindow
         _hideStoryboard.Begin();
 
         App.GetService<FlyoutNavigationService>().GoBack();
-        if (App.MainWindow == null || !App.MainWindow.GetWindowStyle().HasFlag(WindowStyle.Visible))
-        {
-            if (App.GetService<SettingsService>().LeaveAppRunning)
-            {
-                EfficiencyModeUtilities.SetEfficiencyMode(true);
-            }
-            else
-            {
-                App.Shutdown();
-            }
-        }
     }
 
     public void ShowFlyout()
@@ -154,7 +163,7 @@ public sealed partial class FlyoutWindow
     {
         if (IsOpen)
         {
-            HideFlyout();
+            CloseFlyout();
         }
         else
         {

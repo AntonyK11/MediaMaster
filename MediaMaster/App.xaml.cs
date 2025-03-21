@@ -98,16 +98,12 @@ public sealed partial class App : Application
         {
             var theme = JsonSerializer.Deserialize((string)obj, SourceGenerationContext.Default.ElementTheme);
 
-            switch (theme)
+            RequestedTheme = theme switch
             {
-                case ElementTheme.Dark:
-                    RequestedTheme = ApplicationTheme.Dark;
-                    break;
-                
-                case ElementTheme.Light:
-                    RequestedTheme = ApplicationTheme.Light;
-                    break;
-            }
+                ElementTheme.Dark => ApplicationTheme.Dark,
+                ElementTheme.Light => ApplicationTheme.Light,
+                _ => RequestedTheme
+            };
         }
 
         UnhandledException += App_UnhandledException;
@@ -129,8 +125,11 @@ public sealed partial class App : Application
     {
         if (!GetService<TasksService>().IsTaskRunning())
         {
-            ((App)Current).Exit();
-            Environment.Exit(0);
+            GetService<TrayIconService>().Dispose();
+            Flyout?.Close();
+            MainWindow?.Close();
+            Current.Exit();
+            //Environment.Exit(0);
         }
         else
         {

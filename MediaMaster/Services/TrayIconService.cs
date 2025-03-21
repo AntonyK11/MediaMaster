@@ -129,7 +129,7 @@ internal sealed class TrayIconService
 
     private readonly int m_SizeBitmap = 11;
 
-    public IntPtr MessageWindow;
+    public Window MessageWindow;
     private readonly WindowMessageMonitor? monitor;
     private readonly WindowMessageMonitor? monitor2;
 
@@ -139,11 +139,10 @@ internal sealed class TrayIconService
 
     public TrayIconService()
     {
-        var window = new Window();
-        window.MoveAndResize(-10000, -10000, 0, 0);
-        window.Activate();
-        window.Hide();
-        MessageWindow = window.GetWindowHandle();
+        MessageWindow = new Window();
+        MessageWindow.MoveAndResize(-10000, -10000, 0, 0);
+        MessageWindow.Activate();
+        MessageWindow.Hide();
 
         _darkBackgroundHBrush = CreateSolidBrush(ColorTranslator.ToWin32(_darkBackgroundColor));
         _lightBackgroundHBrush = CreateSolidBrush(ColorTranslator.ToWin32(_lightBackgroundColor));
@@ -160,8 +159,7 @@ internal sealed class TrayIconService
 
         TaskbarRestartMessageId = RegisterWindowMessage("TaskbarCreated");
 
-        monitor = new WindowMessageMonitor(
-            MessageWindow); // Cannot use SetWindowSubclass as it make the app crash for some reason
+        monitor = new WindowMessageMonitor(MessageWindow.GetWindowHandle()); // Cannot use SetWindowSubclass as it make the app crash for some reason
         monitor.WindowMessageReceived += WindowSubClass;
 
         if (App.MainWindow != null)
@@ -268,13 +266,13 @@ internal sealed class TrayIconService
 
     public void SetInTray()
     {
-        TrayMessage(MessageWindow, "MediaMaster", hIcon, IntPtr.Zero,
+        TrayMessage(MessageWindow.GetWindowHandle(), "MediaMaster", hIcon, IntPtr.Zero,
             NOTIFY_ICON_MESSAGE.NIM_ADD, NOTIFY_ICON_INFOTIP_FLAGS.NIIF_NONE, null, null);
     }
 
     private void RemoveFromTray()
     {
-        TrayMessage(MessageWindow, null, IntPtr.Zero, IntPtr.Zero,
+        TrayMessage(MessageWindow.GetWindowHandle(), null, IntPtr.Zero, IntPtr.Zero,
             NOTIFY_ICON_MESSAGE.NIM_DELETE, NOTIFY_ICON_INFOTIP_FLAGS.NIIF_NONE, null, null);
     }
 
@@ -574,7 +572,7 @@ internal sealed class TrayIconService
         }
     }
 
-    ~TrayIconService()
+    public void Dispose()
     {
         RemoveFromTray();
 
@@ -591,6 +589,8 @@ internal sealed class TrayIconService
         GdiplusShutdown(m_initToken);
         monitor?.Dispose();
         monitor2?.Dispose();
+
+        MessageWindow.Close();
     }
 
     private static bool TrayMessage(IntPtr hWnd, string? sMessage, IntPtr hIcon, IntPtr hBalloonIcon,

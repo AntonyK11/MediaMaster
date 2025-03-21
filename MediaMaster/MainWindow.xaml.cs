@@ -4,6 +4,7 @@ using WinUIEx;
 using H.NotifyIcon.EfficiencyMode;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Views;
+using Microsoft.UI.Windowing;
 using static MediaMaster.WIn32.WindowsNativeValues;
 using static MediaMaster.WIn32.WindowsApiService;
 //using Microsoft.UI.Windowing;
@@ -14,6 +15,8 @@ namespace MediaMaster;
 
 public sealed partial class MainWindow : WindowEx
 {
+    private bool _hideWindow = false;
+
     public MainWindow()
     {
         this.InitializeComponent();
@@ -22,10 +25,14 @@ public sealed partial class MainWindow : WindowEx
 
         ExtendsContentIntoTitleBar = true;
 
+        AppWindow.Closing += (_, _) => _hideWindow = true;
         Closed += MainWindow_Closed;
-        MinHeight = 48 + 9;
-
+        //var guid = Guid.Parse("062CC97A-F929-4B5C-AD20-90EFCFEF6428");
         InitializeTheme();
+
+        //MinHeight = 48 + 9;
+        ((OverlappedPresenter)AppWindow.Presenter).PreferredMinimumWidth = 400;
+        ((OverlappedPresenter)AppWindow.Presenter).PreferredMinimumHeight = 48 + 9;
 
         //DisplayArea displayArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest);
         //this.Move((int)((displayArea.WorkArea.Width - Width) / 5), (int)((displayArea.WorkArea.Height - Height) / 2));
@@ -33,6 +40,12 @@ public sealed partial class MainWindow : WindowEx
 
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
+        if (!_hideWindow)
+        {
+            return;
+        }
+        _hideWindow = false;
+
         if (App.GetService<SettingsService>().LeaveAppRunning)
         {
             args.Handled = true;
