@@ -1,13 +1,17 @@
-﻿using System.Drawing;
-using System.Runtime.InteropServices;
-using MediaMaster.Extensions;
+﻿using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using Windows.Graphics;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using WinUI3Localizer;
 using WinUIEx;
-using WinUIEx.Messaging;
 using static MediaMaster.WIn32.WindowsApiService;
 using static MediaMaster.WIn32.WindowsNativeValues;
 using Size = Windows.Foundation.Size;
+using WindowMessageEventArgs = WinUIEx.Messaging.WindowMessageEventArgs;
+using WindowMessageMonitor = WinUIEx.Messaging.WindowMessageMonitor;
+using MediaMaster.WIn32;
 
 
 namespace MediaMaster.Services;
@@ -79,35 +83,17 @@ internal sealed class TrayIconService
     public const int FF_SCRIPT = 4 << 4; /* Cursive, etc. */
     public const int FF_DECORATIVE = 5 << 4; /* Old English, etc. */
 
-    public const int WM_USER = 0x0400;
-    public const int WM_TRAYMOUSEMESSAGE = WM_USER + 1024;
-
-    public const int WM_CONTEXTMENU = 0x007B;
-    public const int WM_LBUTTONDOWN = 0x0201;
-    public const int WM_LBUTTONUP = 0x0202;
-    public const int WM_LBUTTONDBLCLK = 0x0203;
-    public const int WM_RBUTTONDOWN = 0x0204;
-    public const int WM_RBUTTONUP = 0x0205;
-    public const int WM_ENTERMENULOOP = 0x0211;
-    public const int WM_EXITMENULOOP = 0x0212;
-    public const int WM_INITMENUPOPUP = 0x0117;
-    public const int WM_UNINITMENUPOPUP = 0x0125;
-
-    public const int WM_DRAWITEM = 0x002B;
-    public const int WM_MEASUREITEM = 0x002C;
-
     private readonly Color _darkBackgroundColor = Color.FromArgb(44, 44, 44);
     private readonly IntPtr _darkBackgroundHBrush;
 
     private readonly Color _darkBackgroundPointerOverBrush = Color.FromArgb(56, 56, 56);
-
     private readonly Color _darkDividerStroke = Color.FromArgb(61, 61, 61);
-
     private readonly Color _darkForegroundBrush = Color.FromArgb(255, 255, 255);
-
     private readonly Color _darkForegroundBrushDisabled = Color.FromArgb(121, 121, 121);
+
     private readonly Color _lightBackgroundColor = Color.FromArgb(249, 249, 249);
     private readonly IntPtr _lightBackgroundHBrush;
+
     private readonly Color _lightBackgroundPointerOverBrush = Color.FromArgb(240, 240, 240);
     private readonly Color _lightDividerStroke = Color.FromArgb(234, 234, 234);
     private readonly Color _lightForegroundBrush = Color.FromArgb(26, 26, 26);
@@ -122,7 +108,7 @@ internal sealed class TrayIconService
     public Color ForegroundBrush = Color.Empty;
     private Color ForegroundBrushDisabled = Color.Empty;
 
-    private readonly IntPtr hIcon;
+    private readonly IntPtr trayHIcon;
     private IntPtr hImageList = IntPtr.Zero;
     public ICollection<IntPtr> hMenus = [];
     private readonly UIntPtr m_initToken = UIntPtr.Zero;
@@ -132,10 +118,12 @@ internal sealed class TrayIconService
     public Window MessageWindow;
     private readonly WindowMessageMonitor? monitor;
     private readonly WindowMessageMonitor? monitor2;
+    private readonly WindowMessageMonitor? monitor3;
 
     private readonly uint TaskbarRestartMessageId;
 
     public IntPtr trayHMenu;
+    public IntPtr windowHMenu;
 
     public TrayIconService()
     {
@@ -166,20 +154,33 @@ internal sealed class TrayIconService
         {
             monitor2 = new WindowMessageMonitor(App.MainWindow);
             monitor2.WindowMessageReceived += WindowSubClass;
+
+            var inputNonClientPointerSourceHandle = FindWindowEx(App.MainWindow.GetWindowHandle(), IntPtr.Zero, "InputNonClientPointerSource", "");
+            if (inputNonClientPointerSourceHandle != IntPtr.Zero)
+            {
+                monitor3 = new WindowMessageMonitor(inputNonClientPointerSourceHandle);
+                monitor3.WindowMessageReceived += WindowSubClass;
+            }
+
+            windowHMenu = GetSystemMenu(App.MainWindow.GetWindowHandle(), false);
+            SetMenuItemInfo(windowHMenu, 0xF120);
+            SetMenuItemInfo(windowHMenu, 0xF010);
+            SetMenuItemInfo(windowHMenu, 0xF000);
+            SetMenuItemInfo(windowHMenu, 0xF020);
+            SetMenuItemInfo(windowHMenu, 0xF030);
+            SetMenuItemInfo(windowHMenu, 0, true);
+            SetMenuItemInfo(windowHMenu, 0xF060);
+            hMenus.Add(windowHMenu);
         }
 
-        hIcon = LoadImage(IntPtr.Zero, @"Assets\WindowIcon.ico", GDI_IMAGE_TYPE.IMAGE_ICON, 32, 32,
-            IMAGE_FLAGS.LR_LOADFROMFILE);
 
-        trayHMenu = CreateMenu();
+        trayHIcon = LoadImage(IntPtr.Zero, @"Assets\WindowIcon.ico", GDI_IMAGE_TYPE.IMAGE_ICON, 32, 32, IMAGE_FLAGS.LR_LOADFROMFILE);
+
+        trayHMenu = CreateTrayMenu();
+        hMenus.Add(trayHMenu);
 
         SetTheme(App.GetService<IThemeSelectorService>().ActualTheme);
         App.GetService<IThemeSelectorService>().ThemeChanged += (_, theme) => SetTheme(theme);
-    }
-
-    private static int LOWORD(int n)
-    {
-        return n & 0xffff;
     }
 
     private void SetTheme(ElementTheme theme)
@@ -266,7 +267,7 @@ internal sealed class TrayIconService
 
     public void SetInTray()
     {
-        TrayMessage(MessageWindow.GetWindowHandle(), "MediaMaster", hIcon, IntPtr.Zero,
+        TrayMessage(MessageWindow.GetWindowHandle(), "MediaMaster", trayHIcon, IntPtr.Zero,
             NOTIFY_ICON_MESSAGE.NIM_ADD, NOTIFY_ICON_INFOTIP_FLAGS.NIIF_NONE, null, null);
     }
 
@@ -276,7 +277,7 @@ internal sealed class TrayIconService
             NOTIFY_ICON_MESSAGE.NIM_DELETE, NOTIFY_ICON_INFOTIP_FLAGS.NIIF_NONE, null, null);
     }
 
-    private IntPtr CreateMenu()
+    private static IntPtr CreateTrayMenu()
     {
         var hMenu = CreatePopupMenu();
 
@@ -311,8 +312,6 @@ internal sealed class TrayIconService
         Marshal.StructureToPtr(odmd, pODMD, false);
         ModifyMenu(hMenu, 2, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW, 2, pODMD);
 
-        UpdateMenuBackground(hMenu);
-        hMenus.Add(hMenu);
         return hMenu;
     }
 
@@ -351,13 +350,14 @@ internal sealed class TrayIconService
                         PostMessage(hWnd, 0, 0, 0);
                         if (nCmd != 0 && App.MainWindow != null)
                         {
-                            if (nCmd == 0x1)
+                            switch (nCmd)
                             {
-                                App.MainWindow.Show();
-                            }
-                            else if (nCmd == 0x2)
-                            {
-                                App.Shutdown();
+                                case 1:
+                                    App.MainWindow.Show();
+                                    break;
+                                case 2:
+                                    App.Shutdown();
+                                    break;
                             }
                         }
 
@@ -371,8 +371,16 @@ internal sealed class TrayIconService
                         break;
                     }
                 }
-            }
                 break;
+            }
+            case WM_INITMENUPOPUP:
+            {
+                var hWndMenu = FindWindow("#32768", "");
+                var preference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
+                DwmSetWindowAttribute(hWndMenu, DwmWindowAttribute.WindowCornerPreference, ref preference, sizeof(uint));
+
+                break;
+            }
             case WM_DRAWITEM:
             {
                 var dis = Marshal.PtrToStructure<DRAWITEMSTRUCT>(lParam);
@@ -382,45 +390,7 @@ internal sealed class TrayIconService
                 IntPtr hPen;
                 IntPtr hPenOld;
                 IntPtr hBrush;
-                IntPtr hBrushOld;
 
-                var menu_hwnd = FindWindow("#32768", "");
-                var preference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-                DwmSetWindowAttribute(menu_hwnd, DwmWindowAttribute.WindowCornerPreference, ref preference,
-                    sizeof(uint));
-
-                //Debug.WriteLine(0x00000001 | 0x00000002 | 0x00000004);
-                //DWM_BLURBEHIND bb = new()
-                //{
-                //    dwFlags = 0x00000001 | (uint)(0x00000002 | 0x00000004),
-                //    fEnable = true,
-                //    hRgnBlur = PInvoke.CreateRectRgn(0, 0, -1, -1),
-                //    fTransitionOnMaximized = true
-                //};
-                //var result = PInvoke.DwmEnableBlurBehindWindow(menu_hwnd, &bb);
-                //Debug.WriteLine(result.Succeeded);
-                //PInvoke.DeleteObject(bb.hRgnBlur);
-
-                //MARGINS margins = new() { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 };
-                //PInvoke.DwmExtendFrameIntoClientArea(menu_hwnd, in margins);
-
-                //DWMWINDOWATTRIBUTE attribute = (Environment.OSVersion.Version.Build < 22523)
-                //    ? (DWMWINDOWATTRIBUTE)1029 // Undocumented BACKDROP attribute
-                //    : DWMWINDOWATTRIBUTE.DwmWindowAttribute;
-                //var attributeValue = (Environment.OSVersion.Version.Build < 22523) ? 1 : (int)WindowsNativeValues.DwSystemBackdropType.TransientWindow;
-                //result = PInvoke.DwmSetWindowAttribute(menu_hwnd, attribute, &attributeValue, sizeof(int));
-                //Debug.WriteLine(result.Succeeded);
-
-                //WindowsNativeValues.WindowCompositionAttributeData winCompAttrData = new()
-                //{
-                //    Attribute = WindowsNativeValues.WindowCompositionAttribute.AccentPolicy,
-                //    Data = Marshal.UnsafeAddrOfPinnedArrayElement([(int)WindowsNativeValues.AccentState.AccentEnableAcrylicBlurBehind], 0),
-                //    SizeOfData = sizeof(int)
-                //};
-                //WindowsApiService.SetWindowCompositionAttribute(menu_hwnd, ref winCompAttrData);
-
-                //attributeValue = 1;
-                //PInvoke.DwmSetWindowAttribute(menu_hwnd, DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &attributeValue, sizeof(int));
                 if (App.MainWindow == null) return;
                 var scaleAdjustment = App.MainWindow.Content.XamlRoot.RasterizationScale;
 
@@ -436,7 +406,6 @@ internal sealed class TrayIconService
                     hPenOld = SelectObject(dis.hDC, hPen);
 
                     hBrush = CreateSolidBrush(ColorTranslator.ToWin32(BackgroundBrushPointerOver));
-                    hBrushOld = SelectObject(dis.hDC, hBrush);
                 }
                 else
                 {
@@ -444,8 +413,8 @@ internal sealed class TrayIconService
                     hPenOld = SelectObject(dis.hDC, hPen);
 
                     hBrush = CreateSolidBrush(ColorTranslator.ToWin32(BackgroundColor));
-                    hBrushOld = SelectObject(dis.hDC, hBrush);
                 }
+                var hBrushOld = SelectObject(dis.hDC, hBrush);
 
                 RoundRect(dis.hDC, rcBack.left, rcBack.top, rcBack.right, rcBack.bottom, (int)(8 * scaleAdjustment),
                     (int)(8 * scaleAdjustment));
@@ -528,8 +497,8 @@ internal sealed class TrayIconService
                         ICON_DRAW_STYLE.DI_NORMAL
                     );
                 }
-            }
                 break;
+            }
             case WM_MEASUREITEM:
             {
                 var mis = Marshal.PtrToStructure<MEASUREITEMSTRUCT>(lParam);
@@ -567,8 +536,8 @@ internal sealed class TrayIconService
                 }
 
                 Marshal.StructureToPtr(mis, lParam, false);
-            }
                 break;
+            }
         }
     }
 
@@ -576,9 +545,9 @@ internal sealed class TrayIconService
     {
         RemoveFromTray();
 
-        if (hIcon != IntPtr.Zero)
+        if (trayHIcon != IntPtr.Zero)
         {
-            DestroyIcon(hIcon);
+            DestroyIcon(trayHIcon);
         }
 
         if (hImageList != IntPtr.Zero)
@@ -589,6 +558,7 @@ internal sealed class TrayIconService
         GdiplusShutdown(m_initToken);
         monitor?.Dispose();
         monitor2?.Dispose();
+        monitor3?.Dispose();
 
         MessageWindow.Close();
     }
@@ -652,5 +622,78 @@ internal sealed class TrayIconService
 
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
         public string text;
+    }
+
+    private static void SetMenuItemInfo(IntPtr hMenu, uint item, bool separator = false)
+    {
+        if (separator)
+        {
+            TrayIconService.ODM_DATA odmd = new()
+            {
+                text = "",
+                hBitmap = IntPtr.Zero,
+                hasIcon = true
+            };
+            var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
+            Marshal.StructureToPtr(odmd, pODMD, false);
+            ModifyMenu(hMenu, item,
+                MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW | MENU_ITEM_FLAGS.MF_SEPARATOR, item,
+                pODMD);
+            return;
+        }
+
+        var mif = new MENUITEMINFOW
+        {
+            cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
+            fMask = MENU_ITEM_MASK.MIIM_TYPE,
+            fType = MENU_ITEM_TYPE.MFT_BITMAP,
+            dwTypeData = new IntPtr()
+        };
+        // First call to get the length of the string
+        GetMenuItemInfo(hMenu, item, false, ref mif);
+        mif.cch += 1;
+        var ptr = Marshal.AllocHGlobal((int)mif.cch * sizeof(char));
+        mif.dwTypeData = ptr;
+        // Second call to get the actual string
+        GetMenuItemInfo(hMenu, item, false, ref mif);
+
+        if (mif.fType == MENU_ITEM_TYPE.MFT_STRING && !separator)
+        {
+            var text = Marshal.PtrToStringUni(mif.dwTypeData);
+
+            if (text != null)
+            {
+                TrayIconService.ODM_DATA odmd = new()
+                {
+                    text = text,
+                    hBitmap = mif.hbmpItem,
+                    hasIcon = true
+                };
+                var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
+                Marshal.StructureToPtr(odmd, pODMD, false);
+
+                ModifyMenu(hMenu, item, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW, item, pODMD);
+            }
+        }
+        else
+        {
+            var itemInfo1 = new MENUITEMINFOW
+            {
+                cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
+                fMask = MENU_ITEM_MASK.MIIM_TYPE,
+                fType = MENU_ITEM_TYPE.MFT_OWNERDRAW
+            };
+            WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo1);
+        }
+
+        Marshal.FreeHGlobal(ptr);
+
+        var itemInfo = new MENUITEMINFOW
+        {
+            cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
+            fMask = MENU_ITEM_MASK.MIIM_BITMAP,
+            hbmpItem = IntPtr.Zero
+        };
+        WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo);
     }
 }

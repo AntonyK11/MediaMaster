@@ -169,7 +169,7 @@ public static partial class WindowsApiService
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool Shell_NotifyIcon(NOTIFY_ICON_MESSAGE dwMessage, in NOTIFYICONDATAW lpData);
 
-    [DllImport("User32.dll", EntryPoint = "RegisterWindowMessageA")]
+    [DllImport("USER32.dll", EntryPoint = "RegisterWindowMessageA")]
     internal static extern uint RegisterWindowMessage(string lpString);
 
     [LibraryImport("USER32.dll", EntryPoint = "GetMenuItemInfoW", SetLastError = true)]
@@ -186,11 +186,17 @@ public static partial class WindowsApiService
     [LibraryImport("OLE32.dll")]
     internal static partial void OleUninitialize();
 
-
     [LibraryImport("COMCTL32.dll")]
     internal static partial IntPtr ImageList_GetIcon(IntPtr himl, int i, IMAGE_LIST_DRAW_STYLE flags);
 
-    [LibraryImport("User32.dll")]
+    [LibraryImport("USER32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool DrawIconEx(IntPtr hdc, int xLeft, int yTop, IntPtr hIcon, int cxWidth, int cyWidth, uint istepIfAniCur, IntPtr hbrFlickerFreeDraw, ICON_DRAW_STYLE diFlags);
+
+    [LibraryImport("USER32.dll", EntryPoint = "FindWindowExA", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+
+    [LibraryImport("USER32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool DestroyWindow(IntPtr hWnd);
 }

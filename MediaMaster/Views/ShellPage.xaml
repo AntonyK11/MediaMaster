@@ -6,6 +6,7 @@
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:controls="using:MediaMaster.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:devWinUi="using:DevWinUI"
     xmlns:helpers="using:MediaMaster.Helpers"
     xmlns:l="using:WinUI3Localizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -52,11 +53,11 @@
                     MaxWidth="480"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
-                    winUiCommunity:Growl.GrowlParent="True"
+                    devWinUi:Growl.GrowlParent="True"
                     Orientation="Vertical">
                     <StackPanel.Resources>
-                        <Style BasedOn="{StaticResource GrowlStyle}" TargetType="winUiCommunity:Growl" />
-                        <Style x:Key="GrowlStyle" TargetType="winUiCommunity:Growl">
+                        <Style BasedOn="{StaticResource GrowlStyle}" TargetType="devWinUi:Growl" />
+                        <Style x:Key="GrowlStyle" TargetType="devWinUi:Growl">
                             <Setter Property="IsOpen" Value="True" />
                         </Style>
                     </StackPanel.Resources>

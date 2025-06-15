@@ -8,9 +8,9 @@ using MediaMaster.Views;
 using Microsoft.UI.Dispatching;
 using Windows.Storage;
 using System.Text.Json;
-using MediaMaster.DataBase;
 using MediaMaster.Services.Navigation;
 using MediaMaster.Helpers;
+using MediaMaster.Services.SystemMenu;
 using WinUIEx;
 
 namespace MediaMaster;

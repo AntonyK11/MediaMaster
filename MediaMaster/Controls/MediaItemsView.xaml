@@ -6,10 +6,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:devWinUi="using:DevWinUI"
     xmlns:local="using:MediaMaster.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:uniformGridLayout="using:MediaMaster.UniformGridLayout"
-    xmlns:winUiCommunity="using:WinUICommunity"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -175,7 +175,7 @@
             </ItemsView.Resources>
         </ItemsView>
 
-        <winUiCommunity:PagerControl
+        <devWinUi:PagerControl
             x:Name="PagerControl"
             Grid.Row="2"
             ButtonPanelAlwaysShowFirstLastPageIndex="True"

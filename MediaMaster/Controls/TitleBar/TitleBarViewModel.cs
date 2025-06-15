@@ -39,20 +39,6 @@ public sealed partial class TitleBarViewModel : ObservableObject
         {
             App.MainWindow.ExtendsContentIntoTitleBar = true;
             App.MainWindow.Activated += MainWindow_Activated;
-
-            var hWnd = App.MainWindow.GetWindowHandle();
-            var hMenu = GetSystemMenu(hWnd, false);
-
-            SetMenuItemInfo(hMenu, 0xF120);
-            SetMenuItemInfo(hMenu, 0xF010);
-            SetMenuItemInfo(hMenu, 0xF000);
-            SetMenuItemInfo(hMenu, 0xF020);
-            SetMenuItemInfo(hMenu, 0xF030);
-            SetMenuItemInfo(hMenu, 0, true);
-            SetMenuItemInfo(hMenu, 0xF060);
-
-            App.GetService<TrayIconService>().UpdateMenuBackground(hMenu);
-            App.GetService<TrayIconService>().hMenus.Add(hMenu);
         }
 
         _titleBar = titleBar;
@@ -190,7 +176,7 @@ public sealed partial class TitleBarViewModel : ObservableObject
         GeneralTransform ttv = ((UIElement)sender).TransformToVisual(App.MainWindow!.Content);
         Point screenCords = ttv.TransformPoint(new Point(0, 0));
         Point menuPos = new(
-            AppWindow.Position.X + screenCords.X * scaleAdjustment,
+            AppWindow.Position.X + (screenCords.X - 8) * scaleAdjustment,
             AppWindow.Position.Y + _titleBar.ActualHeight * scaleAdjustment);
         
         ShowMenu(menuPos);
@@ -204,133 +190,25 @@ public sealed partial class TitleBarViewModel : ObservableObject
 
         Point pos = args.GetPosition(App.MainWindow!.Content);
         Point menuPos = new(
-            AppWindow.Position.X + pos.X * scaleAdjustment,
-            AppWindow.Position.Y + pos.Y * scaleAdjustment);
+            AppWindow.Position.X + (pos.X + 9) * scaleAdjustment,
+            AppWindow.Position.Y + (pos.Y + 2) * scaleAdjustment);
         
         ShowMenu(menuPos);
     }
 
     /// <summary>
     ///     Handles the click event on the application icon.
-    ///     When the icon is clicked, the system menu is opened at the position of the mouse cursor with the appropriate items
-    ///     enabled/disabled.
+    ///     When the icon is clicked, the system menu is opened at the position of the mouse cursor
     /// </summary>
     /// <param name="pos"> The position of the mouse cursor. </param>
     private static void ShowMenu(Point pos)
     {
         if (App.MainWindow == null) return;
 
-        var hWnd = App.MainWindow.GetWindowHandle();
-        var hMenu = GetSystemMenu(hWnd, false);
+        var x = (int)pos.X;
+        var y = (int)pos.Y;
+        nint lParam = (y << 16 | x);
 
-        SetMenuItemInfo(hMenu, 0xF120);
-        SetMenuItemInfo(hMenu, 0xF010);
-        SetMenuItemInfo(hMenu, 0xF000);
-        SetMenuItemInfo(hMenu, 0xF020);
-        SetMenuItemInfo(hMenu, 0xF030);
-        SetMenuItemInfo(hMenu, 0, true);
-        SetMenuItemInfo(hMenu, 0xF060);
-
-        if (App.MainWindow.WindowState == WindowState.Normal)
-        {
-            _ = EnableMenuItem(hMenu, 0xF120, MENU_ITEM_FLAGS.MF_GRAYED); // Restore Disabled
-            _ = EnableMenuItem(hMenu, 0xF010, MENU_ITEM_FLAGS.MF_ENABLED); // Move Enabled
-            _ = EnableMenuItem(hMenu, 0xF000, MENU_ITEM_FLAGS.MF_ENABLED); // Size Enabled
-            _ = EnableMenuItem(hMenu, 0xF020, MENU_ITEM_FLAGS.MF_ENABLED); // Minimize Enabled
-            _ = EnableMenuItem(hMenu, 0xF030, MENU_ITEM_FLAGS.MF_ENABLED); // Maximize Enabled
-            _ = EnableMenuItem(hMenu, 0xF060, MENU_ITEM_FLAGS.MF_ENABLED); // Close Enabled
-        }
-        else
-        {
-            _ = EnableMenuItem(hMenu, 0xF120, MENU_ITEM_FLAGS.MF_ENABLED); // Restore Enabled
-            _ = EnableMenuItem(hMenu, 0xF010, MENU_ITEM_FLAGS.MF_GRAYED); // Move Disabled
-            _ = EnableMenuItem(hMenu, 0xF000, MENU_ITEM_FLAGS.MF_GRAYED); // Size Disabled
-            _ = EnableMenuItem(hMenu, 0xF020, MENU_ITEM_FLAGS.MF_ENABLED); // Minimize Enabled
-            _ = EnableMenuItem(hMenu, 0xF030, MENU_ITEM_FLAGS.MF_GRAYED); // Maximize Disabled
-            _ = EnableMenuItem(hMenu, 0xF060, MENU_ITEM_FLAGS.MF_ENABLED); // Close Enabled
-        }
-
-        var scaleAdjustment = App.MainWindow.Content.XamlRoot.RasterizationScale;
-
-        _ = SendMessage(hWnd, WM_INITMENU, hMenu, IntPtr.Zero);
-        var cmd = TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)(pos.X + 9 * scaleAdjustment),
-            (int)(pos.Y + 2 * scaleAdjustment), 0, hWnd, IntPtr.Zero);
-        if (cmd > 0)
-        {
-            _ = SendMessage(hWnd, WM_SYSCOMMAND, cmd, IntPtr.Zero);
-        }
-    }
-
-    private static void SetMenuItemInfo(IntPtr hMenu, uint item, bool separator = false)
-    {
-        if (separator)
-        {
-            TrayIconService.ODM_DATA odmd = new()
-            {
-                text = "",
-                hBitmap = IntPtr.Zero,
-                hasIcon = true
-            };
-            var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
-            Marshal.StructureToPtr(odmd, pODMD, false);
-            ModifyMenu(hMenu, item,
-                MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW | MENU_ITEM_FLAGS.MF_SEPARATOR, item,
-                pODMD);
-            return;
-        }
-
-        var mif = new MENUITEMINFOW
-        {
-            cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
-            fMask = MENU_ITEM_MASK.MIIM_TYPE,
-            fType = MENU_ITEM_TYPE.MFT_BITMAP,
-            dwTypeData = new IntPtr()
-        };
-        // First call to get the length of the string
-        GetMenuItemInfo(hMenu, item, false, ref mif);
-        mif.cch += 1;
-        var ptr = Marshal.AllocHGlobal((int)mif.cch * sizeof(char));
-        mif.dwTypeData = ptr;
-        // Second call to get the actual string
-        GetMenuItemInfo(hMenu, item, false, ref mif);
-
-        if (mif.fType == MENU_ITEM_TYPE.MFT_STRING && !separator)
-        {
-            var text = Marshal.PtrToStringUni(mif.dwTypeData);
-
-            if (text != null)
-            {
-                TrayIconService.ODM_DATA odmd = new()
-                {
-                    text = text,
-                    hBitmap = mif.hbmpItem,
-                    hasIcon = true
-                };
-                var pODMD = Marshal.AllocHGlobal(Marshal.SizeOf(odmd));
-                Marshal.StructureToPtr(odmd, pODMD, false);
-
-                ModifyMenu(hMenu, item, MENU_ITEM_FLAGS.MF_BYCOMMAND | MENU_ITEM_FLAGS.MF_OWNERDRAW, item, pODMD);
-            }
-        }
-        else
-        {
-            var itemInfo1 = new MENUITEMINFOW
-            {
-                cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
-                fMask = MENU_ITEM_MASK.MIIM_TYPE,
-                fType = MENU_ITEM_TYPE.MFT_OWNERDRAW
-            };
-            WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo1);
-        }
-
-        Marshal.FreeHGlobal(ptr);
-
-        var itemInfo = new MENUITEMINFOW
-        {
-            cbSize = (uint)Marshal.SizeOf<MENUITEMINFOW>(),
-            fMask = MENU_ITEM_MASK.MIIM_BITMAP,
-            hbmpItem = IntPtr.Zero
-        };
-        WindowsApiService.SetMenuItemInfo(hMenu, item, false, itemInfo);
+        Task.Run(() => SendMessage(App.MainWindow.GetWindowHandle(), WM_NCRBUTTONUP, 2, lParam));
     }
 }

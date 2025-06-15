@@ -10,10 +10,29 @@ namespace MediaMaster.WIn32;
 /// </summary>
 public static class WindowsNativeValues
 {
-    public const int
-        WM_INITMENU = 0x0116,
-        WM_SYSCOMMAND = 0x0112,
-        TPM_RETURNCMD = 0x0100;
+
+    public const int WM_INITMENU = 0x0116;
+    public const int WM_SYSCOMMAND = 0x0112;
+    public const int TPM_RETURNCMD = 0x0100;
+
+    public const int WM_USER = 0x0400;
+    public const int WM_TRAYMOUSEMESSAGE = WM_USER + 1024;
+
+    public const int WM_CONTEXTMENU = 0x007B;
+    public const int WM_LBUTTONDOWN = 0x0201;
+    public const int WM_LBUTTONUP = 0x0202;
+    public const int WM_LBUTTONDBLCLK = 0x0203;
+    public const int WM_RBUTTONDOWN = 0x0204;
+    public const int WM_RBUTTONUP = 0x0205;
+    public const int WM_ENTERMENULOOP = 0x0211;
+    public const int WM_EXITMENULOOP = 0x0212;
+    public const int WM_INITMENUPOPUP = 0x0117;
+    public const int WM_UNINITMENUPOPUP = 0x0125;
+    public const int WM_NCLBUTTONDOWN = 0x00A1;
+    public const int WM_NCRBUTTONUP = 0x00A5;
+
+    public const int WM_DRAWITEM = 0x002B;
+    public const int WM_MEASUREITEM = 0x002C;
 
     public enum AccentState
     {
@@ -873,6 +892,40 @@ public static class WindowsNativeValues
         Normal = 0x00000002,
         Error = 0x00000004,
         Paused = 0x00000008
+    }
+
+    [Flags]
+    internal enum SystemCommands
+    {
+        SC_CLOSE = 0xF060,
+        SC_CONTEXTHELP = 0xF180,
+        SC_DEFAULT = 0xF160,
+        SC_HOTKEY = 0xF150,
+        SC_HSCROLL = 0xF080,
+        SCF_ISSECURE = 0x00000001,
+        SC_KEYMENU = 0xF100,
+        SC_MAXIMIZE = 0xF030,
+        SC_MINIMIZE = 0xF020,
+        SC_MONITORPOWER = 0xF170,
+        SC_MOUSEMENU = 0xF090,
+        SC_MOVE = 0xF010,
+        SC_NEXTWINDOW = 0xF040,
+        SC_PREVWINDOW = 0xF050,
+        SC_RESTORE = 0xF120,
+        SC_SCREENSAVE = 0xF140,
+        SC_SIZE = 0xF000,
+        SC_TASKLIST = 0xF130,
+        SC_VSCROLL = 0xF00A,
+    }
+
+    internal static int LOWORD(int n)
+    {
+        return n & 0xffff;
+    }
+
+    internal static int HIWORD(int n)
+    {
+        return (n >> 16) & 0xffff;
     }
 }
 

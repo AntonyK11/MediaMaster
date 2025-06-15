@@ -1,10 +1,10 @@
-﻿using EFCore.BulkExtensions;
+﻿using DevWinUI;
+using EFCore.BulkExtensions;
 using MediaMaster.Extensions;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services;
 using Microsoft.Windows.AppNotifications;
 using WinUI3Localizer;
-using WinUICommunity;
 
 namespace MediaMaster.DataBase;
 

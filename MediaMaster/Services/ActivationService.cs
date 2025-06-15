@@ -1,18 +1,19 @@
 ﻿using Windows.ApplicationModel.Activation;
 using Windows.Storage;
+using DevWinUI;
 using MediaMaster.DataBase;
 using MediaMaster.Interfaces.Services;
 using MediaMaster.Services.Navigation;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
 using WinUI3Localizer;
-using WinUICommunity;
 using MediaMaster.Views.Flyout;
 using Microsoft.UI.Xaml.Media.Animation;
 using WinUIEx;
 using HomePage = MediaMaster.Views.HomePage;
 using ShellPage = MediaMaster.Views.ShellPage;
 using MediaMaster.Views.Dialog;
+using ModernSystemMenu = MediaMaster.Services.SystemMenu.ModernSystemMenu;
 
 namespace MediaMaster.Services;
 

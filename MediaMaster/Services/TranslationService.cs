@@ -25,7 +25,7 @@ public sealed class TranslationService : ITranslationService
         var stringsFolderPath = Path.Combine(AppContext.BaseDirectory, "Strings");
         StorageFolder stringsFolder = await StorageFolder.GetFolderFromPathAsync(stringsFolderPath);
 
-        Localizer = await new LocalizerBuilder()
+        Localizer = new LocalizerBuilder()
             .AddStringResourcesFolderForLanguageDictionaries(stringsFolder.Path)
             .SetOptions(options => { options.DefaultLanguage = DefaultLanguage; })
             .Build();
@@ -38,7 +38,7 @@ public sealed class TranslationService : ITranslationService
         }
 
         ApplicationLanguages.PrimaryLanguageOverride = lang;
-        await Localizer.SetLanguage(lang);
+        Localizer.SetLanguage(lang);
 
         Localizer.LanguageChanged += (_, args) => { OnLanguageChanged(args); };
     }
@@ -47,7 +47,7 @@ public sealed class TranslationService : ITranslationService
     {
         if (Localizer is null) return;
 
-        await Localizer.SetLanguage(language);
+        Localizer.SetLanguage(language);
         ApplicationLanguages.PrimaryLanguageOverride = language;
 
         await SettingsService.SaveSettingAsync(SettingsKey, language, SourceGenerationContext.Default.String);

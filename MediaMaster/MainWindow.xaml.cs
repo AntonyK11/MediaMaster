@@ -23,8 +23,6 @@ public sealed partial class MainWindow : WindowEx
         ExtendsContentIntoTitleBar = true;
         App.GetService<IThemeSelectorService>().ThemeChanged += MainWindow_ThemeChanged;
 
-        ExtendsContentIntoTitleBar = true;
-
         AppWindow.Closing += (_, _) => _hideWindow = true;
         Closed += MainWindow_Closed;
         //var guid = Guid.Parse("062CC97A-F929-4B5C-AD20-90EFCFEF6428");
